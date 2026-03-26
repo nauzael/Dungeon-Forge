@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
+// Deploy Trigger: Syntax verification commit
 import { Character, ViewState } from './types';
 import { MOCK_CHARACTERS } from './constants';
 import CharacterList from './components/CharacterList';
