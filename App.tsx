@@ -262,7 +262,8 @@ const App: React.FC = () => {
     useEffect(() => {
         if (!activeCharacter?.party_id) return;
         
-        const channel = supabase.channel(`party-${activeCharacter.party_id}`).subscribe();
+        const channelName = "party-" + activeCharacter.party_id;
+        const channel = supabase.channel(channelName).subscribe();
         
         return () => {
             channel.unsubscribe();
@@ -293,7 +294,7 @@ const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", url);
-    downloadAnchorNode.setAttribute("download", `dnd_characters_${new Date().toISOString().slice(0,10)}.json`);
+    downloadAnchorNode.setAttribute("download", "dnd_characters_" + new Date().toISOString().slice(0,10) + ".json");
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
@@ -314,7 +315,7 @@ const App: React.FC = () => {
               if (window.confirm(`Found ${parsed.length} characters. Merge?`)) {
                   const newChars = parsed.map(c => ({
                       ...c, 
-                      id: `imp-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
+                      id: "imp-" + Date.now() + "-" + Math.random().toString(36).substring(2, 11)
                   }));
                   setCharacters(prev => [...prev, ...newChars]);
               }
