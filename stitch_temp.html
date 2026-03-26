@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html class="dark" data-lt-installed="true" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dungeon Forge - The Dark Codex</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#004d67",
+              "tertiary-fixed-dim": "#b6c4ff",
+              "surface": "#0e131e",
+              "inverse-surface": "#dee2f2",
+              "tertiary": "#c6d1ff",
+              "primary-container": "#4fc3f7",
+              "on-secondary-container": "#a4b7cd",
+              "error": "#ffb4ab",
+              "outline": "#889299",
+              "on-tertiary-fixed-variant": "#28418e",
+              "surface-container": "#1b1f2b",
+              "tertiary-fixed": "#dce1ff",
+              "surface-container-lowest": "#090e19",
+              "on-tertiary": "#092977",
+              "primary-fixed-dim": "#75d1ff",
+              "inverse-on-surface": "#2b303c",
+              "on-background": "#dee2f2",
+              "on-error-container": "#ffdad6",
+              "error-container": "#93000a",
+              "secondary-fixed-dim": "#b5c8df",
+              "surface-bright": "#343945",
+              "on-tertiary-fixed": "#00164f",
+              "outline-variant": "#3e484f",
+              "on-error": "#690005",
+              "surface-dim": "#0e131e",
+              "tertiary-container": "#a0b4ff",
+              "surface-variant": "#303541",
+              "primary": "#9adbff",
+              "background": "#0e131e",
+              "on-primary-container": "#004e69",
+              "secondary-container": "#36485b",
+              "secondary": "#b5c8df",
+              "on-tertiary-container": "#2a438f",
+              "secondary-fixed": "#d1e4fb",
+              "on-secondary": "#203243",
+              "surface-container-highest": "#303541",
+              "surface-container-low": "#171b27",
+              "on-primary-fixed": "#001e2b",
+              "on-surface-variant": "#bdc8d0",
+              "on-secondary-fixed-variant": "#36485b",
+              "on-secondary-fixed": "#091d2e",
+              "surface-tint": "#75d1ff",
+              "primary-fixed": "#c2e8ff",
+              "on-surface": "#dee2f2",
+              "inverse-primary": "#006688",
+              "surface-container-high": "#252a36",
+              "on-primary": "#003548"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
+    }
+.leather-bg {
+    background-color: #080b12;
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(154, 219, 255, 0.05) 0%, transparent 50%),
+        url(https://lh3.googleusercontent.com/aida-public/AB6AXuAtlmpW9OmtvfbfCmLJo1AmjJ67NDIE0H4uXA3IeQ56LKmxLxatsb3SeAwLLjMAe625i24Hwiq3wxwtU2nH2U32MHMLkBkF2AaTkKZPgiZT1ex9roAqDlt_WZJz9sWWUSEZI86oII4liP3W4ukLdt_mpzOy0i33AjkvodEMcXUozVCMc7-DJ4_xU0rP7z6qdUHDtsMt9dGpj8bDI1UswGKbc5P-JRQaYQqkiVcHdvsfXhUYx59McUEq1tvok1yE_XlIbxMlpYrLS23B);
+    background-blend-mode: overlay;
+    }
+.gold-shimmer {
+    background: linear-gradient(135deg, #9adbff 0%, #4fc3f7 50%, #9adbff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent
+    }
+.iron-border {
+    box-shadow: inset 0 0 0 1px rgba(154, 219, 255, 0.1), 0 0 20px rgba(0, 0, 0, 0.5)
+    }
+.app-title-glow {
+    text-shadow: 0 0 20px rgba(154, 219, 255, 0.3), 0 0 40px rgba(154, 219, 255, 0.1);
+}
+</style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-[#080b12] text-on-surface font-body selection:bg-primary/30 min-h-screen leather-bg overflow-x-hidden">
+<main class="pb-32 px-6 max-w-7xl mx-auto relative pt-8">
+<!-- Atmospheric Vignette -->
+<div class="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,transparent_0%,rgba(8,11,18,0.4)_100%)]"></div>
+<!-- Background Corner Pieces (Decorative) -->
+<div class="fixed top-8 left-8 w-16 h-16 border-t-2 border-l-2 border-[#9adbff]/20 pointer-events-none"></div>
+<div class="fixed top-8 right-8 w-16 h-16 border-t-2 border-r-2 border-[#9adbff]/20 pointer-events-none"></div>
+<!-- App Branding Title -->
+<div class="text-center space-y-2 relative mb-6">
+<span class="text-[10px] font-bold text-[#9adbff]/50 tracking-[0.4em] uppercase"></span>
+<h1 class="text-5xl md:text-7xl font-headline font-bold tracking-tighter text-on-surface app-title-glow" style="font-variant: small-caps;">Dungeon Forge</h1>
+<div class="h-px w-32 bg-gradient-to-r from-transparent via-[#9adbff]/30 to-transparent mx-auto mt-4"></div>
+</div>
+<!-- Header Section -->
+<!-- Character Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Character Card: Vermund -->
+<div class="group relative bg-surface-container-high rounded-xl overflow-hidden iron-border transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
+<div class="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-transparent z-10"></div>
+<!-- Card Frame Ornament -->
+<div class="absolute top-4 right-4 z-20 opacity-30 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[#9adbff]">shield_with_heart</span>
+</div>
+<div class="h-80 overflow-hidden">
+<img alt="Vermund" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-110 group-hover:scale-100" data-alt="Gritty portrait of a Wood Elf Ranger with weathered features, green leather armor, forest background, dramatic low-key lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXKnFvtUF--RotAD9O4dVktKv4olrLmwD9jL2C2zx8lH-zvsWIUQXWhvhalcEcjCXRf9OswFVrPIReQ2KWOhJNDuBkVj1kSEsGW5rgNyVDNE-YUfqnJjZSZa-x0Jz1hIKOAtUnbrkZP9WR8OH4LcIi_Seaf9aswU5RlkpYpgCnTF3jVJbMdySK6Peo48v-tm7NRUai60tmPYTOtIHnmYyFrqOwPMpY2AdeEXcbBviZ2WwYaze0FLsrIXaBEV0VgEjm_lxz3UXZOQiy"/>
+</div>
+<div class="p-6 relative z-20 -mt-20">
+<div class="bg-surface-container-lowest/80 backdrop-blur-md p-5 rounded-lg border-t border-[#9adbff]/10">
+<div class="flex justify-between items-end mb-4">
+<div>
+<h3 class="text-3xl font-headline font-bold text-on-surface tracking-tight">Vermund</h3>
+<p class="text-[#9adbff] font-bold text-sm tracking-widest uppercase">Ranger • Wood Elf</p>
+</div>
+<div class="text-right">
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold tracking-tighter">Level</span>
+<span class="text-2xl font-headline font-extrabold text-on-surface">08</span>
+</div>
+</div>
+<!-- Stats Mini-Row -->
+<div class="grid grid-cols-3 gap-2 border-t border-outline-variant/30 pt-4">
+<div class="text-center">
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold">STR</span>
+<span class="text-on-surface font-headline font-bold">12</span>
+</div>
+<div class="text-center">
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold">DEX</span>
+<span class="text-on-surface font-headline font-bold">19</span>
+</div>
+<div class="text-center">
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold">WIS</span>
+<span class="text-on-surface font-headline font-bold">16</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Character Card: Torwil -->
+<div class="group relative bg-surface-container-high rounded-xl overflow-hidden iron-border transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
+<div class="absolute inset-0 bg-gradient-to-t from-[#080b12] via-transparent to-transparent z-10"></div>
+<div class="absolute top-4 right-4 z-20 opacity-30 group-hover:opacity-100 transition-opacity text-[#9adbff]">
+<span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>auto_awesome</span>
+</div>
+<div class="h-80 overflow-hidden">
+<img alt="Torwil" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-110 group-hover:scale-100" data-alt="Ethereal portrait of an Aasimar Monk with glowing golden patterns on skin, white robes, celestial light beaming from above" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4MPQQbuaJx9mOJNNGvrqMojA_vvmQPCIZb31quEE9jw3YuUMQvfuovBdGLZrhUDzngUfw0OuGigHCKxKdvlZd0BY3Lk4FGTbJlzwaZy11CQ9rmxqunH0p8Yc4ZyfPSUReVgUnrLWBAS6POUiZ4SjTG44Cz4unuw-7fyi4mIO7wMgWQ8YVomvDgy_FpaaIsV58eUxP8PcZ3aJlDD7FryUIcdjLO0zDyO2wuEqecSztT98sw4ROQ6VraJiLxBIItrxG3z3PSqLAuxoJ"/>
+</div>
+<div class="p-6 relative z-20 -mt-20">
+<div class="bg-surface-container-lowest/80 backdrop-blur-md p-5 rounded-lg border-t border-[#9adbff]/10">
+<div class="flex justify-between items-end mb-4">
+<div>
+<h3 class="text-3xl font-headline font-bold text-on-surface tracking-tight">Torwil</h3>
+<p class="text-[#9adbff] font-bold text-sm tracking-widest uppercase">Monk • Aasimar</p>
+</div>
+<div class="text-right">
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold tracking-tighter">Level</span>
+<span class="text-2xl font-headline font-extrabold text-on-surface">12</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-2 border-t border-outline-variant/30 pt-4">
+<div class="text-center">
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold">DEX</span>
+<span class="text-on-surface font-headline font-bold">18</span>
+</div>
+<div class="text-center">
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold">WIS</span>
+<span class="text-on-surface font-headline font-bold">18</span>
+</div>
+<div class="text-center">
+<span class="block text-[10px] text-on-surface-variant uppercase font-bold">CHA</span>
+<span class="text-on-surface font-headline font-bold">14</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Add Character Action -->
+<button class="group relative flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed border-[#9adbff]/20 rounded-xl bg-[#0e131e]/40 hover:bg-[#1b1f2b]/60 hover:border-[#9adbff]/40 transition-all duration-300 overflow-hidden">
+<!-- Heavy Iron Button Style -->
+<div class="relative z-20 bg-[#1b1f2b] p-8 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.5)] border-4 border-[#303541] group-hover:border-[#9adbff]/40 transition-colors">
+<span class="material-symbols-outlined text-5xl text-on-surface-variant group-hover:text-[#9adbff] transition-transform duration-500 group-hover:rotate-90">add</span>
+</div>
+<div class="mt-6 text-center z-20">
+<span class="text-xl font-headline font-bold text-on-surface tracking-widest uppercase">Bind New Soul</span>
+<p class="text-on-surface-variant text-sm mt-2 opacity-60">Manifest a new hero into the codex</p>
+</div>
+<!-- Inner Glow for Action -->
+<div class="absolute inset-0 bg-[#9adbff]/0 group-hover:bg-[#9adbff]/5 transition-colors pointer-events-none"></div>
+</button>
+</div>
+<!-- Quick Stats Overlay (Asymmetric Magazine Layout) -->
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-[#080b12]/90 backdrop-blur-2xl border-t border-[#9adbff]/10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center text-[#9adbff] bg-[#9adbff]/10 rounded-xl px-3 py-1 transition-all duration-300 ease-out scale-110" href="#">
+<span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>auto_stories</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-tighter mt-1">Vault</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#dee2f2]/40 hover:bg-[#303541] hover:text-[#9adbff] transition-all" href="#">
+<span class="material-symbols-outlined">auto_fix_high</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-tighter mt-1">Spells</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#dee2f2]/40 hover:bg-[#303541] hover:text-[#9adbff] transition-all" href="#">
+<span class="material-symbols-outlined">swords</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-tighter mt-1">Combat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#dee2f2]/40 hover:bg-[#303541] hover:text-[#9adbff] transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-tighter mt-1">Social</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#dee2f2]/40 hover:bg-[#303541] hover:text-[#9adbff] transition-all" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-['Manrope'] text-[10px] font-semibold uppercase tracking-tighter mt-1">Compendium</span>
+</a>
+</nav>
+</body></html>

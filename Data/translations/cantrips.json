@@ -1,0 +1,30 @@
+{
+  "cantrips": {
+    "Acid Splash": "Creas una burbuja ácida en un punto dentro del alcance, donde explota en una esfera de 5 pies. Cada criatura en esa esfera debe superar una tirada de resistencia de Destreza o recibir 1d6 de daño ácido.",
+    "Blade Ward": "Mientras el hechizo dure, cada vez que una criatura haga una tirada de ataque contra ti antes del final del turno, el atacante resta 1d6 a la tirada de ataque.",
+    "Chill Touch": "Canalizando el frío de la tumba, haz un ataque de hechizo cuerpo a cuerpo contra un objetivo dentro de alcance. Si impacta, el objetivo recibe 1d10 de daño necrótico, y no puede recuperar puntos de golpe hasta el final de tu siguiente turno.",
+    "Dancing Lights": "Creas hasta cuatro luces del tamaño de antorchas dentro del alcance, haciéndolas aparecer como antorchas, linternas u orbes brillantes. Alternativamente, combinas las cuatro luces en una forma mediana brillante vagamente humanoide.",
+    "Druidcraft": "Susurrando a los espíritus de la naturaleza, creas uno de los siguientes efectos dentro del alcance: Sensor de Clima, Floración, Efecto Sensorial o Juego con Fuego.",
+    "Eldritch Blast": "Lanzas un rayo de energía crepitante. Haz un ataque de hechizo a distancia contra una criatura u objeto en alcance. Si impacta, el objetivo recibe 1d10 de daño de fuerza.",
+    "Elementalism": "Ejerces control sobre los elementos, creando uno de los siguientes efectos: Invocar Aire, Invocar Tierra, Invocar Fuego, Invocar Agua o Esculpir Elemento.",
+    "Fire Bolt": "Lanzas una mota de fuego contra una criatura u objeto dentro del alcance. Si impacta, el objetivo recibe 1d10 de daño de fuego. Un objeto inflamable comienza a arder si no se está llevando puesto.",
+    "Friends": "Emites mágicamente una sensación de amistad hacia una criatura que puedes ver dentro del alcance. El objetivo debe superar una tirada de resistencia de Sabiduría o tener la condición Encantado durante la duración.",
+    "Guidance": "Tocas a una criatura dispuesta y eliges una habilidad. Hasta que el hechizo termine, la criatura suma 1d4 a cualquier prueba de habilidad usando la habilidad elegida.",
+    "Light": "Tocas un objeto Grande o más pequeño que no esté siendo usado o transportado por otra persona. Hasta que el hechizo termine, el objeto emite Luz Brillante en un radio de 20 pies y Luz Tenue por otros 20 pies.",
+    "Mage Hand": "Una mano espectral y flotante aparece en un punto que eliges dentro del alcance. La mano dura toda la duración y puede manipular objetos, abrir puertas, o verter el contenido de un frasco.",
+    "Mending": "Este hechizo repara un solo roto o desgarro en un objeto que tocas, como un eslabón roto de cadena, dos mitades de una llave rota, o una capa rasgada.",
+    "Message": "Señalas hacia una criatura dentro del alcance y susurras un mensaje. El objetivo (y solo el objetivo) escucha el mensaje y puede responder en un susurro que solo tú puedes escuchar.",
+    "Mind Sliver": "Intentas romper temporalmente la mente de una criatura que puedes ver dentro del alcance. El objetivo debe superar una tirada de resistencia de Inteligencia o recibir 1d6 de daño psíquico y restar 1d6 de la siguiente tirada de resistencia.",
+    "Minor Illusion": "Creas un sonido o una imagen de un objeto dentro del alcance que dura toda la duración. La ilusión termina si lanzas el hechizo de nuevo.",
+    "Poison Spray": "Rociarás niebla tóxica sobre una criatura dentro del alcance. Haz un ataque de hechizo a distancia contra el objetivo. Si impacta, el objetivo recibe 1d12 de daño de veneno.",
+    "Prestidigitation": "Creas un efecto mágico dentro del alcance. Elige entre: Efecto Sensorial, Juego con Fuego, Limpiar o Manchar, Sensación Menor, Marca Mágica o Creación Menor.",
+    "Produce Flame": "Una llama parpadeante aparece en tu mano y permanece allí durante la duración. Mientras esté, la llama no emite calor ni enciende nada, pero ilumina. Puedes lanzar fuego como acción mágica.",
+    "Ray of Frost": "Un rayo de luz azul-blanco frío se dirige hacia una criatura dentro del alcance. Si impacta, el objetivo recibe 1d8 de daño de frío y su Velocidad se reduce 10 pies.",
+    "Resistance": "Tocas a una criatura dispuesta y eliges un tipo de daño. Cuando la criatura reciba daño del tipo elegido antes de que el hechizo termine, reduce el daño total recibido en 1d6.",
+    "Sacred Flame": "Un resplandor similar a llamas desciende sobre una criatura que puedes ver dentro del alcance. El objetivo debe superar una tirada de resistencia de Destreza o recibir 1d8 de daño radiante.",
+    "Shillelagh": "Un bastón o quarterly que sostienes se impregna con el poder de la naturaleza. Puedes usar tu habilidad de lanzamiento de hechizos en lugar de Fuerza para las tiradas de ataque y daño.",
+    "Shocking Grasp": "El rayo sale de ti hacia una criatura que intentas tocar. Haz un ataque de hechizo cuerpo a cuerpo. Si impacta, el objetivo recibe 1d8 de daño de relámpago y no puede hacer Ataques de Oportunidad.",
+    "Sorcerous Burst": "Lanzas energía sorcerer a una criatura u objeto dentro del alcance. Haz una tirada de ataque a distancia. Si impacta, el objetivo recibe 1d8 de daño de un tipo que elijas.",
+    "Spare the Dying": "Eliges una criatura dentro del alcance que tenga 0 puntos de golpe y no esté muerta. La criatura se estabiliza."
+  }
+}

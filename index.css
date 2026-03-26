@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --sat: calc(env(safe-area-inset-top) / 2);
+  --sar: env(safe-area-inset-right);
+  --sab: env(safe-area-inset-bottom);
+  --sal: env(safe-area-inset-left);
+}
+
+.safe-top { padding-top: var(--sat); }
+.safe-bottom { padding-bottom: var(--sab); }
+.safe-left { padding-left: var(--sal); }
+.safe-right { padding-right: var(--sar); }
+
+body {
+  min-height: 100vh;
+  background-color: #0f1729;
+  overscroll-behavior-y: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Fix for double arrows in select elements */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+/* Dungeon Forge Stitch UI Utilities */
+.leather-bg {
+    background-color: #0f1729;
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(154, 219, 255, 0.05) 0%, transparent 50%),
+        url("https://lh3.googleusercontent.com/aida-public/AB6AXuAtlmpW9OmtvfbfCmLJo1AmjJ67NDIE0H4uXA3IeQ56LKmxLxatsb3SeAwLLjMAe625i24Hwiq3wxwtU2nH2U32MHMLkBkF2AaTkKZPgiZT1ex9roAqDlt_WZJz9sWWUSEZI86oII4liP3W4ukLdt_mpzOy0i33AjkvodEMcXUozVCMc7-DJ4_xU0rP7z6qdUHDtsMt9dGpj8bDI1UswGKbc5P-JRQaYQqkiVcHdvsfXhUYx59McUEq1tvok1yE_XlIbxMlpYrLS23B");
+    background-blend-mode: overlay;
+}
+
+.gold-shimmer {
+    background: linear-gradient(135deg, #9adbff 0%, #4fc3f7 50%, #9adbff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.iron-border {
+    box-shadow: inset 0 0 0 1px rgba(154, 219, 255, 0.1), 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.app-title-glow {
+    text-shadow: 0 0 20px rgba(154, 219, 255, 0.3), 0 0 40px rgba(154, 219, 255, 0.1);
+}
