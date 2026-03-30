@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Character } from '../../types';
 import { SPELL_DETAILS, SPELL_LIST_BY_CLASS, CANTRIPS_KNOWN_BY_LEVEL, SPELLS_KNOWN_BY_LEVEL, MAX_SPELL_LEVEL, SPELLCASTING_ABILITY, ARCANE_SPELLS } from '../../Data/spells';
 import { SCHOOL_THEMES, formatModifier, getFinalStats, getSpellSummary } from '../../utils/sheetUtils';
+import useGameData from '../../hooks/useGameData';
 
 interface SpellsTabProps {
     character: Character;
@@ -64,6 +65,7 @@ const getProgressiveValue = (table: Record<number, number> | undefined, level: n
 };
 
 const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }) => {
+    const { getSpellDisplayName } = useGameData();
     const t = {
         save_dc: 'Save DC',
         attack_bonus: 'Attack Bonus',
@@ -453,7 +455,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                       </div>
                       <div>
                           <div className="flex items-center gap-2">
-                             <h3 className="text-white font-bold leading-tight truncate">{spell.name}</h3>
+                              <h3 className="text-white font-bold leading-tight truncate">{getSpellDisplayName(spell.name)}</h3>
                              {isPactSpell && <span className="text-[8px] font-black bg-blue-500 text-white px-1 rounded uppercase tracking-tighter">{t.pact_source}</span>}
                           </div>
                           <div className="flex gap-2 mt-0.5 items-center">
@@ -574,7 +576,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                                            <div className="flex items-center justify-between">
                                                <div className="flex items-center gap-3">
                                                    <div className={`w-2 h-2 rounded-full ${isPrepared ? 'bg-primary shadow-[0_0_8px_rgba(53,158,255,1)] animate-pulse' : isBlocked ? 'bg-red-500/50' : 'bg-slate-500'}`}></div>
-                                                   <p className={`font-bold transition-colors ${isPrepared ? 'text-primary' : 'text-white group-hover:text-primary/70'}`}>{name}</p>
+                                                    <p className={`font-bold transition-colors ${isPrepared ? 'text-primary' : 'text-white group-hover:text-primary/70'}`}>{getSpellDisplayName(name)}</p>
                                                </div>
                                                <span className={`material-symbols-outlined text-slate-500 text-lg transition-transform duration-300 ${isExpanded ? 'rotate-180 text-primary' : ''}`}>expand_more</span>
                                            </div>
@@ -636,7 +638,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                         <>
                             <div className="flex justify-between items-start mb-5">
                                 <div className="min-w-0 pr-4">
-                                    <h3 className="text-2xl font-black text-slate-900 dark:text-white leading-tight break-words">{selectedSpellName}</h3>
+                                     <h3 className="text-2xl font-black text-slate-900 dark:text-white leading-tight break-words">{getSpellDisplayName(selectedSpellName)}</h3>
                                     <div className="flex flex-wrap gap-2 mt-2">
                                         <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-wider ${summary.classes}`}>
                                             <span className="material-symbols-outlined text-[12px]">{summary.icon}</span>

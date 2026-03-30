@@ -3,11 +3,12 @@ import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Character, Ability, Trait } from '../../types';
 import { SPECIES_DETAILS, CLASS_DETAILS, CLASS_PROGRESSION, SUBCLASS_OPTIONS, ELDRITCH_INVOCATIONS } from '../../Data/characterOptions';
-import { FEAT_OPTIONS, GENERIC_FEATURES } from '../../Data/feats';
+import { GENERIC_FEATURES } from '../../Data/feats';
 import { CANTRIPS } from '../../Data/spells/cantrips';
 import { LEVEL1 } from '../../Data/spells/level1';
 import { SPELL_DETAILS } from '../../Data/spells';
 import { getFinalStats } from '../../utils/sheetUtils';
+import useFeatOptions from '../../hooks/useFeatOptions';
 
 interface FeaturesTabProps {
     character: Character;
@@ -31,6 +32,7 @@ const ICON_MAP: Record<string, string> = {
 
 const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOnly }) => {
     const [selectedFeature, setSelectedFeature] = useState<FeatureItem | null>(null);
+    const { featOptions: FEAT_OPTIONS, getFeatDisplayName, getFeatDescription } = useFeatOptions();
     
     const [showInvocationsModal, setShowInvocationsModal] = useState(false);
     const [invocationSearch, setInvocationSearch] = useState('');
@@ -102,8 +104,8 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         }
 
         character.feats.forEach(f => {
-            const featOpt = FEAT_OPTIONS.find(fo => fo.name === f);
-            list.push({ name: f, description: featOpt?.description || 'Special ability or feat.', level: 1, source: 'Feat' });
+            const description = getFeatDescription(f) || 'Special ability or feat.';
+            list.push({ name: getFeatDisplayName(f), description, level: 1, source: 'Feat' });
         });
 
         if (character.invocations) {
@@ -348,7 +350,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                     </div>
                     <div className="p-4 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 text-xs font-bold text-center border-b border-emerald-500/10 uppercase tracking-tighter">Choose an Origin Feat (Level 1)</div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                        {FEAT_OPTIONS.filter(f => f.description.includes('Origin Feat') && !character.feats?.includes(f.name)).map(feat => (
+                        {FEAT_OPTIONS.filter(f => f.category === 'Origin' && !character.feats?.includes(f.name)).map(feat => (
                             <button key={feat.name} onClick={() => { selectOriginFeatForLessons(feat.name); setShowOriginFeatSelector(false); setShowInvocationsModal(false); }} className="w-full text-left p-4 rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 hover:border-emerald-500/40 transition-all group">
                                 <span className="block font-bold text-base text-slate-900 dark:text-white group-hover:text-emerald-500 mb-1">{feat.name}</span>
                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">{feat.description}</p>
@@ -438,7 +440,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                         <div className="w-10"></div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                        {FEAT_OPTIONS.filter(f => f.description.includes('Origin Feat') && !character.feats?.includes(f.name)).map(feat => (
+                        {FEAT_OPTIONS.filter(f => f.category === 'Origin' && !character.feats?.includes(f.name)).map(feat => (
                             <button key={feat.name} onClick={() => {
                                 const currentFeat = targetLessonsInstance?.match(/\((.*)\)/)?.[1];
                                 if (currentFeat) {
