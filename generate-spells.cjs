@@ -4,8 +4,10 @@ const path = require('path');
 const INPUT = 'spells-extracted.json';
 const OUTPUT_DIR_EN = 'Data/spells/en';
 const OUTPUT_DIR_ES = 'Data/spells/es';
+const SPELL_NAMES_ES = 'Data/translations/es/spell-names.json';
 
 const data = JSON.parse(fs.readFileSync(INPUT, 'utf8'));
+const spellNamesES = JSON.parse(fs.readFileSync(SPELL_NAMES_ES, 'utf8'));
 
 function escapeForJS(str) {
   return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n');
@@ -41,14 +43,16 @@ function generateFileES(levelName, spells, exportName) {
 export const ${exportName}: Record<string, SpellDetail> = {
 `;
   spells.forEach(spell => {
-    const key = esc(spell.name);
+    const enName = spell.name;
+    const esName = spellNamesES[enName] || enName;
+    const key = esc(esName);
     out += `  "${key}":{level:${spell.level},school:'${esc(spell.school)}',castingTime:'${esc(spell.castingTime)}',range:'${esc(spell.range)}',components:'${esc(spell.components)}',duration:'${esc(spell.duration)}',description:'${formatDescription(spell.description)}',name:'${key}'},
 `;
   });
   out += `};
 `;
   fs.writeFileSync(path.join(OUTPUT_DIR_ES, `${levelName}.ts`), out, 'utf8');
-  console.log(`Written ${OUTPUT_DIR_ES}/${levelName}.ts with ${spells.length} spells`);
+  console.log(`Written ${OUTPUT_DIR_ES}/${levelName}.ts with ${spells.length} spells (Spanish names)`);
 }
 
 generateFileEN('cantrips', data.cantrips, 'CANTRIPS');

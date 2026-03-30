@@ -4,7 +4,7 @@ import { BackgroundData } from '../../../types';
 // Do not edit manually - regenerate with: node generate-backgrounds.cjs
 
 export const BACKGROUND_DATA: Record<string, BackgroundData> = {
-    'Acolyte': {
+    'Acólito': {
         description: 'Devoto al servicio en un templo.',
         scores: ['INT', 'WIS', 'CHA'],
         feat: 'Iniciado en la Magia (Clérigo)',
@@ -13,7 +13,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Suministros de Caligrafía',
         equipment: ['Suministros de Caligrafía', 'Libro (Oraciones)', 'Símbolo Sagrado', 'Pergamino (10)', 'Túnica', '8 PO']
     },
-    'Artisan': {
+    'Artesano': {
         description: 'Empezaste como aprendiz de artesano.',
         scores: ['STR', 'DEX', 'INT'],
         feat: 'Fabricante',
@@ -22,7 +22,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Herramientas de Artesano',
         equipment: ['Herramientas de Artesano', 'Bolsa (2)', 'Ropa de Viajero', '32 PO']
     },
-    'Charlatan': {
+    'Charlatán': {
         description: 'Aprendiste a engañar para sobrevivir.',
         scores: ['DEX', 'CON', 'CHA'],
         feat: 'Habilidoso',
@@ -40,7 +40,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Herramientas de Ladrón',
         equipment: ['Herramientas de Ladrón', 'Daga (2)', 'Palanca', 'Bolsa (2)', 'Ropa de Viajero', '16 PO']
     },
-    'Entertainer': {
+    'Artista': {
         description: 'Prosperas bajo el aplauso del público.',
         scores: ['STR', 'DEX', 'CHA'],
         feat: 'Músico',
@@ -49,7 +49,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Instrumento Musical',
         equipment: ['Instrumento Musical', 'Disfraz (2)', 'Espejo', 'Perfume', 'Ropa de Viajero', '11 PO']
     },
-    'Farmer': {
+    'Granjero': {
         description: 'Creciste cerca de la tierra y la naturaleza.',
         scores: ['STR', 'CON', 'WIS'],
         feat: 'Duro',
@@ -58,7 +58,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Herramientas de Carpintero',
         equipment: ['Herramientas de Carpintero', 'Hoz', 'Kit de Curación', 'Olla de Hierro', 'Pala', 'Ropa de Viajero', '30 PO']
     },
-    'Guard': {
+    'Guardia': {
         description: 'Entrenado para vigilar contra peligros.',
         scores: ['STR', 'INT', 'WIS'],
         feat: 'Alerta',
@@ -67,7 +67,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Juego de Juego',
         equipment: ['Juego de Juego', 'Lanza', 'Ballesta Ligera', 'Virotes (20)', 'Linterna Encapuchada', 'Grilletes', 'Carcaj', 'Ropa de Viajero', '12 PO']
     },
-    'Guide': {
+    'Guía': {
         description: 'Creciste al aire libre, lejos de la ciudad.',
         scores: ['DEX', 'CON', 'WIS'],
         feat: 'Iniciado en la Magia (Druida)',
@@ -76,7 +76,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Herramientas de Cartógrafo',
         equipment: ['Herramientas de Cartógrafo', 'Arco Corto', 'Flechas (20)', 'Saco de Dormir', 'Carcaj', 'Tienda de Campaña', 'Ropa de Viajero', '3 PO']
     },
-    'Hermit': {
+    'Ermitaño': {
         description: 'Pasaste tus primeros años en reclusión.',
         scores: ['CON', 'WIS', 'CHA'],
         feat: 'Sanador',
@@ -85,7 +85,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Kit de Herboristería',
         equipment: ['Kit de Herboristería', 'Bastón', 'Saco de Dormir', 'Libro (Filosofía)', 'Lámpara', 'Aceite (3)', 'Ropa de Viajero', '16 PO']
     },
-    'Merchant': {
+    'Comerciante': {
         description: 'Aprendiz de comerciante o tendero.',
         scores: ['CON', 'INT', 'CHA'],
         feat: 'Afortunado',
@@ -103,7 +103,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Juego de Juego',
         equipment: ['Juego de Juego', 'Ropa Fina', 'Perfume', '29 PO']
     },
-    'Sage': {
+    'Erudito': {
         description: 'Pasaste noches estudiando libros y pergaminos.',
         scores: ['CON', 'INT', 'WIS'],
         feat: 'Iniciado en la Magia (Mago)',
@@ -112,7 +112,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Suministros de Caligrafía',
         equipment: ['Suministros de Caligrafía', 'Bastón', 'Libro (Historia)', 'Pergamino (8)', 'Túnica', '8 PO']
     },
-    'Sailor': {
+    'Marinero': {
         description: 'Viviste como marino, con el viento a tu espalda.',
         scores: ['STR', 'DEX', 'WIS'],
         feat: 'Matón de Taberna',
@@ -121,7 +121,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Herramientas de Navegante',
         equipment: ['Herramientas de Navegante', 'Daga', 'Cuerda', 'Ropa de Viajero', '20 PO']
     },
-    'Scribe': {
+    'Escriba': {
         description: 'Aprendiste a escribir con mano clara.',
         scores: ['DEX', 'INT', 'WIS'],
         feat: 'Habilidoso',
@@ -130,7 +130,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Suministros de Caligrafía',
         equipment: ['Suministros de Caligrafía', 'Ropa Fina', 'Lámpara', 'Aceite (3)', 'Pergamino (12)', '23 PO']
     },
-    'Soldier': {
+    'Soldado': {
         description: 'Entrenado para la guerra desde joven.',
         scores: ['STR', 'DEX', 'CON'],
         feat: 'Atacante Salvaje',
@@ -139,7 +139,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
         tool: 'Juego de Juego',
         equipment: ['Juego de Juego', 'Lanza', 'Arco Corto', 'Flechas (20)', 'Kit de Curación', 'Carcaj', 'Ropa de Viajero', '14 PO']
     },
-    'Wayfarer': {
+    'Viajero': {
         description: 'Creciste en las calles, recurriendo al robo.',
         scores: ['DEX', 'WIS', 'CHA'],
         feat: 'Afortunado',

@@ -4,6 +4,9 @@ const path = require('path');
 const MANUAL = fs.readFileSync('docs/Manual/02-species-backgrounds.md', 'utf8');
 const OUTPUT_DIR_EN = 'Data/backgrounds/en';
 const OUTPUT_DIR_ES = 'Data/backgrounds/es';
+const BACKGROUND_NAMES_ES = 'Data/translations/es/background-names.json';
+
+const bgNamesES = JSON.parse(fs.readFileSync(BACKGROUND_NAMES_ES, 'utf8'));
 
 const backgrounds = {
   // === COMMON BACKGROUNDS ===
@@ -247,7 +250,8 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
 `;
   Object.keys(backgrounds).forEach(name => {
     const bg = backgrounds[name];
-    out += `    '${esc(name)}': {
+    const keyName = isSpanish ? (bgNamesES[name] || name) : name;
+    out += `    '${esc(keyName)}': {
 `;
     out += `        description: '${esc(isSpanish ? bg.description : bg.descriptionEn)}',
 `;
