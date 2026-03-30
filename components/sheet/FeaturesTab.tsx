@@ -12,6 +12,7 @@ import { getFinalStats } from '../../utils/sheetUtils';
 interface FeaturesTabProps {
     character: Character;
     onUpdate: (char: Character) => void;
+    isReadOnly?: boolean;
 }
 
 interface FeatureItem {
@@ -28,7 +29,7 @@ const ICON_MAP: Record<string, string> = {
     'Feat': 'military_tech' 
 };
 
-const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate }) => {
+const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOnly }) => {
     const [selectedFeature, setSelectedFeature] = useState<FeatureItem | null>(null);
     
     const [showInvocationsModal, setShowInvocationsModal] = useState(false);
@@ -119,6 +120,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate }) => {
     }, [character]);
 
     const toggleInvocation = (name: string) => {
+        if (isReadOnly) return;
         const current = character.invocations || [];
         if (name === 'Lessons of the First Ones') {
             if (current.length < maxInvocations) setShowOriginFeatSelector(true);
@@ -134,6 +136,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate }) => {
     };
 
     const selectOriginFeatForLessons = (featName: string) => {
+        if (isReadOnly) return;
         const currentInvs = character.invocations || [];
         const currentFeats = character.feats || [];
         const currentLessons = character.lessonsFeats || [];
@@ -154,6 +157,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate }) => {
     };
 
     const removeInvocationWithFeat = (fullInvName: string) => {
+        if (isReadOnly) return;
         const currentInvs = character.invocations || [];
         const currentFeats = character.feats || [];
         const currentLessons = character.lessonsFeats || [];
@@ -222,7 +226,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate }) => {
                                     <h4 className="text-[10px] font-black text-fuchsia-600 dark:text-fuchsia-400 uppercase tracking-wider leading-none mb-1">Manifest Powers</h4>
                                     <p className="text-sm font-bold text-slate-700 dark:text-white truncate">{currentInvocationsCount} Active Invocations</p>
                                 </div>
-                                <button onClick={() => setShowInvocationTray(true)} className="px-4 py-2.5 rounded-2xl bg-fuchsia-600 hover:bg-fuchsia-500 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-fuchsia-500/20 active:scale-95 transition-all whitespace-nowrap shrink-0">Open Tray</button>
+                                <button onClick={() => setShowInvocationTray(true)} className="px-4 py-2.5 rounded-2xl bg-fuchsia-600 hover:bg-fuchsia-500 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-fuchsia-500/20 active:scale-95 transition-all whitespace-nowrap shrink-0">{isReadOnly ? 'View Tray' : 'Open Tray'}</button>
                             </div>
                         </div>
                     </div>

@@ -1,0 +1,160 @@
+================================================================================
+AUDITORIA 01: CLASSES
+Manual: docs/Manual/01-classes.md
+Data:   Data/classes/classes-en.ts
+================================================================================
+
+### Artificer
+  Hit Die: DIF MANUAL D8 vs DATA Dnull
+  Saving Throws: DIF MANUAL [CON, INT] vs DATA []
+  Subclasses: DIF
+    MANUAL (21): [Alchemist, Armorer, Artillerist, Battle Smith, Cartographer...]
+    DATA   (0): []
+
+### Barbarian
+  Hit Die: OK D12
+  Saving Throws: OK [STR, CON]
+  Subclasses: DIF
+    MANUAL (26): [Path Of The Berserker, Path Of The Wild Heart, Path Of The World Tree, Path Of The Zealot, Enter Rage as Bonus Action (not in Heavy armor). Number of Rages per day shown in table....]
+    DATA   (22): [Path of the Berserker, Frenzy, Mindless Rage, Retaliation, Intimidating Presence, Path of the World Tree, Vitality of the Tree, Branches of the Tree, Battering Roots, Travel along the Tree, Path of the Wild Heart, Animal Speaker, Rage of the Wilds, Aspect of the Wilds, Nature Speaker, Power of the Wilds, Path of the Zealot, Divine Fury, Warrior of the Gods, Fanatical Focus, Zealous Presence, Rage of the Gods]
+
+### Bard
+  Hit Die: OK D8
+  Saving Throws: OK [DEX, CHA]
+  Subclasses: DIF
+    MANUAL (22): [College of Dance, College of Glamour, College of Lore, College of the Moon, College of Valor...]
+    DATA   (10): [College of Lore, Lore Keeper, Cutting Words, Peerless Skill, Masterful Secrets, College of Valor, Combat Inspiration, Inspiring Surge, Battle Magic, Masterful Combatant]
+
+### Cleric
+  Hit Die: OK D8
+  Saving Throws: OK [WIS, CHA]
+  Subclasses: DIF
+    MANUAL (11): [Knowledge Domain, Life Domain, Light Domain, Trickery Domain, War Domain...]
+    DATA   (6): [Life Domain, Disciple of Life, Preserve Life, Blessed Healer, Divine Strike, Supreme Healing]
+
+### Druid
+  Hit Die: OK D8
+  Saving Throws: OK [INT, WIS]
+  Subclasses: DIF
+    MANUAL (20): [Circle of the Land, Circle of the Moon, Circle of the Sea, Circle of the Stars, Cast spells through studying mystical forces of nature....]
+    DATA   (6): [Circle of the Land, Land\, Natural Recovery, Land\, Nature\, Nature\]
+
+### Fighter
+  Hit Die: OK D10
+  Saving Throws: OK [STR, CON]
+  Subclasses: DIF
+    MANUAL (20): [Banneret, Battle Master, Champion, Eldritch Knight, Psi Warrior...]
+    DATA   (18): [Champion, Improved Critical, Remarkable Athlete, Additional Fighting Style, Superior Critical, Survivor, Battle Master, Combat Superiority, Student of War, Know Your Enemy, Improved Combat Superiority, Relentless, Eldritch Knight, Spellcasting, Weapon Bond, War Magic, Eldritch Strike, Arcane Charge]
+
+### Monk
+  Hit Die: DIF MANUAL D8 vs DATA D10
+  Saving Throws: OK [STR, DEX]
+  Subclasses: DIF
+    MANUAL (27): [Warrior of Mercy, Warrior of Shadow, Warrior of the Elements, Warrior of the Open Hand, Mastery of combat styles using Unarmed Strike and Monk weapons (Simple Melee and Martial Melee with Light property)....]
+    DATA   (5): [Way of the Open Hand, Open Hand Technique, Wholeness of Body, Tranquility, Quivering Palm]
+
+### Paladin
+  Hit Die: OK D10
+  Saving Throws: OK [WIS, CHA]
+  Subclasses: DIF
+    MANUAL (29): [Oath of Devotion, Oath of Glory, Oath of the Ancients, Oath of the Noble Genies, Oath of Vengeance...]
+    DATA   (25): [Oath of Devotion, Sacred Weapon, Oath of Devotion Spells, Aura of Devotion, Smite of Protection, Holy Nimbus, Oath of Glory, Inspiring Smite, Peerless Athlete, Oath of Glory Spells, Aura of Alacrity, Glorious Defense, Living Legend, Oath of the Ancients, Nature\, Oath of the Ancients Spells, Aura of Warding, Undying Sentinel, Elder Champion, Oath of Vengeance, Vow of Enmity, Oath of Vengeance Spells, Relentless Avenger, Soul of Vengeance, Avenging Angel]
+
+### Ranger
+  Hit Die: OK D10
+  Saving Throws: OK [STR, DEX]
+  Subclasses: DIF
+    MANUAL (23): [Beast Master, Fey Wanderer, Gloom Stalker, Hunter, Winter Walker...]
+    DATA   (24): [Beast Master, Primal Companion, Exceptional Training, Bestial Fury, Share Spells, Fey Wanderer, Dreadful Strike, Otherworldly Glamour, Beguiling Twist, Fey Wilds Summons, Misty Wanderer, Gloom Stalker, Dread Ambusher, Umbral Sight, Gloom Stalker Spells, Iron Mind, Stalker\, Shadowy Dodge, Hunter, Hunter\, Hunter\, Defensive Tactics, Superior Hunter\, Superior Hunter\]
+
+### Rogue
+  Hit Die: OK D8
+  Saving Throws: OK [DEX, INT]
+  Subclasses: DIF
+    MANUAL (23): [Arcane Trickster, Assassin, Scion of the Three, Soulknife, Thief...]
+    DATA   (19): [Arcane Trickster, Spellcasting, Mage Hand Legerdemain, Magical Ambush, Versatile Trickster, Spell Thief, Assassin, Assassinate, Assassin\, Masterful Mimicry, Roving Aim, Envenom Weapons, Death Strike, Thief, Fast Hands, Second-Story Work, Supreme Sneak, Use Magic Device, Thief\]
+
+### Sorcerer
+  Hit Die: OK D6
+  Saving Throws: OK [CON, CHA]
+  Subclasses: DIF
+    MANUAL (29): [Aberrant Sorcery, Clockwork Sorcery, Draconic Sorcery, Spellfire Sorcery, Wild Magic Sorcery...]
+    DATA   (12): [Draconic Sorcery, Draconic Resilience, Draconic Spells, Elemental Affinity, Dragon Wings, Dragon Companion, Wild Magic Sorcery, Wild Magic Surge, Tides of Chaos, Bend Luck, Controlled Chaos, Tamed Surge]
+
+### Warlock
+  Hit Die: OK D8
+  Saving Throws: OK [WIS, CHA]
+  Subclasses: DIF
+    MANUAL (61): [Archfey Patron, Celestial Patron, Fiend Patron, Great Old One Patron, Gain one invocation of your choice (such as Pact of the Tome)....]
+    DATA   (26): [Archfey Patron, Archfey Spells, Steps of the Fey, Misty Escape, Beguiling Defenses, Bewitching Magic, Celestial Patron, Celestial Spells, Healing Light, Radiant Soul, Celestial Resilience, Searing Vengeance, Fiend Patron, Fiend Spells, Dark One\, Dark One\, Fiendish Resilience, Hurl Through Hell, Great Old One Patron, Great Old One Spells, Awakened Mind, Psychic Spells, Clairvoyant Combatant, Eldritch Hex, Thought Shield, Create Thrall]
+
+### Wizard
+  Hit Die: OK D6
+  Saving Throws: OK [INT, WIS]
+  Subclasses: DIF
+    MANUAL (11): [Abjurer, Bladesinger, Diviner, Evoker, Illusionist...]
+    DATA   (24): [Abjurer, Abjuration Savant, Arcane Ward, Projected Ward, Spell Breaker, Spell Resistance, Diviner, Divination Savant, Portent, Expert Divination, The Third Eye, Greater Portent, Evoker, Evocation Savant, Potent Cantrip, Sculpt Spells, Empowered Evocation, Overchannel, Illusionist, Illusion Savant, Improved Illusions, Phantasmal Creatures, Illusory Self, Illusory Reality]
+
+================================================================================
+CLASES RESUMEN: 23 OK, 16 problemas
+================================================================================
+
+================================================================================
+AUDITORIA 02: SPECIES & BACKGROUNDS
+================================================================================
+
+Species:
+  MANUAL: 43 - Aasimar, Aasimar Traits, Dragonborn, Dragonborn Traits, Dwarf...
+  DATA:   11 - dwarf, elf, halfling, human, dragonborn...
+  FALTAN EN DATA (43): Aasimar, Aasimar Traits, Dragonborn, Dragonborn Traits, Dwarf...
+  FALTAN EN MANUAL (11): dwarf, elf, halfling, human, dragonborn...
+
+Backgrounds:
+  MANUAL: 0
+  DATA:   0
+  OK
+
+================================================================================
+
+================================================================================
+AUDITORIA 03: FEATS
+================================================================================
+
+Feats: MANUAL=153, DATA=68
+  FALTAN EN DATA (93): Magic Initiate, Tough, Cult of the Dragon Initiate, Emerald Enclave Fledgling, Harper Agent, Lords, Purple Dragon Rook, Spellfire Spark, Tyro of the Gauntlet, Zhentarim Ruffian...
+  FALTAN EN MANUAL (8): Hardy, Faker, Magic Initiate (Cleric), Magic Initiate (Druid), Magic Initiate (Wizard), Doctor, Mobile, Two-Weapon Fighting...
+
+================================================================================
+
+================================================================================
+AUDITORIA 04: SPELLS
+================================================================================
+
+Spells: MANUAL=431, DATA=383
+  FALTAN EN DATA (72): Hunter's Mark, Spellfire Flare, Tasha's Hideous Laughter, Tenser's Floating Disk, Wardaway, Cloud Of Daggers, Cordon Of Arrows, Crown Of Madness, Death Armor, Deryan's Helpful Homunculi...
+  FALTAN EN MANUAL (28): Hunter\, Tasha\, Tenser\, Cloud of Daggers, Cordon of Arrows, Crown of Madness, Dragon\, Gust of Wind, Melf\, Mind Spike...
+
+================================================================================
+
+================================================================================
+AUDITORIA 05: WEAPONS
+================================================================================
+
+Weapons: MANUAL=167, DATA=105
+  DIFERENCIAS (167): DIF "Club": MANUAL=1d4 Bludgeoning vs DATA=1d4, DIF "Dagger": MANUAL=1d4 Piercing vs DATA=1d4, DIF "Greatclub": MANUAL=1d8 Bludgeoning vs DATA=1d8, DIF "Handaxe": MANUAL=1d6 Slashing vs DATA=1d6, DIF "Javelin": MANUAL=1d6 Piercing vs DATA=1d6...
+  EN DATA PERO NO EN MANUAL (66): Unarmed Strike, Alchemy Jug, Baba Yaga\, Black Dragon Mask, Blue Dragon Mask...
+
+================================================================================
+
+================================================================================
+AUDITORIA 06: MAGIC ITEMS
+================================================================================
+
+Magic Items: MANUAL=546, DATA=382
+  FALTAN EN DATA (511): Adventurer's Ring, Potion of Climbing, Potion of Comprehension, Potion of Healing, Ammunition, +1, +2, or +3, Mariner's Armor, Mind Sharpener, Oil of Slipperiness, Poison Soaked Kukri, Potion of Animal Friendship...
+  FALTAN EN MANUAL (347): 10 GP Gemstone, 50 GP Gemstone, 100 GP Gemstone, 500 GP Gemstone, 1000 GP Gemstone, 5000 GP Gemstone, Art Object (25 GP), Art Object (250 GP), Art Object (750 GP), Art Object (2,500 GP)...
+
+================================================================================
+
+FIN DE AUDITORIA
+================================================================================

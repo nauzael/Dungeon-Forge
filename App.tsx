@@ -25,6 +25,7 @@ const DMDashboard = lazy(() => import('./components/DMDashboard'));
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('list');
+  const [sharedResource, setSharedResource] = useState<any | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [user, setUser] = useState<{name: string, id: string} | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -263,7 +264,17 @@ const App: React.FC = () => {
         if (!activeCharacter?.party_id) return;
         
         const channelName = "party-" + activeCharacter.party_id;
-        const channel = supabase.channel(channelName).subscribe();
+        const channel = supabase.channel(channelName);
+
+        channel.on('broadcast', { event: 'resource-share' }, (payload) => {
+            console.log("[Broadcast] Shared Resource received:", payload.payload.resource);
+            setSharedResource(payload.payload.resource);
+        }).on('broadcast', { event: 'resource-hide' }, () => {
+            console.log("[Broadcast] Resource Hide received");
+            setSharedResource(null);
+        });
+
+        channel.subscribe();
         
         return () => {
             channel.unsubscribe();
@@ -275,6 +286,21 @@ const App: React.FC = () => {
     setCharacters(prev => prev.map(c => c.id === updatedChar.id ? updatedChar : c));
     
     // 2. Broadcast immediately if in a party (Ultra-low latency)
+    if (updatedChar.party_id) {
+        broadcastCharacterUpdate(updatedChar.party_id, updatedChar);
+    }
+  };
+
+  const handleDMCharacterUpdate = async (updatedChar: Character) => {
+    // 1. Update the local observed character state
+    setObservedCharacter(updatedChar);
+
+    // 2. Persist to cloud (Supabase)
+    // We try to preserve the original owner user_id if we have it in the character data
+    const ownerId = (updatedChar as any).user_id || user?.id; 
+    await saveCharacterToCloud(updatedChar, ownerId);
+
+    // 3. Broadcast to the party
     if (updatedChar.party_id) {
         broadcastCharacterUpdate(updatedChar.party_id, updatedChar);
     }
@@ -402,14 +428,38 @@ const App: React.FC = () => {
                     <SheetTabs 
                       character={observedCharacter} 
                       isReadOnly={true}
+                      isObserver={true}
                       onBack={() => setView('dm-dashboard')}
-                      onUpdate={() => {}} // No-op
+                      onUpdate={handleDMCharacterUpdate}
                     />
                   )}
                 </Suspense>
               </>
             )}
           </div>
+            {/* Shared Resource Splash Modal */}
+            {sharedResource && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-fadeIn">
+                    <div className="relative w-full max-w-sm aspect-[3/4] rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl animate-scaleIn">
+                        <img src={sharedResource.url} alt={sharedResource.title} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+                        
+                        <div className="absolute bottom-10 inset-x-8 space-y-3">
+                            <span className="bg-blue-600/20 text-blue-400 text-[10px] font-black uppercase px-2 py-1 rounded-full border border-blue-500/20 tracking-widest">Recurso Compartido</span>
+                            <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none">{sharedResource.title}</h2>
+                            {sharedResource.description && <p className="text-sm font-medium text-slate-300 leading-tight">{sharedResource.description}</p>}
+                        </div>
+
+                        <button 
+                            onClick={() => setSharedResource(null)}
+                            className="absolute top-6 right-6 size-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white active:scale-90 transition-transform"
+                        >
+                            <span className="material-symbols-outlined font-bold">close</span>
+                        </button>
+                    </div>
+                </div>
+            )}
+
         </div>
     </LanguageProvider>
   );

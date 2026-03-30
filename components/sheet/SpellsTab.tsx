@@ -63,7 +63,7 @@ const getProgressiveValue = (table: Record<number, number> | undefined, level: n
     return value;
 };
 
-const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate }) => {
+const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }) => {
     const t = {
         save_dc: 'Save DC',
         attack_bonus: 'Attack Bonus',
@@ -280,12 +280,14 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate }) => {
     const spellMod = Math.floor(((finalStats[spellStat] || 10) - 10) / 2);
 
     const toggleSlot = (level: number, index: number) => {
+        if (isReadOnly) return;
         const key = `${level}-${index}`;
         const newUsed = { ...usedSlots, [key]: !usedSlots[key] };
         onUpdate({ ...character, usedSlots: newUsed });
     };
 
     const togglePreparedSpell = (spellName: string) => {
+        if (isReadOnly) return;
         const current = character.preparedSpells || [];
         const isPrepared = current.includes(spellName);
         const spellData = SPELL_DETAILS[spellName];
@@ -308,7 +310,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate }) => {
     };
 
     const castSpell = (level: number) => {
-        if (level === 0) return; 
+        if (level === 0 || isReadOnly) return; 
         const totalSlots = getSlots(effectiveCasterType, character.level, level);
         let found = false;
         for (let i = 0; i < totalSlots; i++) {

@@ -84,8 +84,18 @@ const CharacterList: React.FC<CharacterListProps> = ({ characters, onCreate, onS
                         <div className="bg-[#090e19]/90 backdrop-blur-xl p-3 rounded-lg border-t border-[#9adbff]/10 shadow-2xl">
                             <div className="flex justify-between items-end mb-2">
                                 <div className="min-w-0 pr-4">
-                                    <h3 className="text-2xl font-bold text-white tracking-tight truncate app-title-glow">{char.name}</h3>
-                                    <p className="text-[#9adbff] font-bold text-[10px] tracking-widest uppercase mt-0.5 truncate">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <h3 className="text-2xl font-bold text-white tracking-tight truncate app-title-glow leading-none">{char.name}</h3>
+                                        {char.party_id && (
+                                            <div className="flex items-center gap-1 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
+                                                <span className="material-symbols-outlined text-[10px] text-blue-400">forum</span>
+                                                <span className="text-[7px] font-black uppercase text-blue-400 tracking-tighter whitespace-nowrap">
+                                                    {char.party_name || 'En Campaña'}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="text-[#9adbff] font-bold text-[10px] tracking-widest uppercase truncate leading-none">
                                         {char.class} • {char.subspecies || char.species}
                                     </p>
                                 </div>

@@ -97,7 +97,7 @@ const WeaponMasteryModal: React.FC<WeaponMasteryModalProps> = ({ currentSlot, se
                             </div>
                             
                             <p className="text-xs text-slate-500 dark:text-slate-200/60 leading-relaxed italic">
-                                {MASTERY_DESCRIPTIONS[weapon.mastery] || ""}
+                                {weapon.mastery && MASTERY_DESCRIPTIONS[weapon.mastery] || ""}
                             </p>
 
                             {isTakenInOtherSlot && (

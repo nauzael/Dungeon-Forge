@@ -83,6 +83,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
     };
 
     const toggleEquip = (itemId: string) => {
+        if (isReadOnly) return;
         const itemToToggle = inventory.find(i => i.id === itemId);
         if (!itemToToggle) return;
         
@@ -121,6 +122,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
     };
 
     const removeItem = (itemId: string) => {
+        if (isReadOnly) return;
         const newInv = inventory.filter(i => i.id !== itemId);
         handleStatChangeUpdate(newInv);
     };

@@ -76,9 +76,17 @@ export const joinParty = async (character: any, code: string) => {
         if (pError) throw new Error(`Conexión: ${pError.message}`);
         if (!party) throw new Error("Mesa no encontrada con este código.");
 
-        // 2. Prepare character data
+        // 2. Prepare character data with the NEW party info
         const characterId = character?.id;
         if (!characterId) throw new Error("Personaje inválido.");
+        
+        // Ensure character only has ONE party_id and store the name for the list view
+        const updatedCharacter = { 
+            ...character, 
+            party_id: party.id,
+            party_name: party.name // Helping the list view show the campaign name
+        };
+        
         const effectiveUserId = character.user_id || 'guest';
         
         // 3. Upsert including party_id
@@ -87,17 +95,17 @@ export const joinParty = async (character: any, code: string) => {
             .upsert({ 
                 id: characterId, 
                 user_id: effectiveUserId, 
-                data: character,
+                data: updatedCharacter,
                 party_id: party.id,
                 updated_at: new Date().toISOString()
             }, { onConflict: 'id' });
         
         if (cError) throw new Error(`Permisos: ${cError.message}`);
         
-        return { partyId: party.id, error: null };
+        return { partyId: party.id, partyName: party.name, error: null };
     } catch (e: any) {
         console.error("[Join] Error:", e.message || e);
-        return { partyId: null, error: e.message || "Error desconocido" };
+        return { partyId: null, partyName: null, error: e.message || "Error desconocido" };
     }
 };
 
@@ -158,6 +166,157 @@ export const removeFromParty = async (characterId: string) => {
     } catch (e) {
         console.error("Failed to remove from party:", e);
         return false;
+    }
+};
+
+export const updatePartyName = async (partyId: string, name: string) => {
+    try {
+        const { error } = await supabase
+            .from('parties')
+            .update({ name })
+            .eq('id', partyId);
+        if (error) throw error;
+        return true;
+    } catch (e) {
+        console.error("Failed to update party name:", e);
+        return false;
+    }
+};
+
+export const deleteParty = async (partyId: string, userId: string) => {
+    try {
+        console.log(`[Delete] Intentando eliminar mesa ${partyId} de usuario ${userId}`);
+        
+        // 1. Desvincular todos los personajes de esta mesa
+        const { error: charError } = await supabase
+            .from('characters')
+            .update({ party_id: null })
+            .eq('party_id', partyId);
+        
+        if (charError) {
+            console.error("[Delete] Error al desvincular personajes:", charError);
+        }
+
+        // 2. Eliminar la mesa (solo si somos el creador)
+        const { error, count } = await supabase
+            .from('parties')
+            .delete()
+            .eq('id', partyId)
+            .eq('creator_id', userId);
+        
+        if (error) {
+            console.error("[Delete] Error de Supabase:", error);
+            throw error;
+        }
+
+        console.log(`[Delete] Mesa eliminada. Filas afectadas: ${count}`);
+        return true;
+    } catch (e: any) {
+        console.error("Failed to delete party:", e.message || e);
+        return false;
+    }
+};
+
+// --- Party Resources Management ---
+
+export const getPartyResources = async (partyId: string) => {
+    try {
+        const { data, error } = await supabase
+            .from('party_resources')
+            .select('*')
+            .eq('party_id', partyId)
+            .eq('is_persistent', true)
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return data || [];
+    } catch (e) {
+        console.error("Failed to fetch party resources:", e);
+        return [];
+    }
+};
+
+export const addPartyResource = async (resource: any) => {
+    try {
+        const { data, error } = await supabase
+            .from('party_resources')
+            .insert(resource)
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    } catch (e) {
+        console.error("Failed to add party resource:", e);
+        return null;
+    }
+};
+
+export const deletePartyResource = async (resourceId: string) => {
+    try {
+        const { error } = await supabase
+            .from('party_resources')
+            .delete()
+            .eq('id', resourceId);
+        if (error) throw error;
+        return true;
+    } catch (e) {
+        console.error("Failed to delete party resource:", e);
+        return false;
+    }
+};
+
+export const broadcastResourceShare = (partyId: string, resource: { url: string, title: string, description?: string }) => {
+    supabase.channel(`party-${partyId}`).send({
+        type: 'broadcast',
+        event: 'resource-share',
+        payload: { resource }
+    });
+};
+
+export const broadcastResourceHide = (partyId: string) => {
+    supabase.channel(`party-${partyId}`).send({
+        type: 'broadcast',
+        event: 'resource-hide',
+        payload: {}
+    });
+};
+
+export const updatePartyResourcePersistence = async (resourceId: string, is_persistent: boolean) => {
+    try {
+        const { error } = await supabase
+            .from('party_resources')
+            .update({ is_persistent })
+            .eq('id', resourceId);
+        if (error) throw error;
+        return true;
+    } catch (e) {
+        console.error("Failed to update resource persistence:", e);
+        return false;
+    }
+};
+
+export const uploadResourceImage = async (file: File) => {
+    try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `atlas/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('atlas')
+            .upload(filePath, file);
+
+        if (uploadError) {
+            console.error("Supabase Storage Error:", uploadError);
+            throw uploadError;
+        }
+
+        const { data } = supabase.storage
+            .from('atlas')
+            .getPublicUrl(filePath);
+
+        return data.publicUrl;
+    } catch (e: any) {
+        console.error("Upload failed details:", e.message || e);
+        return null;
     }
 };
 

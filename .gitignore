@@ -23,6 +23,9 @@ ios/
 .env.*
 !.env.example
 
+# AI Context file (contains real credentials - NEVER commit)
+AI_CONTEXT.md
+
 # IDE and OS
 .vscode/*
 !.vscode/extensions.json

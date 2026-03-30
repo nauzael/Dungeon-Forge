@@ -16,9 +16,10 @@ interface SheetTabsProps {
   onBack: () => void;
   onUpdate: (char: Character) => void;
   isReadOnly?: boolean;
+  isObserver?: boolean;
 }
 
-const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isReadOnly }) => {
+const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isReadOnly, isObserver }) => {
   const [activeTab, setActiveTab] = useState<SheetTab>('combat');
   const [showJoinParty, setShowJoinParty] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'forward' | 'backward'>('forward');
@@ -378,6 +379,13 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
             </button>
           )}
 
+          {isObserver && !isReadOnly && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 animate-pulse">
+                  <span className="material-symbols-outlined text-[16px]">edit_square</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest leading-none">MODO DM</span>
+              </div>
+          )}
+
           {isReadOnly && (
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500">
                   <span className="material-symbols-outlined text-[16px]">visibility</span>
@@ -395,11 +403,11 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
             key={activeTab} 
             className={`min-h-full ${slideDirection === 'forward' ? 'animate-slide-right' : 'animate-slide-left'}`}
         >
-            {activeTab === 'combat' && <CombatTab character={character} onUpdate={onUpdate} isReadOnly={isReadOnly} />}
-            {activeTab === 'inventory' && <InventoryTab character={character} onUpdate={onUpdate} isReadOnly={isReadOnly} />}
-            {activeTab === 'spells' && <SpellsTab character={character} onUpdate={onUpdate} isReadOnly={isReadOnly} />}
-            {activeTab === 'features' && <FeaturesTab character={character} onUpdate={onUpdate} isReadOnly={isReadOnly} />}
-            {activeTab === 'notes' && <NotesTab character={character} onUpdate={onUpdate} isReadOnly={isReadOnly} />}
+            {activeTab === 'combat' && <CombatTab character={character} onUpdate={onUpdate} isReadOnly={isReadOnly || isObserver} />}
+            {activeTab === 'inventory' && <InventoryTab character={character} onUpdate={onUpdate} isReadOnly={isReadOnly || isObserver} />}
+            {activeTab === 'spells' && <SpellsTab character={character} onUpdate={onUpdate} isReadOnly={isReadOnly || isObserver} />}
+            {activeTab === 'features' && <FeaturesTab character={character} onUpdate={onUpdate} isReadOnly={isReadOnly || isObserver} />}
+            {activeTab === 'notes' && <NotesTab character={character} onUpdate={onUpdate} isReadOnly={isReadOnly || isObserver} />}
         </div>
       </main>
 
@@ -519,7 +527,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
         <JoinPartyModal 
           character={character} 
           onClose={() => setShowJoinParty(false)} 
-          onJoined={(partyId) => onUpdate({ ...character, party_id: partyId })}
+          onJoined={(partyId, partyName) => onUpdate({ ...character, party_id: partyId, party_name: partyName })}
         />
       )}
     </div>

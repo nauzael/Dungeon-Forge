@@ -6,7 +6,7 @@ import { Character } from '../types';
 interface JoinPartyModalProps {
   character: Character;
   onClose: () => void;
-  onJoined: (partyId: string) => void;
+  onJoined: (partyId: string, partyName: string) => void;
 }
 
 const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJoined }) => {
@@ -18,10 +18,10 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
     if (!code.trim()) return;
     setIsJoining(true);
     setError('');
-    const { partyId, error: joinError } = await joinParty(character, code.toUpperCase());
+    const { partyId, partyName, error: joinError } = await joinParty(character, code.toUpperCase());
     
     if (partyId) {
-      onJoined(partyId);
+      onJoined(partyId, partyName || '');
       onClose();
     } else {
       setError(joinError || 'CÓDIGO INVÁLIDO O ERROR DE CONEXIÓN.');
@@ -47,6 +47,13 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
           placeholder="Código (ej: DF-8291)"
           className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-center text-lg font-black tracking-widest text-blue-400 focus:outline-none focus:border-blue-500/50 mb-4 uppercase"
         />
+
+        {character.party_id && (
+          <p className="text-amber-500 text-[10px] mb-4 font-black uppercase italic leading-tight px-2 bg-amber-500/5 py-2 rounded-xl border border-amber-500/10">
+            ⚠️ Actualmente en: {character.party_name || 'Campaña Activa'}.<br/>
+            Al vincularte, abandonarás la mesa anterior automáticamente.
+          </p>
+        )}
 
         {error && <p className="text-red-500 text-[10px] mb-4 font-bold uppercase">{error}</p>}
 

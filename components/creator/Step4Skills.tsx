@@ -174,7 +174,7 @@ const Step4Skills: React.FC<Step4Props> = ({
                                                 </div>
                                                 <div className="p-3 bg-white/50 dark:bg-black/20 rounded-xl border border-primary/10">
                                                     <p className="text-xs text-slate-500 dark:text-slate-300 italic leading-snug">
-                                                        {MASTERY_DESCRIPTIONS[selectedWeapon.mastery]}
+                                                        {selectedWeapon.mastery && MASTERY_DESCRIPTIONS[selectedWeapon.mastery]}
                                                     </p>
                                                 </div>
                                             </>

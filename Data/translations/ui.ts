@@ -257,6 +257,9 @@ export interface Translation {
   cambiar: string;
   cerrar: string;
   nivel: string;
+  metamagic_options: string;
+  expertise: string;
+  expertise_desc: string;
 }
 
 export const TRANSLATIONS_ES: Translation = {
@@ -517,6 +520,9 @@ export const TRANSLATIONS_ES: Translation = {
   cambiar: 'Cambiar',
   cerrar: 'Cerrar',
   nivel: 'Nivel',
+  metamagic_options: 'Opciones de Metamagia',
+  expertise: 'Maestría',
+  expertise_desc: 'Escoge tus maestrías (Expertise)',
 };
 
 export const TRANSLATIONS_EN: Translation = {
@@ -777,4 +783,7 @@ export const TRANSLATIONS_EN: Translation = {
   cambiar: 'Change',
   cerrar: 'Close',
   nivel: 'Level',
+  metamagic_options: 'Metamagic Options',
+  expertise: 'Expertise',
+  expertise_desc: 'Choose your Expertises',
 };
