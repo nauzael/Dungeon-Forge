@@ -1,10 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { COMPENDIUM_DATA, CompendiumItem } from '../../Data/compendiumData';
 
 const Compendium: React.FC = () => {
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState<string>('All');
     const [selectedItem, setSelectedItem] = useState<CompendiumItem | null>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [scrollPosition, setScrollPosition] = useState(0);
+
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (selectedItem) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [selectedItem]);
+
+    const handleOpenModal = (item: CompendiumItem) => {
+        setScrollPosition(window.scrollY);
+        setSelectedItem(item);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedItem(null);
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = 0;
+        }
+    };
 
     const filtered = COMPENDIUM_DATA.filter(item => {
         const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase()) || 
@@ -14,7 +40,7 @@ const Compendium: React.FC = () => {
     });
 
     return (
-        <div className="space-y-6 lg:max-w-4xl lg:mx-auto">
+        <div ref={scrollContainerRef} className="space-y-6 lg:max-w-4xl lg:mx-auto">
             {/* Search and Filter */}
             <div className="bg-slate-800/80 backdrop-blur-xl rounded-2xl p-4 border border-white/5 space-y-4 shadow-xl sticky top-2 z-30">
                 <div className="flex items-center gap-3 bg-black/20 rounded-xl px-4 py-3 border border-white/5 focus-within:border-blue-500/50 transition-all">
@@ -45,7 +71,7 @@ const Compendium: React.FC = () => {
                 {filtered.map(item => (
                     <div 
                         key={item.id} 
-                        onClick={() => setSelectedItem(item)}
+                        onClick={() => handleOpenModal(item)}
                         className="group bg-slate-800/40 backdrop-blur-md rounded-2xl p-5 border border-white/5 shadow-lg hover:border-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
                     >
                         <div className="flex justify-between items-start mb-3">
@@ -61,7 +87,10 @@ const Compendium: React.FC = () => {
 
             {/* Detail Modal */}
             {selectedItem && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm animate-fadeIn" onClick={() => setSelectedItem(null)}>
+                <div 
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm animate-fadeIn" 
+                    onClick={handleCloseModal}
+                >
                     <div 
                         className="bg-slate-900 rounded-[2rem] p-6 sm:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-white/10 shadow-2xl animate-slideUp relative"
                         onClick={e => e.stopPropagation()}
@@ -69,12 +98,12 @@ const Compendium: React.FC = () => {
                         <div className="flex justify-between items-start mb-6 sticky top-0 bg-slate-900/95 backdrop-blur-md py-2 z-10 border-b border-white/5">
                             <div>
                                 <span className="text-[9px] font-bold bg-blue-600/20 text-blue-400 px-2 py-1 rounded border border-blue-400/20 uppercase tracking-widest mb-2 inline-block">
-                                    {selectedItem.category} 2024
+                                    {selectedItem.category}
                                 </span>
                                 <h2 className="text-2xl font-bold text-white tracking-tight leading-none">{selectedItem.title}</h2>
                             </div>
                             <button 
-                                onClick={() => setSelectedItem(null)}
+                                onClick={handleCloseModal}
                                 className="size-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 hover:bg-white/10 transition-all text-slate-400"
                             >
                                 <span className="material-symbols-outlined">close</span>
@@ -133,9 +162,9 @@ const Compendium: React.FC = () => {
                         </div>
 
                         <div className="mt-8 pt-6 border-t border-white/5 flex flex-col items-center gap-4">
-                            <p className="text-[9px] font-normal text-slate-500 uppercase tracking-widest text-center">D&D 2024 System Reference • Wikidot Library</p>
+                            <p className="text-[9px] font-normal text-slate-500 uppercase tracking-widest text-center">D&D 2024 System Reference</p>
                             <button 
-                                onClick={() => setSelectedItem(null)}
+                                onClick={handleCloseModal}
                                 className="w-full sm:w-auto px-10 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all border border-white/5"
                             >
                                 Cerrar Ventana
