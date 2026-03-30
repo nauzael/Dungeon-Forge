@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { COMPENDIUM_DATA, CompendiumItem } from '../../Data/compendiumData';
 
 const CATEGORIES = ['All', 'Class', 'Subclass', 'Species', 'Condition', 'Feat', 'Rule'] as const;
@@ -16,12 +16,26 @@ const Compendium: React.FC = () => {
         setSelectedItem(null);
     }, []);
 
-    const filtered = COMPENDIUM_DATA.filter(item => {
-        const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase()) || 
-                             item.category.toLowerCase().includes(search.toLowerCase());
-        const matchesFilter = filter === 'All' || item.category === filter;
-        return matchesSearch && matchesFilter;
-    });
+    const handleFilterChange = useCallback((category: string) => {
+        setFilter(category);
+        setSearch('');
+    }, []);
+
+    const filtered = useMemo(() => {
+        return COMPENDIUM_DATA.filter(item => {
+            const matchesFilter = filter === 'All' || item.category === filter;
+            if (!matchesFilter) return false;
+            
+            if (search.trim() === '') return true;
+            
+            const searchLower = search.toLowerCase().trim();
+            const titleMatch = item.title.toLowerCase().includes(searchLower);
+            const contentMatch = item.content.toLowerCase().includes(searchLower);
+            const fullInfoMatch = item.fullInfo?.toLowerCase().includes(searchLower) || false;
+            
+            return titleMatch || contentMatch || fullInfoMatch;
+        });
+    }, [filter, search]);
 
     return (
         <div className="space-y-6 lg:max-w-4xl lg:mx-auto">
@@ -41,7 +55,7 @@ const Compendium: React.FC = () => {
                     {CATEGORIES.map(cat => (
                         <button 
                             key={cat}
-                            onClick={() => setFilter(cat)}
+                            onClick={() => handleFilterChange(cat)}
                             className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border snap-start shrink-0 ${filter === cat ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/40' : 'bg-white/5 border-white/10 text-slate-400'}`}
                         >
                             {cat === 'All' ? 'Todo' : cat}
