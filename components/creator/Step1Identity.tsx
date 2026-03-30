@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { SectionSeparator } from './Shared';
 import { HIT_DIE, CLASS_STAT_PRIORITIES, SUBCLASS_OPTIONS, CLASS_LIST, SPECIES_LIST } from '../../Data/characterOptions';
 import { CLASS_UI_MAP, SPECIES_UI_MAP, BACKGROUND_UI_MAP } from '../../constants';
-import { SPELL_DETAILS, SPELL_LIST_BY_CLASS } from '../../Data/spells';
+import { SPELL_LIST_BY_CLASS } from '../../Data/spells';
 import { SCHOOL_THEMES } from '../../utils/sheetUtils';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useClasses } from '../../Data/classes';
@@ -45,7 +45,7 @@ const Step1Identity: React.FC<Step1Props> = ({
     const { t, language } = useLanguage();
     const classes = useClasses();
     const speciesList = useSpecies();
-    const { backgrounds } = useGameData();
+    const { backgrounds, spells: SPELL_DETAILS } = useGameData();
 
     const classData = classes[selectedClass]?.details as any;
     const speciesData = speciesList[selectedSpecies] as any;
