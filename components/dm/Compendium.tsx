@@ -64,8 +64,8 @@ const Compendium: React.FC = () => {
                 </div>
             </div>
 
-            {/* List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-20">
+            {/* List - Key forces React to re-render list when filter changes */}
+            <div key={`list-${filter}`} className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-20">
                 {filtered.length === 0 ? (
                     <div className="col-span-full py-12 text-center">
                         <span className="material-symbols-outlined text-4xl text-slate-700">search_off</span>
