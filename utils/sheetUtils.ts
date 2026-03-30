@@ -621,6 +621,22 @@ export const getArmorClass = (character: Character, finalStats: Record<string, n
     return items.reduce((acc, curr) => acc + (typeof curr.value === 'number' ? curr.value : 0), 0);
 };
 
+export const isProficientInSave = (character: Character, stat: Ability): boolean => {
+    const profSaves = CLASS_SAVING_THROWS[character.class] || [];
+    if (profSaves.includes(stat)) return true;
+    
+    // Check for Resilient (Resiliente) feat
+    if (character.feats.some(f => f.includes('Resiliente') && f.includes(stat))) return true;
+    
+    // Check for Monk level 14 (Diamond Soul / Disciplined Survivor)
+    if (character.class === 'Monk' && character.level >= 14) return true;
+
+    // Check for Rogue level 15 (Slippery Mind) 2024: Wisdom & Charisma
+    if (character.class === 'Rogue' && character.level >= 15 && (stat === 'WIS' || stat === 'CHA')) return true;
+    
+    return false;
+};
+
 export const getSaveBreakdown = (character: Character, stat: Ability, finalStats: Record<string, number>): StatBreakdownItem[] => {
     const breakdown: StatBreakdownItem[] = [];
     const mod = getAbilityModifier(finalStats, stat);
@@ -679,22 +695,6 @@ export const getSavingThrowBonus = (character: Character, finalStats?: Record<st
         bonus += Math.max(1, chaMod);
     }
     return bonus;
-};
-
-export const isProficientInSave = (character: Character, stat: Ability): boolean => {
-    const profSaves = CLASS_SAVING_THROWS[character.class] || [];
-    if (profSaves.includes(stat)) return true;
-    
-    // Check for Resilient (Resiliente) feat
-    if (character.feats.some(f => f.includes('Resiliente') && f.includes(stat))) return true;
-    
-    // Check for Monk level 14 (Diamond Soul / Disciplined Survivor)
-    if (character.class === 'Monk' && character.level >= 14) return true;
-
-    // Check for Rogue level 15 (Slippery Mind) 2024: Wisdom & Charisma
-    if (character.class === 'Rogue' && character.level >= 15 && (stat === 'WIS' || stat === 'CHA')) return true;
-    
-    return false;
 };
 
 export const getEffectiveCasterType = (character: Character) => {

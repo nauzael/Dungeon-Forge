@@ -66,7 +66,9 @@ export interface Character {
   vestige?: { type: 'Celestial' | 'Fiend' | 'Undead', hp: { current: number, max: number }, domain: string }; // Warlock: Vestige Patron
   guardianBondTarget?: string; // Paladin: Oath of the Spellguard
   party_id?: string;
+  party_name?: string;
   usedSlots?: Record<string, boolean>; // Spell slot tracking
+  spellSlots?: Record<number, { current: number; max: number }>; // Added for 2024 spell slot tracking
   sorceryPoints?: { current: number; max: number };
   isRaging?: boolean;
   activeConcentration?: string; // Spell name being concentrated on
@@ -85,10 +87,11 @@ export interface Spell {
 
 export interface ItemData {
   name: string;
-  type: 'Weapon' | 'Armor' | 'Gear' | 'Tool';
+  type: 'Weapon' | 'Armor' | 'Gear' | 'Tool' | 'Ammunition' | 'Mount' | 'Vehicle' | 'Saddle';
   weight: number;
   cost: string; // "10 GP"
   description?: string;
+  carryingCapacity?: string; // For Mounts
 }
 
 export interface WeaponData extends ItemData {
@@ -181,4 +184,21 @@ export interface SpellDetail {
     duration: string;
     description: string;
     name: string;
+}
+
+export interface CampaignResource {
+    id: string;
+    party_id: string;
+    title: string;
+    url: string;
+    type: 'Map' | 'Setting' | 'NPC' | 'Item';
+    description?: string;
+    is_persistent: boolean;
+    created_at?: string;
+}
+
+export interface SharedResourceEvent {
+    url: string;
+    title: string;
+    description?: string;
 }

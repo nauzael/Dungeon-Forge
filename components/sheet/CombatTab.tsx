@@ -20,12 +20,12 @@ import {
     getWeaponToHitBreakdown,
     getWeaponDamageBreakdown,
     getHPBreakdown,
-    StatBreakdownItem,
-    getAbilityModifier,
     getSkillBonus,
-    isProficientInSave,
     getSaveBreakdown,
-    getTotalSpeed
+    getTotalSpeed,
+    getSpellSlotSummary,
+    isProficientInSave,
+    getAbilityModifier
 } from '../../utils/sheetUtils';
 
 interface CombatTabProps {
@@ -58,6 +58,22 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
     
     const chaMod = Math.floor(((finalStats.CHA || 10) - 10) / 2);
     const wisMod = Math.floor(((finalStats.WIS || 10) - 10) / 2);
+    const spellSlotSummary = useMemo(() => getSpellSlotSummary(character), [character]);
+    
+    // Fix: Ensure spellcastingAbility is not undefined before using as index
+    const spellAbility = character.spellcastingAbility || 'INT';
+    const spellMod = Math.floor(((finalStats[spellAbility] || 10) - 10) / 2);
+    const spellSaveDC = 8 + character.profBonus + spellMod;
+    const spellAttackBonus = character.profBonus + spellMod;
+
+    const spellcastingStats = {
+        saveDC: spellSaveDC,
+        attackBonus: spellAttackBonus,
+        ability: spellAbility,
+        mod: spellMod,
+        toHit: character.profBonus + spellMod,
+        dc: 8 + character.profBonus + spellMod
+    };
 
     const isBarbarian = character.class === 'Barbarian';
     const isMonk = character.class === 'Monk';
@@ -101,17 +117,17 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
     const dieType = HIT_DIE[character.class] || 8;
 
     const useHitDie = () => {
-        if (currentHitDice > 0) {
+        if (!isReadOnly && currentHitDice > 0) {
             onUpdate({ ...character, hitDice: { current: currentHitDice - 1, max: maxHitDice } });
         }
     };
 
     const resetHitDice = () => {
-        onUpdate({ ...character, hitDice: { current: maxHitDice, max: maxHitDice } });
+        if (!isReadOnly) onUpdate({ ...character, hitDice: { current: maxHitDice, max: maxHitDice } });
     };
 
     const resetFocus = () => {
-        onUpdate({ ...character, focus: { current: maxFocus, max: maxFocus } });
+        if (!isReadOnly) onUpdate({ ...character, focus: { current: maxFocus, max: maxFocus } });
     };
 
     // ── Barbarian Rage ──────────────────────────────────────────────────
@@ -127,10 +143,12 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
     const rageUnlimited = character.level >= 20;
     const rageCurrent = character.rageUses?.current ?? rageMax;
     const useRage = () => {
-        if (rageUnlimited || rageCurrent > 0)
+        if (!isReadOnly && (rageUnlimited || rageCurrent > 0))
             onUpdate({ ...character, rageUses: { current: rageUnlimited ? 99 : Math.max(0, rageCurrent - 1), max: rageMax } });
     };
-    const resetRage = () => onUpdate({ ...character, rageUses: { current: rageMax, max: rageMax } });
+    const resetRage = () => {
+        if (!isReadOnly) onUpdate({ ...character, rageUses: { current: rageMax, max: rageMax } });
+    };
 
     // ── Bard Bardic Inspiration ─────────────────────────────────────────
     const bardicInspirationDie = useMemo(() => {
@@ -206,7 +224,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
     const luckyMax = character.lucky?.max ?? character.profBonus;
     const luckyCurrent = character.lucky?.current ?? 0;
     const spendLuckyPoint = () => {
-        if (luckyCurrent <= 0) return;
+        if (isReadOnly || luckyCurrent <= 0) return;
         onUpdate({ 
             ...character, 
             lucky: { current: luckyCurrent - 1, max: luckyMax } 
@@ -235,11 +253,12 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
         });
     };
     const spendInspiration = () => {
-        if (inspCurrent <= 0) return;
-        onUpdate({ 
-            ...character, 
-            inspiration: { current: Math.max(inspCurrent - 1, 0), max: inspMax } 
-        });
+        if (!isReadOnly && inspCurrent > 0) {
+            onUpdate({ 
+                ...character, 
+                inspiration: { current: Math.max(inspCurrent - 1, 0), max: inspMax } 
+            });
+        }
     };
 
     // ── Warrior of the Mystic Arts (Monk) ─────────────────────────────
@@ -298,6 +317,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
     };
 
     const applyHpChange = () => {
+        if (isReadOnly) return;
         const amount = parseInt(hpAmount);
         if (isNaN(amount) || amount <= 0 || hpAmount === '') {
             setHpModal({ ...hpModal, show: false });
@@ -349,9 +369,9 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 die: die,
                 isEB: isEB,
                 properties: ['Eldritch', 'Spell'],
-                toHit: character.profBonus + (Math.floor(((finalStats[character.spellcastingAbility] || 10) - 10) / 2)),
-                damageBonus: (Math.floor(((finalStats[character.spellcastingAbility] || 10) - 10) / 2)),
-                displayDamage: isEB ? `${die}${Math.floor(((finalStats[character.spellcastingAbility] || 10) - 10) / 2) >= 0 ? '+' : ''}${Math.floor(((finalStats[character.spellcastingAbility] || 10) - 10) / 2)} (x${scale})` : `${scale}${die.startsWith('d') ? die : die.substring(1)}${Math.floor(((finalStats[character.spellcastingAbility] || 10) - 10) / 2) >= 0 ? '+' : ''}${Math.floor(((finalStats[character.spellcastingAbility] || 10) - 10) / 2)}`
+                toHit: character.profBonus + spellcastingStats.mod,
+                damageBonus: spellcastingStats.mod,
+                displayDamage: isEB ? `${die}${spellcastingStats.mod >= 0 ? '+' : ''}${spellcastingStats.mod} (x${scale})` : `${scale}${die.startsWith('d') ? die : die.substring(1)}${spellcastingStats.mod >= 0 ? '+' : ''}${spellcastingStats.mod}`
             };
         }).filter(Boolean);
 
@@ -1033,6 +1053,37 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 </div>
             )}
 
+            {Object.keys(spellSlotSummary).length > 0 && (
+                <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-3 px-1">
+                        <span className="material-symbols-outlined text-xs text-slate-400">auto_awesome</span>
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Conjuros</h3>
+                    </div>
+                    <div className="grid grid-cols-1 gap-2">
+                        {Object.entries(spellSlotSummary).map(([level, slots]) => {
+                            const lvl = parseInt(level);
+                            const percent = (slots.current / slots.max) * 100;
+                            return (
+                                <div key={lvl} className="p-3 rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded uppercase tracking-tighter">Nivel {lvl}</span>
+                                        </div>
+                                        <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{slots.current} / {slots.max}</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-slate-100 dark:bg-black/40 rounded-full overflow-hidden">
+                                        <div 
+                                            className={`h-full transition-all duration-500 ${percent === 0 ? 'bg-slate-300' : 'bg-primary shadow-[0_0_8px_rgba(53,158,255,0.4)]'}`} 
+                                            style={{ width: `${percent}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
             <div className="flex flex-col gap-3 mb-6">{renderWeapons()}</div>
 
             {character.weaponMasteries && character.weaponMasteries.length > 0 && (
@@ -1070,7 +1121,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         </div>
                         <div className="text-right">
                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Mod. Magia</div>
-                            <div className="text-xl font-black text-primary leading-none mt-0.5">{formatModifier(Math.floor(((finalStats[character.spellcastingAbility] || 10) - 10) / 2))}</div>
+                            <div className="text-xl font-black text-primary leading-none mt-0.5">{formatModifier(spellcastingStats.mod)}</div>
                         </div>
                     </div>
                 </div>
