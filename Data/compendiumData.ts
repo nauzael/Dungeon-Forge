@@ -272,117 +272,581 @@ Cast any Wizard ritual spell you know without preparing it.
 Expertise in one knowledge skill (Arcane, History, etc.).`
     },
 
-    // --- SPECIES ---
+    // --- SPECIES (COMMON) ---
     {
-        id: 'aasimar-2024',
+        id: 'aasimar',
         category: 'Species',
         title: 'Aasimar',
-        content: 'Descendiente de celestiales, nacido con una chispa de luz divina y resistencia mágica.',
-        fullInfo: `### Aasimar Traits (2024)
+        content: 'Mortales con una chispa del Plano Celestial. Luz divina, sanación y furia celestial.',
+        fullInfo: `### Aasimar (Player's Handbook)
 
-*   **Celestial Resistance.** Resistance to Necrotic and Radiant damage.
-*   **Healing Hands.** Restore HP equal to d4 x Proficiency Bonus as a Magic action.
-*   **Light Bearer.** You know the *Light* cantrip.
-*   **Celestial Revelation.** Starting at level 3, transform for 1 minute to gain specific powers (Flight, Extra Damage, or Frighten).`
+**Source:** Player's Handbook
+
+**Descripción:** Los Aasimar (pronunciado AH-sih-mar) son mortales que llevan una chispa de los Planos Superiores en sus almas. Ya sean descendientes de un ser angelical o infundidos con poder celestial, pueden encender esa chispa para aportar luz, sanación y furia celestial. Los Aasimar se parecen a sus padres, pero viven hasta 160 años y tienen características que revelan su herencia celestial: pecas metálicas, ojos luminosos, un halo o el color de piel de un ángel (plata, verde opalino o cobrizo).
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Celestial Resistance.** Tienes Resistencia al daño Necrótico y Radiante.
+
+**Darkvision.** Tienes Visión en la Oscuridad a 60 pies.
+
+**Healing Hands.** Como Acción Mágica, tocas a una criatura y lanzas un número de d4s igual a tu Bono de Competencia. La criatura recupera Puntos de Golpe iguales al total. Una vez usado, no puedes usarlo hasta terminar un Descanso Largo.
+
+**Light Bearer.** Conoces el truco Light. Charisma es tu característica para lanzar hechizos.
+
+**Celestial Revelation.** Al alcanzar nivel 3, puedes transformarte como Acción Adicional eligiendo una opción (dura 1 minuto, hasta 2 veces por Descanso Largo):
+
+- **Heavenly Wings.** Alas espectrales y Velocidad de Vuelo igual a tu Velocidad.
+- **Inner Radiance.** Luz brillante (10 pies) y daño Radiante adicional a criaturas cercanas.
+- **Necrotic Shroud.** Alas sin vuelo, miedo a criaturas cercanas (CD 8+Carisma+Competencia).`
     },
     {
-        id: 'dragonborn-2024',
+        id: 'dragonborn',
         category: 'Species',
         title: 'Dracónido',
-        content: 'Orgullosos descendientes de dragones con un aliento letal y resistencia elemental.',
-        fullInfo: `### Dragonborn Traits (2024)
+        content: 'Ancestros dragón. Aliento letal, resistencia elemental y vuelo dracónico.',
+        fullInfo: `### Dragonborn (Player's Handbook)
 
-*   **Breath Weapon.** Line or Cone damage based on ancestry (scales with level).
-*   **Draconic Ancestry.** Resistance to the element of your breath weapon.
-*   **Draconic Flight.** At level 5, gain flight for 10 minutes once per long rest.`
+**Source:** Player's Handbook
+
+**Descripción:** Los ancestros de los dragonborn nacieron de los huevos de dragones cromáticos y metálicos. Una historia dice que estos huevos fueron bendecidos por los dioses dragón Bahamut y Tiamat. Otra dice que los dragones crearon a los primeros dragonborn sin bendiciones divinas. Los dragonborn parecen dragones bípedos sin alas: escamosos, ojos brillantes y huesos gruesos con cuernos en la cabeza.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (5-7 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Draconic Ancestry.** Elige un tipo de dragón que afecta tu Aliento, Resistencia y apariencia:
+
+| Dragón | Tipo de Daño |
+|--------|-------------|
+| Black | Acid |
+| Blue | Lightning |
+| Brass | Fire |
+| Bronze | Lightning |
+| Copper | Acid |
+| Gold | Fire |
+| Green | Poison |
+| Red | Fire |
+| Silver | Cold |
+| White | Cold |
+
+**Breath Weapon.** Como parte de la Acción de Atacar, puedes reemplazar un ataque con una exhalación de energía en un Cono de 15 pies o una Línea de 30 pies (elige cada vez). DC 8+Constitución+Competencia. Daño 1d10 (escala a 2d10/3d10/4d10 en niveles 5/11/17). Usos: Bono de Competencia por Descanso Largo.
+
+**Damage Resistance.** Resistencia al tipo de daño de tu ancestro dracónico.
+
+**Darkvision.** 60 pies.
+
+**Draconic Flight.** Al alcanzar nivel 5, como Acción Adicional ganas Vuelo igual a tu Velocidad por 10 minutos (1 uso por Descanso Largo).`
     },
     {
-        id: 'dwarf-2024',
+        id: 'dwarf',
         category: 'Species',
         title: 'Enano',
-        content: 'Resistente y robusto, con detección de piedra y resistencia natural al veneno.',
-        fullInfo: `### Dwarf Traits (2024)
+        content: 'Pueblo de las montañas, resistencia al veneno y detección de piedra.',
+        fullInfo: `### Dwarf (Player's Handbook)
 
-*   **Dwarven Resilience.** Advantage and Resistance against Poison.
-*   **Dwarven Toughness.** +1 Max HP per character level.
-*   **Stonecunning.** Bonus Action to gain 60ft Tremorsense on stone.`
+**Source:** Player's Handbook
+
+**Descripción:** Los enanos fueron creados de la tierra por un dios de la forja. Llamados de varias formas en diferentes mundos (Moradin, Reorx), ese dios les dio afinidad por la piedra, el metal y la vida subterránea. Los enanos son resilientes como las montañas, con una vida útil de unos 350 años. Los más antiguos cuentan leyendas de conflictos con monstruos de montañas y el Subsuelo.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (4-5 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Darkvision.** 120 pies.
+
+**Dwarven Resilience.** Resistencia al daño por Veneno. Ventaja en tiradas de salvación para evitar o terminar la condición Envenenado.
+
+**Dwarven Toughness.** Tu HP máximo aumenta en 1, y aumenta en 1 adicional cada vez que ganas un nivel.
+
+**Stonecunning.** Como Acción Adicional, ganas Tremorsense a 60 pies por 10 minutos (debes estar en contacto con piedra). Usos: Bono de Competencia por Descanso Largo.`
     },
     {
-        id: 'elf-2024',
+        id: 'elf',
         category: 'Species',
         title: 'Elfo',
-        content: 'Longevo y elegante, conectado con la magia y el Páramo Sombrío (Shadowfell) o el Plano Feérico.',
-        fullInfo: `### Elf Traits (2024)
+        content: 'Pueblo feérico, longevo, trance en 4 horas y linajes mágicos.',
+        fullInfo: `### Elf (Player's Handbook)
 
-*   **Darkvision.** 60 feet.
-*   **Elven Resilience.** Advantage against Charm and magic sleep.
-*   **Keen Senses.** Proficiency in Perception.
-*   **Trance.** Finish Long Rest in 4 hours.
-*   **Ancestry.** Choose Wood, High, or Drow for specific spells.`
+**Source:** Player's Handbook
+
+**Descripción:** Creados por el dios Corellon, los primeros elfos podían cambiar su forma a voluntad. Perdieron esta habilidad cuando Corellon los maldijo por conspirar con la deidad Lolth. Cuando Lolth fue arrojada al Abismo, la mayoría de los elfos renunciaron a ella y merecieron el perdón de Corellon. Los elfos tienen orejas puntiagudas y carecen de vello facial y corporal. Viven unos 750 años y no duermen sino que entran en trance.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (5-6 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Darkvision.** 60 pies.
+
+**Elven Lineage.** Elige un linaje sobrenatural con magia específica:
+
+| Linaje | Nivel 1 | Nivel 3 | Nivel 5 |
+|--------|---------|---------|---------|
+| Drow | Visión en Oscuridad 120 pies, Prestidigitation | Faerie Fire | Darkness |
+| High Elf | Prestidigitation (puede cambiarse) | Detect Magic | Misty Step |
+| Wood Elf | Velocidad 35 pies, Druidcraft | Longstrider | Pass without Trace |
+| Lorwyn Elf | Thorn Whip (puede cambiarse) | Command | Silence |
+| Shadowmoor Elf | Visión en Oscuridad 120 pies, Starry Wisp | Heroism | Gentle Repose |
+
+**Fey Ancestry.** Ventaja en tiradas de salvación para evitar o terminar la condición Encantado.
+
+**Keen Senses.** Competencia en una habilidad: Insight, Perception o Survival.
+
+**Trance.** No necesitas dormir. Puedes terminar un Descanso Largo en 4 horas de meditación.`
     },
     {
-        id: 'gnome-2024',
+        id: 'gnome',
         category: 'Species',
         title: 'Gnomo',
-        content: 'Pequeño, astuto e inclinado a la magia con fuertes defensas mentales.',
-        fullInfo: `### Gnome Traits (2024)
+        content: 'Pequeños pero ingeniosos, magia innata y defensas mentales superiores.',
+        fullInfo: `### Gnome (Player's Handbook)
 
-*   **Gnomish Cunning.** Advantage on Int, Wis, and Cha saving throws.
-*   **Gnomish Lore.** Choose Forest or Rock gnome for specific cantrips/abilities.`
+**Source:** Player's Handbook
+
+**Descripción:** Los gnomos son seres mágicos creados por dioses de la invención, ilusiones y vida subterránea. Las primeras comunidades gnomas rara vez eran vistas debido a su naturaleza secreta. Lo que les faltaba en tamaño, lo compensaban con ingenio. Viven alrededor de 425 años.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Small (3-4 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Darkvision.** 60 pies.
+
+**Gnomish Cunning.** Ventaja en tiradas de salvación de Inteligencia, Sabiduría y Carisma.
+
+**Gnomish Lineage.** Elige un linaje sobrenatural:
+
+**Forest Gnome.** Conoces Minor Illusion. Siempre tienes Speak with Animals preparado (Bono de Competencia usos por Descanso Largo).
+
+**Rock Gnome.** Conoces Mending y Prestidigitation. Puedes gastar 10 minutos para crear un dispositivo clockwork diminuto (AC 5, 1 HP) con efecto de Prestidigitation. Máximo 3 dispositivos simultáneos.`
     },
     {
-        id: 'goliath-2024',
+        id: 'goliath',
         category: 'Species',
         title: 'Goliat',
-        content: 'Pariente de los gigantes, poseedor de una fuerza increíble y resistencia ancestral.',
-        fullInfo: `### Goliath Traits (2024)
+        content: 'Descendientes de gigantes, fuerza ancestral y capacidad de volverse Large.',
+        fullInfo: `### Goliath (Player's Handbook)
 
-*   **Giant Ancestry.** Choose a giant type (e.g. Cloud, Fire, Frost) for unique abilities.
-*   **Large Form.** At level 5, become Large size for 10 minutes (+10ft speed).
-*   **Powerful Build.** Advantage to end the Grappled condition.`
+**Source:** Player's Handbook
+
+**Descripción:** Los goliaths dominan sobre la mayoría, siendo descendientes distantes de gigantes. Cada goliat porta los favores de los primeros gigantes que se manifiestan en varios beneficios sobrenaturales, incluyendo la habilidad de crecer rápidamente y aproximarse temporalmente a la altura de sus parientes gigantes.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (7-8 pies)
+**Velocidad:** 35 pies
+
+#### Traits
+
+**Giant Ancestry.** Elige un beneficio de gigante (Bono de Competencia usos por Descanso Largo):
+
+- **Cloud's Jaunt (Cloud Giant).** Como Acción Adicional, teletransporte de 30 pies.
+- **Fire's Burn (Fire Giant).** +1d10 daño Fire al golpear.
+- **Frost's Chill (Frost Giant).** +1d6 Cold y reducir velocidad 10 pies.
+- **Hill's Tumble (Hill Giant).** Otorgar Prone a criaturas Large o menores.
+- **Stone's Endurance (Stone Giant).** Reacción: 1d12+Constitución para reducir daño.
+- **Storm's Thunder (Storm Giant).** Reacción: 1d8 Thunder a criatura que te dañó.
+
+**Large Form.** Al alcanzar nivel 5, como Acción Adicional vuélvete Large (ventaja en Fuerza, +10 pies velocidad). Dura 10 minutos. 1 uso por Descanso Largo.
+
+**Powerful Build.** Ventaja para terminar condiciones Grappled. Cuentas como una categoría de tamaño mayor para capacidad de carga.`
     },
     {
-        id: 'halfling-2024',
+        id: 'halfling',
         category: 'Species',
         title: 'Mediano',
-        content: 'Alegre y notablemente afortunado, capaz de evitar desastres con su suerte natural.',
-        fullInfo: `### Halfling Traits (2024)
+        content: 'Alegre y afortunado, reroll de 1s y capacidad de esconderse detrás de criaturas.',
+        fullInfo: `### Halfling (Player's Handbook)
 
-*   **Brave.** Advantage against being Frightened.
-*   **Luck.** Reroll 1s on D20 tests.
-*   **Halfling Nimbleness.** Move through spaces occupied by larger creatures.`
+**Source:** Player's Handbook
+
+**Descripción:** Queridos y guiados por dioses que valoran la vida, el hogar y el hearth, los medianos gravitan hacia refugios bucólicos donde la familia y la comunidad dan forma a sus vidas. Muchos medianos poseen un espíritu aventurero que los lleva a explorar mundos más grandes. Su tamaño similar al de un niño humano les ayuda a pasar desapercibidos.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Small (2-3 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Brave.** Ventaja en tiradas de salvación para evitar la condición Asustado.
+
+**Halfling Nimbleness.** Puedes moverte a través del espacio de cualquier criatura de tamaño una categoría mayor que la tuya.
+
+**Luck.** Cuando tiras 1 en un d20 de una Prueba d20, puedes rerrollear el dado y usar el nuevo resultado.
+
+**Naturally Stealthy.** Puedes tomar la acción de Esconderse incluso cuando estás obscured solo por una criatura al menos una categoría de tamaño mayor.`
     },
     {
-        id: 'human-2024',
+        id: 'human',
         category: 'Species',
         title: 'Humano',
-        content: 'Innovador y recursivo, los humanos son maestros de la versatilidad.',
-        fullInfo: `### Human Traits (2024)
+        content: 'Versátiles y ambiciosos, fuente de inspiración y adaptabilidad.',
+        fullInfo: `### Human (Player's Handbook)
 
-*   **Resourceful.** Gain Heroic Inspiration after every Long Rest.
-*   **Skillful.** One extra skill proficiency of choice.
-*   **Versatile.** One extra Origin Feat of choice.`
+**Source:** Player's Handbook
+
+**Descripción:** Encontrados en todo el multiverso, los humanos son tan variados como numerosos y se esforzan por lograr tanto como puedan en los años que se les dan. Su ambición e ingenio son alabados, respetados y temidos en muchos mundos.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (4-7 pies) o Small (2-4 pies), elegido al seleccionar esta especie
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Resourceful.** Ganas Inspiración Heroica siempre que terminas un Descanso Largo.
+
+**Skillful.** Ganas competencia en una habilidad de tu elección.
+
+**Versatile.** Ganas una Dote de Origen de tu elección.`
     },
     {
-        id: 'orc-2024',
+        id: 'orc',
         category: 'Species',
         title: 'Orco',
-        content: 'Impulsados por una fuerza primordial, los orcos son supervivientes implacables y duros.',
-        fullInfo: `### Orc Traits (2024)
+        content: 'Supervivientes implacables con impulso de adrenalina y resistencia inquebrantable.',
+        fullInfo: `### Orc (Player's Handbook)
 
-*   **Adrenaline Rush.** Bonus Action Dash that grants Temporary HP.
-*   **Powerful Build.** Advantage to end Grappled/Restrained.
-*   **Relentless Endurance.** Once per Long Rest, drop to 1 HP instead of 0.`
+**Source:** Player's Handbook
+
+**Descripción:** Los orcos trazan su creación hasta Gruumsh, un dios poderoso que equipó a sus hijos con dones para vagar por llanuras, vastas cavernas y mares turbulentos y enfrentar a los monstruos que acechan allí. Los orcos son altos y fornidos en promedio, con piel gris, orejas puntiagudas y colmillos inferiores prominentes. Conservan los dones de Gruumsh: resistencia, determinación y la habilidad de ver en la oscuridad.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (6-7 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Adrenaline Rush.** Puedes tomar la acción de Dash como Acción Adicional. Cuando lo haces, ganas Puntos de Golpe Temporales iguales a tu Bono de Competencia. Usos: Bono de Competencia por Descanso Corto o Largo.
+
+**Darkvision.** 120 pies.
+
+**Relentless Endurance.** Cuando se te reduce a 0 PG pero no mueres instantáneamente, puedes caer a 1 PG en su lugar. Una vez usado, no puedes usarlo hasta terminar un Descanso Largo.`
     },
     {
-        id: 'tiefling-2024',
+        id: 'tiefling',
         category: 'Species',
         title: 'Tiflin',
-        content: 'Proveniente de linajes infernales, con magia innata y presencia de otro mundo.',
-        fullInfo: `### Tiefling Traits (2024)
+        content: 'Legado infernal con magia innata y presencia sobrenatural.',
+        fullInfo: `### Tiefling (Player's Handbook)
 
-*   **Fiendish Legacy.** Choose Abyssal, Chthonic, or Infernal for specific resistances and spells.
-*   **Otherworldly Presence.** You know the *Thaumaturgy* cantrip.`
+**Source:** Player's Handbook
+
+**Descripción:** Los tieflings nacen en los Planos Inferiores o tienen ancestros infernales. Un tiefling está vinculado por sangre a un diablo, demonio u otro Demonio. Esta conexión es el legado infernal del tiefling, que viene con la promesa de poder pero no afecta su inclinación moral.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (4-7 pies) o Small (3-4 pies), elegido al seleccionar
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Darkvision.** 60 pies.
+
+**Fiendish Legacy.** Elige un legado sobrenatural:
+
+| Legado | Nivel 1 | Nivel 3 | Nivel 5 |
+|--------|---------|---------|---------|
+| Abyssal | Resistencia Poison + Poison Spray | Ray of Sickness | Hold Person |
+| Chthonic | Resistencia Necrotic + Chill Touch | False Life | Ray of Enfeeblement |
+| Infernal | Resistencia Fire + Fire Bolt | Hellish Rebuke | Darkness |
+
+**Otherworldly Presence.** Conoces el truco Thaumaturgy. Carisma es tu característica para lanzarlo.`
+    },
+
+    // --- SPECIES (EBERRON) ---
+    {
+        id: 'changeling',
+        category: 'Species',
+        title: 'Changeling (Eberron)',
+        content: 'Maestros del cambio de forma con instincts Fey y habilidades sociales.',
+        fullInfo: `### Changeling (Eberron)
+
+**Source:** Eberron - Forge of the Artificer
+
+**Descripción:** Con apariencias que cambian constantemente, los changelings residen en muchas sociedades sin ser detectados. Cada changeling puede adoptar sobrenaturalmente cualquier cara que deseen. En su forma verdadera, los changelings parecen desvaídos, sus rasgos casi sin detalles. Sin embargo, muchos changelings desarrollan identidades con más profundidad, creando personas completas con historia y creencias.
+
+**Tipo de Criatura:** Fey
+**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Changeling Instincts.** Ganas competencia en dos habilidades: Deception, Insight, Intimidation, Performance o Persuasion.
+
+**Shape-Shifter.** Como acción, puedes cambiar tu apariencia y voz. Puedes ajustar altura, peso y tamaño entre Medium y Small. Puedes parecerte a otro especie pero tus estadísticas no cambian. No puedes duplicar la apariencia de alguien que nunca has visto. Mientras transformado, tienes Ventaja en cheques de Carisma. 1 uso por turno.`
+    },
+    {
+        id: 'kalashtar',
+        category: 'Species',
+        title: 'Kalashtar (Eberron)',
+        content: 'Unión de humanos y espíritus Quori con telepatía y disciplina mental.',
+        fullInfo: `### Kalashtar (Eberron)
+
+**Source:** Eberron - Forge of the Artificer
+
+**Descripción:** Los kalashtar (pronunciado kal-ASH-tar) se crean de la unión de humanos y espíritus renegados llamados quori del plano de los sueños. Los kalashtar parecen humanos pero su conexión espiritual los afecta de varias maneras. Tienen rasgos simétricos ligeramente angulares y sus ojos a menudo brillan cuando se concentran o expresan emociones fuertes.
+
+**Tipo de Criatura:** Aberration
+**Tamaño:** Medium (6-7 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Dual Mind.** Ventaja en tiradas de salvación de Sabiduría y Carisma.
+
+**Mental Discipline.** Resistencia al daño Psíquico.
+
+**Mind Link.** Telepatía con alcance igual a 10 veces tu nivel. Como Acción Mágica, puedes dar a una criatura la habilidad de hablar telepáticamente contigo por 1 hora.
+
+**Severed from Dreams.** No puedes ser objetivo del hechizo Dream. Además, al terminar un Descanso Largo, ganas competencia en una habilidad de tu elección hasta el siguiente Descanso Largo.`
+    },
+    {
+        id: 'khoravar',
+        category: 'Species',
+        title: 'Khoravar (Eberron)',
+        content: 'Medio-elfos de Eberron con magia Fey y resistencia a la inconsciencia.',
+        fullInfo: `### Khoravar (Eberron)
+
+**Source:** Eberron - Forge of the Artificer
+
+**Descripción:** A lo largo de siglos, los descendientes de humanos y elfos han desarrollado sus propias comunidades y tradiciones en Khorvaire. Muchos Khoravar defienden la idea de ser "el puente entre", creyendo que están llamados a facilitar la comunicación y cooperación entre diferentes culturas o especies.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (4-6 pies) o Small (2-4 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Darkvision.** 60 pies.
+
+**Fey Ancestry.** Ventaja en tiradas de salvación para evitar o terminar la condición Encantado.
+
+**Fey Gift.** Conoces el truco Friends. Al terminar un Descanso Largo, puedes reemplazarlo por otro truco de las listas de Clérigo, Druida o Mago.
+
+**Lethargy Resilience.** Cuando fallas una tirada de salvación para evitar o terminar la condición Inconsciente, puedes tener éxito en su lugar. Una vez usado, no puedes usarlo hasta terminar 1d4 Descansos Larg.
+
+**Skill Versatility.** Ganas competencia en una habilidad o herramienta. Puedes reemplazarla al terminar un Descanso Largo.`
+    },
+    {
+        id: 'shifter',
+        category: 'Species',
+        title: 'Shifter (Eberron)',
+        content: 'Humanoides bestiales con transformación temporal y instintos animales.',
+        fullInfo: `### Shifter (Eberron)
+
+**Source:** Eberron - Forge of the Artificer
+
+**Descripción:** Los shifters -a veces llamados "weretouched"- descienden de personas que contrajeron licantropía total o parcial. Los shifters se parecen a humanos en altura y complexión pero son típicamente más ágiles y flexibles. Sus rasgos faciales tienen un aire bestial, a menudo con ojos grandes y orejas puntiagudas.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Bestial Instincts.** Ganas competencia en una habilidad: Acrobatics, Athletics, Intimidation o Survival.
+
+**Darkvision.** 60 pies.
+
+**Shifting.** Como Acción Adicional, puedes transformarte en una apariencia más bestial (1 minuto). Ganas PG Temporales iguales a 2 × Bono de Competencia. Usos: Bono de Competencia por Descanso Largo. Elige un beneficio:
+
+- **Beasthide.** +1d6 PG Temporales. +1 a CA mientras transformado.
+- **Longtooth.** Puedes hacer Unarmed Strike con colmillos: 1d6+Strength Piercing.
+- **Swiftstride.** +10 pies velocidad. Reacción para moverte 10 pies cuando una criatura termina su turno cerca de ti.
+- **Wildhunt.** Ventaja en cheques de Sabiduría transformado. Ninguna criatura a 30 pies puede tener Ventaja contra ti.`
+    },
+    {
+        id: 'warforged',
+        category: 'Species',
+        title: 'Warforged (Eberron)',
+        content: 'Seres construct con armadura integrada y resistencia a veneno.',
+        fullInfo: `### Warforged (Eberron)
+
+**Source:** Eberron - Forge of the Artificer
+
+**Descripción:** Los warforged son seres mecánicos construidos como armas para pelear en la Última Guerra. Una ruptura inesperada produjo seres sentimentados hechos de madera y metal que sin embargo pueden sentir dolor y emoción. Los warforged comprenden una mezcla de materiales orgánicos e inorgánicos.
+
+**Tipo de Criatura:** Construct
+**Tamaño:** Medium (6-8 pies) o Small (3-4 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Construct Resilience.** Resistencia al daño por Veneno. Ventaja en tiradas de salvación para evitar o terminar la condición Envenenado.
+
+**Integrated Protection.** +1 a tu CA. La armadura que te pones no puede ser removida en tu contra mientras estés vivo.
+
+**Sentry's Rest.** No necesitas dormir. Puedes terminar un Descanso Largo en 6 horas de estado inactivo e inmóvil pero permaneces consciente.
+
+**Specialized Design.** Ganas competencia en una habilidad y una herramienta de tu elección.
+
+**Tireless.** No ganas niveles de Agotamiento por deshidratación, malnutrición o asfixia.`
+    },
+
+    // --- SPECIES (LORWYN) ---
+    {
+        id: 'boggart',
+        category: 'Species',
+        title: 'Boggart (Lorwyn)',
+        content: 'Goblinoides pequeños con magia Fey, furia del pequeño y escape nimble.',
+        fullInfo: `### Boggart (Lorwyn)
+
+**Source:** Lorwyn - First Light
+
+**Descripción:** Los boggarts son pequeños humanoides goblinoides encontrados en el reino de Lorwyn-Shadowmoor. Poseen rasgos físicos bestiales incluyendo cuernos y hocicos animales. Más allá de estas общительность, las apariencias de los boggarts varían ampliamente. Un boggart puede parecerse a un erizo mientras que otro puede tener el hocico y orejas carnosas de un cerdo. Los boggarts tienden a amar la elaboración de pociones.
+
+**Tipo de Criatura:** Humanoid (goblinoid)
+**Tamaño:** Small (2-4 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Darkvision.** 60 pies.
+
+**Fey Ancestry.** Ventaja en tiradas de salvación para evitar o terminar la condición Encantado.
+
+**Fury of the Small.** Cuando dañas con ataque o hechizo a una criatura más grande que tú, puedes causar daño extra igual a tu Bono de Competencia. Máximo una vez por turno.
+
+**Nimble Escape.** Puedes tomar la acción de Disengage o Hide como Acción Adicional en cada uno de tus turnos.`
+    },
+    {
+        id: 'faerie',
+        category: 'Species',
+        title: 'Faerie (Lorwyn)',
+        content: 'Pequeños seres feéricos con magia Druida y vuelo natural.',
+        fullInfo: `### Faerie (Lorwyn)
+
+**Source:** Lorwyn - First Light
+
+**Descripción:** Conocidos por sus travesuras, las faeries se parecen a insectos con rasgos humanoides. Su tamaño y forma pueden variar, pero todas tienen antenas, ojos negros, piel quitinosa y piernas y alas de insecto. Cada faerie nace de una flor y posee magia innata.
+
+**Tipo de Criatura:** Fey
+**Tamaño:** Small (2-4 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Fairy Magic.** Conoces Druidcraft.
+
+Desde nivel 3: Puedes lanzar Faerie Fire. Desde nivel 5: También puedes lanzar Enlarge/Reduce. Cada una 1 uso por Descanso Largo. Inteligencia, Sabiduría o Carisma para lanzar.
+
+**Flight.**Tienes Velocidad de Vuelo igual a tu Velocidad de Caminata. No puedes usar esta velocidad si usas armadura medium o heavy.
+
+**Shadowmoor Faeries.** Visión en Oscuridad 120 pies.`
+    },
+    {
+        id: 'flamekin',
+        category: 'Species',
+        title: 'Flamekin (Lorwyn)',
+        content: 'Humanoides de fuego y piedra con Produce Flame y magia de fuego.',
+        fullInfo: `### Flamekin (Lorwyn)
+
+**Source:** Lorwyn - First Light
+
+**Descripción:** Los flamekin son seres creados de dos elementos clave de la creación: fuego y piedra. Como resultado, muchos flamekin sienten una fuerte conexión con el mundo natural. Los cuerpos de los flamekin irradian llamas mágicas inofensivas.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Darkvision.** 60 pies.
+
+**Fire Resistance.** Resistencia al daño por Fuego.
+
+**Reach to the Blaze.** Conoces Produce Flame. Desde nivel 3: Puedes lanzar Burning Hands. Desde nivel 5: También puedes lanzar Flame Blade sin componentes materiales. Inteligencia, Sabiduría o Carisma para lanzar.`
+    },
+    {
+        id: 'lorwyn-changeling',
+        category: 'Species',
+        title: 'Lorwyn Changeling (Lorwyn)',
+        content: 'Shapeshifters Fey con piel azul-verde y movimiento impredecible.',
+        fullInfo: `### Lorwyn Changeling (Lorwyn)
+
+**Source:** Lorwyn - First Light
+
+**Descripción:** Los changelings de Lorwyn son shapeshifters carismáticos capaces de crudamente imitar formas de criaturas y plantas. Independientemente de la forma, los changelings de Lorwyn mantienen sus rasgos clave: piel azul-verde, mechones de pelaje como tentáculos y ojos amarillos bulbosos con pupilas verticales.
+
+**Tipo de Criatura:** Fey
+**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Shape Self.** Como acción, puedes reshapear tu cuerpo a forma Humanoid bípedo o forma Beast cuadrúpedo. Puedes usar ropa y armadura hecha para tu tamaño.
+
+**Darkvision.** 120 pies.
+
+**Delightful Imitator.** Competencia en Performance.
+
+**Unpredictable Movement.** Cuando tiras Iniciativa sin Desventaja, puedes tomar la acción de Dash como Reacción.`
+    },
+    {
+        id: 'rimekin',
+        category: 'Species',
+        title: 'Rimekin (Lorwyn)',
+        content: 'Flamekin transformados con magia de frío y frío intenso.',
+        fullInfo: `### Rimekin (Lorwyn)
+
+**Source:** Lorwyn - First Light
+
+**Descripción:** Los rimekin provienen tanto de Lorwyn como de Shadowmoor, aunque los primeros surgieron de flamekin durante la invasión Phyrexiana. Estos flamekin abordaron sus problemas con lógica fría y rechazaron respuestas reactivas. Como resultado, las llamas mágicas que envolvían sus cuerpos tomaron un aire gélido y se volvieron rimekin.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
+**Velocidad:** 30 pies
+
+#### Traits
+
+**Cold Fire Magic.** Conoces Ray of Frost. Desde nivel 3: Ice Knife. Desde nivel 5: Flame Blade (trata Cold en lugar de Fire). Inteligencia, Sabiduría o Carisma para lanzar.
+
+**Cold Resistance.** Resistencia al daño por Frío.
+
+**Darkvision.** 60 pies.`
+    },
+
+    // --- SPECIES (EXOTIC) ---
+    {
+        id: 'dhampir',
+        category: 'Species',
+        title: 'Dhampir (Exótico)',
+        content: 'Humanoides con poderes vampíricos y hambre maldita, velocidad y mordida vampírica.',
+        fullInfo: `### Dhampir (Exotic)
+
+**Source:** Astarion's Book of Hungers
+
+**Descripción:** Los dhampirs son seres vivos que poseen poderes vampíricos pero están malditos con un hambre macabra. La mayoría de los dhampirs tienen sed de sangre, pero algunos obtienen sustento de sueños, energía vital u otras fuentes. Los dhampirs deben elegir si luchar para controlar su hambre o ceder a impulsos depredadores.
+
+**Tipo de Criatura:** Humanoid
+**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
+**Velocidad:** 35 pies
+
+#### Traits
+
+**Darkvision.** 60 pies.
+
+**Spider Climb.** Tienes Velocidad de Escalada igual a tu Velocidad. Desde nivel 3: Puedes moverte por superficies verticales y techos dejando tus manos libres.
+
+**Trace of Undeath.** Resistencia al daño Necrótico.
+
+**Vampiric Bite.** Cuando usas Unarmed Strike, puedes morder en lugar de otros daños. Daño Piercing 1d4+Constitución en lugar del daño normal de Unarmed Strike.
+
+Además, cuando dañas a una criatura que no es Construct o Undead, puedes elegir uno:
+
+- **Drain.** Recuperas PG iguales al daño Piercing.
+- **Strengthen.** Obtienes bono a tu siguiente prueba de característica o ataque en 1 minuto igual al daño Piercing.
+
+Usos: Bono de Competencia por Descanso Largo.`
     },
 
     // --- CONDITIONS ---
