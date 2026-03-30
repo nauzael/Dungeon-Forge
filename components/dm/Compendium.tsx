@@ -1,36 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { COMPENDIUM_DATA, CompendiumItem } from '../../Data/compendiumData';
+
+const CATEGORIES = ['All', 'Class', 'Subclass', 'Species', 'Condition', 'Feat', 'Rule'] as const;
 
 const Compendium: React.FC = () => {
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState<string>('All');
     const [selectedItem, setSelectedItem] = useState<CompendiumItem | null>(null);
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const [scrollPosition, setScrollPosition] = useState(0);
 
-    // Lock body scroll when modal is open
-    useEffect(() => {
-        if (selectedItem) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, [selectedItem]);
-
-    const handleOpenModal = (item: CompendiumItem) => {
-        setScrollPosition(window.scrollY);
+    const handleOpenModal = useCallback((item: CompendiumItem) => {
         setSelectedItem(item);
-    };
+    }, []);
 
-    const handleCloseModal = () => {
+    const handleCloseModal = useCallback(() => {
         setSelectedItem(null);
-        if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTop = 0;
-        }
-    };
+    }, []);
 
     const filtered = COMPENDIUM_DATA.filter(item => {
         const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase()) || 
@@ -40,7 +24,7 @@ const Compendium: React.FC = () => {
     });
 
     return (
-        <div ref={scrollContainerRef} className="space-y-6 lg:max-w-4xl lg:mx-auto">
+        <div className="space-y-6 lg:max-w-4xl lg:mx-auto">
             {/* Search and Filter */}
             <div className="bg-slate-800/80 backdrop-blur-xl rounded-2xl p-4 border border-white/5 space-y-4 shadow-xl sticky top-2 z-30">
                 <div className="flex items-center gap-3 bg-black/20 rounded-xl px-4 py-3 border border-white/5 focus-within:border-blue-500/50 transition-all">
@@ -54,7 +38,7 @@ const Compendium: React.FC = () => {
                     />
                 </div>
                 <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none snap-x">
-                    {['All', 'Class', 'Species', 'Condition', 'Feat', 'Rule'].map(cat => (
+                    {CATEGORIES.map(cat => (
                         <button 
                             key={cat}
                             onClick={() => setFilter(cat)}
@@ -68,21 +52,28 @@ const Compendium: React.FC = () => {
 
             {/* List */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-20">
-                {filtered.map(item => (
-                    <div 
-                        key={item.id} 
-                        onClick={() => handleOpenModal(item)}
-                        className="group bg-slate-800/40 backdrop-blur-md rounded-2xl p-5 border border-white/5 shadow-lg hover:border-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
-                    >
-                        <div className="flex justify-between items-start mb-3">
-                            <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors tracking-tight leading-tight">{item.title}</h3>
-                            <span className="text-[8px] font-bold bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20 uppercase tracking-widest">{item.category}</span>
-                        </div>
-                        <p className="text-slate-400 text-xs leading-snug whitespace-pre-line font-normal opacity-80 group-hover:opacity-100 transition-opacity">
-                            {item.content}
-                        </p>
+                {filtered.length === 0 ? (
+                    <div className="col-span-full py-12 text-center">
+                        <span className="material-symbols-outlined text-4xl text-slate-700">search_off</span>
+                        <p className="text-slate-500 text-sm mt-2">No se encontraron resultados</p>
                     </div>
-                ))}
+                ) : (
+                    filtered.map(item => (
+                        <div 
+                            key={item.id} 
+                            onClick={() => handleOpenModal(item)}
+                            className="group bg-slate-800/40 backdrop-blur-md rounded-2xl p-5 border border-white/5 shadow-lg hover:border-blue-500/30 transition-all cursor-pointer active:scale-[0.98]"
+                        >
+                            <div className="flex justify-between items-start mb-3">
+                                <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors tracking-tight leading-tight">{item.title}</h3>
+                                <span className="text-[8px] font-bold bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20 uppercase tracking-widest">{item.category}</span>
+                            </div>
+                            <p className="text-slate-400 text-xs leading-snug whitespace-pre-line font-normal opacity-80 group-hover:opacity-100 transition-opacity">
+                                {item.content}
+                            </p>
+                        </div>
+                    ))
+                )}
             </div>
 
             {/* Detail Modal */}
@@ -145,6 +136,31 @@ const Compendium: React.FC = () => {
                                                     })}
                                                 </ul>
                                             );
+                                        }
+
+                                        // Tables
+                                        if (trimmedBlock.includes('|') && trimmedBlock.includes('---')) {
+                                            const lines = trimmedBlock.split('\n').filter(l => l.trim() && !l.match(/^\|[\s-|]+\|$/));
+                                            if (lines.length > 1) {
+                                                return (
+                                                    <div key={idx} className="overflow-x-auto my-4">
+                                                        <table className="w-full text-xs">
+                                                            <tbody>
+                                                                {lines.map((line, i) => {
+                                                                    const cells = line.split('|').filter((_, idx) => idx > 0 && idx < line.split('|').length - 1);
+                                                                    return (
+                                                                        <tr key={i} className={i === 0 ? 'text-blue-400 font-bold' : 'text-slate-300'}>
+                                                                            {cells.map((cell, j) => (
+                                                                                <td key={j} className="px-3 py-2 border border-white/10">{cell.trim()}</td>
+                                                                            ))}
+                                                                        </tr>
+                                                                    );
+                                                                })}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                );
+                                            }
                                         }
 
                                         // Paragraphs
