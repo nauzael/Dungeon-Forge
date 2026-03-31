@@ -760,6 +760,8 @@ const getSlots = (type: string, lvl: number, spellLvl: number): number => {
     let eff = lvl;
     if (type === 'half') eff = Math.ceil(lvl / 2);
     else if (type === 'third') eff = Math.ceil(lvl / 3);
-    const tbl = FULL_CASTER_SLOTS[Math.min(20, Math.max(1, eff))];
+    const tbl = FULL_CASTER_SLOTS[Math.min(20, Math.max(0, eff))] || [];
+    // Bounds check: spellLvl starts at 1, array indices at 0
+    if (spellLvl < 1 || spellLvl > 9) return 0;
     return tbl[spellLvl - 1] || 0;
 };

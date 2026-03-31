@@ -2,7 +2,7 @@
 import { Ability, Skill, BackgroundData, DetailData, SubclassData, Trait } from '../types';
 
 // Importación de species (usa versions en inglés)
-import { useSpecies } from './species';
+import { SPECIES } from './species';
 
 // Importación de classes (usa versions en inglés de classes-en.ts)
 import { 
@@ -52,7 +52,7 @@ export { BACKGROUNDS_DATA };
 
 
 // Use English species from species/index.ts
-const SPECIES_DATA = useSpecies();
+const SPECIES_DATA = SPECIES;
 
 export const SPECIES_DETAILS: Record<string, DetailData> = {
   'Human': SPECIES_DATA['Human'], 

@@ -129,9 +129,18 @@ Todos los bloqueos previos han sido resueltos:
 ```
 - **Recomendación:** Añadir Vitest cuando se implementen features críticas
 
-### Sin Linter
-- No ESLint/Prettier configurado
-- TypeScript strict mode ✅ (bueno)
+### ESLint Configurado (Issues pendientes)
+- ESLint + Prettier ✅ configurados
+- `npm run lint` ejecutado - 173 errores encontrados
+- `npm run lint:fix` ejecutado - auto-fix limitado
+- **Fix aplicado:** `characterOptions.ts` - `useSpecies()` → `SPECIES` (rules-of-hooks error resuelto)
+- Build ✅ PASS con los errores actuales
+
+**Errores pendientes (no críticos):**
+- `no-explicit-any` (~50) - requieren tipado manual
+- `jsx-a11y/*` (~20) - accessibility
+- `set-state-in-effect` (~15) - React 19 best practices
+- `no-useless-escape` (~25) - spells data
 
 ### UI 100% English
 - Toggle de idioma eliminado - App solo funciona en English

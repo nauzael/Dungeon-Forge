@@ -145,10 +145,17 @@ export interface Trait {
     description: string;
 }
 
+export interface SpeciesSpell {
+    level: number;      // 0 = cantrip, 1 = level 1, etc.
+    spell: string;
+    alwaysPrepared?: boolean;  // Some spells are always prepared regardless of level
+}
+
 export interface SubspeciesData {
     name: string;
     description: string;
     traits: Trait[];
+    innateSpells?: SpeciesSpell[];
 }
 
 export interface DetailData {
@@ -158,6 +165,7 @@ export interface DetailData {
     speed?: number;
     traits: Trait[];
     subspecies?: SubspeciesData[];
+    innateSpells?: SpeciesSpell[];  // Spells for species without subspecies
 }
 
 export interface SubclassData {

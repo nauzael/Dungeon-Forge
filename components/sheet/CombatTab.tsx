@@ -502,7 +502,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         const total = abilityMod + (isProf ? character.profBonus : 0) + globalBonus;
                         
                         return (
-                            <button key={stat} onClick={() => setInspectedStat(`Save_${stat}` as any)} className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm active:scale-95 transition-all">
+                            <button key={stat} onClick={() => setInspectedStat(`Save_${stat}` as 'Save_STR' | 'Save_DEX' | 'Save_CON' | 'Save_INT' | 'Save_WIS' | 'Save_CHA')} className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm active:scale-95 transition-all">
                                 <div className="flex items-center gap-1.5 min-w-0">
                                     <div className={`w-1 h-1 rounded-full ${isProf ? 'bg-primary' : 'bg-slate-300 dark:bg-white/10'}`}></div>
                                     <span className="text-[10px] font-black text-slate-500 uppercase">{stat}</span>

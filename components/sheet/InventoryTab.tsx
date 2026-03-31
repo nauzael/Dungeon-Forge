@@ -237,11 +237,11 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                    {isPreview && data.type === 'Weapon' && (
                        <div className="py-2 border-b border-slate-100 dark:border-white/5">
                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Scaling Attribute</span>
-                           <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-white/5 p-1 rounded-xl">
-                               {['Default', 'STR', 'DEX', 'INT', 'WIS', 'CHA'].map(stat => (
-                                   <button 
-                                       key={stat}
-                                       onClick={() => setSelectedStat(stat as any)}
+                            <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-white/5 p-1 rounded-xl">
+                               {(['Default', 'STR', 'DEX', 'INT', 'WIS', 'CHA'] as const).map(stat => (
+                                    <button 
+                                        key={stat}
+                                        onClick={() => setSelectedStat(stat as Ability | 'Default')}
                                        className={`py-1.5 rounded-lg text-[10px] font-black transition-all ${selectedStat === stat ? 'bg-white dark:bg-surface-dark shadow text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                                    >
                                        {stat}

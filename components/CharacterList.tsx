@@ -107,8 +107,8 @@ const CharacterList: React.FC<CharacterListProps> = ({ characters, onCreate, onS
                             
                             {/* Stats Row summary */}
                             <div className="grid grid-cols-6 gap-0.5 border-t border-white/5 pt-3">
-                                {['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'].map((stat, i) => {
-                                    const statValue = char.stats ? char.stats[stat as any] : 10;
+                                {(['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const).map((stat) => {
+                                    const statValue = char.stats ? char.stats[stat] : 10;
                                     return (
                                         <div key={stat} className="text-center">
                                             <span className="block text-[8px] text-slate-500 uppercase font-bold">{stat}</span>

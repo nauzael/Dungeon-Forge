@@ -15,6 +15,9 @@ export const aasimarEn: DetailData = {
     { name: 'Healing Hands', description: 'As a Magic action, you touch a creature and roll a number of d4s equal to your Proficiency Bonus. The creature regains a number of Hit Points equal to the total rolled. Once you use this trait, you can\'t use it again until you finish a Long Rest.' },
     { name: 'Light Bearer', description: 'You know the Light cantrip. Charisma is your spellcasting ability for it.' },
   ],
+  innateSpells: [
+    { level: 0, spell: 'Light' }
+  ],
   subspecies: [
   ]
 };
@@ -171,6 +174,11 @@ export const elfEn: DetailData = {
       description: 'Bonds with the Underdark and shadow magic.',
       traits: [
         { name: 'Drow Magic', description: 'The range of your Darkvision increases to 120 feet. You also know the Dancing Lights cantrip.\n\nAt level 3: Faerie Fire.\nAt level 5: Darkness.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
+      ],
+      innateSpells: [
+        { level: 0, spell: 'Dancing Lights' },
+        { level: 1, spell: 'Faerie Fire' },
+        { level: 2, spell: 'Darkness' },
       ]
     },
     {
@@ -178,6 +186,11 @@ export const elfEn: DetailData = {
       description: 'Bonds with the Wilds and pure arcane magic of the upper planes.',
       traits: [
         { name: 'High Elf Magic', description: 'You know the Prestidigitation cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Wizard spell list.\n\nAt level 3: Detect Magic.\nAt level 5: Misty Step.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
+      ],
+      innateSpells: [
+        { level: 0, spell: 'Prestidigitation' },
+        { level: 1, spell: 'Detect Magic' },
+        { level: 2, spell: 'Misty Step' },
       ]
     },
     {
@@ -186,6 +199,11 @@ export const elfEn: DetailData = {
       traits: [
         { name: 'Wood Elf Magic', description: 'Your Speed increases to 35 feet. You also know the Druidcraft cantrip.\n\nAt level 3: Longstrider.\nAt level 5: Pass without Trace.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
         { name: 'Fleet of Foot', description: 'Your walking speed increases to 35 feet.' },
+      ],
+      innateSpells: [
+        { level: 0, spell: 'Druidcraft' },
+        { level: 1, spell: 'Longstrider' },
+        { level: 2, spell: 'Pass without Trace' },
       ]
     },
     {
@@ -193,6 +211,11 @@ export const elfEn: DetailData = {
       description: 'Elves from the realm of Lorwyn.',
       traits: [
         { name: 'Lorwyn Elf Magic', description: 'You know the Thorn Whip cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Druid spell list.\n\nAt level 3: Command.\nAt level 5: Silence.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
+      ],
+      innateSpells: [
+        { level: 0, spell: 'Thorn Whip' },
+        { level: 1, spell: 'Command' },
+        { level: 2, spell: 'Silence' },
       ]
     },
     {
@@ -200,6 +223,11 @@ export const elfEn: DetailData = {
       description: 'Elves from the realm of Shadowmoor.',
       traits: [
         { name: 'Shadowmoor Elf Magic', description: 'The range of your Darkvision increases to 120 feet. You also know the Starry Wisp cantrip.\n\nAt level 3: Heroism.\nAt level 5: Gentle Repose.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
+      ],
+      innateSpells: [
+        { level: 0, spell: 'Starry Wisp' },
+        { level: 1, spell: 'Heroism' },
+        { level: 2, spell: 'Gentle Repose' },
       ]
     },
   ]
@@ -214,6 +242,11 @@ export const faerieEn: DetailData = {
     { name: 'Fairy Magic', description: 'You know the Druidcraft cantrip.\n\nStarting at 3rd level, you can cast the Faerie Fire spell with this trait. Starting at 5th level, you can also cast the Enlarge/Reduce spell with this trait. Once you cast Faerie Fire or Enlarge/Reduce with this trait, you can\'t cast that spell with it again until you finish a Long Rest. You can also cast either of those spells using any spell slots you have. Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells.' },
     { name: 'Flight', description: 'Because of your wings, you have a Flying Speed equal to your Walking Speed. You can\'t use this Flying Speed if you\'re wearing Medium or Heavy armor.\n\nShadowmoor faeries also have Darkvision with a range of 120 feet.' },
   ],
+  innateSpells: [
+    { level: 0, spell: 'Druidcraft' },
+    { level: 1, spell: 'Faerie Fire' },
+    { level: 2, spell: 'Enlarge/Reduce' },
+  ],
   subspecies: [
   ]
 };
@@ -227,6 +260,11 @@ export const flamekinEn: DetailData = {
     { name: 'Darkvision', description: 'You can see in dim light within 60 feet of you as if it were bright light and in darkness as if it were dim light.' },
     { name: 'Fire Resistance', description: 'You have Resistance to Fire damage.' },
     { name: 'Reach to the Blaze', description: 'You know the Produce Flame cantrip.\n\nStarting at 3rd level, you can cast the Burning Hands spell with this trait. Starting at 5th level, you can also cast the Flame Blade spell with this trait without requiring material components. Once you cast Burning Hands or Flame Blade with this trait, you can\'t cast that spell with it again until you finish a Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells.' },
+  ],
+  innateSpells: [
+    { level: 0, spell: 'Produce Flame' },
+    { level: 1, spell: 'Burning Hands' },
+    { level: 2, spell: 'Flame Blade' },
   ],
   subspecies: [
   ]
@@ -248,6 +286,10 @@ export const gnomeEn: DetailData = {
       description: 'Gnomes with a bond with small forest creatures.',
       traits: [
         { name: 'Forest Gnome Magic', description: 'You know the Minor Illusion cantrip. You also always have the Speak with Animals spell prepared. You can cast it without a spell slot a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.' },
+      ],
+      innateSpells: [
+        { level: 0, spell: 'Minor Illusion' },
+        { level: 1, spell: 'Speak with Animals', alwaysPrepared: true },
       ]
     },
     {
@@ -373,6 +415,11 @@ export const rimekinEn: DetailData = {
     { name: 'Cold Resistance', description: 'You have Resistance to Cold damage.' },
     { name: 'Darkvision', description: 'You have Darkvision with a range of 60 feet.' },
   ],
+  innateSpells: [
+    { level: 0, spell: 'Ray of Frost' },
+    { level: 1, spell: 'Ice Knife' },
+    { level: 2, spell: 'Flame Blade' },
+  ],
   subspecies: [
   ]
 };
@@ -401,6 +448,9 @@ export const tieflingEn: DetailData = {
     { name: 'Fiendish Legacy', description: 'You are the recipient of a legacy that grants you supernatural abilities. Choose a legacy: Abyssal, Chthonic, or Infernal. You gain the level 1 benefit of the chosen legacy.' },
     { name: 'Otherworldly Presence', description: 'You know the Thaumaturgy cantrip. When you cast it with this trait, the spell uses the same spellcasting ability you use for your Fiendish Legacy trait.' },
   ],
+  innateSpells: [
+    { level: 0, spell: 'Thaumaturgy' }
+  ],
   subspecies: [
     {
       name: 'Abyssal',
@@ -408,6 +458,11 @@ export const tieflingEn: DetailData = {
       traits: [
         { name: 'Abyssal Resilience', description: 'You have Resistance to Poison damage. You also know the Poison Spray cantrip.' },
         { name: 'Abyssal Legacy', description: 'Level 1: Poison Spray.\nLevel 3: Ray of Sickness.\nLevel 5: Hold Person.\n\nYou always have these spells prepared and can cast them once without a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
+      ],
+      innateSpells: [
+        { level: 0, spell: 'Poison Spray' },
+        { level: 1, spell: 'Ray of Sickness' },
+        { level: 2, spell: 'Hold Person' },
       ]
     },
     {
@@ -416,6 +471,11 @@ export const tieflingEn: DetailData = {
       traits: [
         { name: 'Chthonic Resilience', description: 'You have Resistance to Necrotic damage. You also know the Chill Touch cantrip.' },
         { name: 'Chthonic Legacy', description: 'Level 1: Chill Touch.\nLevel 3: False Life.\nLevel 5: Ray of Enfeeblement.\n\nYou always have these spells prepared and can cast them once without a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
+      ],
+      innateSpells: [
+        { level: 0, spell: 'Chill Touch' },
+        { level: 1, spell: 'False Life' },
+        { level: 2, spell: 'Ray of Enfeeblement' },
       ]
     },
     {
@@ -424,6 +484,11 @@ export const tieflingEn: DetailData = {
       traits: [
         { name: 'Infernal Resilience', description: 'You have Resistance to Fire damage. You also know the Fire Bolt cantrip.' },
         { name: 'Infernal Legacy', description: 'Level 1: Fire Bolt.\nLevel 3: Hellish Rebuke.\nLevel 5: Darkness.\n\nYou always have these spells prepared and can cast them once without a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
+      ],
+      innateSpells: [
+        { level: 0, spell: 'Fire Bolt' },
+        { level: 1, spell: 'Hellish Rebuke' },
+        { level: 2, spell: 'Darkness' },
       ]
     },
   ]

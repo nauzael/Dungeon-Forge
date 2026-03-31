@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 // Added AsiDecision to the import list from types
-import { Character, CreatorStep, Ability, Trait, SubclassData, AsiDecision } from '../types';
+import { Character, CreatorStep, Ability, Trait, SubclassData, AsiDecision, SpeciesSpell } from '../types';
 import { 
   CLASS_SKILL_DATA, 
   BACKGROUNDS_DATA, 
@@ -119,6 +119,35 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
       return count;
   }, [selectedClass, level]);
 
+  // Species innate spells (level-gated by character level)
+  const speciesInnateSpells = useMemo(() => {
+    const speciesData = SPECIES_DETAILS[selectedSpecies];
+    if (!speciesData) return [];
+    
+    const spells: string[] = [];
+    
+    // Base species innate spells (e.g., Aasimar's Light, Tiefling's Thaumaturgy)
+    if (speciesData.innateSpells) {
+      speciesData.innateSpells.forEach((s: SpeciesSpell) => {
+        if (s.level <= level) spells.push(s.spell);
+      });
+    }
+    
+    // Subspecies innate spells (e.g., Drow's spells, Infernal Tiefling's spells)
+    if (speciesData.subspecies && selectedSubspecies) {
+      const subspeciesData = speciesData.subspecies.find(
+        sub => sub.name === selectedSubspecies || sub.name.includes(selectedSubspecies)
+      );
+      if (subspeciesData?.innateSpells) {
+        subspeciesData.innateSpells.forEach((s: SpeciesSpell) => {
+          if (s.level <= level) spells.push(s.spell);
+        });
+      }
+    }
+    
+    return spells;
+  }, [selectedSpecies, selectedSubspecies, level]);
+
   const finalStats = useMemo(() => {
     const stats = { ...baseStats };
     if (backgroundData?.scores) {
@@ -131,9 +160,9 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
     asiLevels.forEach(lvl => {
         const decision = asiDecisions[lvl];
         if (decision?.type === 'stat') {
-            if (decision.stat1) stats[decision.stat1] = Math.min(30, stats[decision.stat1] + 1);
-            if (decision.stat2) stats[decision.stat2] = Math.min(30, stats[decision.stat2] + 1);
-        } else if (decision?.type === 'feat' && decision.stat1) stats[decision.stat1] = Math.min(30, stats[decision.stat1] + 1);
+            if (decision.stat1) stats[decision.stat1] = Math.min(20, stats[decision.stat1] + 1);
+            if (decision.stat2) stats[decision.stat2] = Math.min(20, stats[decision.stat2] + 1);
+        } else if (decision?.type === 'feat' && decision.stat1) stats[decision.stat1] = Math.min(20, stats[decision.stat1] + 1);
     });
     return stats;
   }, [baseStats, backgroundData, bgAsiMode, bgPlus2, bgPlus1, asiLevels, asiDecisions]);
@@ -350,6 +379,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
             weaponMasteries: selectedMasteries,
             spellcastingAbility: spellcastingAbility || undefined,
             preparedSpells: [
+                ...speciesInnateSpells,
                 ...bgSpells,
                 ...(selectedClass === 'Ranger' ? ['Hunter\'s Mark'] : []),
                 ...(selectedClass === 'Paladin' ? ['Divine Smite'] : [])

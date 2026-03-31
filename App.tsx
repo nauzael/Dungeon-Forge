@@ -35,7 +35,11 @@ const App: React.FC = () => {
   useEffect(() => {
     if (updateAvailable) {
       const timer = setTimeout(async () => {
-        localStorage.setItem('app_version', updateAvailable.version);
+        try {
+          localStorage.setItem('app_version', updateAvailable.version);
+        } catch (e) {
+          console.error("Failed to save app version:", e);
+        }
         await CapacitorUpdater.set(updateAvailable.payload);
       }, 4000);
       return () => clearTimeout(timer);
@@ -51,7 +55,11 @@ const App: React.FC = () => {
       if (session) {
         setUser({ name: session.user.email || 'Adventurer', id: session.user.id });
         setIsAuthenticated(true);
-        localStorage.setItem('df_session', JSON.stringify({ user: session.user.email, id: session.user.id }));
+        try {
+          localStorage.setItem('df_session', JSON.stringify({ user: session.user.email, id: session.user.id }));
+        } catch (e) {
+          console.error("Failed to save session:", e);
+        }
       }
     });
 
@@ -126,11 +134,19 @@ const App: React.FC = () => {
       if (session) {
         setUser({ name: session.user.email || 'Adventurer', id: session.user.id });
         setIsAuthenticated(true);
-        localStorage.setItem('df_session', JSON.stringify({ user: session.user.email, id: session.user.id }));
+        try {
+          localStorage.setItem('df_session', JSON.stringify({ user: session.user.email, id: session.user.id }));
+        } catch (e) {
+          console.error("Failed to save session:", e);
+        }
       } else {
         setUser(null);
         setIsAuthenticated(false);
-        localStorage.removeItem('df_session');
+        try {
+          localStorage.removeItem('df_session');
+        } catch (e) {
+          console.error("Failed to remove session:", e);
+        }
       }
     });
 
@@ -311,7 +327,11 @@ const App: React.FC = () => {
     await supabase.auth.signOut();
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem('df_session');
+    try {
+      localStorage.removeItem('df_session');
+    } catch (e) {
+      console.error("Failed to remove session:", e);
+    }
     setView('list');
   };
 
