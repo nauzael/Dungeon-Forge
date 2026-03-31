@@ -29,8 +29,8 @@ interface Step4Props {
     maxExpertise: number;
     selectedExpertise: string[];
     toggleExpertise: (s: string) => void;
-    pendingSkillFeat: { type: 'Skilled' | 'Skill Expert', level?: number } | null;
-    setPendingSkillFeat: (v: { type: 'Skilled' | 'Skill Expert', level?: number } | null) => void;
+    pendingSkillFeat: { type: 'Skilled' | 'Skill Expert' | 'Boon of Skill' | 'Don de Habilidad', level?: number } | null;
+    setPendingSkillFeat: (v: { type: 'Skilled' | 'Skill Expert' | 'Boon of Skill' | 'Don de Habilidad', level?: number } | null) => void;
     asiDecisions: Record<number, AsiDecision>;
     onAsiUpdate: (level: number, updates: Partial<AsiDecision>) => void;
     selectedFeat: string;
@@ -56,6 +56,9 @@ const Step4Skills: React.FC<Step4Props> = ({
     const [skillExpertSelection, setSkillExpertSelection] = useState<string>(
         asiDecisions[pendingSkillFeat?.level || 0]?.expertiseSkill || ''
     );
+    const [boonOfSkillExpertise, setBoonOfSkillExpertise] = useState<string>(
+        asiDecisions[pendingSkillFeat?.level || 0]?.expertiseSkill || ''
+    );
     const availableWeapons = (Object.values(WEAPONS_DB) as any[]).filter((w: any) => w.mastery && w.mastery !== '-');
     const skills = useSkills();
     const SKILL_LIST = skills.map(s => s.name);
@@ -64,6 +67,7 @@ const Step4Skills: React.FC<Step4Props> = ({
     const featLevel = pendingSkillFeat?.level || 0;
     const hasSkilledFeat = pendingSkillFeat?.type === 'Skilled' || asiDecisions[featLevel]?.feat === 'Skilled' || selectedFeat === 'Skilled';
     const hasSkillExpertFeat = pendingSkillFeat?.type === 'Skill Expert' || asiDecisions[featLevel]?.feat === 'Skill Expert' || selectedFeat === 'Skill Expert';
+    const hasBoonOfSkillFeat = pendingSkillFeat?.type === 'Boon of Skill' || asiDecisions[featLevel]?.feat === 'Boon of Skill' || asiDecisions[featLevel]?.feat === 'Don de Habilidad' || selectedFeat === 'Boon of Skill' || selectedFeat === 'Don de Habilidad';
     
     // Get current skilled selections (either from ASI or human feat)
     const currentSkilledSelections = pendingSkillFeat?.level ? skilledSelections : humanFeatSkilledSelections;
@@ -307,6 +311,34 @@ const Step4Skills: React.FC<Step4Props> = ({
                                 <button key={skill} onClick={() => handleSkillExpertSelect(skill)} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${isSelected ? 'bg-primary/5 border-primary shadow-[0_0_15px_rgba(53,158,255,0.2)]' : 'bg-white dark:bg-surface-dark border-slate-200 hover:border-primary/50'}`}>
                                     <span className={`font-bold ${isSelected ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{skill}</span>
                                     {isSelected && <span className="material-symbols-outlined text-primary">verified</span>}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
+            {/* Boon of Skill UI - 1 Expertise (all skills proficiency is automatic) */}
+            {(hasBoonOfSkillFeat || boonOfSkillExpertise) && (
+                <div className="mt-8 animate-fadeIn pb-10">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xl font-bold">{t.feat}: Boon of Skill</h3>
+                        <div className="text-sm font-medium text-slate-500">{t.chosen}: <span className={`${boonOfSkillExpertise ? 'text-purple-500' : 'text-slate-900 dark:text-white'} font-bold`}>{boonOfSkillExpertise ? 1 : 0}</span> / 1</div>
+                    </div>
+                    <p className="text-xs text-slate-500 mb-4">Elige 1 habilidad para Maestría (doble Bono de Competencia). Ya tienes competencia en TODAS las habilidades.</p>
+                    <div className="grid grid-cols-1 gap-2">
+                        {SKILL_LIST.map(skill => {
+                            const isSelected = boonOfSkillExpertise === skill;
+                            return (
+                                <button key={skill} onClick={() => {
+                                    const newExpertise = isSelected ? '' : skill;
+                                    setBoonOfSkillExpertise(newExpertise);
+                                    if (pendingSkillFeat?.level) {
+                                        onAsiUpdate(pendingSkillFeat.level, { expertiseSkill: newExpertise });
+                                    }
+                                }} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${isSelected ? 'bg-purple-500/10 border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 'bg-white dark:bg-surface-dark border-slate-200 hover:border-purple-500/50'}`}>
+                                    <span className={`font-bold ${isSelected ? 'text-purple-600 dark:text-purple-400' : 'text-slate-900 dark:text-white'}`}>{skill}</span>
+                                    {isSelected && <span className="material-symbols-outlined text-purple-500">verified</span>}
                                 </button>
                             );
                         })}

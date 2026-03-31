@@ -79,7 +79,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
   const [asiDecisions, setAsiDecisions] = useState<Record<number, AsiDecision>>({});
   const [showFeatModal, setShowFeatModal] = useState(false);
   const [featModalContext, setFeatModalContext] = useState<{ type: 'human' | 'asi', level?: number } | null>(null);
-  const [pendingSkillFeat, setPendingSkillFeat] = useState<{ type: 'Skilled' | 'Skill Expert', level?: number } | null>(null);
+  const [pendingSkillFeat, setPendingSkillFeat] = useState<{ type: 'Skilled' | 'Skill Expert' | 'Boon of Skill' | 'Don de Habilidad', level?: number } | null>(null);
 
   const [trinket] = useState<string>(() => {
       const randomIndex = Math.floor(Math.random() * TRINKETS.length);
@@ -122,6 +122,8 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
       if (selectedFeat === 'Skill Expert') count += 1;
       asiLevels.forEach(lvl => {
           if (asiDecisions[lvl]?.feat === 'Skill Expert') count += 1;
+          // Boon of Skill grants 1 expertise (in addition to all skills proficiency)
+          if (asiDecisions[lvl]?.feat === 'Boon of Skill' || asiDecisions[lvl]?.feat === 'Don de Habilidad') count += 1;
       });
       return count;
   }, [selectedClass, level, selectedFeat, asiLevels, asiDecisions]);
@@ -210,7 +212,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
   };
 
   const handleFeatSelect = (featName: string) => {
-      if (featName === 'Skilled' || featName === 'Skill Expert') {
+      if (featName === 'Skilled' || featName === 'Skill Expert' || featName === 'Boon of Skill' || featName === 'Don de Habilidad') {
           if (featModalContext?.type === 'human') {
               setSelectedFeat(featName);
           } else if (featModalContext?.type === 'asi' && featModalContext.level) {

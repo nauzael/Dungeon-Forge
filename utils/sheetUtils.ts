@@ -713,7 +713,8 @@ export const getSkillBonus = (character: Character, skillName: string, finalStat
     const ability = SKILL_ABILITY_MAP[skillName];
     if (!ability) return 0;
     const mod = getAbilityModifier(finalStats, ability);
-    const isProf = (character.skills || []).includes(skillName);
+    const hasBoonOfSkill = (character.feats || []).some(f => f.includes('Boon of Skill') || f.includes('Don de Habilidad'));
+    const isProf = (character.skills || []).includes(skillName) || hasBoonOfSkill;
     const isExpert = (character.expertise || []).includes(skillName);
     const bonus = isExpert ? (character.profBonus * 2) : (isProf ? character.profBonus : 0);
     return mod + bonus;
