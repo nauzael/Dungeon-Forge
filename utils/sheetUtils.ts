@@ -379,9 +379,6 @@ export const getInitBreakdown = (character: Character, finalStats: Record<string
     }
     
     // 2024 / Tasha's Updates
-    if (character.species === 'Harengon') {
-        breakdown.push({ label: 'Harengon (Prof)', value: character.profBonus, icon: 'rabbit' });
-    }
     if (character.class === 'Paladin' && character.subclass === 'Oath of the Watchers' && character.level >= 7) {
         breakdown.push({ label: 'Aura del Centinela (Prof)', value: character.profBonus, icon: 'security' });
     }
