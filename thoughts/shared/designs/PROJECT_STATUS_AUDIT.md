@@ -46,7 +46,7 @@ Dungeon Forge es una aplicación de gestión de personajes D&D 5e (Edición 2024
 | Feats | ✅ | 159 feats en English |
 | Items | ✅ | Con Weapon Mastery |
 | Skills | ✅ | skills-en.ts |
-| Compendium | ⚠️ | Necesita traducción |
+| Compendium | ✅ | 100% English (5008 líneas) |
 
 ### Traducción (Progreso Reciente)
 | Archivo | Estado | Notas |
@@ -71,13 +71,13 @@ GENERIC_FEATURES not exported from Data/feats/index.ts
 - **Solución:** `Data/feats/index.ts` ahora exporta `GENERIC_FEATURES` en inglés (142 líneas)
 - **Verificación:** Build pasa ✅ (154 modules, 4.79s)
 
-### 2. CompendiumData.ts No Traducido
-- **Tamaño:** 5008 líneas
-- **Contenido pendiente:**
-  - Class titles (~12 entries) - algunos en ES
-  - Species (~20 entries) - todo en ES
-  - Subclasses (~63 entries) - content en ES
-  - Conditions (~15 entries) - mixto
+### 2. CompendiumData.ts ✅ RESUELTO
+- **Verificación:** 0 caracteres español encontrados (grep confirmado)
+- **Contenido:** 100% English
+  - Classes (~12 entries) - English
+  - Species (~20 entries) - English
+  - Subclasses (~63 entries) - English
+  - Conditions (~15 entries) - English
 
 ---
 
@@ -132,7 +132,7 @@ GENERIC_FEATURES not exported from Data/feats/index.ts
 | Componente | Problema | Prioridad |
 |------------|----------|-----------|
 | `FeaturesTab.tsx` | ✅ RESUELTO - GENERIC_FEATURES funciona | - |
-| `Compendium.tsx` | Datos en español | 🔴 Alta |
+| `Compendium.tsx` | ✅ RESUELTO - Datos 100% EN | - |
 | `Step2Stats.tsx` | No muestra Standard Array suggestions | 🟡 Media |
 | `Step3Details.tsx` | Podría faltarle species spells | 🟡 Media |
 | `Step4Skills.tsx` | No tiene weapon mastery selector | 🟡 Media |
@@ -156,7 +156,8 @@ GENERIC_FEATURES not exported from Data/feats/index.ts
 
 ### UI Mixta ES/EN
 - Algunos textos en español en componentes ya "traducidos"
-- `gameData.ts`, `compendiumData.ts` contienen español
+- `gameData.ts` contiene español (bilingual exports disponibles)
+- `compendiumData.ts` ✅ 100% English
 
 ---
 
@@ -173,7 +174,7 @@ GENERIC_FEATURES not exported from Data/feats/index.ts
 ### Pendientes de Traducción
 | Archivo | Tamaño | Prioridad |
 |---------|--------|-----------|
-| `Data/compendiumData.ts` | 5008 líneas | 🔴 Alta |
+| `Data/compendiumData.ts` | ✅ RESUELTO - 100% English | - |
 | `Data/gameData.ts` | ? | 🟡 Media |
 | `Data/feats.ts` | ✅ RESUELTO - GENERIC_FEATURES exportado | - |
 
@@ -184,7 +185,7 @@ GENERIC_FEATURES not exported from Data/feats/index.ts
 ### Fase 1: Desbloqueo (Completada ✅)
 1. ✅ **Fix GENERIC_FEATURES** - Implementado en `Data/feats/index.ts`
 2. ✅ **Rebuild + Deploy OTA** - Build pasa (154 modules, 4.79s)
-3. **Traducir Compendium** - Batch approach por categoría
+3. ✅ **Traducir Compendium** - Ya estaba en English (verificado)
 
 ### Fase 2: D&D 2024 Completitud
 1. Stats suggestions en Step2Stats
