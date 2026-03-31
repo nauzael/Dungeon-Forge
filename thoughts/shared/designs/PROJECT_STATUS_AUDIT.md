@@ -181,8 +181,11 @@ Todos los bloqueos previos han sido resueltos:
 - Spell slot tracking
 
 ### 🔄 En Progreso: Fase 3 (Polish)
-1. README.md custom (no AI Studio template)
-2. PWA manifest optimization
+1. ✅ README.md custom (Dungeon Forge branding)
+2. ✅ PWA manifest optimization (categories, shortcuts, icons)
+3. ✅ Vitest + Testing Library installed (3 tests passing)
+4. ✅ ESLint + Prettier configured
+5. ⏳ Run lint on codebase (pending)
 
 ### ⏳ Pendiente: Fase 4 (Features Avanzadas)
 1. Monster Builder completo
@@ -201,7 +204,8 @@ Todos los bloqueos previos han sido resueltos:
 | D&D 2024 Features | 10/10 implementadas ✅ |
 | Traducción UI | 100% English |
 | Bloqueos Críticos | 0 |
-| Cobertura de Tests | 0% |
+| Cobertura de Tests | 🆕 Vitest configurado |
+| Linting | 🆕 ESLint + Prettier |
 
 ---
 
