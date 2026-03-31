@@ -266,9 +266,9 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
 
         // Medium Armor Master: Max Dex becomes 3 for Medium Armor (usually 2)
         if (armorData.armorType === 'Medium' && character.feats.some(f => 
-            f === 'Maestro en armaduras medias' || 
+            f === 'Maestro de Armadura Media' || 
             f === 'Medium Armor Master' ||
-            f.toLowerCase().includes('maestro en armaduras medias') ||
+            f.toLowerCase().includes('maestro de armadura media') ||
             f.toLowerCase().includes('medium armor master'))) {
             if (maxDex === 2) maxDex = 3;
         }
@@ -348,7 +348,7 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
     if (character.feats.some(f => f.includes('Defensa') || f.includes('Defense')) && hasArmor) {
         breakdown.push({ label: 'Estilo: Defensa', value: 1, icon: 'shield_person' });
     }
-    if (character.feats.some(f => f === 'Combatiente con dos armas' || f === 'Dual Wielder')) {
+    if (character.feats.some(f => f === 'Doble Empuñadura' || f === 'Dual Wielder')) {
         const equippedWeapons = inventory.filter(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
         if (equippedWeapons.length >= 2) breakdown.push({ label: 'Dote: Doble Empuñadura', value: 1, icon: 'swords' });
     }
@@ -495,8 +495,8 @@ export const getHPBreakdown = (character: Character, finalStats: Record<string, 
     }
 
     // Dotes y Boons
-    if (character.feats.some(f => f === 'Duro' || f === 'Tough')) {
-        breakdown.push({ label: 'Dote: Duro (+2 por nivel)', value: character.level * 2, icon: 'military_tech' });
+    if (character.feats.some(f => f === 'Resistente' || f === 'Tough')) {
+        breakdown.push({ label: 'Dote: Resistente (+2 por nivel)', value: character.level * 2, icon: 'military_tech' });
         bonusesTotal += (character.level * 2);
     }
     

@@ -143,7 +143,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         const currentFeats = character.feats || [];
         const currentLessons = character.lessonsFeats || [];
         let updatedHp = { ...character.hp };
-        if (featName === 'Duro' || featName === 'Tough') {
+        if (featName === 'Resistente' || featName === 'Tough') {
             const bonus = character.level * 2;
             updatedHp.max += bonus;
             updatedHp.current += bonus;
@@ -167,7 +167,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         if (featMatch) {
             const featName = featMatch[1];
             let updatedHp = { ...character.hp };
-            if (featName === 'Duro' || featName === 'Tough') {
+        if (featName === 'Resistente' || featName === 'Tough') {
                 const bonus = character.level * 2;
                 updatedHp.max = Math.max(1, updatedHp.max - bonus);
                 updatedHp.current = Math.max(1, updatedHp.current - bonus);
@@ -445,12 +445,12 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                                 const currentFeat = targetLessonsInstance?.match(/\((.*)\)/)?.[1];
                                 if (currentFeat) {
                                     let updatedHp = { ...character.hp };
-                                    if (currentFeat === 'Duro' || currentFeat === 'Tough') {
+                                    if (currentFeat === 'Resistente' || currentFeat === 'Tough') {
                                         const bonus = character.level * 2;
                                         updatedHp.max = Math.max(1, updatedHp.max - bonus);
                                         updatedHp.current = Math.max(1, updatedHp.current - bonus);
                                     }
-                                    if (feat.name === 'Duro' || feat.name === 'Tough') {
+                                    if (feat.name === 'Resistente' || feat.name === 'Tough') {
                                         const bonus = character.level * 2;
                                         updatedHp.max += bonus;
                                         updatedHp.current += bonus;
