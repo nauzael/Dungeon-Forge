@@ -4,11 +4,11 @@ import { Ability, Skill, DetailData, SubclassData } from '../../types';
 export const warlock = {
   details: { 
     name: 'Warlock', 
-    description: 'Buscadores de conocimientos ocultos que forjan pactos con entidades poderosas. Los brujos combinan magia de corto alcance con invocaciones místicas que alteran su realidad.', 
+    description: 'Seekers of hidden knowledge who forge pacts with powerful entities. Warlocks combine short-range magic with mystic invocations that alter their reality.', 
     traits: [
-        { name: 'Eldritch Invocations', description: 'Fragmentos de conocimiento prohibido que te otorgan habilidades mágicas permanentes. Ganas una a nivel 1 (como Pact of the Tome).' }, 
-        { name: 'Pact Magic', description: 'Magia única basada en Carisma. Tus espacios de conjuro son siempre del máximo nivel que puedes lanzar y se recuperan con descansos cortos.' }, 
-        { name: 'Magical Cunning', description: 'Acción (1 min): Recuperas la mitad de tus espacios de Pact Magic (redondeado hacia arriba). 1/Descanso Largo.' }
+        { name: 'Eldritch Invocations', description: 'Fragments of forbidden knowledge that grant you permanent magical abilities. You gain one at level 1 (like Pact of the Tome).' }, 
+        { name: 'Pact Magic', description: 'Unique Charisma-based magic. Your spell slots are always the highest level you can cast and recover on short rests.' }, 
+        { name: 'Magical Cunning', description: 'Action (1 min): You recover half your Pact Magic slots (rounded up). 1/Long Rest.' }
     ] 
   } as DetailData,
   hitDie: 8,
@@ -37,71 +37,71 @@ export const warlock = {
   subclasses: [
     {
         name: 'Archfey Patron',
-        description: 'Pacto con un noble de la Corte Feérica, maestros de la ilusión y el teletransporte juguetón.',
+        description: 'Pact with a noble of the Fey Court, masters of illusion and playful teleportation.',
         features: {
             3: [
-                { name: 'Archfey Spells', description: 'Hechizos siempre preparados como Misty Step, Faerie Fire, Sleep and Calm Emotions. Más a niveles 5, 7 y 9.' },
-                { name: 'Steps of the Fey', description: 'Puedes lanzar Misty Step gratis un número de veces igual a tu mod. Carisma. Al usarlo, eliges un efecto: Refreshing Step (THP) o Taunting Step (Desventaja para enemigos).' }
+                { name: 'Archfey Spells', description: 'Always prepared spells like Misty Step, Faerie Fire, Sleep, and Calm Emotions. More at levels 5, 7, and 9.' },
+                { name: 'Steps of the Fey', description: 'You can cast Misty Step for free a number of times equal to your Charisma mod. When using it, choose an effect: Refreshing Step (THP) or Taunting Step (Disadvantage for enemies).' }
             ],
-            6: [{ name: 'Misty Escape', description: 'Reacción al recibir daño: Te vuelves Invisible y te teletransportas 30 pies. Ganas los beneficios de Steps of the Fey al hacerlo.' }],
-            10: [{ name: 'Beguiling Defenses', description: 'Inmunidad a Encantado. Reacción al ser impactado: Reduces el daño a la mitad y el atacante debe salvar Sabiduría o recibir daño Psíquico.' }],
-            14: [{ name: 'Bewitching Magic', description: 'Al lanzar un conjuro de Ilusión o Encantamiento, puedes lanzar Misty Step como parte de la misma acción sin gastar espacio.' }]
+            6: [{ name: 'Misty Escape', description: 'Reaction when hit: You become Invisible and teleport 30 feet. You gain the benefits of Steps of the Fey when doing so.' }],
+            10: [{ name: 'Beguiling Defenses', description: 'Immunity to Charmed. Reaction when hit: Reduce the damage in half and the attacker must save Wisdom or take Psychic damage.' }],
+            14: [{ name: 'Bewitching Magic', description: 'When casting an Illusion or Enchantment spell, you can cast Misty Step as part of the same action without spending a slot.' }]
         }
     },
     {
         name: 'Celestial Patron',
-        description: 'Tu patrón es un ser de los planos superiores, una entidad de luz purificadora y esperanza eterna.',
+        description: 'Your patron is a being from the upper planes, an entity of purifying light and eternal hope.',
         features: {
             3: [
-                { name: 'Celestial Spells', description: 'Hechizos como Cure Wounds, Guiding Bolt, Lesser Restoration and Daylight.' },
-                { name: 'Healing Light', description: 'Reserva de d6s (1 + Nivel Brujo). Acción Adicional: Gasta dados (máx mod CHA) para curar a una criatura a 60 pies.' }
+                { name: 'Celestial Spells', description: 'Spells like Cure Wounds, Guiding Bolt, Lesser Restoration, and Daylight.' },
+                { name: 'Healing Light', description: 'Reserve of d6s (1 + Warlock Level). Bonus action: Spend dice (max CHA mod) to heal a creature within 60 feet.' }
             ],
-            6: [{ name: 'Radiant Soul', description: 'Resistencia a daño Radiante. Sumas Carisma al daño de un conjuro que inflija daño Radiante o de Fuego.' }],
-            10: [{ name: 'Celestial Resilience', description: 'Al terminar un descanso o usar Magical Cunning, tú y hasta 5 aliados ganáis THP (Nivel + mod CHA).' }],
-            14: [{ name: 'Searing Vengeance', description: 'Reacción al tirar salvación de muerte: Te levantas con medio HP, infliges daño Radiante (2d8+CHA) y ciegas a enemigos cercanos.' }]
+            6: [{ name: 'Radiant Soul', description: 'Resistance to Radiant damage. Add Charisma to the damage of a spell that deals Radiant or Fire damage.' }],
+            10: [{ name: 'Celestial Resilience', description: 'When finishing a rest or using Magical Cunning, you and up to 5 allies gain THP (Level + CHA mod).' }],
+            14: [{ name: 'Searing Vengeance', description: 'Reaction when rolling a death save: You rise with half HP, deal Radiant damage (2d8+CHA) and blind nearby enemies.' }]
         }
     },
     {
         name: 'Fiend Patron',
-        description: 'Has forjado un pacto con un demonio o diablo, otorgándote poder destructivo y resiliencia infernal.',
+        description: 'You have forged a pact with a demon or devil, granting you destructive power and infernal resilience.',
         features: {
             3: [
-                { name: 'Fiend Spells', description: 'Hechizos como Burning Hands, Command, Scorching Ray and Fireball.' },
-                { name: 'Dark One\'s Blessing', description: 'Al reducir a un enemigo a 0 HP (tú o alguien a 10 pies), ganas THP igual a Nivel Brujo + mod Carisma.' }
+                { name: 'Fiend Spells', description: 'Spells like Burning Hands, Command, Scorching Ray, and Fireball.' },
+                { name: 'Dark One\'s Blessing', description: 'When reducing an enemy to 0 HP (you or someone within 10 feet), you gain THP equal to Warlock Level + Charisma modifier.' }
             ],
-            6: [{ name: 'Dark One\'s Own Luck', description: 'Suma 1d10 a una prueba de habilidad o salvación. 1/Descanso Largo o gasta espacio de Pact Magic.' }],
-            10: [{ name: 'Fiendish Resilience', description: 'Elige un tipo de daño (no Fuerza) al terminar un descanso para ganar Resistencia a él hasta el próximo descanso.' }],
-            14: [{ name: 'Hurl Through Hell', description: 'Al impactar con ataque: Envías al objetivo a los planos inferiores. Desaparece hasta el final de tu turno y recibe 8d10 daño Psíquico (si no es un Infernal).' }]
+            6: [{ name: 'Dark One\'s Own Luck', description: 'Add 1d10 to an ability check or save. 1/Long Rest or spend a Pact Magic slot.' }],
+            10: [{ name: 'Fiendish Resilience', description: 'Choose a damage type (not Force) when finishing a rest to gain Resistance to it until the next rest.' }],
+            14: [{ name: 'Hurl Through Hell', description: 'When hitting with an attack: Send the target to the lower planes. They disappear until the end of your turn and take 8d10 Psychic damage (if not a Fiend).' }]
         }
     },
     {
         name: 'Great Old One Patron',
-        description: 'Tu patrón es una entidad insondable de los reinos lejanos, cuya sola presencia altera la cordura.',
+        description: 'Your patron is an unspeakable entity from distant realms, whose mere presence alters sanity.',
         features: {
             3: [
-                { name: 'Great Old One Spells', description: 'Hechizos como Dissonant Whispers, Tasha\'s Hideous Laughter and Detect Thoughts.' },
-                { name: 'Awakened Mind', description: 'Telepatía a 30 pies con una criatura durante Nivel Brujo minutos. Puedes hablar mentalmente a millas de distancia si ya hay vínculo.' },
-                { name: 'Psychic Spells', description: 'Puedes cambiar el daño de tus conjuros de brujo a Psíquico. Los conjuros de Ilusión/Encantamiento no requieren componentes Verbales/Somáticos.' }
+                { name: 'Great Old One Spells', description: 'Spells like Dissonant Whispers, Tasha\'s Hideous Laughter, and Detect Thoughts.' },
+                { name: 'Awakened Mind', description: 'Telepathy with one creature within 30 feet for Warlock Level minutes. You can mentally speak at miles away if there is already a bond.' },
+                { name: 'Psychic Spells', description: 'You can change your warlock spells\' damage to Psychic. Illusion/Enchantment spells don\'t require Verbal/Somatic components.' }
             ],
-            6: [{ name: 'Clairvoyant Combatant', description: 'Usando Awakened Mind, puedes forzar salvación de Sabiduría: El objetivo tiene Desventaja en ataques contra ti y tú tienes Ventaja contra él.' }],
+            6: [{ name: 'Clairvoyant Combatant', description: 'Using Awakened Mind, you can force a Wisdom save: The target has Disadvantage on attacks against you and you have Advantage against them.' }],
             10: [
-                { name: 'Eldritch Hex', description: 'Al lanzar Hex, el objetivo tiene Desventaja en tiradas de salvación de la característica elegida.' },
-                { name: 'Thought Shield', description: 'Resistencia a daño Psíquico y reflejas el daño psíquico recibido al atacante.' }
+                { name: 'Eldritch Hex', description: 'When casting Hex, the target has Disadvantage on saving throws of the chosen ability.' },
+                { name: 'Thought Shield', description: 'Resistance to Psychic damage and you reflect received psychic damage to the attacker.' }
             ],
-            14: [{ name: 'Create Thrall', description: 'Siempre tienes preparado Summon Aberration. Puedes lanzarlo sin componentes y sin concentración durante 1 minute con THP extra.' }]
+            14: [{ name: 'Create Thrall', description: 'You always have Summon Aberration prepared. You can cast it without components and without concentration for 1 minute with extra THP.' }]
         }
     },
     {
         name: 'Vestige Patron',
-        description: 'Tu pacto es con un vestigio, los restos de un dios moribundo que busca recuperar su poder a través de ti.',
+        description: 'Your pact is with a vestige, the remains of a dying god seeking to regain its power through you.',
         features: {
             3: [
-                { name: 'Vestige Companion', description: 'Invoca un Vestigio (Celestial, Infernal o No-Muerto) que actúa en tu turno. Tiene su propio bloque de estadísticas que escala con tu nivel de Brujo.' },
-                { name: 'Vestige Spells', description: 'Elige un Dominio de Clérigo (Vida, Luz, Engaño o Guerra) para tener sus conjuros siempre preparados como conjuros de Brujo.' }
+                { name: 'Vestige Companion', description: 'Summon a Vestige (Celestial, Fiend, or Undead) that acts on your turn. It has its own stat block that scales with your Warlock level.' },
+                { name: 'Vestige Spells', description: 'Choose a Cleric Domain (Life, Light, Trickery, or War) to have their spells always prepared as Warlock spells.' }
             ],
-            6: [{ name: 'Vestige Recovery', description: 'Tu Vestigio recupera el uso de su Poder Divino al finalizar un descanso corto o largo, o al usar tu Astucia Mágica.' }],
-            10: [{ name: 'Aura of Power', description: 'Como Acción Mágica, el Vestigio emite un aura de 30 pies (Resistencia a Fuego, Necrótico y Radiante; inmunidad a Encantamiento y Miedo). Si caes a 0 HP en el aura, quedas a 1 HP.' }],
-            14: [{ name: 'Semblance of Life', description: 'Como Acción Mágica, el Vestigio adopta temporalmente una forma más poderosa (Summon Celestial, Fiend o Undead) sin requerir concentración.' }]
+            6: [{ name: 'Vestige Recovery', description: 'Your Vestige recovers the use of its Divine Power when finishing a short or long rest, or when using your Magical Cunning.' }],
+            10: [{ name: 'Aura of Power', description: 'As a Magic action, the Vestige emits a 30-foot aura (Resistance to Fire, Necrotic, and Radiant; immunity to Charm and Fear). If you fall to 0 HP in the aura, you remain at 1 HP.' }],
+            14: [{ name: 'Semblance of Life', description: 'As a Magic action, the Vestige temporarily adopts a more powerful form (Summon Celestial, Fiend, or Undead) without requiring concentration.' }]
         }
     }
   ] as SubclassData[],

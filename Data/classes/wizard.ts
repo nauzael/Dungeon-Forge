@@ -4,11 +4,11 @@ import { Ability, Skill, DetailData, SubclassData } from '../../types';
 export const wizard = {
   details: { 
     name: 'Wizard', 
-    description: 'Los magos se definen por su estudio exhaustivo de los entresijos de la magia. Lanzan hechizos de fuego explosivo, rayos arqueados, sutil engaño y transformaciones espectaculares.', 
+    description: 'Wizards are defined by their exhaustive study of the intricacies of magic. They cast explosive fire spells, arched lightning, subtle deception, and spectacular transformations.', 
     traits: [
-        { name: 'Spellcasting', description: 'Magia arcana basada en Inteligencia. Utilizas un libro de conjuros y eres un lanzador de conjuros preparados.' }, 
-        { name: 'Ritual Adept', description: 'Puedes lanzar cualquier hechizo como un Ritual si tiene la etiqueta Ritual y está en tu libro de conjuros. No necesitas tenerlo preparado.' }, 
-        { name: 'Arcane Recovery', description: 'Puedes recuperar parte de tu energía mágica estudiando tu libro de conjuros durante un Descanso Corto. (1/Descanso Largo).' }
+        { name: 'Spellcasting', description: 'Intelligence-based arcane magic. You use a spellbook and are a prepared spellcaster.' }, 
+        { name: 'Ritual Adept', description: 'You can cast any spell as a Ritual if it has the Ritual tag and is in your spellbook. You don\'t need to have it prepared.' }, 
+        { name: 'Arcane Recovery', description: 'You can recover part of your magical energy by studying your spellbook during a Short Rest. (1/Long Rest).' }
     ] 
   } as DetailData,
   hitDie: 6,
@@ -34,56 +34,56 @@ export const wizard = {
   subclasses: [
       { 
         name: 'Abjurer', 
-        description: 'Especialistas en magia que bloquea, destierra o protege.', 
+        description: 'Specialists in magic that blocks, banishes, or protects.', 
         features: { 
             3: [
-                { name: 'Abjuration Savant', description: 'Elige dos conjuros de la escuela de Abjuración de nivel 2 o menor y añádelos a tu libro gratis. Además, cada vez que ganes acceso a un nuevo nivel de espacios, añade otro conjuro de Abjuración gratis.' },
-                { name: 'Arcane Ward', description: 'Al lanzar un conjuro de Abjuración con espacio, creas un escudo mágico. HP Máx = (2 x Nivel Mago) + Mod. INT. Absorbe daño antes que tú. Recupera HP al lanzar Abjuraciones.' }
+                { name: 'Abjuration Savant', description: 'Choose two Abjuration spells of level 2 or lower and add them to your book for free. Additionally, each time you gain access to a new spell slot level, add another Abjuration spell for free.' },
+                { name: 'Arcane Ward', description: 'When casting an Abjuration spell with a slot, you create a magical shield. Max HP = (2 x Wizard Level) + INT Mod. It absorbs damage before you do. Recovers HP when casting Abjuration spells.' }
             ],
-            6: [{ name: 'Projected Ward', description: 'Reacción: Cuando una criatura a 30 pies reciba daño, tu Arcane Ward absorbs ese daño en su lugar.' }],
+            6: [{ name: 'Projected Ward', description: 'Reaction: When a creature within 30 feet takes damage, your Arcane Ward absorbs that damage instead.' }],
             10: [
-                { name: 'Spell Breaker', description: 'Siempre tienes preparados Contrahechizo and Disipar Magia. Puedes lanzar Disipar Magia como Acción Adicional y añades tu Competencia a la prueba. Si fallas en detener un hechizo, no gastas el espacio.' }
+                { name: 'Spell Breaker', description: 'You always have Counterspell and Dispel Magic prepared. You can cast Dispel Magic as a bonus action and add your Proficiency to the check. If you fail to stop a spell, you don\'t spend the slot.' }
             ],
-            14: [{ name: 'Spell Resistance', description: 'Tienes Ventaja en salvaciones contra hechizos y Resistencia al daño de los mismos.' }]
+            14: [{ name: 'Spell Resistance', description: 'You have Advantage on saves against spells and Resistance to damage from spells.' }]
         } 
       },
       { 
         name: 'Diviner', 
-        description: 'Buscadores de una comprensión más clara del pasado, presente y futuro.', 
+        description: 'Seekers of a clearer understanding of the past, present, and future.', 
         features: { 
             3: [
-                { name: 'Divination Savant', description: 'Elige dos conjuros de Adivinación de nivel 2 o menor para tu libro. Gana uno extra cada vez que desbloquees nuevos niveles de espacios de conjuro.' },
-                { name: 'Portent', description: 'Al terminar un Descanso Largo, tira dos d20 y anota los resultados. Puedes sustituir cualquier tirada de d20 que veas por uno de estos resultados (1/turno).' }
+                { name: 'Divination Savant', description: 'Choose two Divination spells of level 2 or lower for your book. Gain one extra each time you unlock new spell slot levels.' },
+                { name: 'Portent', description: 'When finishing a Long Rest, roll two d20s and record the results. You can substitute any d20 roll you see with one of these results (1/turn).' }
             ],
-            6: [{ name: 'Expert Divination', description: 'Al lanzar un conjuro de Adivinación de nivel 2+, recuperas un espacio de conjuro de nivel inferior (máximo nivel 5).' }],
-            10: [{ name: 'The Third Eye', description: 'Acción Adicional: Elige un beneficio hasta tu próximo descanso (Visión en la Oscuridad 120ft, Leer todos los idiomas o ver lo Invisible sin gastar espacio).' }],
-            14: [{ name: 'Greater Portent', description: 'Tiras tres d20 para tu rasgo de Portento en lugar de dos.' }]
+            6: [{ name: 'Expert Divination', description: 'When casting a Divination spell of level 2+, you recover a lower-level spell slot (maximum level 5).' }],
+            10: [{ name: 'The Third Eye', description: 'Bonus action: Choose a benefit until your next rest (Darkvision 120ft, Read all languages, or see Invisible without spending a slot).' }],
+            14: [{ name: 'Greater Portent', description: 'You roll three d20s for your Portent feature instead of two.' }]
         } 
       },
       { 
         name: 'Evoker', 
-        description: 'Maestros de la energía destructiva pura.', 
+        description: 'Masters of pure destructive energy.', 
         features: { 
             3: [
-                { name: 'Evocation Savant', description: 'Elige dos conjuros de Evocación de nivel 2 o menor para tu libro. Gana uno extra al subir de nivel de espacios de conjuro.' },
-                { name: 'Potent Cantrip', description: 'Tus trucos dañinos afectan incluso a quienes evitan el impacto. Si fallan la salvación o el ataque falla, reciben la mitad del daño del truco.' }
+                { name: 'Evocation Savant', description: 'Choose two Evocation spells of level 2 or lower for your book. Gain one extra when leveling up spell slots.' },
+                { name: 'Potent Cantrip', description: 'Your damaging cantrips affect even those who avoid the hit. If they fail the save or the attack misses, they take half the cantrip\'s damage.' }
             ],
-            6: [{ name: 'Sculpt Spells', description: 'Crea bolsas de seguridad en tus evocaciones de área. Elige (1 + Nivel Conjuro) criaturas; superan la salvación automáticamente y no reciben daño.' }],
-            10: [{ name: 'Empowered Evocation', description: 'Suma tu modificador de Inteligencia a una tirada de daño de tus conjuros de Evocación.' }],
-            14: [{ name: 'Overchannel', description: 'Aumenta el power de tus conjuros de nivel 1-5 para infligir el máximo daño posible. El primer uso es seguro; los siguientes te infligen daño Necrótico (2d12 por nivel de espacio).' }]
+            6: [{ name: 'Sculpt Spells', description: 'Create safety pockets in your area evocations. Choose (1 + Spell Level) creatures; they automatically succeed on the save and take no damage.' }],
+            10: [{ name: 'Empowered Evocation', description: 'Add your Intelligence modifier to one damage roll of your Evocation spells.' }],
+            14: [{ name: 'Overchannel', description: 'Increase the power of your spells of level 1-5 to deal maximum possible damage. The first use is safe; subsequent uses deal Necrotic damage to you (2d12 per spell level).' }]
         } 
       },
       { 
         name: 'Illusionist', 
-        description: 'Especialistas en engañar los sentidos y la mente.', 
+        description: 'Specialists in deceiving the senses and mind.', 
         features: { 
             3: [
-                { name: 'Illusion Savant', description: 'Elige dos conjuros de Ilusión de nivel 2 o menor para tu libro. Gana uno extra al subir de nivel de espacios de conjuro.' },
-                { name: 'Improved Illusions', description: 'Lanzas Ilusiones sin componentes Verbales. Si el hechizo tiene rango 10ft+, el rango aumenta 60ft. Aprendes Ilusión Menor y puedes crear sonido e imagen a la vez como Acción Adicional.' }
+                { name: 'Illusion Savant', description: 'Choose two Illusion spells of level 2 or lower for your book. Gain one extra when leveling up spell slots.' },
+                { name: 'Improved Illusions', description: 'You cast Illusions without Verbal components. If the spell has range 10ft+, the range increases 60ft. You learn Minor Illusion and can create sound and image simultaneously as a bonus action.' }
             ],
-            6: [{ name: 'Phantasmal Creatures', description: 'Siempre tienes preparados Summon Beast and Summon Fey. Al lanzarlos, puedes cambiar su escuela a Ilusión y lanzarlos sin gastar espacio (con la mitad de HP).' }],
-            10: [{ name: 'Illusory Self', description: 'Reacción: Interpones un duplicado ante un ataque, haciendo que falle automáticamente. 1/Descanso corto o largo (o gasta espacio nivel 2+).' }],
-            14: [{ name: 'Illusory Reality', description: 'Acción Adicional: Eliges un objeto inanimado de una de tus ilusiones y lo haces real durante 1 minuto (no puede hacer daño).' }]
+            6: [{ name: 'Phantasmal Creatures', description: 'You always have Summon Beast and Summon Fey prepared. When casting them, you can change their school to Illusion and cast them without spending a slot (with half HP).' }],
+            10: [{ name: 'Illusory Self', description: 'Reaction: Interpose a duplicate before an attack, causing it to automatically miss. 1/Short or long rest (or spend slot level 2+).' }],
+            14: [{ name: 'Illusory Reality', description: 'Bonus action: Choose an inanimate object from one of your illusions and make it real for 1 minute (cannot deal damage).' }]
         } 
       }
   ] as SubclassData[],

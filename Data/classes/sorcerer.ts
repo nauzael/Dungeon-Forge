@@ -4,11 +4,11 @@ import { Ability, Skill, DetailData, SubclassData } from '../../types';
 export const sorcerer = {
   details: { 
     name: 'Sorcerer', 
-    description: 'Los hechiceros portan magia innata sellada en su ser. No aprenden magia; el poder crudo y bullente forma parte de ellos, heredado por linaje o eventos extraños.', 
+    description: 'Sorcerers carry innate magic sealed within their being. They don\'t learn magic; the raw, seething power is part of them, inherited through lineage or strange events.', 
     traits: [
-        { name: 'Spellcasting', description: 'Magia arcana innata basada en Carisma. Eres un lanzador de conjuros preparados.' }, 
-        { name: 'Innate Sorcery', description: 'Acción Adicional: Durante 1 min, tu CD de salvación aumenta en 1 y tienes ventaja en tiradas de ataque de conjuros. (2 usos/Long Rest).' }, 
-        { name: 'Font of Magic', description: 'Reserva de Puntos de Hechicería (igual a tu nivel a partir del nivel 2). Úsalos para crear espacios de conjuro o alimentar tu Metamagia.' }
+        { name: 'Spellcasting', description: 'Innate Charisma-based arcane magic. You are a prepared spellcaster.' }, 
+        { name: 'Innate Sorcery', description: 'Bonus action: For 1 min, your save DC increases by 1 and you have advantage on spell attack rolls. (2 uses/Long Rest).' }, 
+        { name: 'Font of Magic', description: 'Sorcery Points reserve (equal to your level starting at level 2). Use them to create spell slots or fuel your Metamagic.' }
     ] 
   } as DetailData,
   hitDie: 6,
@@ -36,28 +36,28 @@ export const sorcerer = {
   subclasses: [
     { 
         name: 'Draconic Sorcery', 
-        description: 'Tu magia innata proviene del don de un dragón, heredado de un ancestro que fue bendecido o absorbido el power de una guarida dracónica.', 
+        description: 'Your innate magic comes from the gift of a dragon, inherited from an ancestor who was blessed or absorbed the power of a draconic lair.', 
         features: { 
             3: [
-                { name: 'Draconic Resilience', description: 'Tu máximo de Puntos de Golpe aumenta en 3, y aumenta en 1 cada vez que subas de nivel de hechicero. Mientras no lleves armadura, tu CA base es igual a 10 + tus modificadores de Destreza y Carisma.' },
-                { name: 'Draconic Spells', description: 'Hechizos siempre preparados como Alter Self, Chromatic Orb, Command and Dragon\'s Breath. Más hechizos a niveles 5, 7 y 9.' }
+                { name: 'Draconic Resilience', description: 'Your maximum Hit Points increase by 3, and increase by 1 each time you level up in sorcerer. While not wearing armor, your base AC equals 10 + your Dexterity and Charisma modifiers.' },
+                { name: 'Draconic Spells', description: 'Always prepared spells like Alter Self, Chromatic Orb, Command, and Dragon\'s Breath. More spells at levels 5, 7, and 9.' }
             ],
-            6: [{ name: 'Elemental Affinity', description: 'Elige un tipo de daño (Ácido, Frío, Fuego, Rayo o Veneno). Ganas Resistencia a ese daño, y al lanzar un conjuro que inflija ese tipo, sumas tu modificador de Carisma a una tirada de daño.' }],
-            14: [{ name: 'Dragon wings', description: 'Como Acción Adicional, puedes invocar alas dracónicas (1h). Ganas velocidad de Vuelo de 60 pies. Puedes gastar 3 Puntos de Hechicería para restaurar este uso antes de un descanso largo.' }],
-            18: [{ name: 'Dragon Companion', description: 'Puedes lanzar Summon Dragon sin componentes materiales y una vez gratis por descanso largo. Puedes lanzarlo sin concentración (duración 1 min).' }]
+            6: [{ name: 'Elemental Affinity', description: 'Choose a damage type (Acid, Cold, Fire, Lightning, or Poison). You gain Resistance to that damage, and when casting a spell that deals that type, you add your Charisma modifier to one damage roll.' }],
+            14: [{ name: 'Dragon wings', description: 'As a bonus action, you can summon draconic wings (1h). You gain a 60-foot Fly speed. You can spend 3 Sorcery Points to restore this use before a long rest.' }],
+            18: [{ name: 'Dragon Companion', description: 'You can cast Summon Dragon without material components and once for free per long rest. You can cast it without concentration (1 min duration).' }]
         } 
     },
     {
         name: 'Wild Magic Sorcery',
-        description: 'Tu magia brota de las fuerzas del caos que subyacen en el orden de la creación, esperando cualquier salida.',
+        description: 'Your magic bursts from the forces of chaos that underlie the order of creation, seeking any outlet.',
         features: {
             3: [
-                { name: 'Wild Magic Surge', description: '1/turno después de lanzar un conjuro con espacio, lanza 1d20. Con un 20, tira en la tabla de Oleada de Magia Salvaje. Los efectos son demasiado salvajes para la Metamagia y duran su tiempo completo.' },
-                { name: 'Tides of Chaos', description: 'Ganas ventaja en una tirada de d20. Recuperas el uso tras un descanso largo o tras lanzar un conjuro de nivel 1+ que provoque una Oleada de Magia Salvaje.' }
+                { name: 'Wild Magic Surge', description: '1/turn after casting a spell with a slot, roll 1d20. On a 20, roll on the Wild Magic Surge table. The effects are too wild for Metamagic and last their full duration.' },
+                { name: 'Tides of Chaos', description: 'You gain advantage on one d20 roll. You recover the use after a long rest or after casting a spell of level 1+ that triggers a Wild Magic Surge.' }
             ],
-            6: [{ name: 'Bend Luck', description: 'Reacción (1 punto): Cuando veas a otro lanzar d20, tira 1d4 y suma o resta el resultado a su tirada.' }],
-            14: [{ name: 'Controlled Chaos', description: 'Al tirar en la tabla de Oleada de Magia Salvaje, tira dos veces y elige el resultado que prefieras.' }],
-            18: [{ name: 'Tamed Surge', description: 'Tras lanzar un conjuro con espacio, puedes elegir cualquier efecto de la tabla de Oleada (excepto el último) que lance un conjuro o restaure todos tus puntos de hechicería. (1/1d4 descansos largos).' }]
+            6: [{ name: 'Bend Luck', description: 'Reaction (1 point): When you see another roll a d20, roll 1d4 and add or subtract the result from their roll.' }],
+            14: [{ name: 'Controlled Chaos', description: 'When rolling on the Wild Magic Surge table, roll twice and choose the result you prefer.' }],
+            18: [{ name: 'Tamed Surge', description: 'After casting a spell with a slot, you can choose any effect from the Surge table (except the last one) that casts a spell or restores all your sorcery points. (1/1d4 long rests).' }]
         }
     }
   ] as SubclassData[],

@@ -103,7 +103,7 @@ const MonsterBuilder: React.FC<{ playerLevels: number[] }> = ({ playerLevels }) 
                         />
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1">
-                                <label className="text-[8px] font-black uppercase text-slate-500 pl-1">CR (Desafío)</label>
+                                <label className="text-[8px] font-black uppercase text-slate-500 pl-1">CR (Challenge)</label>
                                 <select 
                                     value={cr}
                                     onChange={(e) => setCr(e.target.value)}

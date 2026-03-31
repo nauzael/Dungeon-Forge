@@ -305,7 +305,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                             <div className="space-y-0.5">
                                 <h3 className="font-bold text-white leading-tight group-hover:text-blue-400 transition-colors uppercase tracking-tight">{p.name}</h3>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">Código Shared:</span>
+                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">Shared Code:</span>
                                     <span className="text-[10px] font-bold text-blue-400">#{p.code}</span>
                                 </div>
                             </div>

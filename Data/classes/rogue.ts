@@ -4,11 +4,11 @@ import { Ability, Skill, DetailData, SubclassData } from '../../types';
 export const rogue = {
   details: { 
     name: 'Rogue', 
-    description: 'Maestros del sigilo, el ingenio y la precisión. Los pícaros aprovechan las debilidades de sus enemigos para dar golpes letales y son expertos en superar cualquier obstáculo.', 
+    description: 'Masters of stealth, ingenuity, and precision. Rogues exploit their enemies\' weaknesses to deal lethal blows and are experts at overcoming any obstacle.', 
     traits: [
-        { name: 'Sneak Attack', description: 'Una vez por turno, infliges daño extra (1d6 a lvl 1, escala) a una criatura que impactes con Ventaja o que tenga un aliado cerca.' }, 
-        { name: 'Expertise', description: 'Eliges dos habilidades para duplicar tu bonificador por competencia.' }, 
-        { name: 'Weapon Mastery', description: 'Dominas las propiedades de maestría de dos tipos de armas (Finesse o Light).' }
+        { name: 'Sneak Attack', description: 'Once per turn, you deal extra damage (1d6 at lvl 1, scales) to a creature you hit with Advantage or that has an ally nearby.' }, 
+        { name: 'Expertise', description: 'Choose two skills to double your proficiency bonus.' }, 
+        { name: 'Weapon Mastery', description: 'You master the mastery properties of two types of weapons (Finesse or Light).' }
     ] 
   } as DetailData,
   hitDie: 8,
@@ -40,62 +40,62 @@ export const rogue = {
   subclasses: [
     {
         name: 'Arcane Trickster',
-        description: 'Pícaros que combinan el sigilo y la agilidad con conjuros arcanos, expertos en travesuras y supervivencia.',
+        description: 'Rogues who combine stealth and agility with arcane spells, experts in pranks and survival.',
         features: {
             3: [
-                { name: 'Spellcasting', description: 'Lanzamiento de conjuros basado en Inteligencia (usando la lista de Mago). Ver tabla de conjuros.' },
-                { name: 'Mage Hand Legerdemain', description: 'Tu Mano de Mago es invisible. Puedes usarla para robar, usar herramientas de ladrón o abrir cerraduras como Acción Adicional.' }
+                { name: 'Spellcasting', description: 'Intelligence-based spellcasting (using the Wizard list). See spell table.' },
+                { name: 'Mage Hand Legerdemain', description: 'Your Mage Hand is invisible. You can use it to steal, use thief\'s tools, or pick locks as a bonus action.' }
             ],
-            9: [{ name: 'Magical Ambush', description: 'Si estás escondido cuando lanzas un conjuro a una criatura, esta tiene desventaja en la salvación contra ese conjuro.' }],
-            13: [{ name: 'Versatile Trickster', description: 'Puedes usar tu Mano de Mago para distraer a un enemigo: como Acción Adicional, elige un enemigo a 5 pies de la mano para usar tus opciones de Cunning Strike.' }],
-            17: [{ name: 'Spell Thief', description: 'Como reacción al ser afectado por un conjuro, puedes forzar al lanzador a salvar. Si falla, el conjuro no te afecta y "robas" el conjuro para usarlo tú durante 8 horas.' }]
+            9: [{ name: 'Magical Ambush', description: 'If you are hidden when you cast a spell at a creature, they have disadvantage on the save against that spell.' }],
+            13: [{ name: 'Versatile Trickster', description: 'You can use your Mage Hand to distract an enemy: as a bonus action, choose an enemy within 5 feet of the hand to use your Cunning Strike options.' }],
+            17: [{ name: 'Spell Thief', description: 'As a reaction when affected by a spell, you can force the caster to save. If they fail, the spell doesn\'t affect you and you "steal" the spell to use for 8 hours.' }]
         }
     },
     {
         name: 'Assassin',
-        description: 'Homicidas entrenados, espías y cazarrecompensas que eliminan a sus objetivos con una eficiencia aterradora.',
+        description: 'Trained killers, spies, and bounty hunters who eliminate their targets with terrifying efficiency.',
         features: {
             3: [
-                { name: 'Assassinate', description: 'Ventaja en iniciativa. En el primer asalto de combate, tienes ventaja contra criaturas que no hayan actuado y tu Ataque Furtivo inflige daño extra igual a tu nivel.' },
-                { name: 'Assassin\'s Tools', description: 'Ganas competencia con el Kit de Disfraz y el Kit de Venenos.' }
+                { name: 'Assassinate', description: 'Advantage on initiative. In the first combat round, you have advantage against creatures that haven\'t acted and your Sneak Attack deals extra damage equal to your level.' },
+                { name: 'Assassin\'s Tools', description: 'You gain proficiency with the Disguise Kit and Poisoner\'s Kit.' }
             ],
             9: [
-                { name: 'Masterful Mimicry', description: 'Puedes imitar perfectamente el habla y la escritura de alguien tras estudiarlo 1 hora.' },
-                { name: 'Roving Aim', description: 'Tu velocidad no se reduce a 0 al usar Puntería Firme (Steady Aim).' }
+                { name: 'Masterful Mimicry', description: 'You can perfectly mimic speech and writing after studying someone for 1 hour.' },
+                { name: 'Roving Aim', description: 'Your speed is not reduced to 0 when using Steady Aim.' }
             ],
-            13: [{ name: 'Envenom Weapons', description: 'Al usar la opción de veneno de Cunning Strike, infliges 2d6 daño de veneno extra ignorando resistencias.' }],
-            17: [{ name: 'Death Strike', description: 'En el primer asalto de combate, al impactar con Ataque Furtivo, el objetivo debe salvar Constitución o recibir el doble de daño.' }]
+            13: [{ name: 'Envenom Weapons', description: 'When using the poison option of Cunning Strike, you deal 2d6 extra poison damage ignoring resistances.' }],
+            17: [{ name: 'Death Strike', description: 'In the first combat round, when hitting with Sneak Attack, the target must save Constitution or take double damage.' }]
         }
     },
     {
         name: 'Thief',
-        description: 'El arquetipo del aventurero: una mezcla de ladrón, buscador de tesoros y explorador de ruinas.',
+        description: 'The archetype of the adventurer: a mix of thief, treasure hunter, and explorer of ruins.',
         features: {
             3: [
-                { name: 'Fast Hands', description: 'Como Acción Adicional puedes realizar la acción de Utilizar (Objeto), Usar un Objeto Mágico o hacer una prueba de Juego de Manos / Herramientas de Ladrón.' },
-                { name: 'Second-Story Work', description: 'Ganas velocidad de escalada igual a tu velocidad actual. Saltas usando Destreza en lugar de Fuerza.' }
+                { name: 'Fast Hands', description: 'As a bonus action you can take the Use an Object action, Use a Magic Object, or make a Sleight of Hand / Thieves\' Tools check.' },
+                { name: 'Second-Story Work', description: 'You gain a climbing speed equal to your current speed. Jumps use Dexterity instead of Strength.' }
             ],
-            9: [{ name: 'Supreme Sneak', description: 'Ganas la opción Stealth Attack (Cunning Strike): por 1 dado de daño, si estás invisible por Esconderse, el ataque no revela tu posición tras coberturas.' }],
+            9: [{ name: 'Supreme Sneak', description: 'You gain the Stealth Attack option (Cunning Strike): for 1 damage die, if you are invisible from Hide, the attack doesn\'t reveal your position behind cover.' }],
             13: [
-                { name: 'Use Magic Device', description: 'Puedes sintonizar hasta 4 objetos mágicos. Al usar un objeto con cargas, con un 6 en 1d6 no gastas la carga. Puedes usar cualquier pergamino de conjuro.' }
+                { name: 'Use Magic Device', description: 'You can attune to up to 4 magic items. When using an item with charges, a 6 on 1d6 doesn\'t spend the charge. You can use any spell scroll.' }
             ],
-            17: [{ name: 'Thief\'s Reflexes', description: 'Eres tan rápido que tienes dos turnos durante el primer asalto de cualquier combate.' }]
+            17: [{ name: 'Thief\'s Reflexes', description: 'You are so fast that you get two turns during the first round of any combat.' }]
         }
     },
     {
         name: 'Magic Stealer',
-        description: 'Pícaros que se especializan en robar el poder mágico de otros, usando sus habilidades para drenar la magia de aliados y enemigos.',
+        description: 'Rogues who specialize in stealing the magical power of others, using their abilities to drain magic from allies and enemies.',
         features: {
             3: [
-                { name: 'Empower Sneak Attack', description: 'Reacción (después de ver a alguien lanzar hechizo lv 1+ a 30 pies): Absorbes energía. La próxima vez que uses Ataque Furtivo, añades 1d6 de daño de Fuerza por nivel del hechizo absorbido. Usos = mod INT.' },
-                { name: 'Drain Magic', description: 'Acción Mágica: Toca a una criatura voluntaria para finalizar un hechizo de lv 1 o 2 en curso sobre ella. El objetivo recupera un espacio de conjuro de nivel 2 o inferior. 1/Descanso Corto.' }
+                { name: 'Empower Sneak Attack', description: 'Reaction (after seeing someone cast spell lvl 1+ within 30 feet): You absorb energy. The next time you use Sneak Attack, you add 1d6 Force damage per level of the absorbed spell. Uses = INT mod.' },
+                { name: 'Drain Magic', description: 'Magic action: Touch a willing creature to end a spell of lvl 1 or 2 on them. The target recovers a spell slot of level 2 or lower. 1/Short Rest.' }
             ],
-            9: [{ name: 'Magical Sabotage', description: 'Nuevas opciones de Cunning Strike (Ataque Astuto): Spell Susceptibility (2d6, desventaja en salvaciones contra hechizos), Disrupt Spell (3d6, salva de INT o pierde el conjuro), Steal Resistance (2d6, robas una resistencia).' }],
+            9: [{ name: 'Magical Sabotage', description: 'New Cunning Strike options (Cunning Attack): Spell Susceptibility (2d6, disadvantage on saves vs spells), Disrupt Spell (3d6, INT save or lose the spell), Steal Resistance (2d6, you steal a resistance).' }],
             13: [
-                { name: 'Occult Shroud', description: 'Al finalizar un descanso largo, puedes lanzar el hechizo No Detección sobre ti mismo (duración 24 horas, usa tu Inteligencia).' },
-                { name: 'Improved Drain Magic', description: 'Drain Magic ahora es Acción Adicional y puede afectar hechizos y recuperar espacios de hasta nivel 3.' }
+                { name: 'Occult Shroud', description: 'After finishing a long rest, you can cast Nondetection on yourself (duration 24 hours, uses your Intelligence).' },
+                { name: 'Improved Drain Magic', description: 'Drain Magic is now a bonus action and can affect spells and recover slots up to level 3.' }
             ],
-            17: [{ name: 'Eldritch Implosion', description: 'Al usar Empower Sneak Attack, puedes forzar una salva de Constitución (CD 8 + DEX + PB) o el hechizo se disipa y el objetivo queda aturdido.' }]
+            17: [{ name: 'Eldritch Implosion', description: 'When using Empower Sneak Attack, you can force a Constitution save (DC 8 + DEX + PB) or the spell dissipates and the target is stunned.' }]
         }
     }
   ] as SubclassData[],

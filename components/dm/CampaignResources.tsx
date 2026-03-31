@@ -45,7 +45,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
 
     const handleAdd = async () => {
         if (!newRes.title || !newRes.url) {
-            alert("Por favor, ponle un título y sube una imagen.");
+            alert("Please add a title and upload an image.");
             return;
         }
         
@@ -166,7 +166,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                         
                         <div className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
                             <div className="space-y-0.5">
-                                <span className="text-[10px] font-black uppercase text-white leading-none">Persistencia Automática</span>
+                                <span className="text-[10px] font-black uppercase text-white leading-none">Auto Persistence</span>
                                 <p className="text-[8px] text-slate-500 uppercase font-bold">Appears in Players' Notes</p>
                             </div>
                             <button 

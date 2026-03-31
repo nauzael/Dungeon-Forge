@@ -46,7 +46,7 @@ export const CLASS_SKILL_DATA: Record<string, { count: number, options: Skill[] 
   Object.entries(CLASSES_MAP).map(([name, data]) => [name, data.skillData])
 );
 
-import { BACKGROUNDS_EN as BACKGROUNDS_DATA } from './backgrounds';
+import { BACKGROUNDS as BACKGROUNDS_DATA } from './backgrounds';
 
 export { BACKGROUNDS_DATA };
 

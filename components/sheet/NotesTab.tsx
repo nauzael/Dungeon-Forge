@@ -40,7 +40,7 @@ const NoteCard: React.FC<{
             <div className="flex justify-between items-start mb-3 pl-3">
                 <input 
                     type="text" 
-                    placeholder="Sin título"
+                    placeholder="No title"
                     value={note.title}
                     onChange={(e) => onUpdate(note.id, 'title', e.target.value)}
                     readOnly={isReadOnly}
@@ -50,7 +50,7 @@ const NoteCard: React.FC<{
                     <button 
                         onClick={() => onDelete(note.id)}
                         className="opacity-0 group-hover:opacity-100 focus:opacity-100 text-slate-300 hover:text-red-500 -mt-1 -mr-1 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
-                        title="Borrar nota"
+                        title="Delete note"
                     >
                         <span className="material-symbols-outlined text-xl">delete</span>
                     </button>
@@ -63,7 +63,7 @@ const NoteCard: React.FC<{
                 onChange={(e) => onUpdate(note.id, 'content', e.target.value)}
                 readOnly={isReadOnly}
                 className="w-full bg-transparent border-none p-0 pl-3 text-sm leading-7 text-slate-600 dark:text-slate-300 placeholder:text-slate-400/50 dark:placeholder:text-slate-600/50 focus:ring-0 resize-none overflow-hidden font-body"
-                placeholder="Escribe tus aventuras aquí..."
+                placeholder="Write your adventures here..."
                 spellCheck={false}
                 rows={1}
             />
@@ -152,7 +152,7 @@ const NotesTab: React.FC<NotesTabProps> = ({ character, onUpdate, isReadOnly }) 
                 <div className="mb-8 animate-fadeIn">
                     <div className="flex items-center gap-2 mb-4">
                         <span className="material-symbols-outlined text-blue-500">map</span>
-                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Atlas de Campaña</h3>
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Campaign Atlas</h3>
                         <div className="flex-1 h-px bg-slate-200 dark:bg-white/5 ml-2"></div>
                     </div>
 
@@ -201,7 +201,7 @@ const NotesTab: React.FC<NotesTabProps> = ({ character, onUpdate, isReadOnly }) 
                         <span className="material-symbols-outlined text-2xl">history_edu</span>
                     </div>
                     <div>
-                        <h3 className="font-bold text-slate-900 dark:text-white text-xl leading-tight">Crónicas</h3>
+                        <h3 className="font-bold text-slate-900 dark:text-white text-xl leading-tight">Chronicles</h3>
                         <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Tus notas y secretos personales.</p>
                     </div>
                 </div>

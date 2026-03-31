@@ -24,7 +24,7 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
       onJoined(partyId, partyName || '');
       onClose();
     } else {
-      setError(joinError || 'CÓDIGO INVÁLIDO O ERROR DE CONEXIÓN.');
+      setError(joinError || 'INVALID CODE OR CONNECTION ERROR.');
     }
     setIsJoining(false);
   };

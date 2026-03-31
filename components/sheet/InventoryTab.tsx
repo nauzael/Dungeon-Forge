@@ -292,7 +292,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                </div>
                <div className="flex flex-col gap-2">
                   <div className="flex justify-between items-end">
-                     <label className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Sintonización</label>
+                     <label className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Attunement</label>
                      <span className="text-slate-800 dark:text-white text-sm font-medium"><span className={`${attunedCount >= 3 ? 'text-amber-500' : 'text-purple-500'}`}>{attunedCount}</span> / 3</span>
                   </div>
                   <div className="h-1.5 w-full bg-gray-200 dark:bg-surface-dark rounded-full overflow-hidden">
