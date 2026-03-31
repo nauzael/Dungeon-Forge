@@ -258,32 +258,6 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
         }
     };
 
-    // ── Warrior of the Mystic Arts (Monk) ─────────────────────────────
-    const convertSlotToFocus = (slotLevel: number) => {
-        const slots = character.spellSlots?.[slotLevel];
-        if (slots && slots.current > 0) {
-            const newSlots = { ...character.spellSlots, [slotLevel]: { ...slots, current: slots.current - 1 } };
-            onUpdate({
-                ...character,
-                spellSlots: newSlots,
-                focus: { current: Math.min(maxFocus, currentFocus + slotLevel), max: maxFocus }
-            });
-        }
-    };
-
-    const convertFocusToSlot = (slotLevel: number) => {
-        const cost = slotLevel + 1; // 1st=2pt, 2nd=3pt...
-        if (currentFocus >= cost) {
-            const slots = character.spellSlots?.[slotLevel] || { current: 0, max: 0 };
-            const newSlots = { ...character.spellSlots, [slotLevel]: { ...slots, current: Math.min(slots.max, slots.current + 1) } };
-            onUpdate({
-                ...character,
-                spellSlots: newSlots,
-                focus: { current: currentFocus - cost, max: maxFocus }
-            });
-        }
-    };
-
 
     const openHpModal = (type: 'damage' | 'heal') => {
         setHpModal({ show: true, type });
