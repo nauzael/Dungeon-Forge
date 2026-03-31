@@ -10,6 +10,11 @@ import { SPECIES_ES } from '../Data/species/es';
 import { CLASSES_EN } from '../Data/classes/en';
 import { CLASSES_ES } from '../Data/classes/es';
 import { SPELL_NAME_TO_ES } from '../utils/translations';
+import { SpellDetail } from '../types';
+
+const SPELL_NAME_TO_EN = Object.fromEntries(
+  Object.entries(SPELL_NAME_TO_ES).map(([en, es]) => [es, en])
+);
 
 interface GameData {
   spells: typeof SPELL_DETAILS_EN;
@@ -18,16 +23,28 @@ interface GameData {
   species: typeof SPECIES_EN;
   classes: typeof CLASSES_EN;
   getSpellDisplayName: (enName: string) => string;
+  getSpellByName: (name: string) => SpellDetail | undefined;
 }
 
 export const useGameData = (): GameData => {
   const { language } = useLanguage();
+
+  const spells = language === 'es' ? SPELL_DETAILS_ES : SPELL_DETAILS_EN;
 
   const getSpellDisplayName = (enName: string): string => {
     if (language === 'es') {
       return SPELL_NAME_TO_ES[enName] || enName;
     }
     return enName;
+  };
+
+  const getSpellByName = (name: string): SpellDetail | undefined => {
+    if (spells[name]) return spells[name];
+    if (language === 'es') {
+      const enName = SPELL_NAME_TO_EN[name];
+      if (enName && spells[enName]) return spells[enName];
+    }
+    return undefined;
   };
 
   if (language === 'es') {
@@ -38,6 +55,7 @@ export const useGameData = (): GameData => {
       species: SPECIES_ES,
       classes: CLASSES_ES,
       getSpellDisplayName,
+      getSpellByName,
     };
   }
 
@@ -48,6 +66,7 @@ export const useGameData = (): GameData => {
     species: SPECIES_EN,
     classes: CLASSES_EN,
     getSpellDisplayName,
+    getSpellByName,
   };
 };
 

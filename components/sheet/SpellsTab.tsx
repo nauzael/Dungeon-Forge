@@ -112,9 +112,9 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
 
     const magicInitiateType = useMemo(() => {
         const feats = character.feats || [];
-        if (feats.some(f => f.includes('Magic Initiate (Cleric)'))) return 'Cleric';
-        if (feats.some(f => f.includes('Magic Initiate (Druid)'))) return 'Druid';
-        if (feats.some(f => f.includes('Magic Initiate (Wizard)'))) return 'Wizard';
+        if (feats.some(f => f.includes('Magic Initiate (Cleric)') || f.includes('Iniciado Mágico (Clérigo)'))) return 'Cleric';
+        if (feats.some(f => f.includes('Magic Initiate (Druid)') || f.includes('Iniciado Mágico (Druida)'))) return 'Druid';
+        if (feats.some(f => f.includes('Magic Initiate (Wizard)') || f.includes('Iniciado Mágico (Mago)'))) return 'Wizard';
         return null;
     }, [character.feats]);
 
