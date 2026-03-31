@@ -536,12 +536,13 @@ export const getFinalStats = (character: Character): Record<string, number> => {
     if (character.feats.some(f => f.includes('Actor'))) stats.CHA = Math.min(20, stats.CHA + 1);
     if (character.feats.some(f => f.includes('Experto en ballestas') || f.includes('Crossbow Expert'))) stats.DEX = Math.min(20, stats.DEX + 1);
     if (character.feats.some(f => f.includes('Duelista Defensivo') || f.includes('Defensive Duelist'))) stats.DEX = Math.min(20, stats.DEX + 1);
-    if (character.feats.some(f => f.includes('Durable') || f.includes('Resistente'))) stats.CON = Math.min(20, stats.CON + 1); // "Duro" (Tough) is Origin (No ASI). "Resistente" (Durable) is General (+1 CON).
+    if (character.feats.some(f => f.includes('Durable'))) stats.CON = Math.min(20, stats.CON + 1); // "Durable" is General (+1 CON). "Tough" = "Resistente" is Origin (No ASI, gives HP instead).
     
     if (character.feats.some(f => f.includes('Maestro en armas pesadas') || f.includes('Great Weapon Master'))) stats.STR = Math.min(20, stats.STR + 1);
     if (character.feats.some(f => f.includes('Mente aguda') || f.includes('Keen Mind'))) stats.INT = Math.min(20, stats.INT + 1);
     if (character.feats.some(f => f.includes('Tirador de primera') || f.includes('Sharpshooter'))) stats.DEX = Math.min(20, stats.DEX + 1);
     if (character.feats.some(f => f.includes('Maestro en escudos') || f.includes('Shield Master'))) stats.STR = Math.min(20, stats.STR + 1);
+    if (character.feats.some(f => f.includes('Veloz') || f.includes('Speedy'))) stats.DEX = Math.min(20, stats.DEX + 1);
 
     // 2. VARIABLE STAT FEATS & EPIC BOONS
     // We rely on the user having indicated the choice in the name, e.g. "Atleta (Fuerza)"
@@ -556,7 +557,7 @@ export const getFinalStats = (character: Character): Record<string, number> => {
         // Ideally, we should remove the fixed ones from this check or make the fixed check more specific.
         // For now, let's assume Fixed ones don't need parsing.
         
-        const fixedFeats = ['Actor', 'Experto en ballestas', 'Crossbow Expert', 'Duelista Defensivo', 'Defensive Duelist', 'Resistente', 'Durable', 'Maestro en armas pesadas', 'Great Weapon Master', 'Mente aguda', 'Keen Mind', 'Tirador de primera', 'Sharpshooter', 'Maestro en escudos', 'Shield Master'];
+        const fixedFeats = ['Actor', 'Experto en ballestas', 'Crossbow Expert', 'Duelista Defensivo', 'Defensive Duelist', 'Resistente', 'Durable', 'Maestro en armas pesadas', 'Great Weapon Master', 'Mente aguda', 'Keen Mind', 'Tirador de primera', 'Sharpshooter', 'Maestro en escudos', 'Shield Master', 'Veloz', 'Speedy'];
         if (fixedFeats.some(f => feat.includes(f))) return;
 
         // Parse stat
