@@ -7,6 +7,7 @@ import { CLASS_UI_MAP, SPECIES_UI_MAP, BACKGROUND_UI_MAP } from '../../constants
 import { SPELL_LIST_BY_CLASS } from '../../Data/spells';
 import { SCHOOL_THEMES } from '../../utils/sheetUtils';
 import { useLanguage } from '../../hooks/useLanguage';
+import { useFeatOptions } from '../../hooks/useFeatOptions';
 import { useClasses } from '../../Data/classes';
 import { useSpecies } from '../../Data/species';
 import { useGameData } from '../../hooks/useGameData';
@@ -46,6 +47,7 @@ const Step1Identity: React.FC<Step1Props> = ({
     const classes = useClasses();
     const speciesList = useSpecies();
     const { backgrounds, spells: SPELL_DETAILS } = useGameData();
+    const { getFeatDisplayName } = useFeatOptions();
 
     const classData = classes[selectedClass]?.details as any;
     const speciesData = speciesList[selectedSpecies] as any;
@@ -511,7 +513,7 @@ const Step1Identity: React.FC<Step1Props> = ({
                                     <span className="material-symbols-outlined text-[20px]">military_tech</span>
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-xs font-bold text-slate-900 dark:text-white mb-1 truncate">{t.feat}: {backgroundData?.feat}</p>
+                                    <p className="text-xs font-bold text-slate-900 dark:text-white mb-1 truncate">{t.feat}: {getFeatDisplayName(backgroundData?.feat)}</p>
                                     <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">{backgroundData?.featDescription}</p>
                                 </div>
                             </div>
