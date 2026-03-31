@@ -66,11 +66,14 @@ const CharacterList: React.FC<CharacterListProps> = ({ characters, onCreate, onS
                     </div>
 
                     <div className="h-64 overflow-hidden bg-black relative">
-                        {char.imageUrl && char.imageUrl !== 'DEFAULT' ? (
+                        {char.imageUrl && !char.imageUrl.includes('placeholder.svg') ? (
                             <img 
                                 key={char.imageUrl}
                                 src={char.imageUrl} 
                                 alt={char.name} 
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/bottts/svg?seed=${char.name}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
+                                }}
                                 className="w-full h-full object-cover opacity-90 transition-all duration-700" 
                             />
                         ) : (
