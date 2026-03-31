@@ -219,8 +219,19 @@ export const SPECIES_UI_MAP: Record<string, { color: string, icon: string }> = {
   "Gnome": { color: "text-purple-500", icon: "psychology" },
   "Orc": { color: "text-emerald-700", icon: "fitness_center" },
   "Tiefling": { color: "text-rose-500", icon: "contrast" },
-  "Aasimar": { color: "text-amber-400", icon: "flare" },
+  "Aasimar": { color: "text-amber-400", icon: "brightness_high" },
   "Goliath": { color: "text-slate-500", icon: "landscape" },
+  "Boggart": { color: "text-emerald-500", icon: "masks" },
+  "Changeling": { color: "text-violet-500", icon: "swap_horiz" },
+  "Dhampir": { color: "text-purple-500", icon: "nightlight" },
+  "Faerie": { color: "text-pink-400", icon: "flutter_dash" },
+  "Flamekin": { color: "text-orange-500", icon: "whatshot" },
+  "Kalashtar": { color: "text-indigo-500", icon: "psychology_alt" },
+  "Khoravar": { color: "text-purple-400", icon: "palette" },
+  "Lorwyn Changeling": { color: "text-violet-400", icon: "change_history" },
+  "Rimekin": { color: "text-cyan-400", icon: "ac_unit" },
+  "Shifter": { color: "text-amber-600", icon: "pets" },
+  "Warforged": { color: "text-zinc-500", icon: "smart_toy" },
 };
 
 export const BACKGROUND_UI_MAP: Record<string, { color: string, icon: string }> = {

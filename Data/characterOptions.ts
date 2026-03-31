@@ -17,10 +17,6 @@ const CLASSES_MAP = {
   'Rogue': rogue, 'Sorcerer': sorcerer, 'Warlock': warlock, 'Wizard': wizard
 };
 
-export const SPECIES_LIST = [
-  'Human', 'Elf', 'Dwarf', 'Halfling', 'Dragonborn', 'Gnome', 'Orc', 'Tiefling', 'Aasimar', 'Goliath'
-];
-
 export const CLASS_LIST = [
   'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'
 ];
@@ -54,18 +50,11 @@ export { BACKGROUNDS_DATA };
 // Use English species from species/index.ts
 const SPECIES_DATA = SPECIES;
 
-export const SPECIES_DETAILS: Record<string, DetailData> = {
-  'Human': SPECIES_DATA['Human'], 
-  'Elf': SPECIES_DATA['Elf'], 
-  'Dwarf': SPECIES_DATA['Dwarf'], 
-  'Halfling': SPECIES_DATA['Halfling'],
-  'Dragonborn': SPECIES_DATA['Dragonborn'], 
-  'Gnome': SPECIES_DATA['Gnome'], 
-  'Orc': SPECIES_DATA['Orc'], 
-  'Tiefling': SPECIES_DATA['Tiefling'],
-  'Aasimar': SPECIES_DATA['Aasimar'], 
-  'Goliath': SPECIES_DATA['Goliath'],
-};
+// Use all species from SPECIES object
+export const SPECIES_DETAILS: Record<string, DetailData> = { ...SPECIES_DATA };
+
+// Species list from SPECIES keys
+export const SPECIES_LIST = Object.keys(SPECIES_DATA);
 
 export const CLASS_DETAILS: Record<string, DetailData> = Object.fromEntries(
   Object.entries(CLASSES_MAP).map(([name, data]) => [name, data.details])

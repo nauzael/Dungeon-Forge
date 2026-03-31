@@ -1,102 +1,68 @@
 ---
 session: ses_2ba3
-updated: 2026-03-31T22:12:39.991Z
+updated: 2026-03-31T23:33:22.303Z
 ---
 
 # Session Summary
 
 ## Goal
-Complete project status audit, cleanup old files, implement Phase 3 polish (README, Vitest, ESLint, Prettier), deploy OTA update, and implement "Skilled" feat skill selection in character creator.
+Fix species innate spells unlock levels, add all species to character creator, add icons, fix innate spells not consuming slots, and add default avatar fallback.
 
 ## Constraints & Preferences
-- User prefers responses in Spanish
-- Keep all changes compatible with existing D&D 5e 2024 rules
-- Maintain build passing after each change
-- Follow existing component patterns (portals for modals, Tailwind dark: prefixes)
+- Follow existing patterns in the codebase
+- Use Material Symbols for icons
+- Innate spells should NOT consume spell slots (per D&D 5e 2024 rules)
+- Default avatar should be a fallback when no species-specific avatar exists
 
 ## Progress
-
 ### Done
-- [x] **Project Audit**: Created `thoughts/shared/designs/PROJECT_STATUS_AUDIT.md` documenting all project state
-- [x] **Cleanup Old Translation System**: Deleted 13 files (TranslationService.ts, TranslationCache.ts, useTranslation.ts, JSON translation files)
-- [x] **Cleanup Spanish Manuals**: Deleted 6 duplicate Spanish manual files (`*-ES.md`)
-- [x] **Archive Completed Plans**: Moved bilingual system plan to `docs/plans/archive/`
-- [x] **Discovered GENERIC_FEATURES Issue**: Was already resolved in `Data/feats/index.ts` (142 lines in English)
-- [x] **Discovered D&D 2024 Features**: Were all already implemented (Standard Array suggestions, Weapon Mastery, etc.)
-- [x] **README Custom**: Replaced AI Studio template with proper Dungeon Forge README with badges, features, tech stack
-- [x] **PWA Manifest**: Enhanced with categories, shortcuts, better icon descriptions
-- [x] **Vitest Setup**: Installed vitest, jsdom, @testing-library/react. Created `vitest.config.ts`, `tests/setup.ts`, `tests/example.test.ts` (3 tests passing)
-- [x] **ESLint Setup**: Installed eslint, typescript-eslint, eslint-plugin-react/jsx-a11y/hooks. Created `eslint.config.js`
-- [x] **Prettier Setup**: Created `.prettierrc` with standard config
-- [x] **Bug Fix**: Fixed `BACKGROUNDS_EN` → `BACKGROUNDS` import error in `useGameData.tsx`
-- [x] **OTA Deployment**: Successfully deployed `v2026.3.31-17620` to Supabase
-- [x] **Git Push**: All changes committed and pushed to `feature/bilingual-data` branch
+- [x] **Fixed species innate spells unlock levels** in `species-en.ts` - changed from spell level (0,1,2) to character level (0,3,5) for all species with level-gated spells
+- [x] **Added all 21 species to character creator** - Fixed `characterOptions.ts` to use `Object.keys(SPECIES_DATA)` instead of hardcoded 10 species
+- [x] **Added icons for all 21 species** in `SPECIES_UI_MAP` (`constants.ts`)
+- [x] **Added species avatars** for all new species in `SPECIES_AVATARS` (`avatars.ts`)
+- [x] **Added `innateSpells` field** to Character interface (`types.ts`)
+- [x] **Updated `speciesInnateSpells` logic** in `CreatorSteps.tsx` to return both `spells` and `innateSpells` arrays
+- [x] **Fixed SpellsTab cast button** to skip slot consumption for innate spells
+- [x] **Committed and deployed** multiple OTA updates (v2026.3.31-175051, v2026.3.31-181049, v2026.3.31-182318, v2026.3.31-182730)
 
 ### In Progress
-- [ ] **Skilled Feat Skill Selection**: Implementing ability to choose 3 skills when background has "Skilled" feat
+- [ ] **Add default avatar fallback** - Need to add a fallback avatar when `SPECIES_AVATARS[selectedSpecies]` is undefined
 
 ### Blocked
-- [x] **Species Spanish Files**: Accidentally deleted individual species TS files - but verified `Data/species/index.ts` correctly imports from `species-en.ts` (no actual issue)
-- [ ] **ESLint Errors**: ~200+ pre-existing lint errors discovered (not practical to fix all at once)
+- (none)
 
 ## Key Decisions
-- **Keep English data**: All game content (classes, species, spells, feats) in English via parallel `*-en.ts` files
-- **Archive vs Delete**: Completed plan files moved to archive rather than deleted for future reference
-- **No Lint Fix Sprint**: Pre-existing lint errors too numerous to fix at once - deferred to future incremental work
+- **Use character level for unlock threshold**: Changed innate spell data from `{ level: 0, spell: 'Faerie Fire' }` (spell level) to `{ level: 3, spell: 'Faerie Fire' }` (character level unlock)
+- **Separate innateSpells from preparedSpells**: Created new `innateSpells` field on Character to track spells that don't consume slots
+- **Species UI map for icons**: Extended `SPECIES_UI_MAP` with thematic Material Symbols icons for all 21 species
 
 ## Next Steps
-1. **Complete Skilled Feat Implementation**:
-   - Add `bgSkilledSkills` state to `Step1Identity.tsx`
-   - Detect "Skilled" background feat (Charlatan, Artisan, Noble have it)
-   - Show skill selector UI when Skilled is selected
-   - Update `CreatorSteps.tsx` to pass/skills to character
-
-2. **Deploy OTA** with Skilled feat feature
+1. Add default avatar fallback to `SPECIES_AVATARS` or use a generic avatar when species has no specific avatar
+2. Build and test the innate spells slot consumption fix
+3. Deploy OTA with the complete fix
 
 ## Critical Context
-- **Skilled Feat Location**: `Data/feats/feats-en.ts` line 24: `{ name: "Skilled", category: "Origin", level: 1, description: "You gain proficiency in three skills of your choice, or you gain expertise in one skill." }`
-- **Backgrounds with Skilled**: `Charlatan` (line 25), `Artisan` (line 97), `Noble` (line 124), `Scribe` (line 124) in `Data/backgrounds.ts`
-- **Existing Magic Initiate Pattern**: `Step1Identity.tsx` already has `bgMagicConfig` detection and `showMagicModal` portal pattern to follow
-- **Skills List**: `Data/skills.ts` exports `SKILL_LIST` (18 skills) and `SKILL_ABILITY_MAP`
-- **Translation Keys Needed**: `config_skilled` and `skilled` need to be added to `Data/translations/ui.ts`
+- **Species with innate spells**: Aasimar (Light), Drow/High Elf/Wood Elf/Lorwyn Elf/Shadowmoor Elf (cantrip + 2 level-gated), Faerie/Flamekin/Rimekin (3 level-gated), Tiefling variants (Abyssal/Chthonic/Infernal - 3 level-gated each), Forest Gnome (Minor Illusion + Speak with Animals)
+- **Species without innate spells**: Boggart, Changeling, Dhampir, Kalashtar, Khoravar, Lorwyn Changeling, Orc, Shifter, Warforged, Dragonborn, Dwarf, Goliath, Halfling, Human
+- **Species with alwaysPrepared spells**: Forest Gnome's Speak with Animals (flagged with `alwaysPrepared: true`)
 
 ## File Operations
-
 ### Read
-- All components in `components/creator/` (Step1Identity, Step2Stats, Step4Skills)
-- `Data/backgrounds.ts` (16 backgrounds with feats)
-- `Data/feats/feats-en.ts` (Skilled feat at line 24)
-- `Data/skills.ts` (18 skills + ability mappings)
-- `Data/translations/ui.ts` (526 lines, translation interface)
-- `package.json` (with new test/lint scripts)
+- `E:\Apks\Dungeon Forge\Data\avatars.ts`
+- `E:\Apks\Dungeon Forge\Data\characterOptions.ts`
+- `E:\Apks\Dungeon Forge\Data\species\index.ts`
+- `E:\Apks\Dungeon Forge\Data\species\species-en.ts`
+- `E:\Apks\Dungeon Forge\components\CreatorSteps.tsx`
+- `E:\Apks\Dungeon Forge\components\creator\Step1Identity.tsx`
+- `E:\Apks\Dungeon Forge\components\sheet\SpellsTab.tsx`
+- `E:\Apks\Dungeon Forge\constants.ts`
+- `E:\Apks\Dungeon Forge\types.ts`
 
 ### Modified
-- `README.md` - Custom Dungeon Forge README
-- `manifest.json` - Enhanced PWA manifest
-- `package.json` - Added test/lint/format scripts
-- `vitest.config.ts` - Vitest configuration
-- `eslint.config.js` - ESLint configuration
-- `.prettierrc` - Prettier configuration
-- `hooks/useGameData.tsx` - Fixed BACKGROUNDS import
-- `thoughts/shared/designs/PROJECT_STATUS_AUDIT.md` - Updated audit
-
-### Created
-- `tests/setup.ts`
-- `tests/example.test.ts`
-- `thoughts/shared/designs/PROJECT_STATUS_AUDIT.md`
-
-### Git Commits (11 total on branch)
-- "Add project status audit document"
-- "Cleanup: Remove old translation system and archive completed plans"
-- "Update PROJECT_STATUS_AUDIT.md: mark GENERIC_FEATURES as resolved"
-- "Update PROJECT_STATUS_AUDIT.md: All critical issues resolved, audit fully updated"
-- "Phase 3 Polish: README, Vitest, ESLint, Prettier, PWA manifest"
-- "Update audit: Phase 3 progress - Vitest/ESLint/Prettier/README complete"
-- "Deploy OTA v2026.3.31-17620: Phase 3 Polish complete"
-
-## OTA Deployment Result
-```
-🎉 OTA DEPLOYMENT 100% SUCCESSFUL!
-Version 2026.3.31-17620 is now live and will instantly
-download to cellphones the next time the app opens!
-```
+- `E:\Apks\Dungeon Forge\Data\avatars.ts` - Added all new species avatars
+- `E:\Apks\Dungeon Forge\Data\characterOptions.ts` - Changed SPECIES_DETAILS to use all species, SPECIES_LIST to use Object.keys
+- `E:\Apks\Dungeon Forge\Data\species\species-en.ts` - Fixed unlock levels (0→3 for level 3 spells, 1→5 for level 2 spells)
+- `E:\Apks\Dungeon Forge\components\CreatorSteps.tsx` - speciesInnateSpells returns `{ spells, innateSpells }`, added innateSpells to character
+- `E:\Apks\Dungeon Forge\components\sheet\SpellsTab.tsx` - Cast button checks innateSpells before consuming slot
+- `E:\Apks\Dungeon Forge\constants.ts` - Added 11 new species to SPECIES_UI_MAP
+- `E:\Apks\Dungeon Forge\types.ts` - Added `innateSpells?: string[]` field

@@ -122,14 +122,18 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
   // Species innate spells (level-gated by character level)
   const speciesInnateSpells = useMemo(() => {
     const speciesData = SPECIES_DETAILS[selectedSpecies];
-    if (!speciesData) return [];
+    if (!speciesData) return { spells: [], innateSpells: [] };
     
     const spells: string[] = [];
+    const innateSpells: string[] = [];
     
     // Base species innate spells (e.g., Aasimar's Light, Tiefling's Thaumaturgy)
     if (speciesData.innateSpells) {
       speciesData.innateSpells.forEach((s: SpeciesSpell) => {
-        if (s.level <= level) spells.push(s.spell);
+        if (s.level <= level) {
+          spells.push(s.spell);
+          if (s.alwaysPrepared) innateSpells.push(s.spell);
+        }
       });
     }
     
@@ -140,12 +144,15 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
       );
       if (subspeciesData?.innateSpells) {
         subspeciesData.innateSpells.forEach((s: SpeciesSpell) => {
-          if (s.level <= level) spells.push(s.spell);
+          if (s.level <= level) {
+            spells.push(s.spell);
+            if (s.alwaysPrepared) innateSpells.push(s.spell);
+          }
         });
       }
     }
     
-    return spells;
+    return { spells, innateSpells };
   }, [selectedSpecies, selectedSubspecies, level]);
 
   const finalStats = useMemo(() => {
@@ -379,11 +386,12 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
             weaponMasteries: selectedMasteries,
             spellcastingAbility: spellcastingAbility || undefined,
             preparedSpells: [
-                ...speciesInnateSpells,
+                ...speciesInnateSpells.spells,
                 ...bgSpells,
                 ...(selectedClass === 'Ranger' ? ['Hunter\'s Mark'] : []),
                 ...(selectedClass === 'Paladin' ? ['Divine Smite'] : [])
             ], 
+            innateSpells: speciesInnateSpells.innateSpells, 
             inventory: useStartingGold ? [] : [trinket, ...(backgroundData?.equipment || [])].map((itemStr, i) => {
               const match = itemStr.match(/^(.*?) \((\d+)\)$/);
               const baseName = match ? match[1] : itemStr;

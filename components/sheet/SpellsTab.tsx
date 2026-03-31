@@ -669,7 +669,12 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                             </div>
                             <div className="flex gap-3 shrink-0">
                                 <button
-                                    onClick={() => { castSpell(spell.level || 0); setSelectedSpellName(null); }}
+                                    onClick={() => { 
+                                        // Innate spells don't consume slots
+                                        const isInnate = character.innateSpells?.includes(selectedSpellName || '');
+                                        if (!isInnate) castSpell(spell.level || 0); 
+                                        setSelectedSpellName(null); 
+                                    }}
                                     className="w-full py-4 rounded-2xl bg-primary text-background-dark font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-[0.97] transition-all"
                                 >
                                     {t.cast_spell}

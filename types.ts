@@ -56,6 +56,7 @@ export interface Character {
   imageUrl: string;
   inventory: InventoryItem[]; 
   preparedSpells?: string[];
+  innateSpells?: string[];  // Spells that don't consume slots (species innate, etc.)
   weaponMasteries?: string[]; // Added for 2024 Weapon Mastery
   spellcastingAbility?: Ability; // To pick INT/WIS/CHA for species spells
   startingGold?: number; // Chosen instead of background equipment

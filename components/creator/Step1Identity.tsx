@@ -10,7 +10,7 @@ import { useLanguage } from '../../hooks/useLanguage';
 import { useClasses } from '../../Data/classes';
 import { useSpecies } from '../../Data/species';
 import { useGameData } from '../../hooks/useGameData';
-import { CLASS_AVATARS, SPECIES_AVATARS } from '../../Data/avatars';
+import { CLASS_AVATARS, SPECIES_AVATARS, GENERIC_SPECIES_AVATAR } from '../../Data/avatars';
 import { SKILL_LIST, SKILL_ABILITY_MAP } from '../../Data/skills';
 
 interface Step1Props {
@@ -123,11 +123,13 @@ const Step1Identity: React.FC<Step1Props> = ({
 
     // Avatar suggestion logic
     useEffect(() => {
+        // Use generic species avatar as fallback if species not found
+        const speciesAvatar = SPECIES_AVATARS[selectedSpecies] || GENERIC_SPECIES_AVATAR;
         const avatars = [
             ...(CLASS_AVATARS[selectedClass]?.male || []),
             ...(CLASS_AVATARS[selectedClass]?.female || []),
-            ...(SPECIES_AVATARS[selectedSpecies]?.male || []),
-            ...(SPECIES_AVATARS[selectedSpecies]?.female || [])
+            ...(speciesAvatar.male || []),
+            ...(speciesAvatar.female || [])
         ];
         
         // Only suggest if current image is the default "empty" one
@@ -274,8 +276,8 @@ const Step1Identity: React.FC<Step1Props> = ({
                                 {[
                                     ...(CLASS_AVATARS[selectedClass]?.male || []),
                                     ...(CLASS_AVATARS[selectedClass]?.female || []),
-                                    ...(SPECIES_AVATARS[selectedSpecies]?.male || []),
-                                    ...(SPECIES_AVATARS[selectedSpecies]?.female || []),
+                                    ...((SPECIES_AVATARS[selectedSpecies] || GENERIC_SPECIES_AVATAR).male || []),
+                                    ...((SPECIES_AVATARS[selectedSpecies] || GENERIC_SPECIES_AVATAR).female || []),
                                     '/assets/avatars/fighter.png', '/assets/avatars/wizard.png', '/assets/avatars/cleric.png', '/assets/avatars/warlock.png'
                                 ]
                                     .filter((v, i, a) => v && a.indexOf(v) === i)
