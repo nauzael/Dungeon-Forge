@@ -413,7 +413,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                 <span className="text-xs font-bold text-slate-400 group-hover:text-primary uppercase tracking-wider mb-1">Damage</span>
                                 <span className="text-lg font-bold text-slate-900 dark:text-white">{damageDie}{dmgMod >= 0 ? '+' : ''}{dmgMod}</span>
                                 {weapon.mastery === 'Graze' && (character.weaponMasteries || []).includes(weapon.name) && (
-                                    <span className="text-[9px] text-amber-500 font-bold mt-0.5">Graze: {formatModifier(dmgItems.find(i => i.label.includes('Maestría: Graze'))?.value as number || 0)} on miss</span>
+                                    <span className="text-[9px] text-amber-500 font-bold mt-0.5">Graze: {formatModifier(dmgItems.find(i => i.label.includes('Mastery: Graze'))?.value as number || 0)} on miss</span>
                                 )}
                             </button>
                         </div>
@@ -874,7 +874,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             <div className="flex gap-1">
                                 <button onClick={useActionSurge} disabled={actionSurgeCurrent <= 0}
                                     className={`flex-1 py-1.5 rounded-lg text-[10px] font-black active:scale-90 transition-all ${actionSurgeCurrent > 0 ? 'bg-red-500 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-400 cursor-not-allowed'}`}>
-                                    USAR
+                                    USE
                                 </button>
                                 <button onClick={resetActionSurge} className="px-2 py-1.5 rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-red-500 text-[10px] font-black active:scale-90 transition-all">
                                     <span className="material-symbols-outlined text-[14px]">refresh</span>
@@ -927,8 +927,8 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4 border-l-4 border-cyan-500">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-1">Conversión Mística</span>
-                            <span className="text-xs text-slate-400">Canje de Espacios y Foco</span>
+                            <span className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-1">Mystic Conversion</span>
+                            <span className="text-xs text-slate-400">Slot and Focus Exchange</span>
                         </div>
                         <span className="material-symbols-outlined text-cyan-500">auto_fix_normal</span>
                     </div>
@@ -1088,7 +1088,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
 
             {character.weaponMasteries && character.weaponMasteries.length > 0 && (
                 <div className="mb-6">
-                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Maestrías Activas</h3>
+                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Active Masteries</h3>
                     <div className="grid grid-cols-1 gap-2">
                         {character.weaponMasteries.map(m => {
                             const weaponData = getItemData(m) as WeaponData;
@@ -1120,7 +1120,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             </div>
                         </div>
                         <div className="text-right">
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Mod. Magia</div>
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Spell Mod</div>
                             <div className="text-xl font-black text-primary leading-none mt-0.5">{formatModifier(spellcastingStats.mod)}</div>
                         </div>
                     </div>
@@ -1193,7 +1193,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                     <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
                                         <div className="flex items-center gap-3">
                                             <span className="material-symbols-outlined text-sm text-cyan-500">military_tech</span>
-                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Puntos Actuales</span>
+                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Current Points</span>
                                         </div>
                                         <span className="text-sm font-bold text-slate-900 dark:text-white">{inspCurrent} / {inspMax}</span>
                                     </div>
@@ -1301,7 +1301,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                             <div className="flex items-center justify-between p-3 rounded-xl bg-fuchsia-500/5 dark:bg-black/20 border border-fuchsia-500/10">
                                                 <div className="flex items-center gap-2">
                                                     <span className="material-symbols-outlined text-sm text-fuchsia-400">school</span>
-                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Competencia</span>
+                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Proficiency</span>
                                                 </div>
                                                 <span className="text-sm font-bold text-slate-900 dark:text-white">+{character.profBonus}</span>
                                             </div>

@@ -92,11 +92,11 @@ const MonsterBuilder: React.FC<{ playerLevels: number[] }> = ({ playerLevels }) 
 
             {showAdd && (
                 <div className="bg-slate-800/80 backdrop-blur-md rounded-2xl p-5 border border-blue-500/20 space-y-4 animate-slideDown shadow-2xl">
-                    <h3 className="text-sm font-black uppercase text-blue-400">Constructor de Monstruos</h3>
+                    <h3 className="text-sm font-black uppercase text-blue-400">Monster Builder</h3>
                     <div className="space-y-3">
                         <input 
                             type="text" 
-                            placeholder="Nombre (Ej: Orco Guerrero)"
+                            placeholder="Name (Ex: Orc Warrior)"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50"

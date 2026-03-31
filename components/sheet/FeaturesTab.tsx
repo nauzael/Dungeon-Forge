@@ -317,7 +317,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                         <div className="flex items-center gap-4 p-4">
                             <button onClick={() => setShowInvocationsModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors"><span className="material-symbols-outlined">arrow_back</span></button>
                             <div className="flex-1 relative">
-                                <input type="text" placeholder="Buscar invocación..." value={invocationSearch} onChange={(e) => setInvocationSearch(e.target.value)} autoFocus className="w-full bg-slate-100 dark:bg-black/20 border border-slate-200 rounded-xl py-2 pl-10 pr-4 text-slate-900 dark:text-white outline-none focus:border-fuchsia-500/50" />
+                                <input type="text" placeholder="Search invocation..." value={invocationSearch} onChange={(e) => setInvocationSearch(e.target.value)} autoFocus className="w-full bg-slate-100 dark:bg-black/20 border border-slate-200 rounded-xl py-2 pl-10 pr-4 text-slate-900 dark:text-white outline-none focus:border-fuchsia-500/50" />
                                 <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-500">search</span>
                             </div>
                         </div>
@@ -397,7 +397,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                         </div>
                     </div>
                     <div className="p-4 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-t border-black/5 dark:border-white/5">
-                        <button onClick={() => { onUpdate({ ...character, pactCantrips: tempPactCantrips, pactRituals: tempPactRituals }); setShowTomeConfig(false); }} className="w-full py-4 rounded-2xl bg-primary text-background-dark font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20">Sellar Pacto</button>
+                        <button onClick={() => { onUpdate({ ...character, pactCantrips: tempPactCantrips, pactRituals: tempPactRituals }); setShowTomeConfig(false); }} className="w-full py-4 rounded-2xl bg-primary text-background-dark font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20">Seal Pact</button>
                     </div>
                 </div>,
                 document.body

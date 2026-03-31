@@ -235,7 +235,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                         <div 
                             onClick={() => {
                                 navigator.clipboard.writeText(party.code);
-                                alert("Código compartido copiado!");
+                                alert("Share code copied!");
                             }}
                             className="flex items-center gap-1.5 cursor-pointer group/code"
                         >
@@ -338,7 +338,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                     {isCreating ? 'Conjurando...' : (
                         <>
                             <span className="material-symbols-outlined text-sm">add</span>
-                            <span>Forjar Mesa</span>
+                            <span>Forge Table</span>
                         </>
                     )}
                 </button>

@@ -204,8 +204,8 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                                    {asWeapon.damage} {enchantmentLevel > 0 && isPreview ? `+${enchantmentLevel}` : ''} {asWeapon.damageType}
                                </span>
                            </div>
-                           {asWeapon.properties && asWeapon.properties.length > 0 && (<div className="py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500 block mb-1">Propiedades</span><div className="flex flex-wrap gap-1">{asWeapon.properties.map(p => (<span key={p} className="px-2 py-0.5 bg-slate-100 dark:bg-white/10 rounded text-xs font-medium text-slate-600 dark:text-slate-300">{p}</span>))}</div></div>)}
-                           {asWeapon.mastery && (<div className="py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500 block mb-1">Maestría: <span className="font-bold text-primary">{asWeapon.mastery}</span></span><p className="text-xs text-slate-400 italic leading-snug">{MASTERY_DESCRIPTIONS[asWeapon.mastery]}</p></div>)}
+                           {asWeapon.properties && asWeapon.properties.length > 0 && (<div className="py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500 block mb-1">Properties</span><div className="flex flex-wrap gap-1">{asWeapon.properties.map(p => (<span key={p} className="px-2 py-0.5 bg-slate-100 dark:bg-white/10 rounded text-xs font-medium text-slate-600 dark:text-slate-300">{p}</span>))}</div></div>)}
+                           {asWeapon.mastery && (<div className="py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500 block mb-1">Mastery: <span className="font-bold text-primary">{asWeapon.mastery}</span></span><p className="text-xs text-slate-400 italic leading-snug">{MASTERY_DESCRIPTIONS[asWeapon.mastery]}</p></div>)}
                        </>
                    )}
                    {data.type === 'Armor' && (

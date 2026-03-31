@@ -445,7 +445,7 @@ const App: React.FC = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
                         
                         <div className="absolute bottom-10 inset-x-8 space-y-3">
-                            <span className="bg-blue-600/20 text-blue-400 text-[10px] font-black uppercase px-2 py-1 rounded-full border border-blue-500/20 tracking-widest">Recurso Compartido</span>
+                            <span className="bg-blue-600/20 text-blue-400 text-[10px] font-black uppercase px-2 py-1 rounded-full border border-blue-500/20 tracking-widest">Shared Resource</span>
                             <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white leading-none">{sharedResource.title}</h2>
                             {sharedResource.description && <p className="text-sm font-medium text-slate-300 leading-tight">{sharedResource.description}</p>}
                         </div>

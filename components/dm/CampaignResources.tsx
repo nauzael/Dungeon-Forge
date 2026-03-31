@@ -135,7 +135,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                                     <img src={newRes.url} className="w-full h-full object-cover opacity-40" alt="Preview" />
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                                         <span className="material-symbols-outlined text-emerald-400 text-3xl">check_circle</span>
-                                        <span className="text-[10px] font-black text-emerald-400 uppercase mt-2">Imagen lista</span>
+                                        <span className="text-[10px] font-black text-emerald-400 uppercase mt-2">Image Ready</span>
                                     </div>
                                 </>
                             ) : isUploading ? (

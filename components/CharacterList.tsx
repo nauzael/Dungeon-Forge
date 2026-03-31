@@ -90,7 +90,7 @@ const CharacterList: React.FC<CharacterListProps> = ({ characters, onCreate, onS
                                             <div className="flex items-center gap-1 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
                                                 <span className="material-symbols-outlined text-[10px] text-blue-400">forum</span>
                                                 <span className="text-[7px] font-black uppercase text-blue-400 tracking-tighter whitespace-nowrap">
-                                                    {char.party_name || 'En Campaña'}
+                                                    {char.party_name || 'In Campaign'}
                                                 </span>
                                             </div>
                                         )}

@@ -104,7 +104,7 @@ const Step5Review: React.FC<Step5Props> = ({
                     </div>
                 </div>
                 {selectedMetamagics.length > 0 && <div><span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">{t.metamagics}</span><div className="flex flex-wrap gap-1.5">{selectedMetamagics.map(m => <span key={m} className="px-2 py-1 rounded-md bg-purple-500/10 text-xs font-bold text-purple-400 border border-purple-500/20">{m}</span>)}</div></div>}
-                <div className="pt-1"><span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Idiomas</span><div className="flex flex-wrap gap-1.5">{languages.map(l => <span key={l} className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-xs font-bold text-slate-600 dark:text-slate-300 border border-slate-200">{l}</span>)}</div></div>
+                <div className="pt-1"><span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Languages</span><div className="flex flex-wrap gap-1.5">{languages.map(l => <span key={l} className="px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-xs font-bold text-slate-600 dark:text-slate-300 border border-slate-200">{l}</span>)}</div></div>
              </div>
 
              <div>

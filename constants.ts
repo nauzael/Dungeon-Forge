@@ -196,18 +196,18 @@ export const MAP_TEXTURE = "https://lh3.googleusercontent.com/aida-public/AB6AXu
 
 // Map raw data names to UI elements (Colors, Icons, Roles)
 export const CLASS_UI_MAP: Record<string, { role: string, color: string, icon: string }> = {
-  "Barbarian": { role: "Tanque de Furia", color: "text-orange-600", icon: "swords" },
-  "Bard": { role: "Apoyo y Control", color: "text-purple-500", icon: "music_note" },
-  "Cleric": { role: "Curación Divina", color: "text-yellow-500", icon: "verified_user" },
-  "Druid": { role: "Naturaleza y Formas", color: "text-green-600", icon: "forest" },
-  "Fighter": { role: "Maestro de Armas", color: "text-red-500", icon: "sports_martial_arts" },
-  "Monk": { role: "Artes Marciales", color: "text-blue-400", icon: "self_improvement" },
+  "Barbarian": { role: "Rage Tank", color: "text-orange-600", icon: "swords" },
+  "Bard": { role: "Support & Control", color: "text-purple-500", icon: "music_note" },
+  "Cleric": { role: "Divine Healing", color: "text-yellow-500", icon: "verified_user" },
+  "Druid": { role: "Nature & Shapes", color: "text-green-600", icon: "forest" },
+  "Fighter": { role: "Weapon Master", color: "text-red-500", icon: "sports_martial_arts" },
+  "Monk": { role: "Martial Arts", color: "text-blue-400", icon: "self_improvement" },
   "Paladin": { role: "Holy Warrior", color: "text-yellow-600", icon: "shield" },
-  "Ranger": { role: "Explorador", color: "text-emerald-500", icon: "radar" },
-  "Rogue": { role: "Sigilo y Daño", color: "text-slate-400", icon: "visibility_off" },
-  "Sorcerer": { role: "Magia Innata", color: "text-red-400", icon: "local_fire_department" },
-  "Warlock": { role: "Pacto Arcano", color: "text-purple-700", icon: "skull" },
-  "Wizard": { role: "Maestro Arcano", color: "text-blue-600", icon: "auto_fix_high" },
+  "Ranger": { role: "Explorer", color: "text-emerald-500", icon: "radar" },
+  "Rogue": { role: "Stealth & Damage", color: "text-slate-400", icon: "visibility_off" },
+  "Sorcerer": { role: "Innate Magic", color: "text-red-400", icon: "local_fire_department" },
+  "Warlock": { role: "Arcane Pact", color: "text-purple-700", icon: "skull" },
+  "Wizard": { role: "Arcane Master", color: "text-blue-600", icon: "auto_fix_high" },
 };
 
 export const SPECIES_UI_MAP: Record<string, { color: string, icon: string }> = {
