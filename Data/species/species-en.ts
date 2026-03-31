@@ -177,8 +177,8 @@ export const elfEn: DetailData = {
       ],
       innateSpells: [
         { level: 0, spell: 'Dancing Lights' },
-        { level: 1, spell: 'Faerie Fire' },
-        { level: 2, spell: 'Darkness' },
+        { level: 3, spell: 'Faerie Fire' },
+        { level: 5, spell: 'Darkness' },
       ]
     },
     {
@@ -189,8 +189,8 @@ export const elfEn: DetailData = {
       ],
       innateSpells: [
         { level: 0, spell: 'Prestidigitation' },
-        { level: 1, spell: 'Detect Magic' },
-        { level: 2, spell: 'Misty Step' },
+        { level: 3, spell: 'Detect Magic' },
+        { level: 5, spell: 'Misty Step' },
       ]
     },
     {
@@ -202,8 +202,8 @@ export const elfEn: DetailData = {
       ],
       innateSpells: [
         { level: 0, spell: 'Druidcraft' },
-        { level: 1, spell: 'Longstrider' },
-        { level: 2, spell: 'Pass without Trace' },
+        { level: 3, spell: 'Longstrider' },
+        { level: 5, spell: 'Pass without Trace' },
       ]
     },
     {
@@ -214,8 +214,8 @@ export const elfEn: DetailData = {
       ],
       innateSpells: [
         { level: 0, spell: 'Thorn Whip' },
-        { level: 1, spell: 'Command' },
-        { level: 2, spell: 'Silence' },
+        { level: 3, spell: 'Command' },
+        { level: 5, spell: 'Silence' },
       ]
     },
     {
@@ -226,8 +226,8 @@ export const elfEn: DetailData = {
       ],
       innateSpells: [
         { level: 0, spell: 'Starry Wisp' },
-        { level: 1, spell: 'Heroism' },
-        { level: 2, spell: 'Gentle Repose' },
+        { level: 3, spell: 'Heroism' },
+        { level: 5, spell: 'Gentle Repose' },
       ]
     },
   ]
@@ -244,8 +244,8 @@ export const faerieEn: DetailData = {
   ],
   innateSpells: [
     { level: 0, spell: 'Druidcraft' },
-    { level: 1, spell: 'Faerie Fire' },
-    { level: 2, spell: 'Enlarge/Reduce' },
+    { level: 3, spell: 'Faerie Fire' },
+    { level: 5, spell: 'Enlarge/Reduce' },
   ],
   subspecies: [
   ]
@@ -263,8 +263,8 @@ export const flamekinEn: DetailData = {
   ],
   innateSpells: [
     { level: 0, spell: 'Produce Flame' },
-    { level: 1, spell: 'Burning Hands' },
-    { level: 2, spell: 'Flame Blade' },
+    { level: 3, spell: 'Burning Hands' },
+    { level: 5, spell: 'Flame Blade' },
   ],
   subspecies: [
   ]
@@ -417,8 +417,8 @@ export const rimekinEn: DetailData = {
   ],
   innateSpells: [
     { level: 0, spell: 'Ray of Frost' },
-    { level: 1, spell: 'Ice Knife' },
-    { level: 2, spell: 'Flame Blade' },
+    { level: 3, spell: 'Ice Knife' },
+    { level: 5, spell: 'Flame Blade' },
   ],
   subspecies: [
   ]
@@ -461,8 +461,8 @@ export const tieflingEn: DetailData = {
       ],
       innateSpells: [
         { level: 0, spell: 'Poison Spray' },
-        { level: 1, spell: 'Ray of Sickness' },
-        { level: 2, spell: 'Hold Person' },
+        { level: 3, spell: 'Ray of Sickness' },
+        { level: 5, spell: 'Hold Person' },
       ]
     },
     {
@@ -474,8 +474,8 @@ export const tieflingEn: DetailData = {
       ],
       innateSpells: [
         { level: 0, spell: 'Chill Touch' },
-        { level: 1, spell: 'False Life' },
-        { level: 2, spell: 'Ray of Enfeeblement' },
+        { level: 3, spell: 'False Life' },
+        { level: 5, spell: 'Ray of Enfeeblement' },
       ]
     },
     {
@@ -487,8 +487,8 @@ export const tieflingEn: DetailData = {
       ],
       innateSpells: [
         { level: 0, spell: 'Fire Bolt' },
-        { level: 1, spell: 'Hellish Rebuke' },
-        { level: 2, spell: 'Darkness' },
+        { level: 3, spell: 'Hellish Rebuke' },
+        { level: 5, spell: 'Darkness' },
       ]
     },
   ]
