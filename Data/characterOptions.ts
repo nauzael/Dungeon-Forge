@@ -25,7 +25,7 @@ export const CLASS_LIST = [
   'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'
 ];
 
-import { INVOCATIONS_EN as ELDRITCH_INVOCATIONS, METAMAGIC_EN as METAMAGIC_OPTIONS, ALIGNMENTS_EN as ALIGNMENTS, LANGUAGES_EN as LANGUAGES } from './gameData';
+import { INVOCATIONS as ELDRITCH_INVOCATIONS, METAMAGIC as METAMAGIC_OPTIONS, ALIGNMENTS, LANGUAGES } from './gameData';
 
 export { ELDRITCH_INVOCATIONS, METAMAGIC_OPTIONS, ALIGNMENTS, LANGUAGES };
 
