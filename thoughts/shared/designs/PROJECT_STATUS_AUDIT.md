@@ -62,13 +62,14 @@ Dungeon Forge es una aplicación de gestión de personajes D&D 5e (Edición 2024
 
 ## 🚨 Bloqueos Críticos
 
-### 1. Build Fails - GENERIC_FEATURES
+### 1. Build Fails - GENERIC_FEATURES ✅ RESUELTO
 ```
 GENERIC_FEATURES not exported from Data/feats/index.ts
 ```
 - **Causa:** `feats.ts` (líneas 481-577) contiene ~100 features en español
 - **Archivos afectados:** FeaturesTab.tsx, SheetTabs.tsx, Shared.tsx
-- **Solución requerida:** Crear versión English de GENERIC_FEATURES o exportar desde feats-en.ts
+- **Solución:** `Data/feats/index.ts` ahora exporta `GENERIC_FEATURES` en inglés (142 líneas)
+- **Verificación:** Build pasa ✅ (154 modules, 4.79s)
 
 ### 2. CompendiumData.ts No Traducido
 - **Tamaño:** 5008 líneas
@@ -130,12 +131,12 @@ GENERIC_FEATURES not exported from Data/feats/index.ts
 ### Componentes Necesitan Atención ⚠️
 | Componente | Problema | Prioridad |
 |------------|----------|-----------|
-| `FeaturesTab.tsx` | GENERIC_FEATURES import roto | 🔴 Alta |
+| `FeaturesTab.tsx` | ✅ RESUELTO - GENERIC_FEATURES funciona | - |
+| `Compendium.tsx` | Datos en español | 🔴 Alta |
 | `Step2Stats.tsx` | No muestra Standard Array suggestions | 🟡 Media |
 | `Step3Details.tsx` | Podría faltarle species spells | 🟡 Media |
 | `Step4Skills.tsx` | No tiene weapon mastery selector | 🟡 Media |
 | `DMDashboard.tsx` | UI podría mejorar | 🟢 Baja |
-| `Compendium.tsx` | Datos en español | 🔴 Alta |
 | `MonsterBuilder.tsx` | Funcionalidad básica | 🟢 Baja |
 
 ---
@@ -174,15 +175,15 @@ GENERIC_FEATURES not exported from Data/feats/index.ts
 |---------|--------|-----------|
 | `Data/compendiumData.ts` | 5008 líneas | 🔴 Alta |
 | `Data/gameData.ts` | ? | 🟡 Media |
-| `Data/feats.ts` | ~600 líneas | 🔴 Alta (GENERIC_FEATURES) |
+| `Data/feats.ts` | ✅ RESUELTO - GENERIC_FEATURES exportado | - |
 
 ---
 
 ## 🎯 Roadmap Sugerido
 
-### Fase 1: Desbloqueo (Inmediato)
-1. **Fix GENERIC_FEATURES** - Crear versión EN en feats-en.ts
-2. **Rebuild + Deploy OTA** - Verificar que compila
+### Fase 1: Desbloqueo (Completada ✅)
+1. ✅ **Fix GENERIC_FEATURES** - Implementado en `Data/feats/index.ts`
+2. ✅ **Rebuild + Deploy OTA** - Build pasa (154 modules, 4.79s)
 3. **Traducir Compendium** - Batch approach por categoría
 
 ### Fase 2: D&D 2024 Completitud
