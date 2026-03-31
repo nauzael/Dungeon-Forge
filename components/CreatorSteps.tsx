@@ -12,7 +12,7 @@ import {
   CLASS_MASTERIES,
   SPECIES_DETAILS
 } from '../Data/characterOptions';
-import { FEAT_OPTIONS } from '../Data/feats';
+import { FEAT_OPTIONS } from '../Data/feats/index';
 import { TRINKETS } from '../Data/items';
 
 // Subcomponentes refactorizados

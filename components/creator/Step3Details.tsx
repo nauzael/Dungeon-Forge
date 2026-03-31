@@ -1,7 +1,7 @@
 import React from 'react';
 import { ALIGNMENTS, LANGUAGES } from '../../Data/characterOptions';
 // Imported FEAT_OPTIONS from the correct Data/feats module
-import { FEAT_OPTIONS } from '../../Data/feats';
+import { FEAT_OPTIONS } from '../../Data/feats/index';
 
 interface Step3Props {
     selectedAlignment: string;

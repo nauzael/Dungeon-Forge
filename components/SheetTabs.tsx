@@ -9,7 +9,7 @@ import NotesTab from './sheet/NotesTab';
 import JoinPartyModal from './JoinPartyModal';
 import { getEffectiveCasterType, getFinalStats } from '../utils/sheetUtils';
 import { HIT_DIE, CLASS_PROGRESSION, SUBCLASS_OPTIONS, METAMAGIC_OPTIONS } from '../Data/characterOptions';
-import { FEAT_OPTIONS, GENERIC_FEATURES } from '../Data/feats';
+import { FEAT_OPTIONS, GENERIC_FEATURES } from '../Data/feats/index';
 
 interface SheetTabsProps {
   character: Character;

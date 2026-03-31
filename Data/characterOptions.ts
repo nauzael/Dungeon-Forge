@@ -1,31 +1,15 @@
 
 import { Ability, Skill, BackgroundData, DetailData, SubclassData, Trait } from '../types';
 
-// Importación de archivos de razas independientes
-import { human } from './species/human';
-import { elf } from './species/elf';
-import { dwarf } from './species/dwarf';
-import { halfling } from './species/halfling';
-import { dragonborn } from './species/dragonborn';
-import { gnome } from './species/gnome';
-import { orc } from './species/orc';
-import { tiefling } from './species/tiefling';
-import { aasimar } from './species/aasimar';
-import { goliath } from './species/goliath';
+// Importación de species (usa versions en inglés)
+import { useSpecies } from './species';
 
-// Importación de archivos de clases independientes
-import { barbarian } from './classes/barbarian';
-import { bard } from './classes/bard';
-import { cleric } from './classes/cleric';
-import { druid } from './classes/druid';
-import { fighter } from './classes/fighter';
-import { monk } from './classes/monk';
-import { paladin } from './classes/paladin';
-import { ranger } from './classes/ranger';
-import { rogue } from './classes/rogue';
-import { sorcerer } from './classes/sorcerer';
-import { warlock } from './classes/warlock';
-import { wizard } from './classes/wizard';
+// Importación de classes (usa versions en inglés de classes-en.ts)
+import { 
+  barbarianEn as barbarian, bardEn as bard, clericEn as cleric, druidEn as druid,
+  fighterEn as fighter, monkEn as monk, paladinEn as paladin, rangerEn as ranger,
+  rogueEn as rogue, sorcererEn as sorcerer, warlockEn as warlock, wizardEn as wizard
+} from './classes/classes-en';
 
 const CLASSES_MAP = {
   'Barbarian': barbarian, 'Bard': bard, 'Cleric': cleric, 'Druid': druid,
@@ -67,10 +51,20 @@ import { BACKGROUNDS_EN as BACKGROUNDS_DATA } from './backgrounds';
 export { BACKGROUNDS_DATA };
 
 
+// Use English species from species/index.ts
+const SPECIES_DATA = useSpecies();
+
 export const SPECIES_DETAILS: Record<string, DetailData> = {
-  'Human': human, 'Elf': elf, 'Dwarf': dwarf, 'Halfling': halfling,
-  'Dragonborn': dragonborn, 'Gnome': gnome, 'Orc': orc, 'Tiefling': tiefling,
-  'Aasimar': aasimar, 'Goliath': goliath,
+  'Human': SPECIES_DATA['Human'], 
+  'Elf': SPECIES_DATA['Elf'], 
+  'Dwarf': SPECIES_DATA['Dwarf'], 
+  'Halfling': SPECIES_DATA['Halfling'],
+  'Dragonborn': SPECIES_DATA['Dragonborn'], 
+  'Gnome': SPECIES_DATA['Gnome'], 
+  'Orc': SPECIES_DATA['Orc'], 
+  'Tiefling': SPECIES_DATA['Tiefling'],
+  'Aasimar': SPECIES_DATA['Aasimar'], 
+  'Goliath': SPECIES_DATA['Goliath'],
 };
 
 export const CLASS_DETAILS: Record<string, DetailData> = Object.fromEntries(

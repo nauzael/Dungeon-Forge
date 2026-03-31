@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Ability, BackgroundData, AsiDecision } from '../../types';
-import { FEAT_OPTIONS } from '../../Data/feats';
+import { FEAT_OPTIONS } from '../../Data/feats/index';
 
 interface Step2Props {
     selectedBackground: string;

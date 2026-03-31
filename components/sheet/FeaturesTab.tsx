@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Character, Ability, Trait } from '../../types';
 import { SPECIES_DETAILS, CLASS_DETAILS, CLASS_PROGRESSION, SUBCLASS_OPTIONS, ELDRITCH_INVOCATIONS } from '../../Data/characterOptions';
-import { FEAT_OPTIONS, GENERIC_FEATURES } from '../../Data/feats';
+import { FEAT_OPTIONS, GENERIC_FEATURES } from '../../Data/feats/index';
 import { CANTRIPS } from '../../Data/spells/cantrips';
 import { LEVEL1 } from '../../Data/spells/level1';
 import { SPELL_DETAILS } from '../../Data/spells';
@@ -266,14 +266,14 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                 <div className="fixed inset-0 z-[60] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
                     <div className="p-4 bg-surface-light dark:bg-surface-dark border-b border-black/5 dark:border-white/10 flex items-center justify-between">
                         <button onClick={() => setShowInvocationTray(false)} className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500"><span className="material-symbols-outlined">close</span></button>
-                        <h3 className="text-lg font-black uppercase tracking-widest text-fuchsia-500">Invocaciones Arcanas</h3>
+                        <h3 className="text-lg font-black uppercase tracking-widest text-fuchsia-500">Arcane Invocations</h3>
                         <div className="w-10"></div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
                         <div className="bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-2xl p-4 flex justify-between items-center">
                             <div className="flex-1 pr-4">
                                 <p className="text-[10px] font-black uppercase tracking-wider text-fuchsia-600 dark:text-fuchsia-400 mb-1">Pact Boon</p>
-                                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Límite de Invocaciones</h4>
+                                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Invocation Limit</h4>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className={`text-xl font-black ${currentInvocationsCount >= maxInvocations ? 'text-red-500' : 'text-fuchsia-500'}`}>{currentInvocationsCount}</span>
@@ -295,8 +295,8 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                                         </div>
                                         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">{invData?.description}</p>
                                         <div className="flex flex-wrap gap-2">
-                                            {isTome && <button onClick={() => setShowTomeConfig(true)} className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase border border-blue-500/20 active:scale-95 transition-all"><span className="material-symbols-outlined text-xs">auto_stories</span> Configurar Tomo</button>}
-                                            {isAgonizing && <button onClick={() => setShowAgonizingConfig(true)} className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase border border-amber-500/20 active:scale-95 transition-all"><span className="material-symbols-outlined text-xs">bolt</span> Configurar Rayos</button>}
+                                            {isTome && <button onClick={() => setShowTomeConfig(true)} className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase border border-blue-500/20 active:scale-95 transition-all"><span className="material-symbols-outlined text-xs">auto_stories</span> Configure Tome</button>}
+                                            {isAgonizing && <button onClick={() => setShowAgonizingConfig(true)} className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase border border-amber-500/20 active:scale-95 transition-all"><span className="material-symbols-outlined text-xs">bolt</span> Configure Rays</button>}
                                             {isLessons && <button onClick={() => { setTargetLessonsInstance(invName); setShowLessonsConfig(true); }} className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase border border-emerald-500/20 active:scale-95 transition-all"><span className="material-symbols-outlined text-xs">military_tech</span> Change Feat</button>}
                                         </div>
                                     </div>
@@ -382,7 +382,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                             </div>
                         </div>
                         <div>
-                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex justify-between items-center px-1"><span>2 Rituales de nivel 1</span><span className={`text-[10px] ${tempPactRituals.length === 2 ? 'text-primary' : 'text-slate-500'}`}>{tempPactRituals.length}/2</span></h4>
+                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex justify-between items-center px-1"><span>2 Level 1 Rituals</span><span className={`text-[10px] ${tempPactRituals.length === 2 ? 'text-primary' : 'text-slate-500'}`}>{tempPactRituals.length}/2</span></h4>
                             <div className="grid grid-cols-1 gap-2">
                                 {Object.keys(LEVEL1).filter(name => LEVEL1[name].description.includes('Ritual')).map(name => {
                                     const isSelected = tempPactRituals.includes(name);

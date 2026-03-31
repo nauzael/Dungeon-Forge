@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Trait, SubclassData } from '../../types';
-import { GENERIC_FEATURES } from '../../Data/feats';
+import { GENERIC_FEATURES } from '../../Data/feats/index';
 import { useLanguage } from '../../hooks/useLanguage';
 import { useClasses } from '../../Data/classes/index';
 

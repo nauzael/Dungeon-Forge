@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { FEAT_OPTIONS } from '../../Data/feats';
+import { FEAT_OPTIONS } from '../../Data/feats/index';
 
 interface FeatModalProps {
     featModalContext: { type: 'human' | 'asi', level?: number } | null;

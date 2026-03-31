@@ -493,7 +493,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
 
             {/* SECCIÓN DE TIRADAS DE SALVACIÓN RESTAURADA */}
             <div className="mb-6">
-                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Tiradas de Salvación</h3>
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Saving Throws</h3>
                 <div className="grid grid-cols-3 gap-2">
                     {(['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as Ability[]).map(stat => {
                         const isProf = isProficientInSave(character, stat);
@@ -583,7 +583,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                     <span className="material-symbols-outlined text-sm text-amber-500">casino</span>
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Suerte (Lucky)</span>
                                 </div>
-                                <span className="text-[10px] font-bold text-slate-400">Recarga: Descanso Largo</span>
+                                <span className="text-[10px] font-bold text-slate-400">Refresh: Long Rest</span>
                             </div>
                             <div className="flex justify-between items-center bg-slate-50 dark:bg-black/20 p-2 rounded-xl border border-slate-100 dark:border-white/5">
                                 <div className="flex gap-2">
@@ -602,7 +602,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                     <button 
                                         onClick={resetLucky}
                                         className="size-8 flex items-center justify-center rounded-lg bg-white dark:bg-white/5 text-slate-400 hover:text-amber-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all"
-                                        title="Recuperar Todo"
+                                        title="Recover All"
                                     >
                                         <span className="material-symbols-outlined text-[18px]">refresh</span>
                                     </button>
@@ -666,7 +666,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                         >
                                             <span className="material-symbols-outlined text-[16px] text-emerald-500">back_hand</span>
                                             <div className="flex flex-col items-start min-w-0">
-                                                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase leading-none">Sanación</span>
+                                                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase leading-none">Healing</span>
                                                 <span className="text-[8px] text-slate-400 font-mono">1d{martialArtsDie.substring(1)}+{wisMod}</span>
                                             </div>
                                         </button>
@@ -704,7 +704,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1">Furia</span>
+                            <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1">Rage</span>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-4xl font-black tracking-tighter text-orange-500">
                                     {rageUnlimited ? '∞' : rageCurrent}
@@ -742,7 +742,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-1">Inspiración de Bardo</span>
+                            <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-1">Bardic Inspiration</span>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-4xl font-black tracking-tighter text-purple-500">{bardicCurrent}</span>
                                 <span className="text-lg font-bold text-slate-400">/ {bardicMax}</span>
@@ -751,7 +751,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         <div className="flex gap-2">
                             <button onClick={useBardicInspiration} disabled={bardicCurrent <= 0}
                                 className={`size-12 rounded-2xl border active:scale-90 transition-all flex items-center justify-center text-purple-500 ${bardicCurrent <= 0 ? 'opacity-30 cursor-not-allowed bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5' : 'bg-purple-500/10 border-purple-500/20 hover:bg-purple-500/20'}`}
-                                title="Usar Inspiración">
+                                title="Use Inspiration">
                                 <span className="material-symbols-outlined font-bold">music_note</span>
                             </button>
                             <button onClick={resetBardicInspiration} className="size-12 rounded-2xl bg-white dark:bg-white/5 text-slate-400 hover:text-purple-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all flex items-center justify-center" title="Descanso Largo">
@@ -773,7 +773,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest mb-1">Canal de Divinidad</span>
+                            <span className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest mb-1">Channel Divinity</span>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-4xl font-black tracking-tighter text-yellow-500">{channelDivinityCurrent}</span>
                                 <span className="text-lg font-bold text-slate-400">/ {channelDivinityMax}</span>
@@ -782,7 +782,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         <div className="flex gap-2">
                             <button onClick={useChannelDivinity} disabled={channelDivinityCurrent <= 0}
                                 className={`size-12 rounded-2xl border active:scale-90 transition-all flex items-center justify-center text-yellow-500 ${channelDivinityCurrent <= 0 ? 'opacity-30 cursor-not-allowed bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5' : 'bg-yellow-500/10 border-yellow-500/20 hover:bg-yellow-500/20'}`}
-                                title="Usar Canal de Divinidad">
+                                title="Use Channel Divinity">
                                 <span className="material-symbols-outlined font-bold">verified_user</span>
                             </button>
                             <button onClick={resetChannelDivinity} className="size-12 rounded-2xl bg-white dark:bg-white/5 text-slate-400 hover:text-yellow-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all flex items-center justify-center" title="Descanso Corto/Largo">
@@ -804,7 +804,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Forma Salvaje</span>
+                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Wild Shape</span>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-4xl font-black tracking-tighter text-emerald-500">{wildShapeCurrent}</span>
                                 <span className="text-lg font-bold text-slate-400">/ 2</span>
@@ -813,7 +813,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         <div className="flex gap-2">
                             <button onClick={useWildShape} disabled={wildShapeCurrent <= 0}
                                 className={`size-12 rounded-2xl border active:scale-90 transition-all flex items-center justify-center text-emerald-500 ${wildShapeCurrent <= 0 ? 'opacity-30 cursor-not-allowed bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5' : 'bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/20'}`}
-                                title="Usar Forma Salvaje">
+                                title="Use Wild Shape">
                                 <span className="material-symbols-outlined font-bold">forest</span>
                             </button>
                             <button onClick={resetWildShape} className="size-12 rounded-2xl bg-white dark:bg-white/5 text-slate-400 hover:text-emerald-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all flex items-center justify-center" title="Descanso Corto/Largo">
@@ -865,7 +865,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                     <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Fighter Resources</span>
                     <div className="grid grid-cols-2 gap-3">
                         <div className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${actionSurgeCurrent > 0 ? 'bg-red-500/5 border-red-500/20' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/5 opacity-50'}`}>
-                            <span className="text-[9px] font-black text-red-500 uppercase tracking-widest">Oleada de Acción</span>
+                            <span className="text-[9px] font-black text-red-500 uppercase tracking-widest">Action Surge</span>
                             <div className="flex gap-1.5">
                                 {Array.from({ length: actionSurgeMax }, (_, i) => (
                                     <div key={i} className={`size-4 rounded-full border-2 ${i < actionSurgeCurrent ? 'bg-red-500 border-red-500' : 'bg-transparent border-slate-300 dark:border-slate-600'}`} />
@@ -882,12 +882,12 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             </div>
                         </div>
                         <div className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${secondWindCurrent > 0 ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/5 opacity-50'}`}>
-                            <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">2do Aliento</span>
+                            <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Second Wind</span>
                             <div className={`size-4 rounded-full border-2 ${secondWindCurrent > 0 ? 'bg-emerald-500 border-emerald-500' : 'bg-transparent border-slate-300 dark:border-slate-600'}`} />
                             <div className="flex gap-1">
                                 <button onClick={healSecondWind} disabled={secondWindCurrent <= 0}
                                     className={`flex-1 py-1.5 rounded-lg text-[10px] font-black active:scale-90 transition-all ${secondWindCurrent > 0 ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-400 cursor-not-allowed'}`}>
-                                    CURAR
+                                    HEAL
                                 </button>
                                 <button onClick={resetSecondWind} className="px-2 py-1.5 rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-emerald-500 text-[10px] font-black active:scale-90 transition-all">
                                     <span className="material-symbols-outlined text-[14px]">refresh</span>
@@ -934,7 +934,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-2">
-                            <span className="text-[9px] font-black text-slate-400 uppercase text-center">Espacio → Foco</span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase text-center">Slot → Focus</span>
                             {[1, 2, 3, 4, 5].map(lvl => {
                                 const current = character.spellSlots?.[lvl]?.current ?? 0;
                                 const max = character.spellSlots?.[lvl]?.max ?? 0;
@@ -942,13 +942,13 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                 return (
                                     <button key={lvl} onClick={() => convertSlotToFocus(lvl)} disabled={current <= 0}
                                         className={`py-1.5 rounded-xl border text-[10px] font-bold transition-all active:scale-95 flex items-center justify-center gap-2 ${current > 0 ? 'bg-cyan-500/10 border-cyan-500/20 text-cyan-600 dark:text-cyan-400' : 'opacity-20 border-slate-200 dark:border-white/5 text-slate-400'}`}>
-                                        Lv{lvl} ({current}) → +{lvl} Foco
+                                        Lv{lvl} ({current}) → +{lvl} Focus
                                     </button>
                                 );
                             })}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <span className="text-[9px] font-black text-slate-400 uppercase text-center">Foco → Espacio</span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase text-center">Focus → Slot</span>
                             {[1, 2, 3, 4, 5].map(lvl => {
                                 const cost = lvl + 1;
                                 const max = character.spellSlots?.[lvl]?.max ?? 0;
@@ -957,7 +957,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                 return (
                                     <button key={lvl} onClick={() => convertFocusToSlot(lvl)} disabled={currentFocus < cost || current >= max}
                                         className={`py-1.5 rounded-xl border text-[10px] font-bold transition-all active:scale-95 flex items-center justify-center gap-2 ${currentFocus >= cost && current < max ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400' : 'opacity-20 border-slate-200 dark:border-white/5 text-slate-400'}`}>
-                                        {cost} Foco → Lv{lvl}
+                                        {cost} Focus → Lv{lvl}
                                     </button>
                                 );
                             })}
@@ -994,8 +994,8 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4 border-l-4 border-purple-500">
                    <div className="flex justify-between items-center">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-1">Compañero Vestigial</span>
-                            <span className="text-lg font-black text-slate-900 dark:text-white leading-none">{character.vestige?.type || 'Vestigio'}</span>
+                            <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-1">Vestige Companion</span>
+                            <span className="text-lg font-black text-slate-900 dark:text-white leading-none">{character.vestige?.type || 'Vestige'}</span>
                         </div>
                         <div className="size-10 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center"><span className="material-symbols-outlined text-xl">tempest</span></div>
                    </div>
@@ -1057,7 +1057,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="mb-6">
                     <div className="flex items-center gap-2 mb-3 px-1">
                         <span className="material-symbols-outlined text-xs text-slate-400">auto_awesome</span>
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Conjuros</h3>
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Spells</h3>
                     </div>
                     <div className="grid grid-cols-1 gap-2">
                         {Object.entries(spellSlotSummary).map(([level, slots]) => {
@@ -1155,14 +1155,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-widest mb-6">
                             {inspectedStat === 'HP' ? 'Hit Points' 
                              : inspectedStat?.startsWith('Save_') 
-                                ? `Salvación de ${{
-                                    'STR': 'Fuerza',
-                                    'DEX': 'Destreza',
-                                    'CON': 'Constitución',
-                                    'INT': 'Inteligencia',
-                                    'WIS': 'Sabiduría',
-                                    'CHA': 'Carisma'
-                                  }[inspectedStat.split('_')[1] as Ability] || inspectedStat.split('_')[1]}` 
+                                ? `${inspectedStat.split('_')[1]} Save`
                                 : inspectedStat} Breakdown
                         </h3>
                         
@@ -1211,7 +1204,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                             className="flex items-center justify-center gap-2 py-3 rounded-xl bg-cyan-500 text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 hover:bg-cyan-600 transition-all shadow-sm shadow-cyan-500/20"
                                         >
                                             <span className="material-symbols-outlined text-[18px]">remove</span>
-                                            <span className="text-xs uppercase tracking-wider">Gastar</span>
+                                            <span className="text-xs uppercase tracking-wider">Spend</span>
                                         </button>
                                         <button 
                                             onClick={addInspiration} 
@@ -1219,7 +1212,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                             className="flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 hover:bg-slate-200 dark:hover:bg-white/20 transition-all"
                                         >
                                             <span className="material-symbols-outlined text-[18px]">add</span>
-                                            <span className="text-xs uppercase tracking-wider">Añadir</span>
+                                            <span className="text-xs uppercase tracking-wider">Add</span>
                                         </button>
                                     </div>
                                 </div>
@@ -1271,7 +1264,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             <button onClick={() => setSelectedSkill(null)} className="size-8 rounded-full bg-slate-100 dark:bg-white/5 text-slate-400"><span className="material-symbols-outlined">close</span></button>
                         </div>
                         <div className="flex-1 overflow-y-auto pr-1 no-scrollbar space-y-4">
-                            <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Descripción</span></div>
+                            <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Description</span></div>
                             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-body">{SKILL_DESCRIPTIONS[selectedSkill || '']}</p>
                         </div>
                     </div>
@@ -1320,7 +1313,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                             <div className="flex items-center justify-between p-3 rounded-xl bg-fuchsia-500/5 dark:bg-black/20 border border-fuchsia-500/10">
                                                 <div className="flex items-center gap-2">
                                                     <span className="material-symbols-outlined text-sm text-fuchsia-400">bolt</span>
-                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Explosión Agonizante (CHA)</span>
+                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Agonizing Blast (CHA)</span>
                                                 </div>
                                                 <span className="text-sm font-bold text-slate-900 dark:text-white">{formatModifier(chaMod)}</span>
                                             </div>
