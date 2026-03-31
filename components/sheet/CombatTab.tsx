@@ -4,7 +4,6 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Character, Ability, WeaponData, ArmorData, InventoryItem } from '../../types';
 import { SKILL_ABILITY_MAP, SKILL_DESCRIPTIONS } from '../../Data/skills';
 import { useSkills } from '../../Data/skills/index';
-import { MASTERY_DESCRIPTIONS } from '../../Data/items';
 import { CLASS_SAVING_THROWS, HIT_DIE } from '../../Data/characterOptions';
 import { SPELL_DETAILS } from '../../Data/spells';
 import { 
@@ -27,6 +26,7 @@ import {
     isProficientInSave,
     getAbilityModifier
 } from '../../utils/sheetUtils';
+import useMasteryDescriptions from '../../hooks/useMasteryDescriptions';
 
 interface CombatTabProps {
     character: Character;
@@ -36,6 +36,7 @@ interface CombatTabProps {
 
 const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }) => {
     const skills = useSkills();
+    const masteryDescriptions = useMasteryDescriptions();
     const SKILL_LIST = skills.map(s => s.name);
     // const [isRaging, setIsRaging] = useState(false); // REMOVED local state
     const isRaging = character.isRaging || false;
@@ -1101,7 +1102,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                             <div className="text-[10px] font-bold text-primary uppercase mt-1">{weaponData?.mastery || '-'}</div>
                                         </div>
                                     </div>
-                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 max-w-[150px] leading-tight text-right italic">{MASTERY_DESCRIPTIONS[weaponData?.mastery || '-']}</p>
+                                     <p className="text-[10px] text-slate-500 dark:text-slate-400 max-w-[150px] leading-tight text-right italic">{masteryDescriptions[weaponData?.mastery || '-']}</p>
                                 </div>
                             );
                         })}
