@@ -52,7 +52,7 @@ const SPECIES_DATA = SPECIES;
 
 // Standard/PHB species only - excludes Eberron, Lorwyn, and exotic settings
 const COMMON_SPECIES = [
-  'Dwarf', 'Elf', 'Halfling', 'Human', 'Dragonborn', 'Gnome', 'Tiefling', 'Goliath'
+  'Aasimar', 'Dragonborn', 'Dwarf', 'Elf', 'Gnome', 'Goliath', 'Halfling', 'Human', 'Orc', 'Tiefling'
 ];
 
 // Use all species from SPECIES object (for existing characters)
