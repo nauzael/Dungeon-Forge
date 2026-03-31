@@ -52,22 +52,6 @@ export const monk = {
               11: [{ name: 'Flurry of Healing and Harm', description: 'When you use Flurry of Blows, you can replace each of the Unarmed Strikes with a use of Hand of Healing without expending Focus Points for the healing.\nIn addition, when you make an Unarmed Strike with Flurry of Blows and deal damage, you can use Hand of Harm with that strike without expending a Focus Point for Hand of Harm. You can still use Hand of Harm only once per turn.' }],
               17: [{ name: 'Hand of Ultimate Mercy', description: 'Your mastery of life energy opens the door to the ultimate mercy. As a Magic action, you can touch the corpse of a creature that died within the past 24 hours and expend 5 Focus Points. The creature then returns to life with a number of Hit Points equal to 4d10 plus your Wisdom modifier. If the creature died with any of the following conditions, the creature revives with the conditions removed: Blinded, Deafened, Paralyzed, Poisoned, and Stunned.\nOnce you use this feature, you can\'t use it again until you finish a Long Rest.' }]
           } 
-      },
-      {
-          name: 'Warrior of the Mystic Arts',
-          description: 'Warriors of the Mystic Arts wield magic to supplement their martial skill. They harness their supernatural focus to enhance their magical and physical abilities.',
-          features: {
-              3: [
-                  { name: 'Spellcasting', description: 'You have learned to cast spells from the Sorcerer list. Wisdom is your spellcasting ability. You know two cantrips and start with three level 1 spells prepared.' },
-                  { name: 'Mystic Spells', description: 'You prepare Sorcerer spells. Your number of prepared spells increases as you level up. (See UA 2026 table for slots and prepared count).' }
-              ],
-              6: [
-                  { name: 'Mystic Focus', description: 'You can convert spell slots into Focus Points (amount equal to slot level) with no action. As a Bonus Action, you can spend Focus Points to recover a spell slot: 2 (Lvl 1), 3 (Lvl 2), 5 (Lvl 3), 6 (Lvl 4).' },
-                  { name: 'Mystic Fighting Style', description: 'When you take the Attack action, you can replace one of the attacks with a casting of one of your Sorcerer cantrips that has a casting time of an action.' }
-              ],
-              11: [{ name: 'Centered Focus', description: 'Whenever you expend a Focus Point to use Flurry of Blows, Patient Defense, or Step of the Wind, you have Advantage on Concentration saving throws until the start of your next turn.' }],
-              17: [{ name: 'Improved Mystic Fighting Style', description: 'When you take the Attack action, you can replace two of the attacks with a casting of one of your level 1 or 2 Sorcerer spells that has a casting time of an action.' }]
-          }
       }
   ] as SubclassData[],
   masteriesCount: 0,

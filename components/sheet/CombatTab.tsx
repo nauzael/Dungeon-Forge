@@ -85,10 +85,6 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
     const isDruid = character.class === 'Druid';
     const isFighter = character.class === 'Fighter';
     const isWarriorOfMercy = isMonk && character.subclass === 'Warrior of Mercy';
-    const isMysticArtsMonk = isMonk && character.subclass === 'Warrior of the Mystic Arts';
-    const isMagicStealer = isRogue && character.subclass === 'Magic Stealer';
-    const isSpellguard = isPaladin && character.subclass === 'Oath of the Spellguard';
-    const isVestigeWarlock = character.class === 'Warlock' && character.subclass === 'Vestige Patron';
 
     const hpPercent = (character.hp.current / character.hp.max) * 100;
     const hpColorClass = hpPercent > 75 ? 'text-emerald-500' : hpPercent > 35 ? 'text-amber-500' : 'text-red-500';
@@ -286,29 +282,6 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 focus: { current: currentFocus - cost, max: maxFocus }
             });
         }
-    };
-
-    // ── Magic Stealer (Rogue) ──────────────────────────────────────────
-    const eseMax = character.level >= 17 ? 3 : character.level >= 11 ? 2 : 1;
-    const eseCurrent = character.empoweredSneakAttack?.dice ?? eseMax;
-    const useEmpoweredSneakAttack = () => {
-        if (eseCurrent > 0) {
-            onUpdate({ ...character, empoweredSneakAttack: { dice: eseCurrent - 1 } });
-        }
-    };
-    const resetEmpoweredSneakAttack = () => {
-        onUpdate({ ...character, empoweredSneakAttack: { dice: eseMax } });
-    };
-
-    // ── Vestige Patron (Warlock) ──────────────────────────────────────
-    const vestigeHpMax = character.level * 5;
-    const vestigeHpCurrent = character.vestige?.hp?.current ?? vestigeHpMax;
-    const updateVestigeHp = (amount: number) => {
-        const newHp = Math.max(0, Math.min(vestigeHpMax, vestigeHpCurrent + amount));
-        onUpdate({
-            ...character,
-            vestige: { ...character.vestige!, hp: { current: newHp, max: vestigeHpMax } }
-        });
     };
 
 
@@ -919,137 +892,6 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             {Math.floor(sneakAttackDice * 3.5)}
                         </div>
                         <div className="text-[10px] text-slate-400">max {sneakAttackDice * 6}</div>
-                    </div>
-                </div>
-            )}
-
-            {/* ── MYSTIC FOCUS CONVERSION (Warrior of the Mystic Arts) ── */}
-            {isMysticArtsMonk && (
-                <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4 border-l-4 border-cyan-500">
-                    <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-1">Conversión Mística</span>
-                            <span className="text-xs text-slate-400">Canje de Espacios y Foco</span>
-                        </div>
-                        <span className="material-symbols-outlined text-cyan-500">auto_fix_normal</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="flex flex-col gap-2">
-                            <span className="text-[9px] font-black text-slate-400 uppercase text-center">Espacio → Foco</span>
-                            {[1, 2, 3, 4, 5].map(lvl => {
-                                const current = character.spellSlots?.[lvl]?.current ?? 0;
-                                const max = character.spellSlots?.[lvl]?.max ?? 0;
-                                if (max === 0) return null;
-                                return (
-                                    <button key={lvl} onClick={() => convertSlotToFocus(lvl)} disabled={current <= 0}
-                                        className={`py-1.5 rounded-xl border text-[10px] font-bold transition-all active:scale-95 flex items-center justify-center gap-2 ${current > 0 ? 'bg-cyan-500/10 border-cyan-500/20 text-cyan-600 dark:text-cyan-400' : 'opacity-20 border-slate-200 dark:border-white/5 text-slate-400'}`}>
-                                        Lv{lvl} ({current}) → +{lvl} Foco
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <span className="text-[9px] font-black text-slate-400 uppercase text-center">Foco → Espacio</span>
-                            {[1, 2, 3, 4, 5].map(lvl => {
-                                const cost = lvl + 1;
-                                const max = character.spellSlots?.[lvl]?.max ?? 0;
-                                const current = character.spellSlots?.[lvl]?.current ?? 0;
-                                if (max === 0) return null;
-                                return (
-                                    <button key={lvl} onClick={() => convertFocusToSlot(lvl)} disabled={currentFocus < cost || current >= max}
-                                        className={`py-1.5 rounded-xl border text-[10px] font-bold transition-all active:scale-95 flex items-center justify-center gap-2 ${currentFocus >= cost && current < max ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400' : 'opacity-20 border-slate-200 dark:border-white/5 text-slate-400'}`}>
-                                        {cost} Foco → Lv{lvl}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* ── EMPOWERED SNEAK ATTACK (Magic Stealer) ── */}
-            {isMagicStealer && (
-                <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4 border-l-4 border-amber-500">
-                    <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Ataque Furtivo Potenciado</span>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-4xl font-black tracking-tighter text-amber-500">{eseCurrent}</span>
-                                <span className="text-lg font-bold text-slate-400">/ {eseMax} Usos</span>
-                            </div>
-                        </div>
-                        <button onClick={resetEmpoweredSneakAttack} className="size-12 rounded-2xl bg-white dark:bg-white/5 text-slate-400 hover:text-amber-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all flex items-center justify-center" title="Descanso Corto/Largo">
-                            <span className="material-symbols-outlined font-bold">refresh</span>
-                        </button>
-                    </div>
-                    <button onClick={useEmpoweredSneakAttack} disabled={eseCurrent <= 0}
-                        className={`w-full py-3 rounded-2xl border font-black text-xs uppercase tracking-widest transition-all active:scale-[0.98] ${eseCurrent > 0 ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-400 opacity-50'}`}>
-                        Empoderar Ataque (+{eseCurrent}d6)
-                    </button>
-                    <p className="text-[10px] text-slate-500 text-center">Se recarga al lanzar un conjuro de nivel 1+ o con un Descanso</p>
-                </div>
-            )}
-
-            {/* ── VESTIGE COMPANION (Vestige Patron) ── */}
-            {isVestigeWarlock && (
-                <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4 border-l-4 border-purple-500">
-                   <div className="flex justify-between items-center">
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-1">Compañero Vestigial</span>
-                            <span className="text-lg font-black text-slate-900 dark:text-white leading-none">{character.vestige?.type || 'Vestigio'}</span>
-                        </div>
-                        <div className="size-10 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center"><span className="material-symbols-outlined text-xl">tempest</span></div>
-                   </div>
-                   <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase mb-1">Puntos de Golpe</span>
-                            <div className="flex items-baseline gap-1.5">
-                                <span className="text-2xl font-black text-purple-500">{vestigeHpCurrent}</span>
-                                <span className="text-xs font-bold text-slate-400">/ {vestigeHpMax}</span>
-                            </div>
-                        </div>
-                         <div className="flex gap-2">
-                             <button onClick={() => updateVestigeHp(-5)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-black/20 border border-purple-500/30 text-purple-500 active:scale-90 transition-all font-bold">-5</button>
-                             <button onClick={() => updateVestigeHp(5)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-black/20 border border-purple-500/30 text-purple-500 active:scale-90 transition-all font-bold">+5</button>
-                         </div>
-                   </div>
-                   <div className="relative h-1.5 w-full bg-slate-100 dark:bg-black/40 rounded-full overflow-hidden">
-                        <div className="absolute top-0 left-0 h-full bg-purple-500 transition-all duration-300" style={{ width: `${(vestigeHpCurrent / vestigeHpMax) * 100}%` }}></div>
-                   </div>
-                   <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-500">
-                        <div className="p-2 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
-                            <span className="font-bold block text-purple-500 uppercase">Aura: {character.vestige?.domain || 'Patrón'}</span>
-                            Bonus de +{character.profBonus} a salvaciones vs magia.
-                        </div>
-                        <div className="p-2 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
-                            <span className="font-bold block text-purple-500 uppercase">Ataque</span>
-                            1d8 + {character.profBonus} daño de fuerza.
-                        </div>
-                   </div>
-                </div>
-            )}
-
-            {/* ── SPELLGUARD (Oath of the Spellguard) ── */}
-            {isSpellguard && (
-                <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4 border-l-4 border-sky-400">
-                    <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-1">Vínculo del Guardián</span>
-                            <span className="text-xs text-slate-400">Protegiendo a un aliado</span>
-                        </div>
-                        <span className="material-symbols-outlined text-sky-400">safety_check</span>
-                    </div>
-                    <div className="p-3 rounded-2xl bg-sky-400/5 border border-sky-400/20">
-                         <p className="text-xs text-slate-600 dark:text-slate-300">Aliado vinculado recibe <span className="font-bold text-sky-400">+{character.profBonus}</span> a CA y Salvaciones si está en tu Aura de Protección.</p>
-                         <div className="mt-3 flex gap-2 items-center">
-                            <input 
-                                type="text" 
-                                placeholder="Nombre del aliado..." 
-                                value={character.guardianBondTarget || ''}
-                                onChange={(e) => onUpdate({ ...character, guardianBondTarget: e.target.value })}
-                                className="flex-1 bg-black/10 border border-white/5 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-sky-400/50"
-                            />
-                         </div>
                     </div>
                 </div>
             )}

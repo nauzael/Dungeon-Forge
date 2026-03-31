@@ -122,7 +122,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
         if (character.class === 'Warlock') return 'pact';
         if (['Cleric', 'Druid', 'Bard', 'Sorcerer', 'Wizard'].includes(character.class)) return 'full';
         if (['Paladin', 'Ranger'].includes(character.class)) return 'half';
-        if (['Eldritch Knight', 'Arcane Trickster', 'Warrior of the Mystic Arts'].includes(character.subclass || '')) return 'third';
+        if (['Eldritch Knight', 'Arcane Trickster'].includes(character.subclass || '')) return 'third';
         return 'none';
     }, [character.class, character.subclass]);
 
@@ -272,7 +272,6 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
     const spellStat = useMemo(() => {
         if (SPELLCASTING_ABILITY[character.class]) return SPELLCASTING_ABILITY[character.class];
         if (character.spellcastingAbility) return character.spellcastingAbility;
-        if (character.subclass === 'Warrior of the Mystic Arts') return 'WIS';
         if (effectiveCasterType === 'third') return 'INT';
         if (magicInitiateType) return SPELLCASTING_ABILITY[magicInitiateType];
         return 'INT';
@@ -352,7 +351,6 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
         }
         if (source === 'Pact') return character.pactCantrips || [];
         if (source === character.class) {
-            if (character.subclass === 'Warrior of the Mystic Arts') return SPELL_LIST_BY_CLASS['Sorcerer'] || [];
             return SPELL_LIST_BY_CLASS[character.class] || (['Eldritch Knight', 'Arcane Trickster'].includes(character.subclass || '') ? ARCANE_SPELLS : []);
         }
         if (source.includes('(Feat)')) {

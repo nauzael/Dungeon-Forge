@@ -88,20 +88,6 @@ export const paladin = {
             15: [{ name: 'Soul of Vengeance', description: 'Cuando el objetivo de tu Voto de Enemistad hace un ataque, puedes usar tu reacción para hacer un ataque cuerpo a cuerpo contra él.' }],
             20: [{ name: 'Avenging Angel', description: 'Acción Adicional (10 min): Ganas alas (vuelo 60 pies) y un aura que puede asustar a los enemigos que empiecen su turno cerca de ti.' }]
         }
-    },
-    {
-        name: 'Oath of the Spellguard',
-        description: 'Paladines juramentados para combatir a aquellos que usan la magia para dañar a otros, actuando como guardaespaldas contra ataques mágicos.',
-        features: {
-            3: [
-                { name: 'Guardian Bond', description: 'Canalizar Divinidad: Como Acción Mágica, forjas un vínculo con un aliado a 5 pies (1 hora). Puedes usar tu reacción para añadir tu bónus de Carisma a su CA si está a tu alcance.' },
-                { name: 'Oath of the Spellguard Spells', description: 'Hechizos siempre preparados: Detectar Magia, Escudo (3), Ver Invisibilidad, Silencio (5), Contrahechizo, Disipar Magia (9), Libertad de Movimiento, Esfera Resiliente de Otiluke (13), Círculo de Poder, Sagrario (17).' },
-                { name: 'Spellguard Strike', description: 'Reacción: Cuando una criatura a tu alcance lanza un conjuro (V, S o M), puedes realizar un ataque cuerpo a cuerpo contra ella.' }
-            ],
-            7: [{ name: 'Aura of Concentration', description: 'Tú y tus aliados tenéis ventaja en las tiradas de salvación de Constitución para mantener la concentración mientras estéis en tu Aura de Protección.' }],
-            15: [{ name: 'Spell-Breaking Blade', description: 'Inmediatamente después de impactar con tu Spellguard Strike, puedes lanzar Contrahechizo como parte de la misma reacción. Si el Contrahechizo falla, no gastas el espacio.' }],
-            20: [{ name: 'Eternal Spellguard', description: 'Acción Adicional (1 min): Tu Aura de Protección se potencia. El objetivo de tu Vínculo tiene Resistencia a todo el daño, y tú y tus aliados tenéis ventaja en salvaciones contra hechizos y los ataques de hechizo contra vosotros tienen desventaja.' }]
-        }
     }
   ] as SubclassData[],
   masteriesCount: 2,

@@ -61,10 +61,6 @@ export interface Character {
   startingGold?: number; // Chosen instead of background equipment
   money?: { cp: number; sp: number; gp: number; ep: number; pp: number };
   notes?: NoteItem[];
-  // Subclass specific state
-  empoweredSneakAttack?: { dice: number }; // Rogue: Magic Stealer
-  vestige?: { type: 'Celestial' | 'Fiend' | 'Undead', hp: { current: number, max: number }, domain: string }; // Warlock: Vestige Patron
-  guardianBondTarget?: string; // Paladin: Oath of the Spellguard
   party_id?: string;
   party_name?: string;
   usedSlots?: Record<string, boolean>; // Spell slot tracking
