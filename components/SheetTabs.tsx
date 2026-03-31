@@ -9,8 +9,7 @@ import NotesTab from './sheet/NotesTab';
 import JoinPartyModal from './JoinPartyModal';
 import { getEffectiveCasterType, getFinalStats } from '../utils/sheetUtils';
 import { HIT_DIE, CLASS_PROGRESSION, SUBCLASS_OPTIONS, METAMAGIC_OPTIONS } from '../Data/characterOptions';
-import { GENERIC_FEATURES } from '../Data/feats';
-import useFeatOptions from '../hooks/useFeatOptions';
+import { FEAT_OPTIONS, GENERIC_FEATURES } from '../Data/feats';
 
 interface SheetTabsProps {
   character: Character;
@@ -26,7 +25,6 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
   const [slideDirection, setSlideDirection] = useState<'forward' | 'backward'>('forward');
   const mainScrollRef = useRef<HTMLDivElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
-  const { featOptions: FEAT_OPTIONS, getFeatDisplayName } = useFeatOptions();
   
   const t = {
     combat: 'Combat',
@@ -67,9 +65,9 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
 
   const magicInitiateType = useMemo(() => {
       const feats = character.feats || [];
-      if (feats.some(f => f.includes('Magic Initiate (Cleric)') || f.includes('Iniciado Mágico (Clérigo)'))) return 'Cleric';
-      if (feats.some(f => f.includes('Magic Initiate (Druid)') || f.includes('Iniciado Mágico (Druida)'))) return 'Druid';
-      if (feats.some(f => f.includes('Magic Initiate (Wizard)') || f.includes('Iniciado Mágico (Mago)'))) return 'Wizard';
+      if (feats.some(f => f.includes('Magic Initiate (Cleric)'))) return 'Cleric';
+      if (feats.some(f => f.includes('Magic Initiate (Druid)'))) return 'Druid';
+      if (feats.some(f => f.includes('Magic Initiate (Wizard)'))) return 'Wizard';
       return null;
   }, [character.feats]);
 
@@ -190,14 +188,14 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
               updatedChar.stats = newStats;
           }
       }
-      // Ajustar contador de Lucky al nuevo bonificador por competencia si tiene la dote
+      // Adjust Lucky counter to new proficiency bonus if character has the feat
       const hasLucky = (updatedChar.feats || []).some(f => f === 'Afortunado' || f === 'Lucky');
       if (hasLucky) {
           const current = Math.min(updatedChar.lucky?.current ?? newProf, newProf);
           updatedChar.lucky = { current, max: newProf };
       }
 
-      // Actualizar recursos de clase según el nuevo nivel
+      // Update class resources based on new level
       const newLevel = nextLevel;
       const newStats = getFinalStats(updatedChar);
       const newChaMod = Math.floor(((newStats.CHA || 10) - 10) / 2);
@@ -510,7 +508,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
                                   <div>
                                       <select value={pendingFeat} onChange={(e) => setPendingFeat(e.target.value)} className="w-full p-4 bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 rounded-2xl text-sm font-bold outline-none text-slate-900 dark:text-white">
                                           <option value="" disabled>{t.selectFeat}</option>
-                                          {FEAT_OPTIONS.map(f => <option key={f.name} value={f.name}>{getFeatDisplayName(f.name)}</option>)}
+                                          {FEAT_OPTIONS.map(f => <option key={f.name} value={f.name}>{f.name}</option>)}
                                       </select>
                                   </div>
                               )}

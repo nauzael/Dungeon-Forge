@@ -1,12 +1,10 @@
 
 import React, { useState } from 'react';
-import { Ability, Skill, BackgroundData, AsiDecision } from '../../types';
+import { Ability, Skill, BackgroundData } from '../../types';
 import { SKILL_ABILITY_MAP } from '../../Data/skills';
 import { useSkills } from '../../Data/skills/index';
 import { METAMAGIC_OPTIONS } from '../../Data/characterOptions';
-import { MASTERY_DESCRIPTIONS, WEAPONS_DB } from '../../Data/items';
-import { useLanguage } from '../../hooks/useLanguage';
-import WeaponMasteryModal from './WeaponMasteryModal';
+import { MASTERY_DESCRIPTIONS } from '../../Data/items';
 
 interface Step4Props {
     selectedSpecies: string;
@@ -29,74 +27,26 @@ interface Step4Props {
     maxExpertise: number;
     selectedExpertise: string[];
     toggleExpertise: (s: string) => void;
-    pendingSkillFeat: { type: 'Skilled' | 'Skill Expert' | 'Boon of Skill' | 'Don de Habilidad', level?: number } | null;
-    setPendingSkillFeat: (v: { type: 'Skilled' | 'Skill Expert' | 'Boon of Skill' | 'Don de Habilidad', level?: number } | null) => void;
-    asiDecisions: Record<number, AsiDecision>;
-    onAsiUpdate: (level: number, updates: Partial<AsiDecision>) => void;
-    selectedFeat: string;
-    onHumanFeatSkillsUpdate: (skills: string[]) => void;
 }
+
+import { useLanguage } from '../../hooks/useLanguage';
+import { useGameData } from '../../hooks/useGameData';
+import WeaponMasteryModal from './WeaponMasteryModal';
 
 const Step4Skills: React.FC<Step4Props> = ({
     selectedSpecies, selectedElfSkill, setSelectedElfSkill, selectedHumanSkill, setSelectedHumanSkill,
     selectedSkills, toggleSkill, finalStats, backgroundData, level, classSkillOptions,
     maxMetamagics, selectedMetamagics, toggleMetamagic,
     maxMasteries, selectedMasteries, setMasteryAtIndex,
-    maxExpertise, selectedExpertise, toggleExpertise,
-    pendingSkillFeat, setPendingSkillFeat, asiDecisions, onAsiUpdate,
-    selectedFeat, onHumanFeatSkillsUpdate
+    maxExpertise, selectedExpertise, toggleExpertise
 }) => {
     const { t } = useLanguage();
+    const { metamagics: metamagicOptions, weapons: allWeapons } = useGameData();
     const [showMasteryModal, setShowMasteryModal] = useState(false);
     const [activeMasterySlot, setActiveMasterySlot] = useState(0);
-    const [skilledSelections, setSkilledSelections] = useState<string[]>(
-        asiDecisions[pendingSkillFeat?.level || 0]?.skills || []
-    );
-    const [humanFeatSkilledSelections, setHumanFeatSkilledSelections] = useState<string[]>([]);
-    const [skillExpertSelection, setSkillExpertSelection] = useState<string>(
-        asiDecisions[pendingSkillFeat?.level || 0]?.expertiseSkill || ''
-    );
-    const [boonOfSkillExpertise, setBoonOfSkillExpertise] = useState<string>(
-        asiDecisions[pendingSkillFeat?.level || 0]?.expertiseSkill || ''
-    );
-    const availableWeapons = (Object.values(WEAPONS_DB) as any[]).filter((w: any) => w.mastery && w.mastery !== '-');
+    const availableWeapons = allWeapons.filter(w => w.mastery && w.mastery !== '-');
     const skills = useSkills();
     const SKILL_LIST = skills.map(s => s.name);
-    
-    // Check if there's a pending Skilled feat that needs skill selection (ASI or human feat)
-    const featLevel = pendingSkillFeat?.level || 0;
-    const hasSkilledFeat = pendingSkillFeat?.type === 'Skilled' || asiDecisions[featLevel]?.feat === 'Skilled' || selectedFeat === 'Skilled';
-    const hasSkillExpertFeat = pendingSkillFeat?.type === 'Skill Expert' || asiDecisions[featLevel]?.feat === 'Skill Expert' || selectedFeat === 'Skill Expert';
-    const hasBoonOfSkillFeat = pendingSkillFeat?.type === 'Boon of Skill' || asiDecisions[featLevel]?.feat === 'Boon of Skill' || asiDecisions[featLevel]?.feat === 'Don de Habilidad' || selectedFeat === 'Boon of Skill' || selectedFeat === 'Don de Habilidad';
-    
-    // Get current skilled selections (either from ASI or human feat)
-    const currentSkilledSelections = pendingSkillFeat?.level ? skilledSelections : humanFeatSkilledSelections;
-    const setCurrentSkilledSelections = pendingSkillFeat?.level ? setSkilledSelections : setHumanFeatSkilledSelections;
-    
-    // Sync skilled selections to asiDecisions or human feat callback
-    const handleSkilledSelect = (skill: string, add: boolean) => {
-        let newSkills: string[];
-        if (add) {
-            newSkills = [...currentSkilledSelections, skill];
-        } else {
-            newSkills = currentSkilledSelections.filter(s => s !== skill);
-        }
-        setCurrentSkilledSelections(newSkills);
-        if (pendingSkillFeat?.level) {
-            onAsiUpdate(pendingSkillFeat.level, { skills: newSkills });
-        } else if (selectedFeat === 'Skilled') {
-            onHumanFeatSkillsUpdate(newSkills);
-        }
-    };
-    
-    // Sync skill expert selection to asiDecisions
-    const handleSkillExpertSelect = (skill: string) => {
-        const newExpertise = skillExpertSelection === skill ? '' : skill;
-        setSkillExpertSelection(newExpertise);
-        if (pendingSkillFeat?.level) {
-            onAsiUpdate(pendingSkillFeat.level, { expertiseSkill: newExpertise });
-        }
-    };
     
     return (
         <div className="px-6 py-4 space-y-6">
@@ -154,7 +104,7 @@ const Step4Skills: React.FC<Step4Props> = ({
                 <div className="mt-8 animate-fadeIn">
                     <h3 className="text-xl font-bold mb-4">{t.metamagic_options} <span className="text-sm font-medium text-slate-500 ml-2">({selectedMetamagics.length} / {maxMetamagics})</span></h3>
                     <div className="grid grid-cols-1 gap-2">
-                        {METAMAGIC_OPTIONS.map(m => (
+                        {metamagicOptions.map(m => (
                             <button key={m.name} onClick={() => toggleMetamagic(m.name)} disabled={!selectedMetamagics.includes(m.name) && selectedMetamagics.length >= maxMetamagics} className={`p-4 rounded-xl border text-left transition-all ${selectedMetamagics.includes(m.name) ? 'bg-primary/5 border-primary shadow-[0_0_15px_rgba(53,158,255,0.2)]' : 'bg-white dark:bg-surface-dark border-slate-200 hover:border-primary/50'}`}>
                                 <div className="flex justify-between items-center mb-1"><span className={`font-bold ${selectedMetamagics.includes(m.name) ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{m.name}</span>{selectedMetamagics.includes(m.name) && <span className="material-symbols-outlined text-primary text-base">check_circle</span>}</div>
                                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">{m.description}</p>
@@ -263,82 +213,6 @@ const Step4Skills: React.FC<Step4Props> = ({
                                 <button key={skill} onClick={() => toggleExpertise(skill)} disabled={isDisabled} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${isSelected ? 'bg-primary/5 border-primary shadow-[0_0_15px_rgba(53,158,255,0.2)]' : isDisabled ? 'opacity-40' : 'bg-white dark:bg-surface-dark border-slate-200'}`}>
                                     <span className={`font-bold ${isSelected ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{skill}</span>
                                     {isSelected && <span className="material-symbols-outlined text-primary">verified</span>}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-
-            {/* Skilled Feat UI - 3 Skill Proficiencies */}
-            {(hasSkilledFeat || currentSkilledSelections.length > 0) && (
-                <div className="mt-8 animate-fadeIn pb-10">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-xl font-bold">{t.feat}: Skilled</h3>
-                        <div className="text-sm font-medium text-slate-500">{t.chosen}: <span className={`${currentSkilledSelections.length === 3 ? 'text-primary' : 'text-slate-900 dark:text-white'} font-bold`}>{currentSkilledSelections.length}</span> / 3</div>
-                    </div>
-                    <p className="text-xs text-slate-500 mb-4">Gana competencia en 3 habilidades de tu elección</p>
-                    <div className="grid grid-cols-1 gap-2">
-                        {SKILL_LIST.map(skill => {
-                            const isAlreadyProf = (backgroundData?.skills || []).includes(skill) || selectedSkills.includes(skill) || selectedHumanSkill === skill || selectedElfSkill === skill;
-                            const isSelected = currentSkilledSelections.includes(skill);
-                            const isDisabled = !isSelected && currentSkilledSelections.length >= 3;
-                            return (
-                                <button key={skill} onClick={() => handleSkilledSelect(skill, !isSelected)} disabled={isDisabled && !isSelected} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${isSelected ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]' : isDisabled ? 'opacity-40' : 'bg-white dark:bg-surface-dark border-slate-200'}`}>
-                                    <span className={`font-bold ${isSelected ? 'text-amber-600 dark:text-amber-400' : 'text-slate-900 dark:text-white'}`}>{skill}{isAlreadyProf && <span className="text-[10px] ml-2 text-slate-400">(ya competente)</span>}</span>
-                                    {isSelected && <span className="material-symbols-outlined text-amber-500">check</span>}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-
-            {/* Skill Expert Feat UI - 1 Expertise */}
-            {(hasSkillExpertFeat || skillExpertSelection) && (
-                <div className="mt-8 animate-fadeIn pb-10">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-xl font-bold">{t.feat}: Skill Expert</h3>
-                        <div className="text-sm font-medium text-slate-500">{t.chosen}: <span className={`${skillExpertSelection ? 'text-primary' : 'text-slate-900 dark:text-white'} font-bold`}>{skillExpertSelection ? 1 : 0}</span> / 1</div>
-                    </div>
-                    <p className="text-xs text-slate-500 mb-4">Elige una habilidad competente para obtener Maestría (doble Bono de Competencia)</p>
-                    <div className="grid grid-cols-1 gap-2">
-                        {SKILL_LIST.map(skill => {
-                            const isProf = (backgroundData?.skills || []).includes(skill) || selectedSkills.includes(skill) || selectedHumanSkill === skill || selectedElfSkill === skill;
-                            if (!isProf) return null; // Can only select skills you already have proficiency in
-                            const isSelected = skillExpertSelection === skill;
-                            return (
-                                <button key={skill} onClick={() => handleSkillExpertSelect(skill)} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${isSelected ? 'bg-primary/5 border-primary shadow-[0_0_15px_rgba(53,158,255,0.2)]' : 'bg-white dark:bg-surface-dark border-slate-200 hover:border-primary/50'}`}>
-                                    <span className={`font-bold ${isSelected ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{skill}</span>
-                                    {isSelected && <span className="material-symbols-outlined text-primary">verified</span>}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-
-            {/* Boon of Skill UI - 1 Expertise (all skills proficiency is automatic) */}
-            {(hasBoonOfSkillFeat || boonOfSkillExpertise) && (
-                <div className="mt-8 animate-fadeIn pb-10">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-xl font-bold">{t.feat}: Boon of Skill</h3>
-                        <div className="text-sm font-medium text-slate-500">{t.chosen}: <span className={`${boonOfSkillExpertise ? 'text-purple-500' : 'text-slate-900 dark:text-white'} font-bold`}>{boonOfSkillExpertise ? 1 : 0}</span> / 1</div>
-                    </div>
-                    <p className="text-xs text-slate-500 mb-4">Elige 1 habilidad para Maestría (doble Bono de Competencia). Ya tienes competencia en TODAS las habilidades.</p>
-                    <div className="grid grid-cols-1 gap-2">
-                        {SKILL_LIST.map(skill => {
-                            const isSelected = boonOfSkillExpertise === skill;
-                            return (
-                                <button key={skill} onClick={() => {
-                                    const newExpertise = isSelected ? '' : skill;
-                                    setBoonOfSkillExpertise(newExpertise);
-                                    if (pendingSkillFeat?.level) {
-                                        onAsiUpdate(pendingSkillFeat.level, { expertiseSkill: newExpertise });
-                                    }
-                                }} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${isSelected ? 'bg-purple-500/10 border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 'bg-white dark:bg-surface-dark border-slate-200 hover:border-purple-500/50'}`}>
-                                    <span className={`font-bold ${isSelected ? 'text-purple-600 dark:text-purple-400' : 'text-slate-900 dark:text-white'}`}>{skill}</span>
-                                    {isSelected && <span className="material-symbols-outlined text-purple-500">verified</span>}
                                 </button>
                             );
                         })}

@@ -4,10 +4,9 @@ import { createPortal } from 'react-dom';
 import { SectionSeparator } from './Shared';
 import { HIT_DIE, CLASS_STAT_PRIORITIES, SUBCLASS_OPTIONS, CLASS_LIST, SPECIES_LIST } from '../../Data/characterOptions';
 import { CLASS_UI_MAP, SPECIES_UI_MAP, BACKGROUND_UI_MAP } from '../../constants';
-import { SPELL_LIST_BY_CLASS } from '../../Data/spells';
+import { SPELL_DETAILS, SPELL_LIST_BY_CLASS } from '../../Data/spells';
 import { SCHOOL_THEMES } from '../../utils/sheetUtils';
 import { useLanguage } from '../../hooks/useLanguage';
-import { useFeatOptions } from '../../hooks/useFeatOptions';
 import { useClasses } from '../../Data/classes';
 import { useSpecies } from '../../Data/species';
 import { useGameData } from '../../hooks/useGameData';
@@ -46,8 +45,7 @@ const Step1Identity: React.FC<Step1Props> = ({
     const { t, language } = useLanguage();
     const classes = useClasses();
     const speciesList = useSpecies();
-    const { backgrounds, spells: SPELL_DETAILS } = useGameData();
-    const { getFeatDisplayName } = useFeatOptions();
+    const { backgrounds } = useGameData();
 
     const classData = classes[selectedClass]?.details as any;
     const speciesData = speciesList[selectedSpecies] as any;
@@ -66,11 +64,11 @@ const Step1Identity: React.FC<Step1Props> = ({
     const subspeciesScrollRef = useRef<HTMLDivElement>(null);
     const backgroundScrollRef = useRef<HTMLDivElement>(null);
 
-    // Detección de magia por trasfondo (PHB 2024 Magic Initiate)
+    // Background magic detection (PHB 2024 Magic Initiate)
     const bgMagicConfig = useMemo(() => {
         if (!backgroundData) return null;
         const featName = backgroundData.feat;
-        const isMagicInitiate = featName.includes('Magic Initiate') || featName.includes('Iniciado Mágico');
+        const isMagicInitiate = featName.includes('Magic Initiate') || featName.includes('Iniciado en la Magia');
         
         if (isMagicInitiate) {
             let listType: 'Cleric' | 'Druid' | 'Wizard' = 'Wizard';
@@ -87,7 +85,7 @@ const Step1Identity: React.FC<Step1Props> = ({
         return null;
     }, [backgroundData]);
 
-    // Limpiar hechizos si cambia el trasfondo y subespecie si cambia la especie
+    // Clear spells if background changes and subspecies if species changes
     useEffect(() => {
         setBgSpells([]);
     }, [selectedBackground, setBgSpells]);
@@ -111,7 +109,7 @@ const Step1Identity: React.FC<Step1Props> = ({
             ...(SPECIES_AVATARS[selectedSpecies]?.female || [])
         ];
         
-        // Solo sugerir si la imagen actual es la predeterminada "vacía"
+        // Only suggest if current image is the default "empty" one
         const isDefault = charImage === DEFAULT_CHAR_IMAGE;
         
         if (isDefault) {
@@ -513,7 +511,7 @@ const Step1Identity: React.FC<Step1Props> = ({
                                     <span className="material-symbols-outlined text-[20px]">military_tech</span>
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-xs font-bold text-slate-900 dark:text-white mb-1 truncate">{t.feat}: {getFeatDisplayName(backgroundData?.feat)}</p>
+                                    <p className="text-xs font-bold text-slate-900 dark:text-white mb-1 truncate">{t.feat}: {backgroundData?.feat}</p>
                                     <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">{backgroundData?.featDescription}</p>
                                 </div>
                             </div>

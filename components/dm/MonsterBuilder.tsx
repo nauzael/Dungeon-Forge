@@ -52,9 +52,9 @@ const MonsterBuilder: React.FC<{ playerLevels: number[] }> = ({ playerLevels }) 
         <div className="space-y-6">
             <div className="bg-[#1e293b] rounded-3xl p-6 border border-white/5 shadow-2xl space-y-5">
                 <div className="flex flex-col items-center text-center space-y-1">
-                    <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Presupuesto Táctico</span>
-                    <h2 className="text-2xl font-serif italic font-bold text-white">Equilibrio del Encuentro</h2>
-                    <p className="text-[9px] font-black uppercase text-blue-400 tracking-tighter">Para {playerLevels.length} Aventureros (Promedio Nivel {Math.round(playerLevels.reduce((a, b) => a + b, 0) / (playerLevels.length || 1))})</p>
+                    <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Tactical Budget</span>
+                    <h2 className="text-2xl font-serif italic font-bold text-white">Encounter Balance</h2>
+                    <p className="text-[9px] font-black uppercase text-blue-400 tracking-tighter">For {playerLevels.length} Adventurers (Average Level {Math.round(playerLevels.reduce((a, b) => a + b, 0) / (playerLevels.length || 1))})</p>
                 </div>
 
                 <div className="grid grid-cols-4 gap-2">
@@ -81,7 +81,7 @@ const MonsterBuilder: React.FC<{ playerLevels: number[] }> = ({ playerLevels }) 
             </div>
 
             <div className="flex justify-between items-center px-2">
-                <h3 className="text-sm font-black uppercase text-slate-400 tracking-widest leading-none">Bestiario del Encuentro</h3>
+                <h3 className="text-sm font-black uppercase text-slate-400 tracking-widest leading-none">Encounter Bestiary</h3>
                 <button 
                     onClick={() => setShowAdd(true)}
                     className="size-8 rounded-full bg-blue-600 flex items-center justify-center border-4 border-[#0f172a] shadow-lg shadow-blue-500/20 active:scale-95 transition-transform"
@@ -132,7 +132,7 @@ const MonsterBuilder: React.FC<{ playerLevels: number[] }> = ({ playerLevels }) 
 
             <div className="grid gap-4 pb-20">
                 {monsters.length === 0 && (
-                    <div className="text-center py-10 italic text-slate-600 font-medium">Aún no has convocado enemigos para este desafío...</div>
+                    <div className="text-center py-10 italic text-slate-600 font-medium">You haven't summoned enemies for this challenge yet...</div>
                 )}
                 {monsters.map(m => (
                     <div key={m.id} className="bg-[#1e293b] rounded-2xl p-4 border border-white/5 shadow-xl flex justify-between items-center group active:scale-[0.98] transition-all">

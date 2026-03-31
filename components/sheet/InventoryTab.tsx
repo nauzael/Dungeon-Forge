@@ -21,7 +21,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
 
     const inventory = character.inventory || [];
 
-    // Helper para verificar sintonización
+    // Helper to check attunement
     const checkAttunement = (name: string) => {
         const data = getItemData(name);
         return data?.description?.toLowerCase().includes('requires attunement') || false;

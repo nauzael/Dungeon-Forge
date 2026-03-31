@@ -141,7 +141,7 @@ const CharacterList: React.FC<CharacterListProps> = ({ characters, onCreate, onS
                     <div className="relative z-10 size-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
                         <span className="material-symbols-outlined text-2xl text-blue-400">monitoring</span>
                     </div>
-                    <span className="relative z-10 text-sm font-black text-white tracking-[0.2em] uppercase">Panel del DM</span>
+                    <span className="relative z-10 text-sm font-black text-white tracking-[0.2em] uppercase">DM Panel</span>
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                 </button>
             </div>

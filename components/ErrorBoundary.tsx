@@ -40,14 +40,14 @@ class ErrorBoundary extends Component<Props, State> {
           <div className="bg-red-500/10 p-5 rounded-full mb-6 ring-1 ring-red-500/30">
              <span className="material-symbols-outlined text-5xl text-red-500">error_med</span>
           </div>
-          <h1 className="text-3xl font-bold mb-3 tracking-tight">Algo salió mal</h1>
+          <h1 className="text-3xl font-bold mb-3 tracking-tight">Something went wrong</h1>
           <p className="text-slate-400 mb-8 max-w-xs mx-auto text-sm leading-relaxed">
-            La aplicación ha encontrado un error crítico y no puede continuar.
+            The application has encountered a critical error and cannot continue.
           </p>
           
           {this.state.error && (
              <div className="w-full max-w-sm bg-black/30 rounded-xl p-4 mb-8 text-left border border-white/5 overflow-hidden">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Detalles del Error</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Error Details</p>
                 <code className="text-xs text-red-300 font-mono break-words block">
                     {this.state.error.toString()}
                 </code>

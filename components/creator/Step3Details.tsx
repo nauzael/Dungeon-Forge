@@ -1,7 +1,7 @@
 import React from 'react';
 import { ALIGNMENTS, LANGUAGES } from '../../Data/characterOptions';
-import { useLanguage } from '../../hooks/useLanguage';
-import useFeatOptions from '../../hooks/useFeatOptions';
+// Imported FEAT_OPTIONS from the correct Data/feats module
+import { FEAT_OPTIONS } from '../../Data/feats';
 
 interface Step3Props {
     selectedAlignment: string;
@@ -19,20 +19,16 @@ interface Step3Props {
     setUseStartingGold: (v: boolean) => void;
 }
 
+import { useLanguage } from '../../hooks/useLanguage';
+import { useGameData } from '../../hooks/useGameData';
+
 const Step3Details: React.FC<Step3Props> = ({
     selectedAlignment, setSelectedAlignment, selectedLanguage1, setSelectedLanguage1,
     selectedLanguage2, setSelectedLanguage2, selectedSpecies, selectedFeat, openFeatModal,
     spellcastingAbility, setSpellcastingAbility, useStartingGold, setUseStartingGold
 }) => {
-    const { t, language } = useLanguage();
-    const { getFeatDescription } = useFeatOptions();
-
-    const alignments = language === 'es' 
-        ? ['Legal Bueno', 'Neutral Bueno', 'Caótico Bueno', 'Legal Neutral', 'Neutral', 'Caótico Neutral', 'Legal Malvado', 'Neutral Malvado', 'Caótico Malvado']
-        : ALIGNMENTS;
-    const languagesList = language === 'es'
-        ? ['Común', 'Élfico', 'Enano', 'Halfling', 'Dracónico', 'Infernal', ' Céleste', 'Primordial', 'Abyssal', 'Sylvan', 'Druídico', 'Défico']
-        : LANGUAGES;
+    const { t } = useLanguage();
+    const { alignments, languages } = useGameData();
 
     return (
         <div className="px-6 py-4 space-y-4">
@@ -49,11 +45,11 @@ const Step3Details: React.FC<Step3Props> = ({
                 <h3 className="text-xl font-bold mb-1">{t.additional_languages} (2)</h3>
                 <select value={selectedLanguage1} onChange={(e) => setSelectedLanguage1(e.target.value)} className="w-full bg-white dark:bg-surface-dark border border-slate-200 rounded-xl px-4 py-3 text-base outline-none focus:ring-2 focus:ring-primary/50">
                     <option value="" disabled>{t.select_language_1}</option>
-                    {languagesList.filter(l => l !== 'Common' && l !== selectedLanguage2).map(l => <option key={l} value={l}>{l}</option>)}
+                    {languages.filter(l => l !== 'Common' && l !== selectedLanguage2).map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
                 <select value={selectedLanguage2} onChange={(e) => setSelectedLanguage2(e.target.value)} className="w-full bg-white dark:bg-surface-dark border border-slate-200 rounded-xl px-4 py-3 text-base outline-none focus:ring-2 focus:ring-primary/50">
                     <option value="" disabled>{t.select_language_2}</option>
-                    {languagesList.filter(l => l !== 'Common' && l !== selectedLanguage1).map(l => <option key={l} value={l}>{l}</option>)}
+                    {languages.filter(l => l !== 'Common' && l !== selectedLanguage1).map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
             </div>
 
@@ -64,7 +60,7 @@ const Step3Details: React.FC<Step3Props> = ({
                         <span className={`font-bold ${selectedFeat ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>{selectedFeat || t.selectFeat}</span>
                         <span className="material-symbols-outlined text-slate-400">chevron_right</span>
                     </button>
-                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-300 p-3 bg-slate-200 dark:bg-white/5 rounded-lg border border-transparent">{getFeatDescription(selectedFeat)}</p>
+                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-300 p-3 bg-slate-200 dark:bg-white/5 rounded-lg border border-transparent">{FEAT_OPTIONS.find(f => f.name === selectedFeat)?.description}</p>
                 </div>
             )}
 

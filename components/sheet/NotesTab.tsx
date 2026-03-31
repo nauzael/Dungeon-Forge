@@ -166,7 +166,7 @@ const NotesTab: React.FC<NotesTabProps> = ({ character, onUpdate, isReadOnly }) 
                         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
                             {campaignAtlas.length === 0 ? (
                                 <div className="w-full py-6 px-4 rounded-3xl border-2 border-dashed border-slate-200 dark:border-white/5 flex flex-col items-center justify-center text-center">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">El Master aún no ha compartido recursos persistentes.</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">The Master has not shared persistent resources yet.</p>
                                 </div>
                             ) : (
                                 campaignAtlas.map(res => (
@@ -223,8 +223,8 @@ const NotesTab: React.FC<NotesTabProps> = ({ character, onUpdate, isReadOnly }) 
                         <div className="w-20 h-20 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4 border border-slate-200 dark:border-white/5">
                             <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">edit_note</span>
                         </div>
-                        <p className="text-base font-bold text-slate-500 dark:text-slate-400">Página en Blanco</p>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center mt-1">Tu historia comienza aquí.</p>
+                        <p className="text-base font-bold text-slate-500 dark:text-slate-400">Blank Page</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center mt-1">Your story begins here.</p>
                     </div>
                 )}
 

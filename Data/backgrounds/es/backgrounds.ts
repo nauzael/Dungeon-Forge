@@ -7,7 +7,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Acólito': {
         description: 'Devoto al servicio en un templo.',
         scores: ['INT', 'WIS', 'CHA'],
-        feat: 'Magic Initiate (Cleric)',
+        feat: 'Iniciado en la Magia (Clérigo)',
         featDescription: 'Aprendes 2 trucos y 1 conjuro de nivel 1 de clérigo. Puedes lanzarlo una vez gratis por descanso largo.',
         skills: ['Insight', 'Religion'],
         tool: 'Suministros de Caligrafía',
@@ -16,7 +16,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Artesano': {
         description: 'Empezaste como aprendiz de artesano.',
         scores: ['STR', 'DEX', 'INT'],
-        feat: 'Crafter',
+        feat: 'Fabricante',
         featDescription: 'Competencia con 3 herramientas de artesano. Descuento del 20% en objetos no mágicos. Fabricación rápida.',
         skills: ['Investigation', 'Persuasion'],
         tool: 'Herramientas de Artesano',
@@ -25,7 +25,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Charlatán': {
         description: 'Aprendiste a engañar para sobrevivir.',
         scores: ['DEX', 'CON', 'CHA'],
-        feat: 'Skilled',
+        feat: 'Habilidoso',
         featDescription: 'Ganas competencia en cualquier combinación de 3 habilidades o herramientas.',
         skills: ['Deception', 'Sleight of Hand'],
         tool: 'Kit de Falsificación',
@@ -34,7 +34,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Criminal': {
         description: 'Sobreviviste en los callejones oscuros.',
         scores: ['DEX', 'CON', 'INT'],
-        feat: 'Alert',
+        feat: 'Alerta',
         featDescription: 'Ganas competencia en iniciativa y puedes intercambio tu iniciativa con un aliado.',
         skills: ['Sleight of Hand', 'Stealth'],
         tool: 'Herramientas de Ladrón',
@@ -43,7 +43,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Artista': {
         description: 'Prosperas bajo el aplauso del público.',
         scores: ['STR', 'DEX', 'CHA'],
-        feat: 'Musician',
+        feat: 'Músico',
         featDescription: 'Competencia con 3 instrumentos. Puedes dar Inspiración Heroica a aliados.',
         skills: ['Acrobatics', 'Performance'],
         tool: 'Instrumento Musical',
@@ -52,7 +52,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Granjero': {
         description: 'Creciste cerca de la tierra y la naturaleza.',
         scores: ['STR', 'CON', 'WIS'],
-        feat: 'Tough',
+        feat: 'Duro',
         featDescription: 'Tu máximo de puntos de golpe aumenta en 2 por nivel actual y futuro.',
         skills: ['Animal Handling', 'Nature'],
         tool: 'Herramientas de Carpintero',
@@ -61,7 +61,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Guardia': {
         description: 'Entrenado para vigilar contra peligros.',
         scores: ['STR', 'INT', 'WIS'],
-        feat: 'Alert',
+        feat: 'Alerta',
         featDescription: 'Ganas competencia en iniciativa y puedes intercambio tu iniciativa con un aliado.',
         skills: ['Athletics', 'Perception'],
         tool: 'Juego de Juego',
@@ -70,7 +70,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Guía': {
         description: 'Creciste al aire libre, lejos de la ciudad.',
         scores: ['DEX', 'CON', 'WIS'],
-        feat: 'Magic Initiate (Druid)',
+        feat: 'Iniciado en la Magia (Druida)',
         featDescription: 'Aprendes 2 trucos y 1 conjuro de nivel 1 de druida. Puedes lanzarlo una vez gratis por descanso largo.',
         skills: ['Stealth', 'Survival'],
         tool: 'Herramientas de Cartógrafo',
@@ -79,7 +79,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Ermitaño': {
         description: 'Pasaste tus primeros años en reclusión.',
         scores: ['CON', 'WIS', 'CHA'],
-        feat: 'Healer',
+        feat: 'Sanador',
         featDescription: 'Mejoras el uso de kits de sanador y puedes gastar Dados de Golpe para curar.',
         skills: ['Medicine', 'Religion'],
         tool: 'Kit de Herboristería',
@@ -88,7 +88,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Comerciante': {
         description: 'Aprendiz de comerciante o tendero.',
         scores: ['CON', 'INT', 'CHA'],
-        feat: 'Lucky',
+        feat: 'Afortunado',
         featDescription: 'Ganas Puntos de Suerte igual a tu Bono de Competencia.',
         skills: ['Animal Handling', 'Persuasion'],
         tool: 'Herramientas de Navegante',
@@ -97,7 +97,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Noble': {
         description: 'Criado en un castillo con riqueza y poder.',
         scores: ['STR', 'INT', 'CHA'],
-        feat: 'Skilled',
+        feat: 'Habilidoso',
         featDescription: 'Ganas competencia en cualquier combinación de 3 habilidades o herramientas.',
         skills: ['History', 'Persuasion'],
         tool: 'Juego de Juego',
@@ -106,7 +106,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Erudito': {
         description: 'Pasaste noches estudiando libros y pergaminos.',
         scores: ['CON', 'INT', 'WIS'],
-        feat: 'Magic Initiate (Wizard)',
+        feat: 'Iniciado en la Magia (Mago)',
         featDescription: 'Aprendes 2 trucos y 1 conjuro de nivel 1 de mago. Puedes lanzarlo una vez gratis por descanso largo.',
         skills: ['Arcana', 'History'],
         tool: 'Suministros de Caligrafía',
@@ -115,7 +115,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Marinero': {
         description: 'Viviste como marino, con el viento a tu espalda.',
         scores: ['STR', 'DEX', 'WIS'],
-        feat: 'Tavern Brawler',
+        feat: 'Matón de Taberna',
         featDescription: 'Ataques sin armas mejorados (d4) y puedes empujar como acción adicional.',
         skills: ['Acrobatics', 'Perception'],
         tool: 'Herramientas de Navegante',
@@ -124,7 +124,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Escriba': {
         description: 'Aprendiste a escribir con mano clara.',
         scores: ['DEX', 'INT', 'WIS'],
-        feat: 'Skilled',
+        feat: 'Habilidoso',
         featDescription: 'Ganas competencia en cualquier combinación de 3 habilidades o herramientas.',
         skills: ['Investigation', 'Perception'],
         tool: 'Suministros de Caligrafía',
@@ -133,7 +133,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Soldado': {
         description: 'Entrenado para la guerra desde joven.',
         scores: ['STR', 'DEX', 'CON'],
-        feat: 'Savage Attacker',
+        feat: 'Atacante Salvaje',
         featDescription: 'Una vez por turno, puedes tirar los dados de daño de un arma dos veces.',
         skills: ['Athletics', 'Intimidation'],
         tool: 'Juego de Juego',
@@ -142,7 +142,7 @@ export const BACKGROUND_DATA: Record<string, BackgroundData> = {
     'Viajero': {
         description: 'Creciste en las calles, recurriendo al robo.',
         scores: ['DEX', 'WIS', 'CHA'],
-        feat: 'Lucky',
+        feat: 'Afortunado',
         featDescription: 'Ganas Puntos de Suerte igual a tu Bono de Competencia.',
         skills: ['Insight', 'Stealth'],
         tool: 'Herramientas de Ladrón',

@@ -4,7 +4,6 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Character } from '../../types';
 import { SPELL_DETAILS, SPELL_LIST_BY_CLASS, CANTRIPS_KNOWN_BY_LEVEL, SPELLS_KNOWN_BY_LEVEL, MAX_SPELL_LEVEL, SPELLCASTING_ABILITY, ARCANE_SPELLS } from '../../Data/spells';
 import { SCHOOL_THEMES, formatModifier, getFinalStats, getSpellSummary } from '../../utils/sheetUtils';
-import useGameData from '../../hooks/useGameData';
 
 interface SpellsTabProps {
     character: Character;
@@ -65,7 +64,6 @@ const getProgressiveValue = (table: Record<number, number> | undefined, level: n
 };
 
 const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }) => {
-    const { getSpellDisplayName, getSpellByName } = useGameData();
     const t = {
         save_dc: 'Save DC',
         attack_bonus: 'Attack Bonus',
@@ -112,9 +110,9 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
 
     const magicInitiateType = useMemo(() => {
         const feats = character.feats || [];
-        if (feats.some(f => f.includes('Magic Initiate (Cleric)') || f.includes('Iniciado Mágico (Clérigo)'))) return 'Cleric';
-        if (feats.some(f => f.includes('Magic Initiate (Druid)') || f.includes('Iniciado Mágico (Druida)'))) return 'Druid';
-        if (feats.some(f => f.includes('Magic Initiate (Wizard)') || f.includes('Iniciado Mágico (Mago)'))) return 'Wizard';
+        if (feats.some(f => f.includes('Magic Initiate (Cleric)'))) return 'Cleric';
+        if (feats.some(f => f.includes('Magic Initiate (Druid)'))) return 'Druid';
+        if (feats.some(f => f.includes('Magic Initiate (Wizard)'))) return 'Wizard';
         return null;
     }, [character.feats]);
 
@@ -122,7 +120,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
         if (character.class === 'Warlock') return 'pact';
         if (['Cleric', 'Druid', 'Bard', 'Sorcerer', 'Wizard'].includes(character.class)) return 'full';
         if (['Paladin', 'Ranger'].includes(character.class)) return 'half';
-        if (['Eldritch Knight', 'Arcane Trickster'].includes(character.subclass || '')) return 'third';
+        if (['Eldritch Knight', 'Arcane Trickster', 'Warrior of the Mystic Arts'].includes(character.subclass || '')) return 'third';
         return 'none';
     }, [character.class, character.subclass]);
 
@@ -147,14 +145,14 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
         return Array.from(new Set([...prepared, ...pact, ...pactRituals]));
     }, [character.preparedSpells, character.pactCantrips, character.pactRituals]);
 
-    // LÍMITES 2024: Preparación por nivel
+    // 2024 LIMITS: Preparation per level
     const currentPreparedForActiveLevel = useMemo(() => {
         const levelToCheck = grimoireLevel;
         return (character.preparedSpells || []).filter(name => {
-            const spell = getSpellByName(name);
+            const spell = SPELL_DETAILS[name];
             return spell?.level === levelToCheck;
         }).length;
-    }, [character.preparedSpells, grimoireLevel, getSpellByName]);
+    }, [character.preparedSpells, grimoireLevel]);
 
     const maxPreparedForActiveLevel = useMemo(() => {
         if (grimoireLevel === 0) {
@@ -201,18 +199,18 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                  // If we return global limit here, it will look like "0 / 15" for level 1, "0 / 15" for level 2.
                  // This might be confusing but accurate for Known casters.
                  
-                  const totalKnown = getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
-                  const currentTotalKnown = (character.preparedSpells || []).filter(s => getSpellByName(s)?.level !== 0).length;
-                  const currentOthers = currentTotalKnown - currentPreparedForActiveLevel;
-                  
-                  // Remaining capacity
-                  return Math.max(0, totalKnown - currentOthers + currentPreparedForActiveLevel); 
-              }
-              
-              // For other known casters (Bard, Sorcerer, Ranger)
-              if (SPELLS_KNOWN_BY_LEVEL[character.class]) {
-                  const totalKnown = getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
-                  const currentTotalKnown = (character.preparedSpells || []).filter(s => getSpellByName(s)?.level !== 0).length;
+                 const totalKnown = getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
+                 const currentTotalKnown = (character.preparedSpells || []).filter(s => SPELL_DETAILS[s]?.level !== 0).length;
+                 const currentOthers = currentTotalKnown - currentPreparedForActiveLevel;
+                 
+                 // Remaining capacity
+                 return Math.max(0, totalKnown - currentOthers + currentPreparedForActiveLevel); 
+             }
+             
+             // For other known casters (Bard, Sorcerer, Ranger)
+             if (SPELLS_KNOWN_BY_LEVEL[character.class]) {
+                 const totalKnown = getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
+                 const currentTotalKnown = (character.preparedSpells || []).filter(s => SPELL_DETAILS[s]?.level !== 0).length;
                  const currentOthers = currentTotalKnown - currentPreparedForActiveLevel;
                  return Math.max(0, totalKnown - currentOthers + currentPreparedForActiveLevel);
              }
@@ -227,7 +225,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
         return slots;
     }, [character.class, character.level, grimoireLevel, effectiveCasterType, magicInitiateType, character.preparedSpells, currentPreparedForActiveLevel]);
 
-    // Visibilidad de pestañas de nivel según la capacidad de la clase
+    // Level tab visibility based on class ability
     const availableSpellLevels = useMemo(() => {
         const levels = new Set<number>();
         levels.add(0); // Cantrips always available
@@ -272,6 +270,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
     const spellStat = useMemo(() => {
         if (SPELLCASTING_ABILITY[character.class]) return SPELLCASTING_ABILITY[character.class];
         if (character.spellcastingAbility) return character.spellcastingAbility;
+        if (character.subclass === 'Warrior of the Mystic Arts') return 'WIS';
         if (effectiveCasterType === 'third') return 'INT';
         if (magicInitiateType) return SPELLCASTING_ABILITY[magicInitiateType];
         return 'INT';
@@ -291,7 +290,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
         if (isReadOnly) return;
         const current = character.preparedSpells || [];
         const isPrepared = current.includes(spellName);
-        const spellData = getSpellByName(spellName);
+        const spellData = SPELL_DETAILS[spellName];
         if (!spellData) return;
         
         const isCantrip = spellData.level === 0;
@@ -326,7 +325,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
 
     const saveDC = 8 + character.profBonus + spellMod;
     const spellAttack = character.profBonus + spellMod;
-    const SPELL_DETAILSToShow = allPreparedSpells.filter(s => getSpellByName(s)?.level === activeSpellLevel).sort();
+    const SPELL_DETAILSToShow = allPreparedSpells.filter(s => SPELL_DETAILS[s]?.level === activeSpellLevel).sort();
     const slotCount = getSlots(effectiveCasterType, character.level, activeSpellLevel);
 
     const getLimitColor = (current: number, max: number) => {
@@ -351,6 +350,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
         }
         if (source === 'Pact') return character.pactCantrips || [];
         if (source === character.class) {
+            if (character.subclass === 'Warrior of the Mystic Arts') return SPELL_LIST_BY_CLASS['Sorcerer'] || [];
             return SPELL_LIST_BY_CLASS[character.class] || (['Eldritch Knight', 'Arcane Trickster'].includes(character.subclass || '') ? ARCANE_SPELLS : []);
         }
         if (source.includes('(Feat)')) {
@@ -439,9 +439,9 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                    <p className="text-slate-500 text-sm mb-2">{t.no_spells_prepared}</p>
                    <button onClick={() => setShowGrimoire(true)} className="text-primary font-bold text-sm">{t.view_grimoire}</button>
                </div>
-            ) : SPELL_DETAILSToShow.map(spellName => {
-                const spell = getSpellByName(spellName);
-                if (!spell) return null;
+           ) : SPELL_DETAILSToShow.map(spellName => {
+               const spell = SPELL_DETAILS[spellName];
+               if (!spell) return null;
                const summary = getSpellSummary(spell.description, spell.school);
                const isPactSpell = character.pactCantrips?.includes(spellName) || character.pactRituals?.includes(spellName);
                
@@ -453,7 +453,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                       </div>
                       <div>
                           <div className="flex items-center gap-2">
-                              <h3 className="text-white font-bold leading-tight truncate">{getSpellDisplayName(spell.name)}</h3>
+                             <h3 className="text-white font-bold leading-tight truncate">{spell.name}</h3>
                              {isPactSpell && <span className="text-[8px] font-black bg-blue-500 text-white px-1 rounded uppercase tracking-tighter">{t.pact_source}</span>}
                           </div>
                           <div className="flex gap-2 mt-0.5 items-center">
@@ -546,26 +546,26 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                    </div>
                </div>
 
-                <div className="flex-1 overflow-y-auto p-4 gap-3 flex flex-col pb-24 no-scrollbar bg-gradient-to-b from-surface-dark/20 to-background-dark">
-                    {getSourceList(grimoireSource)
-                        .filter(name => {
-                            const spell = getSpellByName(name);
-                            // Visibility Check: Show spell if its level is in the available levels list
-                            const level = spell?.level || 0;
-                            const hasAccess = availableSpellLevels.includes(level);
+               <div className="flex-1 overflow-y-auto p-4 gap-3 flex flex-col pb-24 no-scrollbar bg-gradient-to-b from-surface-dark/20 to-background-dark">
+                   {getSourceList(grimoireSource)
+                       .filter(name => {
+                           const spell = SPELL_DETAILS[name];
+                           // Visibility Check: Show spell if its level is in the available levels list
+                           const level = spell?.level || 0;
+                           const hasAccess = availableSpellLevels.includes(level);
 
-                            return level === grimoireLevel && hasAccess && name.toLowerCase().includes(grimoireSearch.toLowerCase());
-                        })
-                        .sort()
-                        .map(name => {
-                            const isPrepared = allPreparedSpells.includes(name);
-                            const isPactChoice = character.pactCantrips?.includes(name) || character.pactRituals?.includes(name);
-                            const isExpanded = expandedGrimoireId === name;
-                            const spell = getSpellByName(name);
-                            const summary = spell ? getSpellSummary(spell.description, spell.school) : { classes: '', icon: 'help', label: '' };
+                           return level === grimoireLevel && hasAccess && name.toLowerCase().includes(grimoireSearch.toLowerCase());
+                       })
+                       .sort()
+                       .map(name => {
+                           const isPrepared = allPreparedSpells.includes(name);
+                           const isPactChoice = character.pactCantrips?.includes(name) || character.pactRituals?.includes(name);
+                           const isExpanded = expandedGrimoireId === name;
+                           const spell = SPELL_DETAILS[name];
+                           const summary = spell ? getSpellSummary(spell.description, spell.school) : { classes: '', icon: 'help', label: '' };
 
-                            const isAtLevelLimit = currentPreparedForActiveLevel >= maxPreparedForActiveLevel;
-                            const isBlocked = !isPrepared && isAtLevelLimit && !isPactChoice;
+                           const isAtLevelLimit = currentPreparedForActiveLevel >= maxPreparedForActiveLevel;
+                           const isBlocked = !isPrepared && isAtLevelLimit && !isPactChoice;
 
                            return (
                                <div key={name} className={`flex flex-col rounded-2xl border transition-all duration-300 ${isPrepared ? 'bg-primary/5 border-primary/50 shadow-md shadow-primary/5' : isBlocked ? 'bg-white/[0.02] border-white/5 opacity-60' : 'bg-surface-dark border-white/5 hover:border-white/10'}`}>
@@ -574,7 +574,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                                            <div className="flex items-center justify-between">
                                                <div className="flex items-center gap-3">
                                                    <div className={`w-2 h-2 rounded-full ${isPrepared ? 'bg-primary shadow-[0_0_8px_rgba(53,158,255,1)] animate-pulse' : isBlocked ? 'bg-red-500/50' : 'bg-slate-500'}`}></div>
-                                                    <p className={`font-bold transition-colors ${isPrepared ? 'text-primary' : 'text-white group-hover:text-primary/70'}`}>{getSpellDisplayName(name)}</p>
+                                                   <p className={`font-bold transition-colors ${isPrepared ? 'text-primary' : 'text-white group-hover:text-primary/70'}`}>{name}</p>
                                                </div>
                                                <span className={`material-symbols-outlined text-slate-500 text-lg transition-transform duration-300 ${isExpanded ? 'rotate-180 text-primary' : ''}`}>expand_more</span>
                                            </div>
@@ -623,20 +623,20 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
            document.body
        )}
 
-        {selectedSpellName && createPortal(
-             <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setSelectedSpellName(null)}>
-                 <div className="w-full max-w-sm bg-white dark:bg-surface-dark rounded-3xl p-6 shadow-2xl animate-scaleUp flex flex-col max-h-[85vh] relative overflow-hidden" onClick={e => e.stopPropagation()}>
-                     <div className="absolute top-0 left-0 w-full h-1.5 bg-primary/20"></div>
-                     {(() => {
-                         const spell = getSpellByName(selectedSpellName);
-                         if (!spell) return null;
-                         const summary = getSpellSummary(spell.description, spell.school);
+       {selectedSpellName && createPortal(
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setSelectedSpellName(null)}>
+                <div className="w-full max-w-sm bg-white dark:bg-surface-dark rounded-3xl p-6 shadow-2xl animate-scaleUp flex flex-col max-h-[85vh] relative overflow-hidden" onClick={e => e.stopPropagation()}>
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-primary/20"></div>
+                    {(() => {
+                        const spell = SPELL_DETAILS[selectedSpellName];
+                        if (!spell) return null;
+                        const summary = getSpellSummary(spell.description, spell.school);
 
                         return (
                         <>
                             <div className="flex justify-between items-start mb-5">
                                 <div className="min-w-0 pr-4">
-                                     <h3 className="text-2xl font-black text-slate-900 dark:text-white leading-tight break-words">{getSpellDisplayName(selectedSpellName)}</h3>
+                                    <h3 className="text-2xl font-black text-slate-900 dark:text-white leading-tight break-words">{selectedSpellName}</h3>
                                     <div className="flex flex-wrap gap-2 mt-2">
                                         <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-wider ${summary.classes}`}>
                                             <span className="material-symbols-outlined text-[12px]">{summary.icon}</span>

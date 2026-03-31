@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Ability, BackgroundData, AsiDecision } from '../../types';
-import useFeatOptions from '../../hooks/useFeatOptions';
+import { FEAT_OPTIONS } from '../../Data/feats';
 
 interface Step2Props {
     selectedBackground: string;
@@ -41,7 +41,6 @@ const Step2Stats: React.FC<Step2Props> = ({
     asiLevels, asiDecisions, handleAsiChange, openFeatModal, suggestedArray, setBaseStats
 }) => {
     const { t } = useLanguage();
-    const { featOptions: FEAT_OPTIONS, getFeatDisplayName, getFeatDescription } = useFeatOptions();
 
     const getStatTranslation = (stat: Ability) => {
         const keyMap: Record<Ability, string> = {
@@ -227,7 +226,7 @@ const Step2Stats: React.FC<Step2Props> = ({
                                                 
                                                 <div className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
                                                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed italic">
-                                                        {getFeatDescription(decision.feat)}
+                                                        {FEAT_OPTIONS.find(f => f.name === decision.feat)?.description}
                                                     </p>
                                                 </div>
                                             </div>

@@ -45,7 +45,7 @@ const Compendium: React.FC = () => {
                     <span className="material-symbols-outlined text-blue-400 text-xl">search</span>
                     <input 
                         type="text" 
-                        placeholder="Buscar en la biblioteca..."
+                        placeholder="Search the library..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-slate-600 font-normal tracking-wide"
@@ -58,7 +58,7 @@ const Compendium: React.FC = () => {
                             onClick={() => handleFilterChange(cat)}
                             className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border snap-start shrink-0 ${filter === cat ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/40' : 'bg-white/5 border-white/10 text-slate-400'}`}
                         >
-                            {cat === 'All' ? 'Todo' : cat}
+                            {cat === 'All' ? 'All' : cat}
                         </button>
                     ))}
                 </div>
@@ -69,7 +69,7 @@ const Compendium: React.FC = () => {
                 {filtered.length === 0 ? (
                     <div className="col-span-full py-12 text-center">
                         <span className="material-symbols-outlined text-4xl text-slate-700">search_off</span>
-                        <p className="text-slate-500 text-sm mt-2">No se encontraron resultados</p>
+                        <p className="text-slate-500 text-sm mt-2">No results found</p>
                     </div>
                 ) : (
                     filtered.map(item => (
@@ -186,7 +186,7 @@ const Compendium: React.FC = () => {
                             ) : (
                                 <div className="py-12 text-center space-y-3">
                                     <span className="material-symbols-outlined text-4xl text-slate-700">inventory_2</span>
-                                    <p className="text-slate-500 text-sm italic">Información detallada en proceso de carga...</p>
+                                    <p className="text-slate-500 text-sm italic">Detailed information loading...</p>
                                 </div>
                             )}
                         </div>
@@ -197,7 +197,7 @@ const Compendium: React.FC = () => {
                                 onClick={handleCloseModal}
                                 className="w-full sm:w-auto px-10 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all border border-white/5"
                             >
-                                Cerrar Ventana
+                                Close Window
                             </button>
                         </div>
                     </div>

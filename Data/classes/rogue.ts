@@ -81,6 +81,22 @@ export const rogue = {
             ],
             17: [{ name: 'Thief\'s Reflexes', description: 'Eres tan rápido que tienes dos turnos durante el primer asalto de cualquier combate.' }]
         }
+    },
+    {
+        name: 'Magic Stealer',
+        description: 'Pícaros que se especializan en robar el poder mágico de otros, usando sus habilidades para drenar la magia de aliados y enemigos.',
+        features: {
+            3: [
+                { name: 'Empower Sneak Attack', description: 'Reacción (después de ver a alguien lanzar hechizo lv 1+ a 30 pies): Absorbes energía. La próxima vez que uses Ataque Furtivo, añades 1d6 de daño de Fuerza por nivel del hechizo absorbido. Usos = mod INT.' },
+                { name: 'Drain Magic', description: 'Acción Mágica: Toca a una criatura voluntaria para finalizar un hechizo de lv 1 o 2 en curso sobre ella. El objetivo recupera un espacio de conjuro de nivel 2 o inferior. 1/Descanso Corto.' }
+            ],
+            9: [{ name: 'Magical Sabotage', description: 'Nuevas opciones de Cunning Strike (Ataque Astuto): Spell Susceptibility (2d6, desventaja en salvaciones contra hechizos), Disrupt Spell (3d6, salva de INT o pierde el conjuro), Steal Resistance (2d6, robas una resistencia).' }],
+            13: [
+                { name: 'Occult Shroud', description: 'Al finalizar un descanso largo, puedes lanzar el hechizo No Detección sobre ti mismo (duración 24 horas, usa tu Inteligencia).' },
+                { name: 'Improved Drain Magic', description: 'Drain Magic ahora es Acción Adicional y puede afectar hechizos y recuperar espacios de hasta nivel 3.' }
+            ],
+            17: [{ name: 'Eldritch Implosion', description: 'Al usar Empower Sneak Attack, puedes forzar una salva de Constitución (CD 8 + DEX + PB) o el hechizo se disipa y el objetivo queda aturdido.' }]
+        }
     }
   ] as SubclassData[],
   masteriesCount: 2,

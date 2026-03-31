@@ -3,12 +3,11 @@ import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Character, Ability, Trait } from '../../types';
 import { SPECIES_DETAILS, CLASS_DETAILS, CLASS_PROGRESSION, SUBCLASS_OPTIONS, ELDRITCH_INVOCATIONS } from '../../Data/characterOptions';
-import { GENERIC_FEATURES } from '../../Data/feats';
+import { FEAT_OPTIONS, GENERIC_FEATURES } from '../../Data/feats';
 import { CANTRIPS } from '../../Data/spells/cantrips';
 import { LEVEL1 } from '../../Data/spells/level1';
 import { SPELL_DETAILS } from '../../Data/spells';
 import { getFinalStats } from '../../utils/sheetUtils';
-import useFeatOptions from '../../hooks/useFeatOptions';
 
 interface FeaturesTabProps {
     character: Character;
@@ -32,7 +31,6 @@ const ICON_MAP: Record<string, string> = {
 
 const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOnly }) => {
     const [selectedFeature, setSelectedFeature] = useState<FeatureItem | null>(null);
-    const { featOptions: FEAT_OPTIONS, getFeatDisplayName, getFeatDescription, hasFeat } = useFeatOptions();
     
     const [showInvocationsModal, setShowInvocationsModal] = useState(false);
     const [invocationSearch, setInvocationSearch] = useState('');
@@ -104,8 +102,8 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         }
 
         character.feats.forEach(f => {
-            const description = getFeatDescription(f) || 'Special ability or feat.';
-            list.push({ name: getFeatDisplayName(f), description, level: 1, source: 'Feat' });
+            const featOpt = FEAT_OPTIONS.find(fo => fo.name === f);
+            list.push({ name: f, description: featOpt?.description || 'Special ability or feat.', level: 1, source: 'Feat' });
         });
 
         if (character.invocations) {
@@ -143,7 +141,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         const currentFeats = character.feats || [];
         const currentLessons = character.lessonsFeats || [];
         let updatedHp = { ...character.hp };
-        if (featName === 'Resistente' || featName === 'Tough') {
+        if (featName === 'Duro' || featName === 'Tough') {
             const bonus = character.level * 2;
             updatedHp.max += bonus;
             updatedHp.current += bonus;
@@ -167,7 +165,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         if (featMatch) {
             const featName = featMatch[1];
             let updatedHp = { ...character.hp };
-        if (featName === 'Resistente' || featName === 'Tough') {
+            if (featName === 'Duro' || featName === 'Tough') {
                 const bonus = character.level * 2;
                 updatedHp.max = Math.max(1, updatedHp.max - bonus);
                 updatedHp.current = Math.max(1, updatedHp.current - bonus);
@@ -345,12 +343,12 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                 <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
                     <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
                         <button onClick={() => setShowOriginFeatSelector(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
-                        <h3 className="text-sm font-black uppercase tracking-widest text-emerald-500">Lecciones de los Primeros</h3>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-emerald-500">Lessons of the First</h3>
                         <div className="w-10"></div>
                     </div>
                     <div className="p-4 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 text-xs font-bold text-center border-b border-emerald-500/10 uppercase tracking-tighter">Choose an Origin Feat (Level 1)</div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                        {FEAT_OPTIONS.filter(f => f.category === 'Origin' && !hasFeat(f.name, character.feats || [])).map(feat => (
+                        {FEAT_OPTIONS.filter(f => f.description.includes('Origin Feat') && !character.feats?.includes(f.name)).map(feat => (
                             <button key={feat.name} onClick={() => { selectOriginFeatForLessons(feat.name); setShowOriginFeatSelector(false); setShowInvocationsModal(false); }} className="w-full text-left p-4 rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 hover:border-emerald-500/40 transition-all group">
                                 <span className="block font-bold text-base text-slate-900 dark:text-white group-hover:text-emerald-500 mb-1">{feat.name}</span>
                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">{feat.description}</p>
@@ -365,7 +363,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                 <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
                     <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
                         <button onClick={() => setShowTomeConfig(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
-                        <h3 className="text-sm font-black uppercase tracking-widest text-blue-500">Pacto del Tomo</h3>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-blue-500">Tome Pact</h3>
                         <div className="w-10"></div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-8">
@@ -440,17 +438,17 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                         <div className="w-10"></div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                        {FEAT_OPTIONS.filter(f => f.category === 'Origin' && !hasFeat(f.name, character.feats || [])).map(feat => (
+                        {FEAT_OPTIONS.filter(f => f.description.includes('Origin Feat') && !character.feats?.includes(f.name)).map(feat => (
                             <button key={feat.name} onClick={() => {
                                 const currentFeat = targetLessonsInstance?.match(/\((.*)\)/)?.[1];
                                 if (currentFeat) {
                                     let updatedHp = { ...character.hp };
-                                    if (currentFeat === 'Resistente' || currentFeat === 'Tough') {
+                                    if (currentFeat === 'Duro' || currentFeat === 'Tough') {
                                         const bonus = character.level * 2;
                                         updatedHp.max = Math.max(1, updatedHp.max - bonus);
                                         updatedHp.current = Math.max(1, updatedHp.current - bonus);
                                     }
-                                    if (feat.name === 'Resistente' || feat.name === 'Tough') {
+                                    if (feat.name === 'Duro' || feat.name === 'Tough') {
                                         const bonus = character.level * 2;
                                         updatedHp.max += bonus;
                                         updatedHp.current += bonus;

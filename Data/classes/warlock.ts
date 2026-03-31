@@ -90,6 +90,19 @@ export const warlock = {
             ],
             14: [{ name: 'Create Thrall', description: 'Siempre tienes preparado Summon Aberration. Puedes lanzarlo sin componentes y sin concentración durante 1 minute con THP extra.' }]
         }
+    },
+    {
+        name: 'Vestige Patron',
+        description: 'Tu pacto es con un vestigio, los restos de un dios moribundo que busca recuperar su poder a través de ti.',
+        features: {
+            3: [
+                { name: 'Vestige Companion', description: 'Invoca un Vestigio (Celestial, Infernal o No-Muerto) que actúa en tu turno. Tiene su propio bloque de estadísticas que escala con tu nivel de Brujo.' },
+                { name: 'Vestige Spells', description: 'Elige un Dominio de Clérigo (Vida, Luz, Engaño o Guerra) para tener sus conjuros siempre preparados como conjuros de Brujo.' }
+            ],
+            6: [{ name: 'Vestige Recovery', description: 'Tu Vestigio recupera el uso de su Poder Divino al finalizar un descanso corto o largo, o al usar tu Astucia Mágica.' }],
+            10: [{ name: 'Aura of Power', description: 'Como Acción Mágica, el Vestigio emite un aura de 30 pies (Resistencia a Fuego, Necrótico y Radiante; inmunidad a Encantamiento y Miedo). Si caes a 0 HP en el aura, quedas a 1 HP.' }],
+            14: [{ name: 'Semblance of Life', description: 'Como Acción Mágica, el Vestigio adopta temporalmente una forma más poderosa (Summon Celestial, Fiend o Undead) sin requerir concentración.' }]
+        }
     }
   ] as SubclassData[],
   masteriesCount: 0,

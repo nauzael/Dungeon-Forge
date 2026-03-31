@@ -101,8 +101,8 @@ export const getWeaponToHitBreakdown = (character: Character, item: InventoryIte
         }
     }
 
-    if (character.feats.some(f => f.includes('Arquero') || f.includes('Archery')) && weapon.rangeType === 'Ranged') {
-        breakdown.push({ label: 'Estilo: Arquero', value: 2, icon: 'military_tech' });
+    if (character.feats.some(f => f.includes('Tiro con arco')) && weapon.rangeType === 'Ranged') {
+        breakdown.push({ label: 'Estilo: Tiro con arco', value: 2, icon: 'military_tech' });
     }
 
     return breakdown;
@@ -145,7 +145,7 @@ export const getWeaponDamageBreakdown = (character: Character, item: InventoryIt
         breakdown.push({ label: 'Dote: Atacante Salvaje (Tira 2x)', value: 'Mejor', icon: 'auto_awesome' });
     }
 
-    if (character.feats.some(f => f.includes('Lucha con Armas Pesadas') || f.includes('Great Weapon Fighting')) && weapon.properties.includes('Two-Handed')) {
+    if (character.feats.some(f => f.includes('Lucha con armas pesadas') || f.includes('Great Weapon Fighting')) && weapon.properties.includes('Two-Handed')) {
         breakdown.push({ label: 'Estilo: Armas Pesadas (Repite 1-2)', value: 'Reroll 1-2', icon: 'refresh' });
     }
 
@@ -201,8 +201,8 @@ export const getWeaponDamageBreakdown = (character: Character, item: InventoryIt
         breakdown.push({ label: 'Maestría: Graze (Si fallas)', value: scalingVal, icon: 'error' });
     }
 
-    const hasDueling = character.feats.some(f => f.includes('Duelo') || f.includes('Dueling'));
-    const hasThrown = character.feats.some(f => f.includes('Lucha con Armas Arrojadizas') || f.includes('Thrown Weapon Fighting'));
+    const hasDueling = character.feats.some(f => f.includes('Duelo'));
+    const hasThrown = character.feats.some(f => f.includes('Combate con armas arrojadizas'));
     const isTwoHanded = weapon.properties.includes('Two-Handed');
     const equippedWeapons = character.inventory.filter(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
 
@@ -266,9 +266,9 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
 
         // Medium Armor Master: Max Dex becomes 3 for Medium Armor (usually 2)
         if (armorData.armorType === 'Medium' && character.feats.some(f => 
-            f === 'Maestro de Armadura Media' || 
+            f === 'Maestro en armaduras medias' || 
             f === 'Medium Armor Master' ||
-            f.toLowerCase().includes('maestro de armadura media') ||
+            f.toLowerCase().includes('maestro en armaduras medias') ||
             f.toLowerCase().includes('medium armor master'))) {
             if (maxDex === 2) maxDex = 3;
         }
@@ -286,9 +286,7 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
         }
         
         // Forge Cleric: Soul of the Forge (Level 6) - Heavy Armor
-        // Check bilingual: Forge Domain / Dominio de la Forja (if it exists in data)
-        const isForgeDomain = character.subclass === 'Forge Domain' || character.subclass === 'Dominio de la Forja';
-        if (character.class === 'Cleric' && isForgeDomain && character.level >= 6 && armorData.armorType === 'Heavy') {
+        if (character.class === 'Cleric' && character.subclass === 'Forge Domain' && character.level >= 6 && armorData.armorType === 'Heavy') {
              breakdown.push({ label: 'Alma de la Forja', value: 1, icon: 'handyman' });
         }
     } else {
@@ -299,8 +297,7 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
             breakdown.push({ label: 'Defensa sin Armadura (CON)', value: conMod, icon: 'fitness_center' });
         } else if (character.class === 'Monk') {
             breakdown.push({ label: 'Defensa sin Armadura (WIS)', value: wisMod, icon: 'self_improvement' });
-        } else if (character.class === 'Sorcerer' && 
-            (character.subclass === 'Draconic Sorcery' || character.subclass === 'Hechicería Dracónica')) {
+        } else if (character.class === 'Sorcerer' && character.subclass === 'Draconic Sorcery') {
             breakdown.push({ label: 'Resiliencia Dracónica (CHA)', value: chaMod, icon: 'auto_awesome' });
         }
     }
@@ -328,15 +325,16 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
         breakdown.push({ label: 'Protección Integrada', value: 1, icon: 'smart_toy' });
     }
     
-    // Kensei Monk: Agile Parry - Way of the Kensei subclass doesn't exist in current data
-    // If added to data, uncomment and add bilingual name:
-    // const isKensei = character.subclass === 'Way of the Kensei' || character.subclass === 'Camino del Kensai';
-    // if (character.class === 'Monk' && isKensei && !hasArmor && !hasShield) {
-    //      const hasWeapon = character.inventory.some(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
-    //      if (hasWeapon) {
-    //          breakdown.push({ label: 'Parada Ágil (Si atacas sin armas)', value: 2, icon: 'swords' });
-    //      }
-    // }
+    // Kensei Monk: Agile Parry (Note: Requires unarmed strike attack, assuming active for breakdown display if conditions met)
+    if (character.class === 'Monk' && character.subclass === 'Way of the Kensei' && !hasArmor && !hasShield) {
+         // Check if holding a kensei weapon? 
+         // For now, just adding as a potential conditional or static if we assume optimal play
+         // Let's add it only if a weapon is equipped
+         const hasWeapon = character.inventory.some(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
+         if (hasWeapon) {
+             breakdown.push({ label: 'Parada Ágil (Si atacas sin armas)', value: 2, icon: 'swords' });
+         }
+    }
 
     const inventory = character.inventory || [];
     inventory.forEach(item => {
@@ -350,7 +348,7 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
     if (character.feats.some(f => f.includes('Defensa') || f.includes('Defense')) && hasArmor) {
         breakdown.push({ label: 'Estilo: Defensa', value: 1, icon: 'shield_person' });
     }
-    if (character.feats.some(f => f === 'Doble Empuñadura' || f === 'Dual Wielder')) {
+    if (character.feats.some(f => f === 'Combatiente con dos armas' || f === 'Dual Wielder')) {
         const equippedWeapons = inventory.filter(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
         if (equippedWeapons.length >= 2) breakdown.push({ label: 'Dote: Doble Empuñadura', value: 1, icon: 'swords' });
     }
@@ -367,31 +365,26 @@ export const getInitBreakdown = (character: Character, finalStats: Record<string
     if (feats.some(f => f.includes('Alerta') || f.includes('Alert'))) {
         breakdown.push({ label: 'Dote: Alerta', value: character.profBonus, icon: 'notifications_active' });
     }
-    const isGloomStalker = character.subclass === 'Gloom Stalker' || character.subclass === 'Acechador de la Penumbra';
-    if (isGloomStalker && character.level >= 3) {
+    if (character.subclass === 'Gloom Stalker' && character.level >= 3) {
         const wisMod = getAbilityModifier(finalStats, 'WIS');
         breakdown.push({ label: 'Dread Ambusher (WIS)', value: wisMod, icon: 'visibility_off' });
     }
+    if (character.subclass === 'Swashbuckler' && character.level >= 3) {
+        const chaMod = getAbilityModifier(finalStats, 'CHA');
+        breakdown.push({ label: 'Rakish Audacity (CHA)', value: chaMod, icon: 'sentiment_very_satisfied' });
+    }
+    if (character.subclass === 'War Magic' && character.level >= 2) {
+        const intMod = getAbilityModifier(finalStats, 'INT');
+        breakdown.push({ label: 'Tactical Wit (INT)', value: intMod, icon: 'psychology' });
+    }
     
-    // Swashbuckler doesn't exist in current data - check commented
-    // const isSwashbuckler = character.subclass === 'Swashbuckler' || character.subclass === 'Espadachín';
-    // if (isSwashbuckler && character.level >= 3) {
-    //     const chaMod = getAbilityModifier(finalStats, 'CHA');
-    //     breakdown.push({ label: 'Rakish Audacity (CHA)', value: chaMod, icon: 'sentiment_very_satisfied' });
-    // }
-    
-    // War Magic doesn't exist in Spanish wizard.ts - check commented
-    // const isWarMagic = character.subclass === 'War Magic' || character.subclass === 'Magia de Guerra';
-    // if (isWarMagic && character.level >= 2) {
-    //     const intMod = getAbilityModifier(finalStats, 'INT');
-    //     breakdown.push({ label: 'Tactical Wit (INT)', value: intMod, icon: 'psychology' });
-    // }
-    
-    // Oath of the Watchers doesn't exist in current data
-    // const isWatchers = character.subclass === 'Oath of the Watchers' || character.subclass === 'Juramento de los Centinelas';
-    // if (character.class === 'Paladin' && isWatchers && character.level >= 7) {
-    //     breakdown.push({ label: 'Aura del Centinela (Prof)', value: character.profBonus, icon: 'security' });
-    // }
+    // 2024 / Tasha's Updates
+    if (character.species === 'Harengon') {
+        breakdown.push({ label: 'Harengon (Prof)', value: character.profBonus, icon: 'rabbit' });
+    }
+    if (character.class === 'Paladin' && character.subclass === 'Oath of the Watchers' && character.level >= 7) {
+        breakdown.push({ label: 'Aura del Centinela (Prof)', value: character.profBonus, icon: 'security' });
+    }
 
     if ((character.inventory || []).some(i => i.equipped && i.name === 'Stone of Good Luck')) {
         breakdown.push({ label: 'Piedra Ioun', value: 1, icon: 'diamond' });
@@ -435,13 +428,11 @@ export const getSpeedBreakdown = (character: Character, finalStats: Record<strin
         if (!hasHeavyArmor) breakdown.push({ label: 'Movimiento Rápido', value: 10, icon: 'sprint' });
     }
     
-    // Scout doesn't exist in current data - check commented
-    // const isScout = character.subclass === 'Scout' || character.subclass === 'Explorador';
-    // if (character.class === 'Rogue' && isScout && character.level >= 9) {
-    //     breakdown.push({ label: 'Movilidad Superior', value: 10, icon: 'directions_run' });
-    // }
+    if (character.class === 'Rogue' && character.subclass === 'Scout' && character.level >= 9) {
+        breakdown.push({ label: 'Movilidad Superior', value: 10, icon: 'directions_run' });
+    }
     
-    if (character.class === 'Ranger' && (character.subclass === 'Gloom Stalker' || (character.subclass || '').includes('acechador') || character.subclass === 'Acechador de la Penumbra')) {
+    if (character.class === 'Ranger' && (character.subclass === 'Gloom Stalker' || (character.subclass || '').includes('acechador')) && character.level >= 3) {
         breakdown.push({ label: 'Dread Ambusher (1er turno)', value: 10, icon: 'visibility_off' });
     }
 
@@ -498,14 +489,14 @@ export const getHPBreakdown = (character: Character, finalStats: Record<string, 
         breakdown.push({ label: 'Resistencia Enana', value: character.level, icon: 'face' });
         bonusesTotal += character.level;
     }
-    if (character.class === 'Sorcerer' && (character.subclass === 'Draconic Sorcery' || character.subclass === 'Hechicería Dracónica')) {
+    if (character.class === 'Sorcerer' && character.subclass === 'Draconic Sorcery') {
         breakdown.push({ label: 'Resiliencia Dracónica', value: character.level, icon: 'auto_awesome' });
         bonusesTotal += character.level;
     }
 
     // Dotes y Boons
-    if (character.feats.some(f => f === 'Resistente' || f === 'Tough')) {
-        breakdown.push({ label: 'Dote: Resistente (+2 por nivel)', value: character.level * 2, icon: 'military_tech' });
+    if (character.feats.some(f => f === 'Duro' || f === 'Tough')) {
+        breakdown.push({ label: 'Dote: Duro (+2 por nivel)', value: character.level * 2, icon: 'military_tech' });
         bonusesTotal += (character.level * 2);
     }
     
@@ -543,17 +534,14 @@ export const getFinalStats = (character: Character): Record<string, number> => {
 
     // 1. FIXED STAT FEATS (2024 General Feats with fixed ASI)
     if (character.feats.some(f => f.includes('Actor'))) stats.CHA = Math.min(20, stats.CHA + 1);
-    if (character.feats.some(f => f.includes('Experto en Ballesta') || f.includes('Crossbow Expert'))) stats.DEX = Math.min(20, stats.DEX + 1);
+    if (character.feats.some(f => f.includes('Experto en ballestas') || f.includes('Crossbow Expert'))) stats.DEX = Math.min(20, stats.DEX + 1);
     if (character.feats.some(f => f.includes('Duelista Defensivo') || f.includes('Defensive Duelist'))) stats.DEX = Math.min(20, stats.DEX + 1);
-    if (character.feats.some(f => f.includes('Durable'))) stats.CON = Math.min(20, stats.CON + 1); // "Durable" is General (+1 CON). "Tough" = "Resistente" is Origin (No ASI, gives HP instead).
+    if (character.feats.some(f => f.includes('Durable') || f.includes('Resistente'))) stats.CON = Math.min(20, stats.CON + 1); // "Duro" (Tough) is Origin (No ASI). "Resistente" (Durable) is General (+1 CON).
     
-    if (character.feats.some(f => f.includes('Maestro de Armas Pesadas') || f.includes('Great Weapon Master'))) stats.STR = Math.min(20, stats.STR + 1);
-    if (character.feats.some(f => f.includes('Pesadamente Armado') || f.includes('Heavily Armored'))) stats.STR = Math.min(20, stats.STR + 1);
-    if (character.feats.some(f => f.includes('Maestro de Armadura Pesada') || f.includes('Heavy Armor Master'))) stats.STR = Math.min(20, stats.STR + 1);
-    if (character.feats.some(f => f.includes('Mente Aguda') || f.includes('Keen Mind'))) stats.INT = Math.min(20, stats.INT + 1);
-    if (character.feats.some(f => f.includes('Tirador de Elite') || f.includes('Sharpshooter'))) stats.DEX = Math.min(20, stats.DEX + 1);
-    if (character.feats.some(f => f.includes('Maestro del Escudo') || f.includes('Shield Master'))) stats.STR = Math.min(20, stats.STR + 1);
-    if (character.feats.some(f => f.includes('Veloz') || f.includes('Speedy'))) stats.DEX = Math.min(20, stats.DEX + 1);
+    if (character.feats.some(f => f.includes('Maestro en armas pesadas') || f.includes('Great Weapon Master'))) stats.STR = Math.min(20, stats.STR + 1);
+    if (character.feats.some(f => f.includes('Mente aguda') || f.includes('Keen Mind'))) stats.INT = Math.min(20, stats.INT + 1);
+    if (character.feats.some(f => f.includes('Tirador de primera') || f.includes('Sharpshooter'))) stats.DEX = Math.min(20, stats.DEX + 1);
+    if (character.feats.some(f => f.includes('Maestro en escudos') || f.includes('Shield Master'))) stats.STR = Math.min(20, stats.STR + 1);
 
     // 2. VARIABLE STAT FEATS & EPIC BOONS
     // We rely on the user having indicated the choice in the name, e.g. "Atleta (Fuerza)"
@@ -568,7 +556,7 @@ export const getFinalStats = (character: Character): Record<string, number> => {
         // Ideally, we should remove the fixed ones from this check or make the fixed check more specific.
         // For now, let's assume Fixed ones don't need parsing.
         
-        const fixedFeats = ['Actor', 'Experto en Ballesta', 'Crossbow Expert', 'Duelista Defensivo', 'Defensive Duelist', 'Resistente', 'Durable', 'Maestro de Armas Pesadas', 'Great Weapon Master', 'Pesadamente Armado', 'Heavily Armored', 'Maestro de Armadura Pesada', 'Heavy Armor Master', 'Mente Aguda', 'Keen Mind', 'Tirador de Elite', 'Sharpshooter', 'Maestro del Escudo', 'Shield Master', 'Veloz', 'Speedy'];
+        const fixedFeats = ['Actor', 'Experto en ballestas', 'Crossbow Expert', 'Duelista Defensivo', 'Defensive Duelist', 'Resistente', 'Durable', 'Maestro en armas pesadas', 'Great Weapon Master', 'Mente aguda', 'Keen Mind', 'Tirador de primera', 'Sharpshooter', 'Maestro en escudos', 'Shield Master'];
         if (fixedFeats.some(f => feat.includes(f))) return;
 
         // Parse stat
@@ -722,8 +710,7 @@ export const getSkillBonus = (character: Character, skillName: string, finalStat
     const ability = SKILL_ABILITY_MAP[skillName];
     if (!ability) return 0;
     const mod = getAbilityModifier(finalStats, ability);
-    const hasBoonOfSkill = (character.feats || []).some(f => f.includes('Boon of Skill') || f.includes('Don de Habilidad'));
-    const isProf = (character.skills || []).includes(skillName) || hasBoonOfSkill;
+    const isProf = (character.skills || []).includes(skillName);
     const isExpert = (character.expertise || []).includes(skillName);
     const bonus = isExpert ? (character.profBonus * 2) : (isProf ? character.profBonus : 0);
     return mod + bonus;

@@ -133,27 +133,27 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
 
   const handleDeleteParty = async () => {
     if (!party || !user) return;
-    if (window.confirm(`¿Estás seguro de que quieres ELIMINAR permanentemente la mesa "${party.name}"? Los jugadores serán expulsados.`)) {
+    if (window.confirm(`Are you sure you want to PERMANENTLY DELETE the table "${party.name}"? Players will be removed.`)) {
         setIsLoading(true);
         const success = await deleteParty(party.id, user.id);
         if (success) {
             setParties(prev => prev.filter(p => p.id !== party.id));
             setParty(null);
         } else {
-            alert("Error al eliminar la mesa.");
+            alert("Error deleting table.");
         }
         setIsLoading(false);
     }
   };
 
   const handleKickCharacter = async (id: string, name: string) => {
-    if (window.confirm(`¿Estás seguro de que quieres expulsar a ${name} de tu mesa?`)) {
+    if (window.confirm(`Are you sure you want to kick ${name} from your table?`)) {
         setIsLoading(true);
         const success = await removeFromParty(id);
         if (success) {
             setMembers(prev => prev.filter(c => c.id !== id));
         } else {
-            alert("Error al expulsar al personaje del Nexo.");
+            alert("Error removing character from the Nexus.");
         }
         setIsLoading(false);
     }
@@ -285,8 +285,8 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                     <span className="material-symbols-outlined text-4xl text-blue-400">castle</span>
                 </div>
                 <div className="space-y-1">
-                    <h2 className="text-xl font-bold italic font-serif">El Nexo del DM</h2>
-                    <p className="text-slate-500 text-xs font-black uppercase tracking-widest px-8">Selecciona una mesa táctica o forja una nueva</p>
+                    <h2 className="text-xl font-bold italic font-serif">The DM's Nexus</h2>
+                    <p className="text-slate-500 text-xs font-black uppercase tracking-widest px-8">Select a tactical table or forge a new one</p>
                 </div>
             </div>
 
@@ -325,7 +325,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                 </div>
                 <input 
                     type="text" 
-                    placeholder="Nombre de la nueva campaña..."
+                    placeholder="New campaign name..."
                     value={partyName}
                     onChange={(e) => setPartyName(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500/50 transition-colors"
@@ -352,7 +352,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                   <div className="grid gap-6">
                     {members.length === 0 ? (
                         <div className="text-center py-20 animate-pulse text-slate-600 italic">
-                            Esperando a que los aventureros se unan...
+                            Waiting for adventurers to join...
                         </div>
                     ) : (
                         members.map(member => (

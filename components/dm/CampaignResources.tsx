@@ -38,7 +38,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
         if (publicUrl) {
             setNewRes(prev => ({ ...prev, url: publicUrl }));
         } else {
-            alert("Error al subir la imagen. Inténtalo de nuevo.");
+            alert("Error uploading image. Try again.");
         }
         setIsUploading(false);
     };
@@ -102,8 +102,8 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div className="space-y-0.5">
-                    <h2 className="text-xl font-black italic uppercase tracking-tight text-white/90 leading-none">Gestión de Escenarios</h2>
-                    <p className="text-[9px] font-black uppercase text-blue-400 tracking-tighter">Atlas táctico de la campaña</p>
+                    <h2 className="text-xl font-black italic uppercase tracking-tight text-white/90 leading-none">Scenario Management</h2>
+                    <p className="text-[9px] font-black uppercase text-blue-400 tracking-tighter">Campaign Tactical Atlas</p>
                 </div>
                 <button 
                     onClick={() => setShowAdd(true)}
@@ -119,7 +119,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                     <div className="space-y-3">
                         <input 
                             type="text" 
-                            placeholder="Título (Ej: Mapa de la Taberna)"
+                            placeholder="Title (e.g. Tavern Map)"
                             value={newRes.title}
                             onChange={(e) => setNewRes({...newRes, title: e.target.value})}
                             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50"
@@ -146,7 +146,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                             ) : (
                                 <div className="flex flex-col items-center gap-2">
                                     <span className="material-symbols-outlined text-slate-500 text-3xl">add_photo_alternate</span>
-                                    <span className="text-[10px] font-black text-slate-500 uppercase text-center px-4">Toca para cargar imagen</span>
+                                    <span className="text-[10px] font-black text-slate-500 uppercase text-center px-4">Tap to upload image</span>
                                 </div>
                             )}
                         </div>
@@ -167,7 +167,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                         <div className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
                             <div className="space-y-0.5">
                                 <span className="text-[10px] font-black uppercase text-white leading-none">Persistencia Automática</span>
-                                <p className="text-[8px] text-slate-500 uppercase font-bold">Aparece en las Notas de los jugadores</p>
+                                <p className="text-[8px] text-slate-500 uppercase font-bold">Appears in Players' Notes</p>
                             </div>
                             <button 
                                 type="button"

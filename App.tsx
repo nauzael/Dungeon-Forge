@@ -96,7 +96,7 @@ const App: React.FC = () => {
               // Instead of setting instantly, wait for user confirmation
               setUpdateAvailable({
                 version: data.version,
-                message: data.message || "Hemos forjado nuevas mejoras para tu aventura.",
+                message: data.message || "New improvements have been forged for your adventure.",
                 payload: update
               });
             }

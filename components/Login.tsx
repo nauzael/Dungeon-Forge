@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { useLanguage } from '../hooks/useLanguage';
 import { supabase } from '../utils/supabase';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 
 const Login: React.FC = () => {
-  const { language, toggleLanguage } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -84,13 +82,6 @@ const Login: React.FC = () => {
             Local Mode
           </div>
         )}
-        <button 
-          onClick={toggleLanguage}
-          className="flex items-center gap-2 bg-white/5 backdrop-blur-xl border border-white/10 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-lg group"
-        >
-          <span className="material-symbols-outlined text-base group-hover:rotate-12 transition-transform">language</span>
-          {language === 'es' ? 'English' : 'Español'}
-        </button>
       </div>
 
       <div className="w-full max-w-sm z-10">
@@ -110,7 +101,7 @@ const Login: React.FC = () => {
           <div className="h-1.5 w-16 bg-primary mx-auto rounded-full mb-6" />
           
           <p className="text-white/40 text-xs font-black uppercase tracking-[0.3em] mb-4">
-            {language === 'es' ? 'Forja tu destino' : 'Forge your destiny'}
+            Forge your destiny
           </p>
         </div>
 
@@ -122,10 +113,10 @@ const Login: React.FC = () => {
           <div className="relative space-y-8">
             <div className="text-center">
               <h2 className="text-white text-lg font-black uppercase tracking-widest mb-2">
-                {language === 'es' ? 'Bienvenido, Aventurero' : 'Welcome, Adventurer'}
+                Welcome, Adventurer
               </h2>
               <p className="text-white/40 text-xs font-medium italic">
-                {language === 'es' ? 'Tu viaje comienza con un clic' : 'Your journey begins with a click'}
+                Your journey begins with a click
               </p>
             </div>
 
@@ -151,7 +142,7 @@ const Login: React.FC = () => {
                     alt="Google" 
                   />
                   <span>
-                    {language === 'es' ? 'Entrar con Google' : 'Login with Google'}
+                    Login with Google
                   </span>
                   
                   {/* Subtle shine effect */}
@@ -162,9 +153,7 @@ const Login: React.FC = () => {
 
             <div className="pt-4 text-center">
               <p className="text-[9px] font-medium text-white/20 leading-relaxed max-w-[200px] mx-auto">
-                {language === 'es' 
-                  ? 'Al continuar, aceptas que tus personajes serán forjados en el fuego eterno de la nube.'
-                  : 'By continuing, you accept that your characters will be forged in the eternal cloud fire.'}
+                By continuing, you accept that your characters will be forged in the eternal cloud fire.
               </p>
             </div>
           </div>

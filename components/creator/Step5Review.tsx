@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Ability, BackgroundData } from '../../types';
-import { useFeatOptions } from '../../hooks/useFeatOptions';
 
 interface Step5Props {
     charImage: string;
@@ -37,7 +36,6 @@ const Step5Review: React.FC<Step5Props> = ({
     asiDecisions, activePassives, selectedMetamagics, languages, trainedSkills, onConfirm
 }) => {
     const { t } = useLanguage();
-    const { getFeatDisplayName } = useFeatOptions();
 
     const getStatShortName = (stat: string) => {
         const keyMap: Record<string, string> = {
@@ -99,9 +97,9 @@ const Step5Review: React.FC<Step5Props> = ({
                 <div className="space-y-2">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.feats_and_traits}</span>
                     <div className="flex flex-col gap-2">
-                        {backgroundData?.feat && <div className="flex items-center gap-2"><span className="material-symbols-outlined text-primary text-sm">military_tech</span><span className="text-sm font-medium">{getFeatDisplayName(backgroundData.feat)}</span></div>}
-                        {selectedFeat && <div className="flex items-center gap-2"><span className="material-symbols-outlined text-primary text-sm">military_tech</span><span className="text-sm font-medium">{getFeatDisplayName(selectedFeat)}</span></div>}
-                        {asiLevels.map(l => asiDecisions[l]?.type === 'feat' && asiDecisions[l].feat ? <div key={l} className="flex items-center gap-2"><span className="material-symbols-outlined text-primary text-sm">military_tech</span><span className="text-sm font-medium">{getFeatDisplayName(asiDecisions[l].feat)}</span></div> : null)}
+                        {backgroundData?.feat && <div className="flex items-center gap-2"><span className="material-symbols-outlined text-primary text-sm">military_tech</span><span className="text-sm font-medium">{backgroundData.feat}</span></div>}
+                        {selectedFeat && <div className="flex items-center gap-2"><span className="material-symbols-outlined text-primary text-sm">military_tech</span><span className="text-sm font-medium">{selectedFeat}</span></div>}
+                        {asiLevels.map(l => asiDecisions[l]?.type === 'feat' && asiDecisions[l].feat ? <div key={l} className="flex items-center gap-2"><span className="material-symbols-outlined text-primary text-sm">military_tech</span><span className="text-sm font-medium">{asiDecisions[l].feat}</span></div> : null)}
                         {activePassives.map(p => <div key={p} className="flex items-center gap-2"><span className="material-symbols-outlined text-purple-500 text-sm">auto_awesome</span><span className="text-sm font-medium">{p}</span></div>)}
                     </div>
                 </div>

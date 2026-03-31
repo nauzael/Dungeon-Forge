@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Character, CreatorStep, Ability, Trait, SubclassData, AsiDecision } from '../types';
 import { 
   CLASS_SKILL_DATA, 
+  BACKGROUNDS_DATA, 
   HIT_DIE,
   SUBCLASS_OPTIONS,
   CLASS_PROGRESSION,
@@ -13,7 +14,6 @@ import {
 } from '../Data/characterOptions';
 import { FEAT_OPTIONS } from '../Data/feats';
 import { TRINKETS } from '../Data/items';
-import { useGameData } from '../hooks/useGameData';
 
 // Subcomponentes refactorizados
 import Step1Identity from './creator/Step1Identity';
@@ -62,7 +62,6 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
   const [selectedMetamagics, setSelectedMetamagics] = useState<string[]>([]);
   const [selectedMasteries, setSelectedMasteries] = useState<string[]>([]);
   const [selectedExpertise, setSelectedExpertise] = useState<string[]>([]);
-  const [humanFeatSkilledSelections, setHumanFeatSkilledSelections] = useState<string[]>([]);
   const [spellcastingAbility, setSpellcastingAbility] = useState<Ability>('CHA');
   const [useStartingGold, setUseStartingGold] = useState(false);
   const [bgSpells, setBgSpells] = useState<string[]>([]);
@@ -79,15 +78,13 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
   const [asiDecisions, setAsiDecisions] = useState<Record<number, AsiDecision>>({});
   const [showFeatModal, setShowFeatModal] = useState(false);
   const [featModalContext, setFeatModalContext] = useState<{ type: 'human' | 'asi', level?: number } | null>(null);
-  const [pendingSkillFeat, setPendingSkillFeat] = useState<{ type: 'Skilled' | 'Skill Expert' | 'Boon of Skill' | 'Don de Habilidad', level?: number } | null>(null);
 
   const [trinket] = useState<string>(() => {
       const randomIndex = Math.floor(Math.random() * TRINKETS.length);
       return `Trinket: ${TRINKETS[randomIndex]}`;
   });
 
-  const { backgrounds } = useGameData();
-  const backgroundData = backgrounds[selectedBackground];
+  const backgroundData = BACKGROUNDS_DATA[selectedBackground];
   const classSkillOptions = CLASS_SKILL_DATA[selectedClass] || { count: 2 };
 
   const asiLevels = useMemo(() => {
@@ -118,15 +115,8 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
           if (level >= 2) count += 1; // Deft Explorer (Level 2)
           if (level >= 9) count += 2; // Expertise (Level 9)
       }
-      // Skill Expert feat grants 1 expertise
-      if (selectedFeat === 'Skill Expert') count += 1;
-      asiLevels.forEach(lvl => {
-          if (asiDecisions[lvl]?.feat === 'Skill Expert') count += 1;
-          // Boon of Skill grants 1 expertise (in addition to all skills proficiency)
-          if (asiDecisions[lvl]?.feat === 'Boon of Skill' || asiDecisions[lvl]?.feat === 'Don de Habilidad') count += 1;
-      });
       return count;
-  }, [selectedClass, level, selectedFeat, asiLevels, asiDecisions]);
+  }, [selectedClass, level]);
 
   const finalStats = useMemo(() => {
     const stats = { ...baseStats };
@@ -212,19 +202,9 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
   };
 
   const handleFeatSelect = (featName: string) => {
-      if (featName === 'Skilled' || featName === 'Skill Expert' || featName === 'Boon of Skill' || featName === 'Don de Habilidad') {
-          if (featModalContext?.type === 'human') {
-              setSelectedFeat(featName);
-          } else if (featModalContext?.type === 'asi' && featModalContext.level) {
-              handleAsiChange(featModalContext.level, { feat: featName });
-          }
-          setShowFeatModal(false);
-          setPendingSkillFeat({ type: featName, level: featModalContext?.level });
-      } else {
-          if (featModalContext?.type === 'human') setSelectedFeat(featName);
-          else if (featModalContext?.type === 'asi' && featModalContext.level) handleAsiChange(featModalContext.level, { feat: featName });
-          setShowFeatModal(false);
-      }
+      if (featModalContext?.type === 'human') setSelectedFeat(featName);
+      else if (featModalContext?.type === 'asi' && featModalContext.level) handleAsiChange(featModalContext.level, { feat: featName });
+      setShowFeatModal(false);
   };
 
     const calculateAC = () => {
@@ -351,7 +331,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
         };
         const calculatedInit = getTotalInitiative(tempChar, finalStats);
 
-            const newCharacter: Character = {
+        const newCharacter: Character = {
             id: `c-${Date.now()}`,
             name: name || 'Heroe',
             level, class: selectedClass, subclass: selectedSubclass, species: selectedSpecies, subspecies: selectedSubspecies, background: selectedBackground, alignment: selectedAlignment,
@@ -361,8 +341,8 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
             inspiration: { current: 0, max: 3 },
             ac: calculateAC(), init: calculatedInit, speed: calculateSpeed(), profBonus: profBonus,
             stats: finalStats,
-            skills: [...(backgroundData?.skills || []), ...selectedSkills, ...(selectedHumanSkill ? [selectedHumanSkill] : []), ...(selectedElfSkill ? [selectedElfSkill] : []), ...asiLevels.flatMap(l => asiDecisions[l]?.skills || []), ...(selectedFeat === 'Skilled' ? humanFeatSkilledSelections : [])],
-            expertise: [...selectedExpertise, ...asiLevels.flatMap(l => asiDecisions[l]?.expertiseSkill ? [asiDecisions[l].expertiseSkill] : []), ...(selectedFeat === 'Skill Expert' ? humanFeatSkilledSelections : [])],
+            skills: [...(backgroundData?.skills || []), ...selectedSkills, ...(selectedHumanSkill ? [selectedHumanSkill] : []), ...(selectedElfSkill ? [selectedElfSkill] : [])],
+            expertise: selectedExpertise,
             languages: ['Common', selectedLanguage1, selectedLanguage2].filter(Boolean),
             feats: allFeats,
             metamagics: selectedMetamagics,
@@ -382,7 +362,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
             money: { cp: 0, sp: 0, gp: useStartingGold ? 50 : 0, ep: 0, pp: 0 },
             imageUrl: charImage, notes: []
         };
-        // Inicializar Lucky si el personaje tiene la dote Afortunado/Lucky
+        // Initialize Lucky if character has the Lucky feat
         const hasLucky = newCharacter.feats.some(f => f === 'Afortunado' || f === 'Lucky');
         if (hasLucky) {
             newCharacter.lucky = { current: newCharacter.profBonus, max: newCharacter.profBonus };
@@ -446,11 +426,6 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
                 selectedMetamagics={selectedMetamagics} toggleMetamagic={toggleMetamagic}
                 maxMasteries={maxMasteries} selectedMasteries={selectedMasteries} setMasteryAtIndex={setMasteryAtIndex}
                 maxExpertise={maxExpertise} selectedExpertise={selectedExpertise} toggleExpertise={toggleExpertise}
-                pendingSkillFeat={pendingSkillFeat} setPendingSkillFeat={setPendingSkillFeat}
-                asiDecisions={asiDecisions}
-                onAsiUpdate={handleAsiChange}
-                selectedFeat={selectedFeat}
-                onHumanFeatSkillsUpdate={setHumanFeatSkilledSelections}
             />
         )}
         {step === 5 && (
