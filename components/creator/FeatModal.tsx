@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { FEAT_OPTIONS } from '../../Data/feats';
+import { useLanguage } from '../../hooks/useLanguage';
+import useFeatOptions from '../../hooks/useFeatOptions';
 
 interface FeatModalProps {
     featModalContext: { type: 'human' | 'asi', level?: number } | null;
@@ -10,10 +11,9 @@ interface FeatModalProps {
     onClose: () => void;
 }
 
-import { useLanguage } from '../../hooks/useLanguage';
-
 const FeatModal: React.FC<FeatModalProps> = ({ featModalContext, selectedFeat, asiDecisions, handleFeatSelect, onClose }) => {
     const { t } = useLanguage();
+    const { featOptions: FEAT_OPTIONS, getFeatDisplayName, getFeatDescription } = useFeatOptions();
     const [featSearchQuery, setFeatSearchQuery] = useState('');
 
     const contextLevel = featModalContext?.type === 'asi' ? (featModalContext.level || 1) : 1;
@@ -117,7 +117,7 @@ const FeatModal: React.FC<FeatModalProps> = ({ featModalContext, selectedFeat, a
                                 
                                 <div className="min-w-0">
                                     <span className={`block font-black text-lg tracking-tight ${isSelected ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
-                                        {feat.name}
+                                        {getFeatDisplayName(feat.name)}
                                     </span>
                                     {feat.prerequisite && (
                                         <div className="flex items-center gap-1.5 mt-0.5">
@@ -128,7 +128,7 @@ const FeatModal: React.FC<FeatModalProps> = ({ featModalContext, selectedFeat, a
                                 </div>
                                 
                                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                                    {feat.description}
+                                    {getFeatDescription(feat.name) || feat.description}
                                 </p>
 
                                 {feat.asi && (

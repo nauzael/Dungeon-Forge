@@ -9,7 +9,8 @@ import NotesTab from './sheet/NotesTab';
 import JoinPartyModal from './JoinPartyModal';
 import { getEffectiveCasterType, getFinalStats } from '../utils/sheetUtils';
 import { HIT_DIE, CLASS_PROGRESSION, SUBCLASS_OPTIONS, METAMAGIC_OPTIONS } from '../Data/characterOptions';
-import { FEAT_OPTIONS, GENERIC_FEATURES } from '../Data/feats';
+import { GENERIC_FEATURES } from '../Data/feats';
+import useFeatOptions from '../hooks/useFeatOptions';
 
 interface SheetTabsProps {
   character: Character;
@@ -25,6 +26,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
   const [slideDirection, setSlideDirection] = useState<'forward' | 'backward'>('forward');
   const mainScrollRef = useRef<HTMLDivElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const { featOptions: FEAT_OPTIONS, getFeatDisplayName } = useFeatOptions();
   
   const t = {
     combat: 'Combat',
@@ -508,7 +510,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
                                   <div>
                                       <select value={pendingFeat} onChange={(e) => setPendingFeat(e.target.value)} className="w-full p-4 bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 rounded-2xl text-sm font-bold outline-none text-slate-900 dark:text-white">
                                           <option value="" disabled>{t.selectFeat}</option>
-                                          {FEAT_OPTIONS.map(f => <option key={f.name} value={f.name}>{f.name}</option>)}
+                                          {FEAT_OPTIONS.map(f => <option key={f.name} value={f.name}>{getFeatDisplayName(f.name)}</option>)}
                                       </select>
                                   </div>
                               )}
