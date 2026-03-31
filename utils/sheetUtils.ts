@@ -286,7 +286,9 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
         }
         
         // Forge Cleric: Soul of the Forge (Level 6) - Heavy Armor
-        if (character.class === 'Cleric' && character.subclass === 'Forge Domain' && character.level >= 6 && armorData.armorType === 'Heavy') {
+        // Check bilingual: Forge Domain / Dominio de la Forja (if it exists in data)
+        const isForgeDomain = character.subclass === 'Forge Domain' || character.subclass === 'Dominio de la Forja';
+        if (character.class === 'Cleric' && isForgeDomain && character.level >= 6 && armorData.armorType === 'Heavy') {
              breakdown.push({ label: 'Alma de la Forja', value: 1, icon: 'handyman' });
         }
     } else {
@@ -297,7 +299,8 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
             breakdown.push({ label: 'Defensa sin Armadura (CON)', value: conMod, icon: 'fitness_center' });
         } else if (character.class === 'Monk') {
             breakdown.push({ label: 'Defensa sin Armadura (WIS)', value: wisMod, icon: 'self_improvement' });
-        } else if (character.class === 'Sorcerer' && character.subclass === 'Draconic Sorcery') {
+        } else if (character.class === 'Sorcerer' && 
+            (character.subclass === 'Draconic Sorcery' || character.subclass === 'Hechicería Dracónica')) {
             breakdown.push({ label: 'Resiliencia Dracónica (CHA)', value: chaMod, icon: 'auto_awesome' });
         }
     }
@@ -325,16 +328,15 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
         breakdown.push({ label: 'Protección Integrada', value: 1, icon: 'smart_toy' });
     }
     
-    // Kensei Monk: Agile Parry (Note: Requires unarmed strike attack, assuming active for breakdown display if conditions met)
-    if (character.class === 'Monk' && character.subclass === 'Way of the Kensei' && !hasArmor && !hasShield) {
-         // Check if holding a kensei weapon? 
-         // For now, just adding as a potential conditional or static if we assume optimal play
-         // Let's add it only if a weapon is equipped
-         const hasWeapon = character.inventory.some(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
-         if (hasWeapon) {
-             breakdown.push({ label: 'Parada Ágil (Si atacas sin armas)', value: 2, icon: 'swords' });
-         }
-    }
+    // Kensei Monk: Agile Parry - Way of the Kensei subclass doesn't exist in current data
+    // If added to data, uncomment and add bilingual name:
+    // const isKensei = character.subclass === 'Way of the Kensei' || character.subclass === 'Camino del Kensai';
+    // if (character.class === 'Monk' && isKensei && !hasArmor && !hasShield) {
+    //      const hasWeapon = character.inventory.some(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
+    //      if (hasWeapon) {
+    //          breakdown.push({ label: 'Parada Ágil (Si atacas sin armas)', value: 2, icon: 'swords' });
+    //      }
+    // }
 
     const inventory = character.inventory || [];
     inventory.forEach(item => {
@@ -365,23 +367,31 @@ export const getInitBreakdown = (character: Character, finalStats: Record<string
     if (feats.some(f => f.includes('Alerta') || f.includes('Alert'))) {
         breakdown.push({ label: 'Dote: Alerta', value: character.profBonus, icon: 'notifications_active' });
     }
-    if (character.subclass === 'Gloom Stalker' && character.level >= 3) {
+    const isGloomStalker = character.subclass === 'Gloom Stalker' || character.subclass === 'Acechador de la Penumbra';
+    if (isGloomStalker && character.level >= 3) {
         const wisMod = getAbilityModifier(finalStats, 'WIS');
         breakdown.push({ label: 'Dread Ambusher (WIS)', value: wisMod, icon: 'visibility_off' });
     }
-    if (character.subclass === 'Swashbuckler' && character.level >= 3) {
-        const chaMod = getAbilityModifier(finalStats, 'CHA');
-        breakdown.push({ label: 'Rakish Audacity (CHA)', value: chaMod, icon: 'sentiment_very_satisfied' });
-    }
-    if (character.subclass === 'War Magic' && character.level >= 2) {
-        const intMod = getAbilityModifier(finalStats, 'INT');
-        breakdown.push({ label: 'Tactical Wit (INT)', value: intMod, icon: 'psychology' });
-    }
     
-    // 2024 / Tasha's Updates
-    if (character.class === 'Paladin' && character.subclass === 'Oath of the Watchers' && character.level >= 7) {
-        breakdown.push({ label: 'Aura del Centinela (Prof)', value: character.profBonus, icon: 'security' });
-    }
+    // Swashbuckler doesn't exist in current data - check commented
+    // const isSwashbuckler = character.subclass === 'Swashbuckler' || character.subclass === 'Espadachín';
+    // if (isSwashbuckler && character.level >= 3) {
+    //     const chaMod = getAbilityModifier(finalStats, 'CHA');
+    //     breakdown.push({ label: 'Rakish Audacity (CHA)', value: chaMod, icon: 'sentiment_very_satisfied' });
+    // }
+    
+    // War Magic doesn't exist in Spanish wizard.ts - check commented
+    // const isWarMagic = character.subclass === 'War Magic' || character.subclass === 'Magia de Guerra';
+    // if (isWarMagic && character.level >= 2) {
+    //     const intMod = getAbilityModifier(finalStats, 'INT');
+    //     breakdown.push({ label: 'Tactical Wit (INT)', value: intMod, icon: 'psychology' });
+    // }
+    
+    // Oath of the Watchers doesn't exist in current data
+    // const isWatchers = character.subclass === 'Oath of the Watchers' || character.subclass === 'Juramento de los Centinelas';
+    // if (character.class === 'Paladin' && isWatchers && character.level >= 7) {
+    //     breakdown.push({ label: 'Aura del Centinela (Prof)', value: character.profBonus, icon: 'security' });
+    // }
 
     if ((character.inventory || []).some(i => i.equipped && i.name === 'Stone of Good Luck')) {
         breakdown.push({ label: 'Piedra Ioun', value: 1, icon: 'diamond' });
@@ -425,11 +435,13 @@ export const getSpeedBreakdown = (character: Character, finalStats: Record<strin
         if (!hasHeavyArmor) breakdown.push({ label: 'Movimiento Rápido', value: 10, icon: 'sprint' });
     }
     
-    if (character.class === 'Rogue' && character.subclass === 'Scout' && character.level >= 9) {
-        breakdown.push({ label: 'Movilidad Superior', value: 10, icon: 'directions_run' });
-    }
+    // Scout doesn't exist in current data - check commented
+    // const isScout = character.subclass === 'Scout' || character.subclass === 'Explorador';
+    // if (character.class === 'Rogue' && isScout && character.level >= 9) {
+    //     breakdown.push({ label: 'Movilidad Superior', value: 10, icon: 'directions_run' });
+    // }
     
-    if (character.class === 'Ranger' && (character.subclass === 'Gloom Stalker' || (character.subclass || '').includes('acechador')) && character.level >= 3) {
+    if (character.class === 'Ranger' && (character.subclass === 'Gloom Stalker' || (character.subclass || '').includes('acechador') || character.subclass === 'Acechador de la Penumbra')) {
         breakdown.push({ label: 'Dread Ambusher (1er turno)', value: 10, icon: 'visibility_off' });
     }
 
@@ -486,7 +498,7 @@ export const getHPBreakdown = (character: Character, finalStats: Record<string, 
         breakdown.push({ label: 'Resistencia Enana', value: character.level, icon: 'face' });
         bonusesTotal += character.level;
     }
-    if (character.class === 'Sorcerer' && character.subclass === 'Draconic Sorcery') {
+    if (character.class === 'Sorcerer' && (character.subclass === 'Draconic Sorcery' || character.subclass === 'Hechicería Dracónica')) {
         breakdown.push({ label: 'Resiliencia Dracónica', value: character.level, icon: 'auto_awesome' });
         bonusesTotal += character.level;
     }
