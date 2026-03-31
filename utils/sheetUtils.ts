@@ -101,8 +101,8 @@ export const getWeaponToHitBreakdown = (character: Character, item: InventoryIte
         }
     }
 
-    if (character.feats.some(f => f.includes('Tiro con arco')) && weapon.rangeType === 'Ranged') {
-        breakdown.push({ label: 'Estilo: Tiro con arco', value: 2, icon: 'military_tech' });
+    if (character.feats.some(f => f.includes('Arquero') || f.includes('Archery')) && weapon.rangeType === 'Ranged') {
+        breakdown.push({ label: 'Estilo: Arquero', value: 2, icon: 'military_tech' });
     }
 
     return breakdown;
@@ -145,7 +145,7 @@ export const getWeaponDamageBreakdown = (character: Character, item: InventoryIt
         breakdown.push({ label: 'Dote: Atacante Salvaje (Tira 2x)', value: 'Mejor', icon: 'auto_awesome' });
     }
 
-    if (character.feats.some(f => f.includes('Lucha con armas pesadas') || f.includes('Great Weapon Fighting')) && weapon.properties.includes('Two-Handed')) {
+    if (character.feats.some(f => f.includes('Lucha con Armas Pesadas') || f.includes('Great Weapon Fighting')) && weapon.properties.includes('Two-Handed')) {
         breakdown.push({ label: 'Estilo: Armas Pesadas (Repite 1-2)', value: 'Reroll 1-2', icon: 'refresh' });
     }
 
@@ -202,7 +202,7 @@ export const getWeaponDamageBreakdown = (character: Character, item: InventoryIt
     }
 
     const hasDueling = character.feats.some(f => f.includes('Duelo'));
-    const hasThrown = character.feats.some(f => f.includes('Combate con armas arrojadizas'));
+    const hasThrown = character.feats.some(f => f.includes('Lucha con Armas Arrojadizas') || f.includes('Thrown Weapon Fighting'));
     const isTwoHanded = weapon.properties.includes('Two-Handed');
     const equippedWeapons = character.inventory.filter(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
 

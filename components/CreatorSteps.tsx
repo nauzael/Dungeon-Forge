@@ -4,7 +4,6 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Character, CreatorStep, Ability, Trait, SubclassData, AsiDecision } from '../types';
 import { 
   CLASS_SKILL_DATA, 
-  BACKGROUNDS_DATA, 
   HIT_DIE,
   SUBCLASS_OPTIONS,
   CLASS_PROGRESSION,
@@ -14,6 +13,7 @@ import {
 } from '../Data/characterOptions';
 import { FEAT_OPTIONS } from '../Data/feats';
 import { TRINKETS } from '../Data/items';
+import { useGameData } from '../hooks/useGameData';
 
 // Subcomponentes refactorizados
 import Step1Identity from './creator/Step1Identity';
@@ -84,7 +84,8 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
       return `Trinket: ${TRINKETS[randomIndex]}`;
   });
 
-  const backgroundData = BACKGROUNDS_DATA[selectedBackground];
+  const { backgrounds } = useGameData();
+  const backgroundData = backgrounds[selectedBackground];
   const classSkillOptions = CLASS_SKILL_DATA[selectedClass] || { count: 2 };
 
   const asiLevels = useMemo(() => {
