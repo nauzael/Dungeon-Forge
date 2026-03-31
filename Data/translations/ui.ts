@@ -43,6 +43,8 @@ export interface Translation {
   primary_ability: string;
   config_magic: string;
   magic_initiate: string;
+  config_skilled: string;
+  skilled: string;
   confirm_selection: string;
   choose_cantrips: string;
   choose_level1: string;
@@ -307,6 +309,8 @@ export const TRANSLATIONS: Translation = {
   primary_ability: 'Primary Ability',
   config_magic: 'Configure Magic',
   magic_initiate: 'Magic Initiate',
+  config_skilled: 'Configure Skills',
+  skilled: 'Skilled',
   confirm_selection: 'Confirm Selection',
   choose_cantrips: 'Choose 2 Cantrips',
   choose_level1: 'Choose 1 Level 1 Spell',

@@ -65,6 +65,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
   const [spellcastingAbility, setSpellcastingAbility] = useState<Ability>('CHA');
   const [useStartingGold, setUseStartingGold] = useState(false);
   const [bgSpells, setBgSpells] = useState<string[]>([]);
+  const [bgSkilledSkills, setBgSkilledSkills] = useState<string[]>([]);
   
   const [statMethod, setStatMethod] = useState<'pointBuy' | 'manual'>('pointBuy');
   const [baseStats, setBaseStats] = useState<Record<Ability, number>>({ STR: 8, DEX: 8, CON: 8, INT: 8, WIS: 8, CHA: 8 });
@@ -263,7 +264,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
     const conMod = Math.floor(( (hasAmuletOfHealth ? Math.max(finalStats.CON || 10, 19) : finalStats.CON || 10) - 10) / 2);
     const hitDie = HIT_DIE[selectedClass] || 8;
     const avgRoll = Math.floor(hitDie / 2) + 1;
-    let bonuses = [];
+    const bonuses = [];
     if (selectedSpecies === 'Dwarf') bonuses.push({ name: t.dwarfResilience, val: level });
     if (selectedClass === 'Sorcerer' && selectedSubclass === 'Draconic Sorcery') bonuses.push({ name: t.draconicResilience, val: level });
     const allFeats = [backgroundData?.feat, selectedFeat, ...asiLevels.map(l => asiDecisions[l]?.type === 'feat' ? asiDecisions[l]?.feat : undefined)].filter(Boolean);
@@ -341,7 +342,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
             inspiration: { current: 0, max: 3 },
             ac: calculateAC(), init: calculatedInit, speed: calculateSpeed(), profBonus: profBonus,
             stats: finalStats,
-            skills: [...(backgroundData?.skills || []), ...selectedSkills, ...(selectedHumanSkill ? [selectedHumanSkill] : []), ...(selectedElfSkill ? [selectedElfSkill] : [])],
+            skills: [...(backgroundData?.skills || []), ...bgSkilledSkills, ...selectedSkills, ...(selectedHumanSkill ? [selectedHumanSkill] : []), ...(selectedElfSkill ? [selectedElfSkill] : [])],
             expertise: selectedExpertise,
             languages: ['Common', selectedLanguage1, selectedLanguage2].filter(Boolean),
             feats: allFeats,
@@ -394,6 +395,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
                 selectedSubspecies={selectedSubspecies} setSelectedSubspecies={setSelectedSubspecies}
                 selectedBackground={selectedBackground} setSelectedBackground={setSelectedBackground}
                 bgSpells={bgSpells} setBgSpells={setBgSpells}
+                bgSkilledSkills={bgSkilledSkills} setBgSkilledSkills={setBgSkilledSkills}
             />
         )}
         {step === 2 && (

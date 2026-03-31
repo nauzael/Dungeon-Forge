@@ -41,13 +41,14 @@ Dungeon Forge es una aplicación de gestión de personajes D&D 5e (Edición 2024
 |------|--------|----------|
 | Types (types.ts) | ✅ | Bien definido, 2024 features |
 | Classes | ✅ | 12 clases con suggestedArray + masteriesCount |
-| Species | ✅ | ~20 species + species-en.ts |
+| Species | ✅ | ~20 species en species-en.ts (ES files deleted) |
 | Spells | ✅ | Por nivel + translations |
 | Feats | ✅ | 159 feats en English |
 | Items | ✅ | Con Weapon Mastery |
-| Skills | ✅ | skills-en.ts |
+| Skills | ✅ | skills-en.ts + SKILL_DESCRIPTIONS translated |
 | Compendium | ✅ | 100% English (5008 líneas) |
 | GENERIC_FEATURES | ✅ | 142 líneas en English |
+| gameData.ts | ✅ | Clean exports (METAMAGIC, INVOCATIONS, ALIGNMENTS, LANGUAGES) |
 
 ### D&D 2024 Features
 | Feature | Estado | Implementación |
@@ -61,7 +62,7 @@ Dungeon Forge es una aplicación de gestión de personajes D&D 5e (Edición 2024
 | ASI/Feat decisions | ✅ | handleAsiChange en Step2Stats |
 | Metamagic selection | ✅ | maxMetamagics en Step4Skills |
 
-### Traducción UI
+### Traducción UI (100% English)
 | Archivo | Estado | Notas |
 |---------|--------|----------|
 | CombatTab.tsx | ✅ | 100% English |
@@ -69,7 +70,13 @@ Dungeon Forge es una aplicación de gestión de personajes D&D 5e (Edición 2024
 | CharacterList.tsx | ✅ | English |
 | CreatorSteps.tsx | ✅ | English |
 | All Step components | ✅ | English |
-| useLanguage hook | ✅ | ES/EN toggle funcional |
+| useLanguage hook | ✅ | English only (toggle removed) |
+| NotesTab.tsx | ✅ | English (was Spanish) |
+| InventoryTab.tsx | ✅ | English (was Spanish) |
+| DMDashboard.tsx | ✅ | English (was Spanish) |
+| CampaignResources.tsx | ✅ | English (was Spanish) |
+| MonsterBuilder.tsx | ✅ | English (was Spanish) |
+| JoinPartyModal.tsx | ✅ | English (was Spanish) |
 
 ---
 
@@ -126,10 +133,11 @@ Todos los bloqueos previos han sido resueltos:
 - No ESLint/Prettier configurado
 - TypeScript strict mode ✅ (bueno)
 
-### UI Mixta ES/EN
-- El toggle de idioma funciona correctamente
-- Contenido de juego (spells, feats, etc.) está en English
-- UI strings principal en English (via useLanguage hook)
+### UI 100% English
+- Toggle de idioma eliminado - App solo funciona en English
+- Contenido de juego (spells, feats, etc.) 100% English
+- UI strings principal en English
+- `useLanguage.tsx` simplificado a English only
 
 ---
 
@@ -148,13 +156,14 @@ Todos los bloqueos previos han sido resueltos:
 | Archivo | Estado |
 |---------|--------|
 | `Data/classes/*.ts` | ✅ 12 clases con suggestedArray |
-| `Data/species/*.ts` | ✅ ~20 species |
+| `Data/species/species-en.ts` | ✅ ~20 species (ES files deleted) |
 | `Data/spells/*.ts` | ✅ Por nivel |
 | `Data/feats/index.ts` | ✅ 159 feats + GENERIC_FEATURES |
 | `Data/skills/index.ts` | ✅ English |
 | `Data/items.ts` | ✅ Weapon Mastery properties |
 | `Data/compendiumData.ts` | ✅ 5008 líneas English |
 | `Data/characterOptions.ts` | ✅ Exports todos los arrays |
+| `Data/gameData.ts` | ✅ Clean exports (no ES variants) |
 
 ### Utils
 | Archivo | Estado |
@@ -226,5 +235,23 @@ Todos los bloqueos previos han sido resueltos:
 - Archivados 11 archivos de planes completados
 - Build verificado: 154 modules, 4.79s
 
+### Translation Cleanup (2026-03-31 - Final)
+- `useLanguage.tsx` simplificado a English only
+- `gameData.ts` limpio: METAMAGIC_EN→METAMAGIC, INVOCATIONS_EN→INVOCATIONS, ALIGNMENTS_EN→ALIGNMENTS, LANGUAGES_EN→LANGUAGES
+- Eliminados 10 archivos species en español (aasimar.ts, dwarf.ts, elf.ts, dragonborn.ts, gnome.ts, halfling.ts, human.ts, orc.ts, tiefling.ts, goliath.ts)
+- `SKILL_DESCRIPTIONS` traducidos en skills.ts
+- Componentes corregidos: NotesTab, InventoryTab, DMDashboard, CampaignResources, MonsterBuilder, JoinPartyModal
+- Build verificado: PASS ✅
+
 ### Estado del Branch
-- `feature/bilingual-data` - 6 commits ahead of origin
+- `feature/bilingual-data` - Translation complete, 100% English
+
+### Skilled Feat Implementation (2026-03-31)
+- **Feature:** Skill selection for backgrounds with "Skilled" feat
+- **Backgrounds affected:** Charlatan, Noble, Scribe (feat === 'Skilled')
+- **Files modified:**
+  - `Data/translations/ui.ts` - Added `config_skilled` and `skilled` translation keys
+  - `components/creator/Step1Identity.tsx` - Added bgSkilledSkills state, bgSkilledConfig detection, showSkilledModal, toggleBgSkill function
+  - `components/CreatorSteps.tsx` - Added bgSkilledSkills state, passed to Step1Identity, added to skills array
+- **Implementation pattern:** Follows Magic Initiate modal pattern (portal-based modal with skill list)
+- **Build status:** PASS ✅ (154 modules, 4.45s)

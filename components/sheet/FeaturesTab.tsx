@@ -140,7 +140,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         const currentInvs = character.invocations || [];
         const currentFeats = character.feats || [];
         const currentLessons = character.lessonsFeats || [];
-        let updatedHp = { ...character.hp };
+        const updatedHp = { ...character.hp };
         if (featName === 'Duro' || featName === 'Tough') {
             const bonus = character.level * 2;
             updatedHp.max += bonus;
@@ -164,7 +164,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         const featMatch = fullInvName.match(/Lessons of the First Ones \((.*)\)/);
         if (featMatch) {
             const featName = featMatch[1];
-            let updatedHp = { ...character.hp };
+            const updatedHp = { ...character.hp };
             if (featName === 'Duro' || featName === 'Tough') {
                 const bonus = character.level * 2;
                 updatedHp.max = Math.max(1, updatedHp.max - bonus);
@@ -442,7 +442,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                             <button key={feat.name} onClick={() => {
                                 const currentFeat = targetLessonsInstance?.match(/\((.*)\)/)?.[1];
                                 if (currentFeat) {
-                                    let updatedHp = { ...character.hp };
+                                    const updatedHp = { ...character.hp };
                                     if (currentFeat === 'Duro' || currentFeat === 'Tough') {
                                         const bonus = character.level * 2;
                                         updatedHp.max = Math.max(1, updatedHp.max - bonus);

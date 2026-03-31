@@ -159,7 +159,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
       if (needsSubclass && pendingSubclass === 'Draconic Sorcery') extraHp += nextLevel; 
       if (needsAsi && pendingAsiType === 'feat' && (pendingFeat === 'Duro' || pendingFeat === 'Tough')) extraHp += (nextLevel * 2);
 
-      let updatedChar = {
+      const updatedChar = {
           ...character,
           level: nextLevel,
           profBonus: newProf,

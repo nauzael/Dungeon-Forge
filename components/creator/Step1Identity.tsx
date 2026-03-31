@@ -11,6 +11,7 @@ import { useClasses } from '../../Data/classes';
 import { useSpecies } from '../../Data/species';
 import { useGameData } from '../../hooks/useGameData';
 import { CLASS_AVATARS, SPECIES_AVATARS } from '../../Data/avatars';
+import { SKILL_LIST, SKILL_ABILITY_MAP } from '../../Data/skills';
 
 interface Step1Props {
     name: string;
@@ -31,6 +32,8 @@ interface Step1Props {
     setSelectedBackground: (v: string) => void;
     bgSpells: string[];
     setBgSpells: (v: string[]) => void;
+    bgSkilledSkills: string[];
+    setBgSkilledSkills: (v: string[]) => void;
 }
 
 const DEFAULT_CHAR_IMAGE = "https://lh3.googleusercontent.com/aida-public/AB6AXuAn_LidL9u8S0A9NqU9kR8iS6X9k-y7Z1Q7I6n0z7C9E0w=s512";
@@ -40,7 +43,8 @@ const Step1Identity: React.FC<Step1Props> = ({
     selectedClass, setSelectedClass, selectedSubclass, setSelectedSubclass,
     selectedSpecies, setSelectedSpecies, selectedSubspecies, setSelectedSubspecies,
     selectedBackground, setSelectedBackground,
-    bgSpells, setBgSpells
+    bgSpells, setBgSpells,
+    bgSkilledSkills, setBgSkilledSkills
 }) => {
     const { t, language } = useLanguage();
     const classes = useClasses();
@@ -55,6 +59,7 @@ const Step1Identity: React.FC<Step1Props> = ({
 
     const [showImageOptions, setShowImageOptions] = useState(false);
     const [showMagicModal, setShowMagicModal] = useState(false);
+    const [showSkilledModal, setShowSkilledModal] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Refs for scroll containers
@@ -85,10 +90,26 @@ const Step1Identity: React.FC<Step1Props> = ({
         return null;
     }, [backgroundData]);
 
+    // Background Skilled feat detection (PHB 2024)
+    const bgSkilledConfig = useMemo(() => {
+        if (!backgroundData) return null;
+        const featName = backgroundData.feat;
+        const isSkilled = featName === 'Skilled' || featName.includes('Skilled');
+        
+        if (isSkilled) {
+            return {
+                skillsNeeded: 3,
+                sourceList: SKILL_LIST
+            };
+        }
+        return null;
+    }, [backgroundData]);
+
     // Clear spells if background changes and subspecies if species changes
     useEffect(() => {
         setBgSpells([]);
-    }, [selectedBackground, setBgSpells]);
+        setBgSkilledSkills([]);
+    }, [selectedBackground, setBgSpells, setBgSkilledSkills]);
 
     useEffect(() => {
         if (selectedSpecies && availableSubspecies.length > 0) {
@@ -135,6 +156,20 @@ const Step1Identity: React.FC<Step1Props> = ({
                 setBgSpells([...current, spellName]);
             } else if (lvl === 1 && currentLvl1 < bgMagicConfig.level1Needed) {
                 setBgSpells([...current, spellName]);
+            }
+        }
+    };
+
+    const toggleBgSkill = (skillName: string) => {
+        if (!bgSkilledConfig) return;
+        const current = [...bgSkilledSkills];
+        const isSelected = current.includes(skillName);
+        
+        if (isSelected) {
+            setBgSkilledSkills(current.filter(s => s !== skillName));
+        } else {
+            if (current.length < bgSkilledConfig.skillsNeeded) {
+                setBgSkilledSkills([...current, skillName]);
             }
         }
     };
@@ -495,6 +530,37 @@ const Step1Identity: React.FC<Step1Props> = ({
                             </div>
                         )}
 
+                        {/* SKILLED FEAT CONFIGURATION */}
+                        {bgSkilledConfig && (
+                            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/5 space-y-3 animate-fadeIn">
+                                <button 
+                                    onClick={() => setShowSkilledModal(true)}
+                                    className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all group ${bgSkilledSkills.length === bgSkilledConfig.skillsNeeded ? 'bg-primary/5 border-primary/40' : 'bg-slate-50 dark:bg-black/20 border-slate-200 dark:border-white/5 hover:border-primary/50'}`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`size-10 rounded-xl flex items-center justify-center transition-colors ${bgSkilledSkills.length === bgSkilledConfig.skillsNeeded ? 'bg-primary text-white' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white'}`}>
+                                            <span className="material-symbols-outlined text-xl">style</span>
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="text-sm font-black text-slate-900 dark:text-white leading-tight">{t.config_skilled}</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.skilled}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`text-xs font-black px-2 py-1 rounded-lg ${bgSkilledSkills.length === bgSkilledConfig.skillsNeeded ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-200 dark:bg-white/10 text-slate-500'}`}>
+                                            {bgSkilledSkills.length} / {bgSkilledConfig.skillsNeeded}
+                                        </span>
+                                        <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">chevron_right</span>
+                                    </div>
+                                </button>
+                                {bgSkilledSkills.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 px-1">
+                                        {bgSkilledSkills.map(s => <span key={s} className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20">{s}</span>)}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/5 space-y-4">
                             <div className="flex flex-wrap gap-2 items-center">
                                 <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-md">
@@ -594,6 +660,56 @@ const Step1Identity: React.FC<Step1Props> = ({
                         <button 
                             onClick={() => setShowMagicModal(false)}
                             className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 ${bgSpells.length === (bgMagicConfig.cantripsNeeded + bgMagicConfig.level1Needed) ? 'bg-primary text-background-dark shadow-primary/20' : 'bg-slate-200 dark:bg-white/5 text-slate-500 cursor-not-allowed'}`}
+                        >
+                            {t.confirm_selection}
+                        </button>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* SKILLED FEAT MODAL */}
+            {showSkilledModal && bgSkilledConfig && createPortal(
+                <div className="fixed inset-0 z-[110] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                    <div className="p-4 bg-white dark:bg-surface-dark border-b border-slate-200 dark:border-white/10 flex items-center justify-between shadow-md">
+                        <button onClick={() => setShowSkilledModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
+                        <div className="text-center">
+                             <h3 className="text-sm font-black uppercase tracking-widest text-primary">{t.skilled}</h3>
+                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.config_skilled}</p>
+                        </div>
+                        <div className="w-10"></div>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-4">
+                        <div className="flex justify-between items-baseline mb-4">
+                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">{t.choose_skill_desc || 'Choose 3 Skills'}</h4>
+                            <span className={`text-xs font-black px-2 py-0.5 rounded-full ${bgSkilledSkills.length === bgSkilledConfig.skillsNeeded ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'}`}>
+                                {bgSkilledSkills.length} / {bgSkilledConfig.skillsNeeded}
+                            </span>
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
+                            {bgSkilledConfig.sourceList.map(skillName => {
+                                const isSel = bgSkilledSkills.includes(skillName);
+                                const ability = SKILL_ABILITY_MAP[skillName] || 'INT';
+                                return (
+                                    <button key={skillName} onClick={() => toggleBgSkill(skillName)} className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${isSel ? 'bg-primary/10 border-primary shadow-lg scale-[1.02]' : 'bg-white dark:bg-surface-dark border-slate-200 dark:border-white/5 opacity-80 hover:opacity-100'}`}>
+                                        <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${isSel ? 'bg-primary text-white shadow-inner' : 'bg-slate-100 dark:bg-white/5 text-slate-500'}`}>
+                                            <span className="material-symbols-outlined text-lg">{isSel ? 'check' : 'psychology'}</span>
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className={`text-sm font-bold truncate ${isSel ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{skillName}</p>
+                                            <p className="text-[9px] font-black uppercase tracking-tighter text-slate-400 opacity-70">{ability}</p>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="p-4 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-slate-200 dark:border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+                        <button 
+                            onClick={() => setShowSkilledModal(false)}
+                            className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 ${bgSkilledSkills.length === bgSkilledConfig.skillsNeeded ? 'bg-primary text-background-dark shadow-primary/20' : 'bg-slate-200 dark:bg-white/5 text-slate-500 cursor-not-allowed'}`}
                         >
                             {t.confirm_selection}
                         </button>
