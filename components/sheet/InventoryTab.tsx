@@ -194,12 +194,12 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                    </button>
                </div>
                <div className="flex-1 overflow-y-auto space-y-3 mb-6 no-scrollbar pr-1 border-t border-slate-100 dark:border-white/5 pt-4">
-                   <div className="flex justify-between py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500">Peso</span><span className="font-bold text-slate-900 dark:text-white">{data.weight} lb</span></div>
-                   <div className="flex justify-between py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500">Coste</span><span className="font-bold text-slate-900 dark:text-white">{data.cost}</span></div>
+                   <div className="flex justify-between py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500">Weight</span><span className="font-bold text-slate-900 dark:text-white">{data.weight} lb</span></div>
+                   <div className="flex justify-between py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500">Cost</span><span className="font-bold text-slate-900 dark:text-white">{data.cost}</span></div>
                    {data.type === 'Weapon' && (
                        <>
                            <div className="flex justify-between py-2 border-b border-slate-100 dark:border-white/5">
-                               <span className="text-sm text-slate-500">Daño</span>
+                               <span className="text-sm text-slate-500">Damage</span>
                                <span className="font-bold text-slate-900 dark:text-white">
                                    {asWeapon.damage} {enchantmentLevel > 0 && isPreview ? `+${enchantmentLevel}` : ''} {asWeapon.damageType}
                                </span>
@@ -393,7 +393,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                     return renderItemDetail(
                         itemData, 
                         isEquippable ? () => { toggleEquip(selectedItem.id); setSelectedItem(null); } : undefined,
-                        selectedItem.equipped ? 'Desequipar' : 'Equipar'
+                        selectedItem.equipped ? 'Unequip' : 'Equip'
                     );
                 })()}
             </div>

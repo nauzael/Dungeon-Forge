@@ -368,7 +368,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-8">
                         <div>
-                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex justify-between items-center px-1"><span>3 Trucos de cualquier clase</span><span className={`text-[10px] ${tempPactCantrips.length === 3 ? 'text-primary' : 'text-slate-500'}`}>{tempPactCantrips.length}/3</span></h4>
+                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex justify-between items-center px-1"><span>3 Cantrips from any class</span><span className={`text-[10px] ${tempPactCantrips.length === 3 ? 'text-primary' : 'text-slate-500'}`}>{tempPactCantrips.length}/3</span></h4>
                             <div className="grid grid-cols-1 gap-2">
                                 {Object.keys(CANTRIPS).map(name => {
                                     const isSelected = tempPactCantrips.includes(name);

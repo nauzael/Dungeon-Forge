@@ -440,11 +440,11 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <button onClick={() => setWeaponStatModal({ item: entry, weapon: entry, type: 'toHit', isSpell: true })} className="flex flex-col items-center justify-center py-2 px-4 rounded-xl bg-fuchsia-500/5 dark:bg-black/20 group border border-fuchsia-500/10">
-                                <span className="text-[10px] font-black text-fuchsia-400 group-hover:text-fuchsia-500 uppercase tracking-widest mb-1">Impacto</span>
+                                <span className="text-[10px] font-black text-fuchsia-400 group-hover:text-fuchsia-500 uppercase tracking-widest mb-1">Hit</span>
                                 <span className="text-lg font-bold text-slate-900 dark:text-white">{formatModifier(entry.toHit)}</span> 
                             </button>
                             <button onClick={() => setWeaponStatModal({ item: entry, weapon: entry, type: 'damage', isSpell: true })} className="flex flex-col items-center justify-center py-2 px-4 rounded-xl bg-fuchsia-500/5 dark:bg-black/20 group border border-fuchsia-500/10">
-                                <span className="text-[10px] font-black text-fuchsia-400 group-hover:text-fuchsia-500 uppercase tracking-widest mb-1">Daño Arcano</span>
+                                <span className="text-[10px] font-black text-fuchsia-400 group-hover:text-fuchsia-500 uppercase tracking-widest mb-1">Arcane Damage</span>
                                 <span className="text-lg font-bold text-slate-900 dark:text-white">{entry.displayDamage}</span>
                             </button>
                         </div>
@@ -632,14 +632,14 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
 
                         <div className="mt-2 pt-2">
                             <div className="flex justify-between items-center mb-3">
-                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Habilidades de Monje</span>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Monk Abilities</span>
                             </div>
                             <div className="grid grid-cols-4 gap-2 mb-4">
                                 {[
-                                    { id: 'flurry', label: 'Ráfaga', icon: 'sports_martial_arts', cost: 1 },
+                                    { id: 'flurry', label: 'Flurry', icon: 'sports_martial_arts', cost: 1 },
                                     { id: 'def', label: 'Defense', icon: 'security', cost: 1 },
-                                    { id: 'step', label: 'Paso', icon: 'air', cost: 1 },
-                                    ...(character.level >= 5 ? [{ id: 'stun', label: 'Aturdir', icon: 'offline_bolt', cost: 1 }] : [])
+                                    { id: 'step', label: 'Step', icon: 'air', cost: 1 },
+                                    ...(character.level >= 5 ? [{ id: 'stun', label: 'Stun', icon: 'offline_bolt', cost: 1 }] : [])
                                 ].map(skill => (
                                     <button 
                                         key={skill.id}
@@ -656,7 +656,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             {isWarriorOfMercy && (
                                 <div className="space-y-2 mt-4 pt-4 border-t border-slate-100 dark:border-white/5">
                                     <div className="flex justify-between items-center px-1">
-                                        <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Gasto de Misericordia</span>
+                                        <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Mercy Spending</span>
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button 
@@ -677,7 +677,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                         >
                                             <span className="material-symbols-outlined text-[16px] text-rose-500">skull</span>
                                             <div className="flex flex-col items-start min-w-0">
-                                                <span className="text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase leading-none">Daño</span>
+                                                <span className="text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase leading-none">Damage</span>
                                                 <span className="text-[8px] text-slate-400 font-mono">1d{martialArtsDie.substring(1)}+{wisMod}</span>
                                             </div>
                                         </button>
@@ -731,8 +731,8 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         </div>
                     )}
                     <div className="text-xs text-slate-400 text-center font-medium">
-                        Daño +{Math.floor(((finalStats.STR || 10) - 10) / 2)} extra • Resistencia a B/P/S
-                        {character.level >= 20 && ' • ¡Furia Ilimitada!'}
+                        Damage +{Math.floor(((finalStats.STR || 10) - 10) / 2)} extra • Resistance to B/P/S
+                        {character.level >= 20 && ' • Unlimited Rage!'}
                     </div>
                 </div>
             )}
@@ -764,7 +764,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             <div key={i} className={`flex-1 h-2 rounded-full transition-colors ${i < bardicCurrent ? 'bg-purple-500' : 'bg-slate-200 dark:bg-white/10'}`} />
                         ))}
                     </div>
-                    <div className="text-xs text-slate-400 text-center font-medium">Dado: {bardicInspirationDie} • Usos = Mod. CAR</div>
+                    <div className="text-xs text-slate-400 text-center font-medium">Die: {bardicInspirationDie} • Uses = CHA Mod</div>
                 </div>
             )}
 
@@ -835,10 +835,10 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-sky-500 uppercase tracking-widest mb-1">Imposición de Manos</span>
+                            <span className="text-[10px] font-bold text-sky-500 uppercase tracking-widest mb-1">Lay On Hands</span>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-4xl font-black tracking-tighter text-sky-500">{layOnHandsCurrent}</span>
-                                <span className="text-lg font-bold text-slate-400">/ {layOnHandsMax} PG</span>
+                                <span className="text-lg font-bold text-slate-400">/ {layOnHandsMax} HP</span>
                             </div>
                         </div>
                         <button onClick={resetLayOnHands} className="size-12 rounded-2xl bg-white dark:bg-white/5 text-slate-400 hover:text-sky-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all flex items-center justify-center" title="Descanso Largo">
@@ -852,7 +852,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         {[1, 5, 10].map(amount => (
                             <button key={amount} onClick={() => healWithLayOnHands(amount)} disabled={layOnHandsCurrent < amount}
                                 className={`py-2 rounded-xl border text-xs font-bold transition-all active:scale-95 ${layOnHandsCurrent >= amount ? 'bg-sky-500/10 border-sky-500/20 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20' : 'opacity-30 cursor-not-allowed border-slate-200 dark:border-white/5 text-slate-400'}`}>
-                                -{amount} PG
+                                -{amount} HP
                             </button>
                         ))}
                     </div>
@@ -907,7 +907,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             <span className="material-symbols-outlined text-slate-500">visibility_off</span>
                         </div>
                         <div>
-                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ataque Furtivo</div>
+                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Sneak Attack</div>
                             <div className="text-2xl font-black text-slate-900 dark:text-white">{sneakAttackDice}d6</div>
                             <div className="text-[10px] text-slate-400">Once per turn</div>
                         </div>
@@ -971,10 +971,10 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4 border-l-4 border-amber-500">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Ataque Furtivo Potenciado</span>
+                            <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Empowered Sneak Attack</span>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-4xl font-black tracking-tighter text-amber-500">{eseCurrent}</span>
-                                <span className="text-lg font-bold text-slate-400">/ {eseMax} Usos</span>
+                                <span className="text-lg font-bold text-slate-400">/ {eseMax} Uses</span>
                             </div>
                         </div>
                         <button onClick={resetEmpoweredSneakAttack} className="size-12 rounded-2xl bg-white dark:bg-white/5 text-slate-400 hover:text-amber-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all flex items-center justify-center" title="Descanso Corto/Largo">
@@ -983,7 +983,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                     </div>
                     <button onClick={useEmpoweredSneakAttack} disabled={eseCurrent <= 0}
                         className={`w-full py-3 rounded-2xl border font-black text-xs uppercase tracking-widest transition-all active:scale-[0.98] ${eseCurrent > 0 ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-400 opacity-50'}`}>
-                        Empoderar Ataque (+{eseCurrent}d6)
+                        Empower Attack (+{eseCurrent}d6)
                     </button>
                     <p className="text-[10px] text-slate-500 text-center">Recharges when casting a level 1+ spell or on a Rest</p>
                 </div>
@@ -1001,7 +1001,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                    </div>
                    <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase mb-1">Puntos de Golpe</span>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase mb-1">Hit Points</span>
                             <div className="flex items-baseline gap-1.5">
                                 <span className="text-2xl font-black text-purple-500">{vestigeHpCurrent}</span>
                                 <span className="text-xs font-bold text-slate-400">/ {vestigeHpMax}</span>
@@ -1017,12 +1017,12 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                    </div>
                    <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-500">
                         <div className="p-2 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
-                            <span className="font-bold block text-purple-500 uppercase">Aura: {character.vestige?.domain || 'Patrón'}</span>
-                            Bonus de +{character.profBonus} a salvaciones vs magia.
+                            <span className="font-bold block text-purple-500 uppercase">Aura: {character.vestige?.domain || 'Pattern'}</span>
+                            Bonus of +{character.profBonus} to saves vs magic.
                         </div>
                         <div className="p-2 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
-                            <span className="font-bold block text-purple-500 uppercase">Ataque</span>
-                            1d8 + {character.profBonus} daño de fuerza.
+                            <span className="font-bold block text-purple-500 uppercase">Attack</span>
+                            1d8 + {character.profBonus} force damage.
                         </div>
                    </div>
                 </div>
@@ -1067,7 +1067,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                 <div key={lvl} className="p-3 rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm">
                                     <div className="flex justify-between items-center mb-2">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[10px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded uppercase tracking-tighter">Nivel {lvl}</span>
+                                            <span className="text-[10px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded uppercase tracking-tighter">Level {lvl}</span>
                                         </div>
                                         <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{slots.current} / {slots.max}</span>
                                     </div>
@@ -1128,7 +1128,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
             )}
       
             <div className="mb-6">
-                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Habilidades</h3>
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Abilities</h3>
                 <div className="grid grid-cols-2 gap-2">
                     {SKILL_LIST.map(skill => {
                         const isProf = character.skills.includes(skill);
@@ -1228,7 +1228,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
 
                         {inspectedStat !== 'Insp' && (
                         <div className="mt-6 pt-4 border-t border-slate-100 dark:border-white/10 flex justify-between items-center px-1">
-                            <span className="text-xs font-black text-slate-400 uppercase">Máximo Total</span>
+                            <span className="text-xs font-black text-slate-400 uppercase">Total Maximum</span>
                             <span className={`text-2xl font-black ${inspectedStat === 'HP' ? 'text-red-500' : 'text-slate-900 dark:text-white'}`}>
                                 {inspectedStat === 'AC' ? armorClass 
                                  : inspectedStat === 'Init' ? formatModifier(initiativeTotal) 

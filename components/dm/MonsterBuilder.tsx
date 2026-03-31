@@ -41,7 +41,7 @@ const MonsterBuilder: React.FC<{ playerLevels: number[] }> = ({ playerLevels }) 
             cr,
             hp,
             ac,
-            actions: ['Ataque Básico']
+            actions: ['Basic Attack']
         };
         setMonsters(prev => [...prev, newMonster]);
         setName('');
@@ -68,7 +68,7 @@ const MonsterBuilder: React.FC<{ playerLevels: number[] }> = ({ playerLevels }) 
 
                 <div className="pt-2">
                     <div className="flex justify-between items-center mb-1.5">
-                        <span className="text-[10px] font-black uppercase text-slate-500">XP Total Actual</span>
+                        <span className="text-[10px] font-black uppercase text-slate-500">Current Total XP</span>
                         <span className={`text-sm font-black ${difficulty === 'DEADLY' ? 'text-red-500 animate-pulse' : difficulty === 'HARD' ? 'text-orange-500' : 'text-emerald-500'}`}>{currentTotalXP} ({difficulty})</span>
                     </div>
                     <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5 shadow-inner">
@@ -113,7 +113,7 @@ const MonsterBuilder: React.FC<{ playerLevels: number[] }> = ({ playerLevels }) 
                                 </select>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[8px] font-black uppercase text-slate-500 pl-1">HP (Vida)</label>
+                                <label className="text-[8px] font-black uppercase text-slate-500 pl-1">HP (Health)</label>
                                 <input 
                                     type="number" 
                                     value={hp}
@@ -123,8 +123,8 @@ const MonsterBuilder: React.FC<{ playerLevels: number[] }> = ({ playerLevels }) 
                             </div>
                         </div>
                         <div className="flex gap-3 pt-2">
-                             <button onClick={() => setShowAdd(false)} className="flex-1 py-3 bg-white/5 text-slate-400 font-bold uppercase text-[10px] tracking-widest rounded-xl hover:bg-white/10 transition-colors">Cancelar</button>
-                             <button onClick={handleAdd} className="flex-1 py-3 bg-blue-600 text-white font-bold uppercase text-[10px] tracking-widest rounded-xl shadow-lg shadow-blue-900/40">Engendrar</button>
+                             <button onClick={() => setShowAdd(false)} className="flex-1 py-3 bg-white/5 text-slate-400 font-bold uppercase text-[10px] tracking-widest rounded-xl hover:bg-white/10 transition-colors">Cancel</button>
+                             <button onClick={handleAdd} className="flex-1 py-3 bg-blue-600 text-white font-bold uppercase text-[10px] tracking-widest rounded-xl shadow-lg shadow-blue-900/40">Spawn</button>
                         </div>
                     </div>
                 </div>

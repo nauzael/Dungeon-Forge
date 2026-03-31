@@ -58,7 +58,7 @@ class ErrorBoundary extends Component<Props, State> {
             onClick={() => window.location.reload()}
             className="w-full max-w-xs py-4 bg-[#359EFF] hover:bg-[#2B7DE0] text-[#0F172A] rounded-xl font-bold text-lg shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98]"
           >
-            Reiniciar Aplicación
+            Restart Application
           </button>
         </div>
       );

@@ -86,7 +86,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
     };
 
     const handleDelete = async (id: string) => {
-        if (window.confirm("¿Eliminar este recurso permanentemente?")) {
+        if (window.confirm("Delete this resource permanently?")) {
             const success = await deletePartyResource(id);
             if (success) {
                 setResources(prev => prev.filter(r => r.id !== id));
@@ -115,7 +115,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
 
             {showAdd && (
                 <div className="bg-slate-800/80 backdrop-blur-md rounded-2xl p-5 border border-blue-500/20 space-y-4 animate-slideDown shadow-2xl">
-                    <h3 className="text-sm font-black uppercase text-blue-400">Archivar Nuevo Recurso</h3>
+                    <h3 className="text-sm font-black uppercase text-blue-400">Archive New Resource</h3>
                     <div className="space-y-3">
                         <input 
                             type="text" 
@@ -159,7 +159,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                                     onClick={() => setNewRes({...newRes, type: t as any})}
                                     className={`flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-tighter border transition-all ${newRes.type === t ? 'bg-blue-600 border-blue-500 text-white' : 'bg-white/5 border-white/10 text-slate-500'}`}
                                 >
-                                    {t === 'Map' ? 'Mapa' : t === 'Setting' ? 'Entorno' : t}
+                                    {t === 'Map' ? 'Map' : t === 'Setting' ? 'Setting' : t}
                                 </button>
                             ))}
                         </div>
@@ -179,9 +179,9 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                         </div>
 
                         <div className="flex gap-3 pt-2">
-                             <button onClick={() => setShowAdd(false)} className="flex-1 py-3 bg-white/5 text-slate-400 font-bold uppercase text-[10px] tracking-widest rounded-xl">Cancelar</button>
+                             <button onClick={() => setShowAdd(false)} className="flex-1 py-3 bg-white/5 text-slate-400 font-bold uppercase text-[10px] tracking-widest rounded-xl">Cancel</button>
                              <button disabled={isLoading || isUploading} onClick={handleAdd} className={`flex-1 py-3 text-white font-bold uppercase text-[10px] tracking-widest rounded-xl shadow-lg transition-all ${isLoading || isUploading ? 'bg-slate-700' : 'bg-blue-600'}`}>
-                                {isLoading ? 'Guardando...' : 'Archivar'}
+                                {isLoading ? 'Saving...' : 'Archive'}
                              </button>
                         </div>
                     </div>
@@ -190,7 +190,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
 
             <div className="grid grid-cols-1 gap-6 pb-20">
                 {resources.length === 0 && !isLoading && (
-                    <div className="text-center py-20 text-slate-600 italic font-medium">Atlas vacío. Agrega mapas o escenas de referencia.</div>
+                    <div className="text-center py-20 text-slate-600 italic font-medium">Atlas empty. Add maps or reference scenes.</div>
                 )}
                 {resources.map(res => (
                     <div key={res.id} className="group bg-[#1e293b] rounded-3xl overflow-hidden border border-white/5 shadow-2xl transition-all hover:border-blue-500/20">
@@ -201,7 +201,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                                 <span className="bg-black/60 backdrop-blur-md text-[8px] font-black uppercase text-blue-400 px-2 py-1 rounded-full border border-blue-500/20 tracking-widest w-fit">{res.type}</span>
                                 {activeRevealedId === res.id && (
                                     <span className="bg-red-500/80 backdrop-blur-md text-[8px] font-black uppercase text-white px-2 py-1 rounded-full border border-red-400/20 tracking-widest flex items-center gap-1 animate-pulse">
-                                        <span className="material-symbols-outlined text-[10px]">sensors</span> EN VIVO
+                                        <span className="material-symbols-outlined text-[10px]">sensors</span> LIVE
                                     </span>
                                 )}
                             </div>
@@ -220,7 +220,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                                 className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all active:scale-95 ${activeRevealedId === res.id ? 'bg-red-500/10 border-red-500/30 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10'}`}
                             >
                                 <span className="material-symbols-outlined text-xl mb-1">{activeRevealedId === res.id ? 'visibility_off' : 'visibility'}</span>
-                                <span className="text-[8px] font-black uppercase tracking-tighter">{activeRevealedId === res.id ? 'Ocultar' : 'Revelar'}</span>
+                                <span className="text-[8px] font-black uppercase tracking-tighter">{activeRevealedId === res.id ? 'Hide' : 'Reveal'}</span>
                             </button>
 
                             {/* PERSISTENCE BUTTON (SHARE) */}
@@ -229,7 +229,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                                 className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all active:scale-95 ${res.is_persistent ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-white/5 border-white/5 text-slate-500 grayscale opacity-60 hover:opacity-100 hover:grayscale-0'}`}
                             >
                                 <span className="material-symbols-outlined text-xl mb-1">{res.is_persistent ? 'auto_stories' : 'share'}</span>
-                                <span className="text-[8px] font-black uppercase tracking-tighter">{res.is_persistent ? 'Compartido' : 'Compartir'}</span>
+                                <span className="text-[8px] font-black uppercase tracking-tighter">{res.is_persistent ? 'Shared' : 'Share'}</span>
                             </button>
 
                             {/* DELETE BUTTON */}
@@ -238,7 +238,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                                 className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/5 text-slate-500 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 transition-all active:scale-95"
                             >
                                 <span className="material-symbols-outlined text-xl mb-1">delete</span>
-                                <span className="text-[8px] font-black uppercase tracking-tighter">Eliminar</span>
+                                <span className="text-[8px] font-black uppercase tracking-tighter">Delete</span>
                             </button>
                         </div>
                     </div>

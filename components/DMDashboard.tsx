@@ -183,7 +183,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                   className="flex items-center gap-1 text-[10px] font-black uppercase tracking-tighter text-blue-400/50 hover:text-blue-400 transition-colors mb-1"
                 >
                     <span className="material-symbols-outlined text-[12px]">arrow_back</span>
-                    Volver a Selección
+                    Back to Selection
                 </button>
             )}
             {isEditingName ? (
@@ -211,7 +211,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                         }}
                         className="text-xl font-black text-white/95 tracking-tight cursor-pointer hover:text-white transition-colors"
                     >
-                        {party ? party.name : 'Tus Mesas'}
+                        {party ? party.name : 'Your Tables'}
                     </h1>
                     {party && (
                         <span 
@@ -228,7 +228,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
             )}
             
             <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{party ? 'En Campaña' : 'Seleccionar Mesa'}</span>
+                <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{party ? 'In Campaign' : 'Select Table'}</span>
                 {party && (
                     <>
                         <span className="text-slate-700 text-[10px]">•</span>
@@ -252,19 +252,19 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                 <>
                     <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[8px] font-black uppercase tracking-tighter border ${realtimeStatus === 'connected' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20 animate-pulse'}`}>
                         <span className="material-symbols-outlined text-[10px]">{realtimeStatus === 'connected' ? 'rss_feed' : 'sync'}</span>
-                        {realtimeStatus === 'connected' ? 'En Vivo' : 'Conectando...'}
+                        {realtimeStatus === 'connected' ? 'Live' : 'Connecting...'}
                     </div>
                     <button 
                         onClick={() => party && fetchMembers(party.id)}
                         className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-slate-400 hover:text-white transition-colors"
-                        title="Sincronizar Manualmente"
+                        title="Sync Manually"
                     >
                         <span className={`material-symbols-outlined ${isLoading ? 'animate-spin' : ''}`}>refresh</span>
                     </button>
                     <button 
                         onClick={handleDeleteParty}
                         className="w-10 h-10 flex items-center justify-center rounded-full bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-md shadow-red-900/10"
-                        title="Eliminar Mesa"
+                        title="Delete Table"
                     >
                         <span className="material-symbols-outlined text-sm">delete</span>
                     </button>
@@ -392,7 +392,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                                 {/* HP Bar */}
                                 <div className="space-y-1.5 mb-6 cursor-pointer" onClick={() => onViewCharacter(member)}>
                                     <div className="flex justify-between items-end">
-                                        <span className="text-[10px] text-slate-400 font-bold uppercase">Vida</span>
+                                        <span className="text-[10px] text-slate-400 font-bold uppercase">HP</span>
                                         <span className="text-sm font-black">{member.hp.current} / {member.hp.max}</span>
                                     </div>
                                     <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5 relative">
