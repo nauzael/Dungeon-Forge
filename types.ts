@@ -125,6 +125,8 @@ export interface AsiDecision {
     stat1?: Ability;
     stat2?: Ability;
     feat?: string;
+    skills?: string[];      // For "Skilled" feat - 3 skill proficiencies
+    expertiseSkill?: string; // For "Skill Expert" feat - 1 expertise
 }
 
 export type Skill = string;

@@ -70,7 +70,7 @@ const Step1Identity: React.FC<Step1Props> = ({
     const bgMagicConfig = useMemo(() => {
         if (!backgroundData) return null;
         const featName = backgroundData.feat;
-        const isMagicInitiate = featName.includes('Magic Initiate') || featName.includes('Iniciado en la Magia');
+        const isMagicInitiate = featName.includes('Magic Initiate') || featName.includes('Iniciado Mágico');
         
         if (isMagicInitiate) {
             let listType: 'Cleric' | 'Druid' | 'Wizard' = 'Wizard';

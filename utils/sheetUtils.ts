@@ -201,7 +201,7 @@ export const getWeaponDamageBreakdown = (character: Character, item: InventoryIt
         breakdown.push({ label: 'Maestría: Graze (Si fallas)', value: scalingVal, icon: 'error' });
     }
 
-    const hasDueling = character.feats.some(f => f.includes('Duelo'));
+    const hasDueling = character.feats.some(f => f.includes('Duelo') || f.includes('Dueling'));
     const hasThrown = character.feats.some(f => f.includes('Lucha con Armas Arrojadizas') || f.includes('Thrown Weapon Fighting'));
     const isTwoHanded = weapon.properties.includes('Two-Handed');
     const equippedWeapons = character.inventory.filter(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
