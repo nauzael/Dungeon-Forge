@@ -50,11 +50,16 @@ export { BACKGROUNDS_DATA };
 // Use English species from species/index.ts
 const SPECIES_DATA = SPECIES;
 
-// Use all species from SPECIES object
+// Standard/PHB species only - excludes Eberron, Lorwyn, and exotic settings
+const COMMON_SPECIES = [
+  'Dwarf', 'Elf', 'Halfling', 'Human', 'Dragonborn', 'Gnome', 'Tiefling', 'Goliath'
+];
+
+// Use all species from SPECIES object (for existing characters)
 export const SPECIES_DETAILS: Record<string, DetailData> = { ...SPECIES_DATA };
 
-// Species list from SPECIES keys
-export const SPECIES_LIST = Object.keys(SPECIES_DATA);
+// Standard species list for character creator (excludes Eberron/Lorwyn/exotic)
+export const SPECIES_LIST = COMMON_SPECIES;
 
 export const CLASS_DETAILS: Record<string, DetailData> = Object.fromEntries(
   Object.entries(CLASSES_MAP).map(([name, data]) => [name, data.details])
