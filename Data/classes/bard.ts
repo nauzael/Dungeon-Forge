@@ -4,11 +4,11 @@ import { Ability, Skill, DetailData, SubclassData } from '../../types';
 export const bard = {
   details: { 
     name: 'Bard', 
-    description: 'Maestros del canto, la oratoria y la magia. Los bardos usan las Palabras de Creación para inspirar aliados, desmoralizar enemigos y manipular la realidad.', 
+    description: 'Masters of song, oratory, and magic. Bards use Words of Creation to inspire allies, demoralize enemies, and manipulate reality.', 
     traits: [
-        { name: 'Bardic Inspiration', description: 'Usa una acción adicional para inspirar a un aliado a 60 pies. Gana un dado de bardo (d6 a nivel 1) para añadir a una prueba de d20.' }, 
-        { name: 'Spellcasting', description: 'Magia arcana basada en Carisma. Eres un lanzador de conjuros preparados.' }, 
-        { name: 'Tool Proficiency', description: 'Competencia con 3 instrumentos musicales.' }
+        { name: 'Bardic Inspiration', description: 'Use a bonus action to inspire an ally within 60 feet. They gain a Bard die (d6 at level 1) to add to a d20 roll.' }, 
+        { name: 'Spellcasting', description: 'Charisma-based arcane magic. You are a prepared spellcaster.' }, 
+        { name: 'Tool Proficiency', description: 'Proficiency with 3 musical instruments.' }
     ] 
   } as DetailData,
   hitDie: 8,
@@ -37,53 +37,53 @@ export const bard = {
   subclasses: [
       { 
         name: 'College of Lore', 
-        description: 'El Colegio del Saber busca la verdad en todas las fuentes.', 
+        description: 'The College of Knowledge seeks truth from all sources.', 
         features: { 
             3: [
-                { name: 'Bonus Proficiencies', description: 'ELEGIR: Ganas competencia en 3 habilidades a tu elección.' }, 
-                { name: 'Cutting Words', description: 'Como Reacción, resta un dado de Inspiración al ataque, daño o prueba de un enemigo.' }
+                { name: 'Bonus Proficiencies', description: 'CHOOSE: Gain proficiency in 3 skills of your choice.' }, 
+                { name: 'Cutting Words', description: 'As a reaction, subtract an Inspiration die from a creature\'s attack roll, damage roll, or ability check.' }
             ],
-            6: [{ name: 'Magical Discoveries', description: 'ELEGIR: Aprendes 2 conjuros de cualquier clase (Clérigo, Druida o Mago) de un nivel que puedas lanzar.' }],
-            14: [{ name: 'Peerless Skill', description: 'Añade Inspiración a tus propias pruebas de d20. Si fallas, no consumes el dado.' }]
+            6: [{ name: 'Magical Discoveries', description: 'CHOOSE: Learn 2 spells from any class (Cleric, Druid, or Wizard) of a level you can cast.' }],
+            14: [{ name: 'Peerless Skill', description: 'Add Inspiration to your own d20 checks. If you fail, you do not consume the die.' }]
         } 
       },
       {
         name: 'College of Valor',
-        description: 'Bardos guerreros que cantan en la vanguardia.',
+        description: 'Warrior bards who sing on the front lines.',
         features: {
             3: [
-                { name: 'Combat Inspiration', description: 'Aliados pueden añadir Inspiración al daño o a la CA como reacción.' },
-                { name: 'Martial Training', description: 'MEJORA: Competencia en armas marciales, escudos y armaduras medias. El arma sirve de foco mágico.' }
+                { name: 'Combat Inspiration', description: 'Allies can add Inspiration to damage or AC as a reaction.' },
+                { name: 'Martial Training', description: 'UPGRADE: Proficiency with martial weapons, shields, and medium armor. The weapon serves as a spellcasting focus.' }
             ],
-            6: [{ name: 'Extra Attack', description: 'Atacas dos veces. Puedes cambiar un ataque por el lanzamiento de un Truco.' }],
-            14: [{ name: 'Battle Magic', description: 'Tras lanzar un conjuro con tu acción, realiza un ataque con arma como Acción Adicional.' }]
+            6: [{ name: 'Extra Attack', description: 'You attack twice. You can swap one attack for casting a cantrip.' }],
+            14: [{ name: 'Battle Magic', description: 'After casting a spell with your action, make a weapon attack as a bonus action.' }]
         }
       },
       {
         name: 'College of Glamour',
-        description: 'Maestros de la seducción feérica y el asombro.',
+        description: 'Masters of fey seduction and wonder.',
         features: {
             3: [
-                { name: 'Beguiling Magic', description: 'MAGIA: Charm Person y Mirror Image siempre preparados. Reacción: Encantar/Asustar al lanzar Ilusión/Encantamiento.' },
-                { name: 'Mantle of Inspiration', description: 'BA: Otorga THP (2x dado) a aliados y movimiento gratuito sin ataques de oportunidad.' }
+                { name: 'Beguiling Magic', description: 'MAGIC: Charm Person and Mirror Image always prepared. Reaction: Charm/Frighten when casting Illusion/Enchantment.' },
+                { name: 'Mantle of Inspiration', description: 'BA: Grant THP (2x die) to allies and free movement without opportunity attacks.' }
             ],
-            6: [{ name: 'Mantle of Majesty', description: 'MAGIA: Command siempre preparado. Lánzalo como BA sin gastar espacios durante 1 min.' }],
-            14: [{ name: 'Unbreakable Majesty', description: 'BA: Durante 1 min, enemigos deben salvar CHA para poder golpearte.' }]
+            6: [{ name: 'Mantle of Majesty', description: 'MAGIC: Command always prepared. Cast it as BA without spending slots for 1 min.' }],
+            14: [{ name: 'Unbreakable Majesty', description: 'BA: For 1 min, enemies must save CHA to be able to hit you.' }]
         }
       },
       {
         name: 'College of Dance',
-        description: 'La elegancia del movimiento convertida en arma.',
+        description: 'The elegance of movement turned into a weapon.',
         features: {
             3: [
-                { name: 'Dazzling Footwork', description: 'MEJORA: CA = 10+DEX+CHA. BA: Ataque desarmado usando el dado de Inspiración para el daño.' },
-                { name: 'Dance Virtuoso', description: 'Ganas maestría en interpretación de danza.' }
+                { name: 'Dazzling Footwork', description: 'UPGRADE: AC = 10+DEX+CHA. BA: Unarmed strike using the Inspiration die for damage.' },
+                { name: 'Dance Virtuoso', description: 'You gain proficiency in dance performance.' }
             ],
             6: [
-                { name: 'Inspiring Movement', description: 'Reacción: Permite a un aliado moverse gratis cuando un enemigo se acerque.' },
-                { name: 'Tandem Footwork', description: 'INICIATIVA: Suma el dado de bardo a la iniciativa propia y de aliados cercanos.' }
+                { name: 'Inspiring Movement', description: 'Reaction: Allow an ally to move freely when an enemy approaches.' },
+                { name: 'Tandem Footwork', description: 'INITIATIVE: Add the Bard die to your and nearby allies\' initiative.' }
             ],
-            14: [{ name: 'Leading Evasion', description: 'Evasión compartida con aliados a 5 pies de ti.' }]
+            14: [{ name: 'Leading Evasion', description: 'Evasion shared with allies within 5 feet of you.' }]
         }
       }
   ] as SubclassData[],

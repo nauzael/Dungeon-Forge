@@ -13,15 +13,6 @@ export const SCHOOL_THEMES: Record<string, { text: string, bg: string, border: s
     'Illusion': { text: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20', icon: 'auto_fix' },
     'Necromancy': { text: 'text-lime-400', bg: 'bg-lime-500/10', border: 'border-lime-500/20', icon: 'skull' },
     'Transmutation': { text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', icon: 'change_circle' },
-    // Spanish keys
-    'Abjuración': { text: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', icon: 'shield' },
-    'Conjuración': { text: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', icon: 'apps' },
-    'Adivinación': { text: 'text-indigo-300', bg: 'bg-indigo-500/10', border: 'border-indigo-500/20', icon: 'visibility' },
-    'Encantamiento': { text: 'text-pink-400', bg: 'bg-pink-500/10', border: 'border-pink-500/20', icon: 'favorite' },
-    'Evocación': { text: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', icon: 'local_fire_department' },
-    'Ilusión': { text: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20', icon: 'auto_fix' },
-    'Nigromancia': { text: 'text-lime-400', bg: 'bg-lime-500/10', border: 'border-lime-500/20', icon: 'skull' },
-    'Transmutación': { text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', icon: 'change_circle' },
 };
 
 export const getItemData = (name: string): ItemData | undefined => {
@@ -74,15 +65,15 @@ export const getWeaponToHitBreakdown = (character: Character, item: InventoryIte
         
         scalingStat = useDex ? 'DEX' : 'STR';
         scalingVal = useDex ? dexMod : strMod;
-        breakdown.push({ label: `Atributo (${scalingStat})`, value: scalingVal, icon: useDex ? 'bolt' : 'fitness_center' });
+        breakdown.push({ label: `Attribute (${scalingStat})`, value: scalingVal, icon: useDex ? 'bolt' : 'fitness_center' });
     }
 
-    breakdown.push({ label: 'Bono de Competencia', value: character.profBonus, icon: 'school' });
+    breakdown.push({ label: 'Proficiency Bonus', value: character.profBonus, icon: 'school' });
 
     const bonusMatch = item.name.match(/\+(\d+)$/);
     if (bonusMatch) {
         const bonus = parseInt(bonusMatch[1]);
-        if (bonus > 0) breakdown.push({ label: `Bono Mágico +${bonus}`, value: bonus, icon: 'magic_button' });
+        if (bonus > 0) breakdown.push({ label: `Magic Bonus +${bonus}`, value: bonus, icon: 'magic_button' });
     }
     
     if (item.name === 'Sun Blade' || item.name === 'Holy Avenger') {
@@ -133,20 +124,20 @@ export const getWeaponDamageBreakdown = (character: Character, item: InventoryIt
         
         if (weapon.name === 'Unarmed Strike' || (isMonkWeapon && getDieSize(martialArtsDie) > getDieSize(weapon.damage))) {
             damageDie = martialArtsDie;
-            breakdown.push({ label: 'Dado de Artes Marciales', value: damageDie, icon: 'self_improvement' });
+            breakdown.push({ label: 'Martial Arts Die', value: damageDie, icon: 'self_improvement' });
         } else {
-            breakdown.push({ label: 'Dado base de arma', value: damageDie, icon: 'swords' });
+            breakdown.push({ label: 'Base Weapon Die', value: damageDie, icon: 'swords' });
         }
     } else {
-        breakdown.push({ label: 'Dado base de arma', value: damageDie, icon: 'swords' });
+        breakdown.push({ label: 'Base Weapon Die', value: damageDie, icon: 'swords' });
     }
 
     if (character.feats.some(f => f.includes('Atacante Salvaje') || f.includes('Savage Attacker'))) {
-        breakdown.push({ label: 'Dote: Atacante Salvaje (Tira 2x)', value: 'Mejor', icon: 'auto_awesome' });
+        breakdown.push({ label: 'Feat: Savage Attacker (Roll 2x)', value: 'Better', icon: 'auto_awesome' });
     }
 
     if (character.feats.some(f => f.includes('Lucha con armas pesadas') || f.includes('Great Weapon Fighting')) && weapon.properties.includes('Two-Handed')) {
-        breakdown.push({ label: 'Estilo: Armas Pesadas (Repite 1-2)', value: 'Reroll 1-2', icon: 'refresh' });
+        breakdown.push({ label: 'Fighting Style: Great Weapons (Reroll 1-2)', value: 'Reroll 1-2', icon: 'refresh' });
     }
 
     let scalingStat: Ability;
@@ -171,13 +162,13 @@ export const getWeaponDamageBreakdown = (character: Character, item: InventoryIt
         
         scalingStat = useDex ? 'DEX' : 'STR';
         scalingVal = useDex ? dexMod : strMod;
-        breakdown.push({ label: `Atributo (${scalingStat})`, value: scalingVal, icon: useDex ? 'bolt' : 'fitness_center' });
+        breakdown.push({ label: `Attribute (${scalingStat})`, value: scalingVal, icon: useDex ? 'bolt' : 'fitness_center' });
     }
 
     const bonusMatch = item.name.match(/\+(\d+)$/);
     if (bonusMatch) {
         const bonus = parseInt(bonusMatch[1]);
-        if (bonus > 0) breakdown.push({ label: `Bono Mágico +${bonus}`, value: bonus, icon: 'magic_button' });
+        if (bonus > 0) breakdown.push({ label: `Magic Bonus +${bonus}`, value: bonus, icon: 'magic_button' });
     }
 
     if (weapon.name === 'Unarmed Strike') {
@@ -194,11 +185,11 @@ export const getWeaponDamageBreakdown = (character: Character, item: InventoryIt
     const isActuallyUsingStrength = (item.customStat === 'STR') || (!item.customStat && scalingStat === 'STR');
     if (isRaging && isActuallyUsingStrength && weapon.rangeType === 'Melee') {
         const rageDamage = character.level < 9 ? 2 : character.level < 16 ? 3 : 4;
-        breakdown.push({ label: 'Daño de Furia', value: rageDamage, icon: 'local_fire_department' });
+        breakdown.push({ label: 'Rage Damage', value: rageDamage, icon: 'local_fire_department' });
     }
 
     if (weapon.mastery === 'Graze' && (character.weaponMasteries || []).includes(weapon.name)) {
-        breakdown.push({ label: 'Maestría: Graze (Si fallas)', value: scalingVal, icon: 'error' });
+        breakdown.push({ label: 'Mastery: Graze (On Miss)', value: scalingVal, icon: 'error' });
     }
 
     const hasDueling = character.feats.some(f => f.includes('Duelo'));
@@ -208,10 +199,10 @@ export const getWeaponDamageBreakdown = (character: Character, item: InventoryIt
 
     if (hasDueling && weapon.rangeType === 'Melee' && !isTwoHanded && equippedWeapons.length === 1) {
         // Dueling requires no weapon in off-hand (shield is okay)
-        breakdown.push({ label: 'Estilo: Duelo', value: 2, icon: 'military_tech' });
+        breakdown.push({ label: 'Fighting Style: Dueling', value: 2, icon: 'military_tech' });
     }
     if (hasThrown && weapon.properties.some(p => p.includes('Thrown'))) {
-        breakdown.push({ label: 'Estilo: Armas Arrojadizas', value: 2, icon: 'military_tech' });
+        breakdown.push({ label: 'Fighting Style: Thrown Weapon Fighting', value: 2, icon: 'military_tech' });
     }
     
     // Warlock Lifedrinker (Level 12+, Pact of the Blade implied if taking invocation)
@@ -224,17 +215,17 @@ export const getWeaponDamageBreakdown = (character: Character, item: InventoryIt
     
     // Hunter's Mark (Ranger / 2024 / Feats)
     if (character.preparedSpells?.some(s => s === 'Hunter\'s Mark' || s === 'Marca del Cazador')) {
-         breakdown.push({ label: 'Marca del Cazador (Si activa)', value: '1d6', icon: 'gps_fixed' });
+         breakdown.push({ label: "Hunter's Mark (When Active)", value: '1d6', icon: 'gps_fixed' });
     }
 
     // Divine Smite (Paladin)
     if (character.class === 'Paladin' && character.preparedSpells?.some(s => s === 'Divine Smite' || s === 'Castigo Divino')) {
-         breakdown.push({ label: 'Divine Smite (Opcional)', value: '2d8+', icon: 'auto_awesome' });
+         breakdown.push({ label: 'Divine Smite (Optional)', value: '2d8+', icon: 'auto_awesome' });
     }
 
     // Paladin Radiant Strikes (Level 11+)
     if (character.class === 'Paladin' && character.level >= 11 && weapon.rangeType === 'Melee') {
-        breakdown.push({ label: 'Golpes Radiantes', value: '1d8', icon: 'auto_awesome' });
+        breakdown.push({ label: 'Radiant Strikes', value: '1d8', icon: 'auto_awesome' });
     }
 
     return breakdown;
@@ -259,7 +250,7 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
     if (equippedArmor) {
         const armorData = getItemData(equippedArmor.name) as ArmorData;
         hasArmor = true;
-        breakdown.push({ label: `Armadura: ${equippedArmor.name}`, value: armorData.baseAC, icon: 'shield' });
+        breakdown.push({ label: `Armor: ${equippedArmor.name}`, value: armorData.baseAC, icon: 'shield' });
         
         let dexBonus = dexMod;
         let maxDex = armorData.maxDex;
@@ -276,29 +267,29 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
         if (maxDex !== undefined) dexBonus = Math.min(dexBonus, maxDex);
         
         if (dexBonus !== 0) {
-            breakdown.push({ label: `Destreza (limitada por armadura)`, value: dexBonus, icon: 'bolt' });
+            breakdown.push({ label: `Dexterity (armor limited)`, value: dexBonus, icon: 'bolt' });
         }
 
         const armorBonusMatch = equippedArmor.name.match(/\+(\d+)$/);
         if (armorBonusMatch) {
             const bonus = parseInt(armorBonusMatch[1]);
-            if (bonus > 0) breakdown.push({ label: `Bono Mágico +${bonus}`, value: bonus, icon: 'magic_button' });
+            if (bonus > 0) breakdown.push({ label: `Magic Bonus +${bonus}`, value: bonus, icon: 'magic_button' });
         }
         
         // Forge Cleric: Soul of the Forge (Level 6) - Heavy Armor
         if (character.class === 'Cleric' && character.subclass === 'Forge Domain' && character.level >= 6 && armorData.armorType === 'Heavy') {
-             breakdown.push({ label: 'Alma de la Forja', value: 1, icon: 'handyman' });
+             breakdown.push({ label: 'Soul of the Forge', value: 1, icon: 'handyman' });
         }
     } else {
-        breakdown.push({ label: 'Base sin armadura', value: 10, icon: 'person' });
-        breakdown.push({ label: 'Destreza', value: dexMod, icon: 'bolt' });
+        breakdown.push({ label: 'Unarmored Base', value: 10, icon: 'person' });
+        breakdown.push({ label: 'Dexterity', value: dexMod, icon: 'bolt' });
 
         if (character.class === 'Barbarian') {
-            breakdown.push({ label: 'Defensa sin Armadura (CON)', value: conMod, icon: 'fitness_center' });
+            breakdown.push({ label: 'Unarmored Defense (CON)', value: conMod, icon: 'fitness_center' });
         } else if (character.class === 'Monk') {
-            breakdown.push({ label: 'Defensa sin Armadura (WIS)', value: wisMod, icon: 'self_improvement' });
+            breakdown.push({ label: 'Unarmored Defense (WIS)', value: wisMod, icon: 'self_improvement' });
         } else if (character.class === 'Sorcerer' && character.subclass === 'Draconic Sorcery') {
-            breakdown.push({ label: 'Resiliencia Dracónica (CHA)', value: chaMod, icon: 'auto_awesome' });
+            breakdown.push({ label: 'Draconic Resilience (CHA)', value: chaMod, icon: 'auto_awesome' });
         }
     }
 
@@ -311,18 +302,18 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
     if (equippedShield) {
         const shieldData = getItemData(equippedShield.name) as ArmorData;
         hasShield = true;
-        breakdown.push({ label: `Escudo: ${equippedShield.name}`, value: shieldData.baseAC, icon: 'shield' });
+        breakdown.push({ label: `Shield: ${equippedShield.name}`, value: shieldData.baseAC, icon: 'shield' });
 
         const shieldBonusMatch = equippedShield.name.match(/\+(\d+)$/);
         if (shieldBonusMatch) {
             const bonus = parseInt(shieldBonusMatch[1]);
-            if (bonus > 0) breakdown.push({ label: `Bono Mágico de Escudo +${bonus}`, value: bonus, icon: 'magic_button' });
+            if (bonus > 0) breakdown.push({ label: `Magic Shield Bonus +${bonus}`, value: bonus, icon: 'magic_button' });
         }
     }
     
     // Warforged Integrated Protection
     if (character.species === 'Warforged') {
-        breakdown.push({ label: 'Protección Integrada', value: 1, icon: 'smart_toy' });
+        breakdown.push({ label: 'Integrated Protection', value: 1, icon: 'smart_toy' });
     }
     
     // Kensei Monk: Agile Parry (Note: Requires unarmed strike attack, assuming active for breakdown display if conditions met)
@@ -332,25 +323,25 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
          // Let's add it only if a weapon is equipped
          const hasWeapon = character.inventory.some(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
          if (hasWeapon) {
-             breakdown.push({ label: 'Parada Ágil (Si atacas sin armas)', value: 2, icon: 'swords' });
+             breakdown.push({ label: 'Agile Parry (When attacking unarmed)', value: 2, icon: 'swords' });
          }
     }
 
     const inventory = character.inventory || [];
     inventory.forEach(item => {
         if (!item.equipped) return;
-        if (item.name === 'Ring of Protection') breakdown.push({ label: 'Anillo de Protección', value: 1, icon: 'auto_awesome' });
-        if (item.name === 'Cloak of Protection') breakdown.push({ label: 'Capa de Protección', value: 1, icon: 'apparel' });
-        if (item.name === 'Stone of Good Luck') breakdown.push({ label: 'Piedra Ioun (Protección)', value: 1, icon: 'diamond' });
+        if (item.name === 'Ring of Protection') breakdown.push({ label: 'Ring of Protection', value: 1, icon: 'auto_awesome' });
+        if (item.name === 'Cloak of Protection') breakdown.push({ label: 'Cloak of Protection', value: 1, icon: 'apparel' });
+        if (item.name === 'Stone of Good Luck') breakdown.push({ label: 'Ioun Stone (Protection)', value: 1, icon: 'diamond' });
         if (item.name === 'Bracers of Defense' && !hasArmor && !hasShield) breakdown.push({ label: 'Bracers of Defense', value: 2, icon: 'security' });
     });
 
     if (character.feats.some(f => f.includes('Defensa') || f.includes('Defense')) && hasArmor) {
-        breakdown.push({ label: 'Estilo: Defensa', value: 1, icon: 'shield_person' });
+        breakdown.push({ label: 'Fighting Style: Defense', value: 1, icon: 'shield_person' });
     }
     if (character.feats.some(f => f === 'Combatiente con dos armas' || f === 'Dual Wielder')) {
         const equippedWeapons = inventory.filter(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
-        if (equippedWeapons.length >= 2) breakdown.push({ label: 'Dote: Doble Empuñadura', value: 1, icon: 'swords' });
+        if (equippedWeapons.length >= 2) breakdown.push({ label: 'Feat: Two-Weapon Fighting', value: 1, icon: 'swords' });
     }
 
     return breakdown;
@@ -359,11 +350,11 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
 export const getInitBreakdown = (character: Character, finalStats: Record<string, number>): StatBreakdownItem[] => {
     const dexMod = getAbilityModifier(finalStats, 'DEX');
     const breakdown: StatBreakdownItem[] = [];
-    breakdown.push({ label: 'Destreza', value: dexMod, icon: 'bolt' });
+    breakdown.push({ label: 'Dexterity', value: dexMod, icon: 'bolt' });
     
     const feats = character.feats || [];
     if (feats.some(f => f.includes('Alerta') || f.includes('Alert'))) {
-        breakdown.push({ label: 'Dote: Alerta', value: character.profBonus, icon: 'notifications_active' });
+        breakdown.push({ label: 'Feat: Alert', value: character.profBonus, icon: 'notifications_active' });
     }
     if (character.subclass === 'Gloom Stalker' && character.level >= 3) {
         const wisMod = getAbilityModifier(finalStats, 'WIS');
@@ -383,11 +374,11 @@ export const getInitBreakdown = (character: Character, finalStats: Record<string
         breakdown.push({ label: 'Harengon (Prof)', value: character.profBonus, icon: 'rabbit' });
     }
     if (character.class === 'Paladin' && character.subclass === 'Oath of the Watchers' && character.level >= 7) {
-        breakdown.push({ label: 'Aura del Centinela (Prof)', value: character.profBonus, icon: 'security' });
+        breakdown.push({ label: "Watcher's Aura (Prof)", value: character.profBonus, icon: 'security' });
     }
 
     if ((character.inventory || []).some(i => i.equipped && i.name === 'Stone of Good Luck')) {
-        breakdown.push({ label: 'Piedra Ioun', value: 1, icon: 'diamond' });
+        breakdown.push({ label: 'Ioun Stone', value: 1, icon: 'diamond' });
     }
     return breakdown;
 };
@@ -419,29 +410,29 @@ export const getSpeedBreakdown = (character: Character, finalStats: Record<strin
             else if (character.level >= 10) monkBonus = 20;
             else if (character.level >= 6) monkBonus = 15;
             else if (character.level >= 2) monkBonus = 10;
-            if (monkBonus > 0) breakdown.push({ label: 'Movimiento sin Armadura', value: monkBonus, icon: 'self_improvement' });
+            if (monkBonus > 0) breakdown.push({ label: 'Unarmored Movement', value: monkBonus, icon: 'self_improvement' });
         }
     }
     
     if (character.class === 'Barbarian' && character.level >= 5) {
         const hasHeavyArmor = character.inventory.some(i => i.equipped && getItemData(i.name)?.type === 'Armor' && (getItemData(i.name) as ArmorData).armorType === 'Heavy');
-        if (!hasHeavyArmor) breakdown.push({ label: 'Movimiento Rápido', value: 10, icon: 'sprint' });
+        if (!hasHeavyArmor) breakdown.push({ label: 'Fast Movement', value: 10, icon: 'sprint' });
     }
     
     if (character.class === 'Rogue' && character.subclass === 'Scout' && character.level >= 9) {
-        breakdown.push({ label: 'Movilidad Superior', value: 10, icon: 'directions_run' });
+        breakdown.push({ label: 'Superior Mobility', value: 10, icon: 'directions_run' });
     }
     
     if (character.class === 'Ranger' && (character.subclass === 'Gloom Stalker' || (character.subclass || '').includes('acechador')) && character.level >= 3) {
-        breakdown.push({ label: 'Dread Ambusher (1er turno)', value: 10, icon: 'visibility_off' });
+        breakdown.push({ label: 'Dread Ambusher (1st turn)', value: 10, icon: 'visibility_off' });
     }
 
     if (character.feats.some(f => f === 'Veloz' || f === 'Mobile' || f === 'Speedy')) {
-        breakdown.push({ label: 'Dote: Veloz', value: 10, icon: 'speed' });
+        breakdown.push({ label: 'Feat: Mobile', value: 10, icon: 'speed' });
     }
     
     if (character.feats.some(f => f.includes('Boon of Speed') || f.includes('Bono de Velocidad'))) {
-        breakdown.push({ label: 'Bono Épico: Velocidad (+30 pies)', value: 30, icon: 'bolt' });
+        breakdown.push({ label: 'Epic Boon: Speed (+30 ft)', value: 30, icon: 'bolt' });
     }
     
     if ((character.inventory || []).some(i => i.equipped && i.name.toLowerCase().includes('boots of speed'))) {
@@ -472,7 +463,7 @@ export const getHPBreakdown = (character: Character, finalStats: Record<string, 
     const breakdown: StatBreakdownItem[] = [];
 
     // 1. Nivel 1
-    breakdown.push({ label: `Base Nivel 1 (d${hitDie})`, value: hitDie, icon: 'looks_one' });
+    breakdown.push({ label: `Base Level 1 (d${hitDie})`, value: hitDie, icon: 'looks_one' });
     
     // 2. Bonificadores explícitos
     let bonusesTotal = 0;
@@ -480,35 +471,35 @@ export const getHPBreakdown = (character: Character, finalStats: Record<string, 
     // Constitución
     const conTotal = conMod * character.level;
     if (conTotal !== 0) {
-        breakdown.push({ label: `Constitución (${formatModifier(conMod)} x ${character.level})`, value: conTotal, icon: 'fitness_center' });
+        breakdown.push({ label: `Constitution (${formatModifier(conMod)} x ${character.level})`, value: conTotal, icon: 'fitness_center' });
         bonusesTotal += conTotal;
     }
 
     // Raza y Subclase
     if (character.species === 'Dwarf') {
-        breakdown.push({ label: 'Resistencia Enana', value: character.level, icon: 'face' });
+        breakdown.push({ label: 'Dwarven Resilience', value: character.level, icon: 'face' });
         bonusesTotal += character.level;
     }
     if (character.class === 'Sorcerer' && character.subclass === 'Draconic Sorcery') {
-        breakdown.push({ label: 'Resiliencia Dracónica', value: character.level, icon: 'auto_awesome' });
+        breakdown.push({ label: 'Draconic Resilience', value: character.level, icon: 'auto_awesome' });
         bonusesTotal += character.level;
     }
 
     // Dotes y Boons
     if (character.feats.some(f => f === 'Duro' || f === 'Tough')) {
-        breakdown.push({ label: 'Dote: Duro (+2 por nivel)', value: character.level * 2, icon: 'military_tech' });
+        breakdown.push({ label: 'Feat: Tough (+2 per level)', value: character.level * 2, icon: 'military_tech' });
         bonusesTotal += (character.level * 2);
     }
     
     if (character.feats.some(f => f.includes('Fortitude') || f.includes('Fortaleza'))) {
-        breakdown.push({ label: 'Bono Épico: Fortaleza (+40 HP)', value: 40, icon: 'shield' });
+        breakdown.push({ label: 'Epic Boon: Fortitude (+40 HP)', value: 40, icon: 'shield' });
         bonusesTotal += 40;
     }
 
     // 3. El resto son los dados de golpe tirados/media para niveles 2+
     const remaining = character.hp.max - hitDie - bonusesTotal;
     if (character.level > 1 && remaining > 0) {
-        breakdown.push({ label: `Dados de Golpe (Lvl 2-${character.level})`, value: remaining, icon: 'casino' });
+        breakdown.push({ label: `Hit Dice (Lvl 2-${character.level})`, value: remaining, icon: 'casino' });
     }
 
     return breakdown;
@@ -641,26 +632,26 @@ export const getSaveBreakdown = (character: Character, stat: Ability, finalStats
     const breakdown: StatBreakdownItem[] = [];
     const mod = getAbilityModifier(finalStats, stat);
     
-    breakdown.push({ label: `Atributo (${stat})`, value: mod, icon: 'fitness_center' });
+    breakdown.push({ label: `Attribute (${stat})`, value: mod, icon: 'fitness_center' });
     
     if (isProficientInSave(character, stat)) {
-        breakdown.push({ label: 'Bono de Competencia', value: character.profBonus, icon: 'school' });
+        breakdown.push({ label: 'Proficiency Bonus', value: character.profBonus, icon: 'school' });
     }
 
     if (character.class === 'Paladin' && character.level >= 6) {
         const chaMod = getAbilityModifier(finalStats, 'CHA');
-        breakdown.push({ label: 'Aura de Protección (CHA)', value: Math.max(1, chaMod), icon: 'shield_person' });
+        breakdown.push({ label: 'Protection Aura (CHA)', value: Math.max(1, chaMod), icon: 'shield_person' });
     }
 
     const inventory = character.inventory || [];
     if (inventory.some(i => i.equipped && i.name.toLowerCase().includes('ring of protection'))) {
-        breakdown.push({ label: 'Anillo de Protección', value: 1, icon: 'auto_awesome' });
+        breakdown.push({ label: 'Ring of Protection', value: 1, icon: 'auto_awesome' });
     }
     if (inventory.some(i => i.equipped && i.name.toLowerCase().includes('cloak of protection'))) {
-        breakdown.push({ label: 'Capa de Protección', value: 1, icon: 'apparel' });
+        breakdown.push({ label: 'Cloak of Protection', value: 1, icon: 'apparel' });
     }
     if (inventory.some(i => i.equipped && i.name.toLowerCase().includes('stone of good luck'))) {
-        breakdown.push({ label: 'Piedra de la Buena Suerte', value: 1, icon: 'diamond' });
+        breakdown.push({ label: 'Stone of Good Luck', value: 1, icon: 'diamond' });
     }
     if (inventory.some(i => i.equipped && i.name.toLowerCase().includes('luck blade'))) {
         breakdown.push({ label: 'Luck Blade', value: 1, icon: 'swords' });

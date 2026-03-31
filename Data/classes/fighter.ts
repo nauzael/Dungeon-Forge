@@ -4,11 +4,11 @@ import { Ability, Skill, DetailData, SubclassData } from '../../types';
 export const fighter = {
   details: { 
     name: 'Fighter', 
-    description: 'Maestros del combate marcial, expertos en todo tipo de armas y armaduras. Son la vanguardia en cualquier campo de batalla.', 
+    description: 'Masters of martial combat, experts in all types of weapons and armor. They are the vanguard on any battlefield.', 
     traits: [
-        { name: 'Fighting Style', description: 'Eliges una dote de Estilo de Combate (Arquero, Defensa, etc.) para especializarte.' }, 
-        { name: 'Second Wind', description: 'Acción Adicional: Recuperas 1d10 + nivel de guerrero HP. Tienes múltiples usos que se recuperan con descansos.' }, 
-        { name: 'Weapon Mastery', description: 'Dominas las propiedades de maestría de tres armas (escala con el nivel).' }
+        { name: 'Fighting Style', description: 'Choose a Fighting Style feat (Archery, Defense, etc.) to specialize.' }, 
+        { name: 'Second Wind', description: 'Bonus action: Recover 1d10 + fighter level HP. You have multiple uses that recover with rests.' }, 
+        { name: 'Weapon Mastery', description: 'You master the mastery properties of three weapons (scales with level).' }
     ] 
   } as DetailData,
   hitDie: 10,
@@ -40,53 +40,53 @@ export const fighter = {
   subclasses: [
     {
         name: 'Battle Master',
-        description: 'Tácticos de élite que usan maniobras marciales.',
+        description: 'Elite tacticians who use martial maneuvers.',
         features: {
             3: [
-                { name: 'Combat Superiority', description: 'Ganas 4 dados de Superioridad (d8) para realizar Maniobras. Eliges 3 maniobras iniciales.' },
-                { name: 'Student of War', description: 'ELEGIR: Ganas competencia en una herramienta de artesano y una habilidad de la lista de guerrero.' }
+                { name: 'Combat Superiority', description: 'You gain 4 Superiority dice (d8) to perform Maneuvers. You choose 3 initial maneuvers.' },
+                { name: 'Student of War', description: 'CHOOSE: Gain proficiency in one artisan tool and one skill from the fighter list.' }
             ],
             7: [
-                { name: 'Know Your Enemy', description: 'BA: Identifica vulnerabilidades/resistencias. Eliges 2 maniobras nuevas.' },
-                { name: 'Additional Superiority Die', description: 'Ganas un dado extra (Total: 5).' }
+                { name: 'Know Your Enemy', description: 'BA: Identify vulnerabilities/resistances. You choose 2 new maneuvers.' },
+                { name: 'Additional Superiority Die', description: 'You gain an extra die (Total: 5).' }
             ],
-            10: [{ name: 'Improved Combat Superiority', description: 'Dados suben a d10. Eliges 2 maniobras nuevas.' }],
+            10: [{ name: 'Improved Combat Superiority', description: 'Dice increase to d10. You choose 2 new maneuvers.' }],
             15: [
-                { name: 'Relentless', description: 'Una vez por turno, usa una maniobra lanzando un d8 sin gastar dado de superioridad.' },
-                { name: 'Additional Superiority Die', description: 'Ganas un dado extra (Total: 6). Eliges 2 maniobras nuevas.' }
+                { name: 'Relentless', description: 'Once per turn, use a maneuver by rolling a d8 without spending a superiority die.' },
+                { name: 'Additional Superiority Die', description: 'You gain an extra die (Total: 6). You choose 2 new maneuvers.' }
             ],
-            18: [{ name: 'Ultimate Combat Superiority', description: 'Dados suben a d12.' }]
+            18: [{ name: 'Ultimate Combat Superiority', description: 'Dice increase to d12.' }]
         }
     },
     {
         name: 'Champion',
-        description: 'La perfección física absoluta del guerrero.',
+        description: 'Absolute physical perfection of the warrior.',
         features: {
             3: [
-                { name: 'Improved Critical', description: 'Impactos críticos con 19 o 20.' },
-                { name: 'Remarkable Athlete', description: 'Ventaja en iniciativa y Atletismo. Tras un crítico, puedes moverte media velocidad sin provocar ataques.' }
+                { name: 'Improved Critical', description: 'Critical hits on 19 or 20.' },
+                { name: 'Remarkable Athlete', description: 'Advantage on initiative and Athletics. After a critical, you can move half your speed without provoking attacks.' }
             ],
-            7: [{ name: 'Additional Fighting Style', description: 'ELEGIR: Ganas una dote adicional de Estilo de Combate.' }],
-            10: [{ name: 'Heroic Warrior', description: 'Ganas Inspiración Heroica automáticamente al inicio de tu turno si no tienes.' }],
-            15: [{ name: 'Superior Critical', description: 'Impactos críticos con 18, 19 o 20.' }],
+            7: [{ name: 'Additional Fighting Style', description: 'CHOOSE: Gain an additional Fighting Style feat.' }],
+            10: [{ name: 'Heroic Warrior', description: 'You automatically gain Heroic Inspiration at the start of your turn if you don\'t have it.' }],
+            15: [{ name: 'Superior Critical', description: 'Critical hits on 18, 19, or 20.' }],
             18: [
-                { name: 'Defy Death', description: 'Ventaja en salvaciones de muerte.' },
-                { name: 'Heroic Rally', description: 'Recuperas HP constante mientras estés por debajo de la mitad de vida.' }
+                { name: 'Defy Death', description: 'Advantage on death saves.' },
+                { name: 'Heroic Rally', description: 'You recover HP constantly while below half health.' }
             ]
         }
     },
     {
         name: 'Eldritch Knight',
-        description: 'Guerreros que tejen acero y magia arcana.',
+        description: 'Warriors who weave steel and arcane magic.',
         features: {
             3: [
-                { name: 'Spellcasting', description: 'MAGIA: Basada en INT (Mago). Sin restricciones de escuela en 2024.' },
-                { name: 'War Bond', description: 'Vincula armas para invocarlas a tu mano como BA.' }
+                { name: 'Spellcasting', description: 'MAGIC: INT-based (Wizard). No school restrictions in 2024.' },
+                { name: 'War Bond', description: 'Bind weapons to summon them to your hand as a BA.' }
             ],
-            7: [{ name: 'War Magic', description: 'Sustituye un ataque por un Truco al usar la acción de Atacar.' }],
-            10: [{ name: 'Eldritch Strike', description: 'Al golpear a un enemigo, este tiene desventaja en su próxima salvación contra un hechizo tuyo.' }],
-            15: [{ name: 'Arcane Charge', description: 'Teletransporte de 30 pies vinculado al uso de Acción Súbita.' }],
-            18: [{ name: 'Improved War Magic', description: 'Sustituye dos ataques por el lanzamiento de un conjuro de nivel 1 o 2.' }]
+            7: [{ name: 'War Magic', description: 'Replace an attack with a cantrip when using the Attack action.' }],
+            10: [{ name: 'Eldritch Strike', description: 'When you hit an enemy, they have disadvantage on their next save against one of your spells.' }],
+            15: [{ name: 'Arcane Charge', description: '30-foot teleport linked to the use of Action Surge.' }],
+            18: [{ name: 'Improved War Magic', description: 'Replace two attacks with casting a spell of level 1 or 2.' }]
         }
     }
   ] as SubclassData[],

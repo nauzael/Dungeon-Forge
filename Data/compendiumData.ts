@@ -12,8 +12,8 @@ export const COMPENDIUM_DATA: CompendiumItem[] = [
     {
         id: 'barbarian-2024',
         category: 'Class',
-        title: 'Bárbaro',
-        content: 'Guerrero imparable de furia primigenia que usa su Rabia para resistir daño y asestar golpes devastadores.',
+        title: 'Barbarian',
+        content: 'Unstoppable warrior of primal fury who uses Rage to resist damage and deal devastating blows.',
         fullInfo: `### Barbarian (2024 Features)
 
 #### Level 1: Rage
@@ -45,8 +45,8 @@ Gain Advantage on Strength-based attacks, but attacks against you have Advantage
     {
         id: 'bard-2024',
         category: 'Class',
-        title: 'Bardo',
-        content: 'Maestro de la música y las palabras que puede inspirar aliados y manipular la realidad con canciones.',
+        title: 'Bard',
+        content: 'Master of music and words who can inspire allies and manipulate reality with songs.',
         fullInfo: `### Bard (2024 Features)
 
 #### Level 1: Bardic Inspiration
@@ -71,8 +71,8 @@ Add half Proficiency Bonus (round down) to any ability check that doesn't use it
     {
         id: 'cleric-2024',
         category: 'Class',
-        title: 'Clérigo',
-        content: 'Agente del poder divino, capaz de sanar, proteger o castigar en nombre de su deidad.',
+        title: 'Cleric',
+        content: 'Agent of divine power, capable of healing, protecting, or punishing in their deity\'s name.',
         fullInfo: `### Cleric (2024 Features)
 
 #### Level 1: Divine Order
@@ -94,8 +94,8 @@ Channel energy from the Outer Planes.
     {
         id: 'druid-2024',
         category: 'Class',
-        title: 'Druida',
-        content: 'Guardián de la naturaleza que maneja poder elemental y se transforma en formas animales.',
+        title: 'Druid',
+        content: 'Guardian of nature who wields elemental power and transforms into animal forms.',
         fullInfo: `### Druid (2024 Features)
 
 #### Level 1: Primal Order
@@ -117,8 +117,8 @@ Magically transform into a Beast form.
     {
         id: 'fighter-2024',
         category: 'Class',
-        title: 'Guerrero',
-        content: 'Especialista en combate y maniobras tácticas, capaz de realizar un gran volumen de ataques.',
+        title: 'Fighter',
+        content: 'Combat specialist skilled in tactical maneuvers, capable of making a high volume of attacks.',
         fullInfo: `### Fighter (2024 Features)
 
 #### Level 1: Fighting Style
@@ -144,8 +144,8 @@ Expend Second Wind to add 1d10 to a failed ability check.`
     {
         id: 'monk-2024',
         category: 'Class',
-        title: 'Monje',
-        content: 'Luchador ágil que canaliza su Foco interno para lograr hazañas físicas increíbles.',
+        title: 'Monk',
+        content: 'Agile fighter who channels internal Focus to achieve incredible physical feats.',
         fullInfo: `### Monk (2024 Features)
 
 #### Level 1: Martial Arts
@@ -168,8 +168,8 @@ Expend Focus points for:
     {
         id: 'paladin-2024',
         category: 'Class',
-        title: 'Paladín',
-        content: 'Guerrero sagrado que combina destreza marcial con magia divina y el poder de un Juramento.',
+        title: 'Paladin',
+        content: 'Sacred warrior who combines martial prowess with divine magic and the power of an Oath.',
         fullInfo: `### Paladin (2024 Features)
 
 #### Level 1: Lay on Hands
@@ -187,8 +187,8 @@ Expend a slot to deal extra Radiant damage (shares space with Divine Smite).`
     {
         id: 'ranger-2024',
         category: 'Class',
-        title: 'Explorador',
-        content: 'Rastreador experto y luchador que usa magia primigenia para cazar a sus presas.',
+        title: 'Ranger',
+        content: 'Expert tracker and hunter who uses primal magic to hunt their prey.',
         fullInfo: `### Ranger (2024 Features)
 
 #### Level 1: Favored Enemy
@@ -210,8 +210,8 @@ Expertise in one skill and learn two extra languages.`
     {
         id: 'rogue-2024',
         category: 'Class',
-        title: 'Pícaro',
-        content: 'Especialista en sigilo que asesta golpes precisos y letales, destacando en múltiples habilidades.',
+        title: 'Rogue',
+        content: 'Stealth specialist who deals precise and lethal blows, excelling in multiple skills.',
         fullInfo: `### Rogue (2024 Features)
 
 #### Level 1: Expertise
@@ -229,8 +229,8 @@ Bonus Action to Dash, Disengage, or Hide.`
     {
         id: 'sorcerer-2024',
         category: 'Class',
-        title: 'Hechicero',
-        content: 'Usuario de magia innata cuyo poder proviene de un linaje o un origen cósmico.',
+        title: 'Sorcerer',
+        content: 'Wielder of innate magic whose power comes from a lineage or cosmic origin.',
         fullInfo: `### Sorcerer (2024 Features)
 
 #### Level 1: Innate Sorcery
@@ -244,8 +244,8 @@ Use Sorcery Points to regain slots or fuel Metamagic choices.`
     {
         id: 'warlock-2024',
         category: 'Class',
-        title: 'Brujo',
-        content: 'Buscador de conocimiento prohibido que hizo un pacto con un patrón poderoso.',
+        title: 'Warlock',
+        content: 'Seeker of forbidden knowledge who made a pact with a powerful patron.',
         fullInfo: `### Warlock (2024 Features)
 
 #### Level 1: Eldritch Invocations
@@ -259,8 +259,8 @@ Magic Action to regain half your Pact slots (once per rest).`
     {
         id: 'wizard-2024',
         category: 'Class',
-        title: 'Mago',
-        content: 'Erudito que domina lo arcano mediante el estudio intenso y su libro de hechizos.',
+        title: 'Wizard',
+        content: 'Scholar who masters the arcane through intense study and their spellbook.',
         fullInfo: `### Wizard (2024 Features)
 
 #### Level 1: Ritual Adept
@@ -278,7 +278,7 @@ Expertise in one knowledge skill (Arcane, History, etc.).`
         id: 'path-of-the-berserker',
         category: 'Subclass',
         title: 'Path of the Berserker (Barbarian)',
-        content: 'Canaliza tu Rabia en furia violenta. Golpea con violencia brutal y sin miedo.',
+        content: 'Channel your Rage into violent fury. Strike with brutal violence and without fear.',
         fullInfo: `### Path of the Berserker
 *Barbarian Subclass*
 
@@ -302,7 +302,7 @@ As a Bonus Action, you can strike terror into others. Each creature of your choi
         id: 'path-of-the-wild-heart',
         category: 'Subclass',
         title: 'Path of the Wild Heart (Barbarian)',
-        content: 'Camina en comunidad con el mundo animal. Habla con bestias y potencia tu Rabia con poder primal.',
+        content: 'Walk in communion with the animal world. Speak with beasts and enhance your Rage with primal power.',
         fullInfo: `### Path of the Wild Heart
 *Barbarian Subclass*
 
@@ -338,7 +338,7 @@ Whenever you activate your Rage, you gain one of the following options:
         id: 'path-of-the-world-tree',
         category: 'Subclass',
         title: 'Path of the World Tree (Barbarian)',
-        content: 'Conecta con el árbol cósmico Yggdrasil. Absorbe la fuerza vital y viaja entre dimensiones.',
+        content: 'Connect with the cosmic tree Yggdrasil. Absorb life force and travel between dimensions.',
         fullInfo: `### Path of the World Tree
 *Barbarian Subclass*
 
@@ -364,7 +364,7 @@ When you activate your Rage and as a Bonus Action while your Rage is active, you
         id: 'path-of-the-zealot',
         category: 'Subclass',
         title: 'Path of the Zealot (Barbarian)',
-        content: 'Unión mística con un dios. Daño divino adicional y forma de guerrero celestial.',
+        content: 'Mystical union with a god. Additional divine damage and celestial warrior form.',
         fullInfo: `### Path of the Zealot
 *Barbarian Subclass*
 
@@ -393,7 +393,7 @@ When you activate your Rage, you can assume the form of a divine warrior for 1 m
         id: 'college-of-dance',
         category: 'Subclass',
         title: 'College of Dance (Bard)',
-        content: 'Las palabras de Creación fluyen a través de movimientos celestialess. Inspiración mística.',
+        content: 'The Words of Creation flow through celestial movements. Mystical inspiration.',
         fullInfo: `### College of Dance
 *Bard Subclass*
 
@@ -417,7 +417,7 @@ When you take the Attack action, you can inspire killing intent in creatures of 
         id: 'college-of-glamour',
         category: 'Subclass',
         title: 'College of Glamour (Bard)',
-        content: 'Magia Fey que encanta y protege. Mantén a tus aliados con luz sobrenatural.',
+        content: 'Fey magic that charms and protects. Keep your allies safe with supernatural light.',
         fullInfo: `### College of Glamour
 *Bard Subclass*
 
@@ -441,7 +441,7 @@ As a Bonus Action, you can become invisible for 1 minute or until you take an ac
         id: 'college-of-lore',
         category: 'Subclass',
         title: 'College of Lore (Bard)',
-        content: 'Colecciona hechizos y secretos de fuentes diversas. Conocimiento arcano supremo.',
+        content: 'Collect spells and secrets from diverse sources. Supreme arcane knowledge.',
         fullInfo: `### College of Lore
 *Bard Subclass*
 
@@ -465,7 +465,7 @@ When you use Cutting Words, you can roll the Bardic Inspiration die twice and us
         id: 'college-of-the-moon',
         category: 'Subclass',
         title: 'College of the Moon (Bard)',
-        content: 'Magia lunar primal. Transforma a tus aliados con luz de luna y protección feérica.',
+        content: 'Primal lunar magic. Transform your allies with moonlight and fey protection.',
         fullInfo: `### College of the Moon
 *Bard Subclass*
 
@@ -489,7 +489,7 @@ While you aren't wearing armor, you can't have the Frightened or Charmed conditi
         id: 'college-of-valor',
         category: 'Subclass',
         title: 'College of Valor (Bard)',
-        content: 'Canta las hazañas de héroes antiguos. Inspira a tus aliados al combate.',
+        content: 'Sing the deeds of ancient heroes. Inspire your allies to combat.',
         fullInfo: `### College of Valor
 *Bard Subclass*
 
@@ -515,7 +515,7 @@ When you give a creature a Bardic Inspiration die, you can also inspire them to 
         id: 'knowledge-domain',
         category: 'Subclass',
         title: 'Knowledge Domain (Cleric)',
-        content: 'Domina secretos arcanos. Lee mentes y accede a información oculta.',
+        content: 'Master arcane secrets. Read minds and access hidden information.',
         fullInfo: `### Knowledge Domain
 *Cleric Subclass*
 
@@ -539,7 +539,7 @@ As a Bonus Action, you can speak with clarity that transcends normal communicati
         id: 'life-domain',
         category: 'Subclass',
         title: 'Life Domain (Cleric)',
-        content: 'Sana heridas y protege la vida. El curandero supremo.',
+        content: 'Heal wounds and protect life. The supreme healer.',
         fullInfo: `### Life Domain
 *Cleric Subclass*
 
@@ -566,7 +566,7 @@ When you would normally roll one or more dice to restore Hit Points with a spell
         id: 'light-domain',
         category: 'Subclass',
         title: 'Light Domain (Cleric)',
-        content: 'Luz brillante que ciega enemigos. Revela verdades ocultas.',
+        content: 'Brilliant light that blinds enemies. Reveals hidden truths.',
         fullInfo: `### Light Domain
 *Cleric Subclass*
 
@@ -593,7 +593,7 @@ As a Bonus Action, you can manifest a crown of radiance that lasts for 1 minute.
         id: 'trickery-domain',
         category: 'Subclass',
         title: 'Trickery Domain (Cleric)',
-        content: 'Engaño, ilusión y sigilo. El trickster divino.',
+        content: 'Deception, illusion, and stealth. The divine trickster.',
         fullInfo: `### Trickery Domain
 *Cleric Subclass*
 
@@ -617,7 +617,7 @@ As a Magic action, you gain Tru暗Sight with a range of 120 feet for 1 hour. In 
         id: 'war-domain',
         category: 'Subclass',
         title: 'War Domain (Cleric)',
-        content: 'Inspiración para la batalla y bendición de arma sobrenatural.',
+        content: 'Inspiration for battle and supernatural weapon blessing.',
         fullInfo: `### War Domain
 *Cleric Subclass*
 
@@ -646,7 +646,7 @@ When you take the Attack action, you can make one additional attack as part of t
         id: 'circle-of-the-land',
         category: 'Subclass',
         title: 'Circle of the Land (Druid)',
-        content: 'Protector del conocimiento natural. Conjuros de niebla y terreno difícil.',
+        content: 'Protector of natural knowledge. Fog spells and difficult terrain.',
         fullInfo: `### Circle of the Land
 *Druid Subclass*
 
@@ -680,7 +680,7 @@ As a Bonus Action, you can cast Locate Creature without expending a spell slot. 
         id: 'circle-of-the-moon',
         category: 'Subclass',
         title: 'Circle of the Moon (Druid)',
-        content: 'Transforma tu forma animal con armadura natural y formas más poderosas.',
+        content: 'Transform your animal form with natural armor and more powerful forms.',
         fullInfo: `### Circle of the Moon
 *Druid Subclass*
 
@@ -716,7 +716,7 @@ You can cast spells that have only Beast or Plant targets while in your Wild Sha
         id: 'circle-of-the-sea',
         category: 'Subclass',
         title: 'Circle of the Sea (Druid)',
-        content: 'Uno con las mareas y tormentas. Vuelo y respiración acuática.',
+        content: 'One with the tides and storms. Flight and water breathing.',
         fullInfo: `### Circle of the Sea
 *Druid Subclass*
 
@@ -753,7 +753,7 @@ As an Action, you summon a wave that crashes forward. Each creature in a 30-foot
         id: 'circle-of-the-stars',
         category: 'Subclass',
         title: 'Circle of the Stars (Druid)',
-        content: 'Usa los secretos de las constelaciones. Arco de estrellas y daño celestial.',
+        content: 'Uses the secrets of the constellations. Starry archer and celestial damage.',
         fullInfo: `### Circle of the Stars
 *Druid Subclass*
 
@@ -788,7 +788,7 @@ Your Constellation abilities are enhanced. The damage or healing of your Archer,
         id: 'battle-master',
         category: 'Subclass',
         title: 'Battle Master (Fighter)',
-        content: 'Maestro del combate táctico. Gana Superiority Dice para maniobras de combate.',
+        content: 'Master of tactical combat. Gains Superiority Dice for combat maneuvers.',
         fullInfo: `### Battle Master
 *Fighter Subclass*
 
@@ -838,7 +838,7 @@ When you roll Initiative, you regain two Superiority Dice.`
         id: 'champion',
         category: 'Subclass',
         title: 'Champion (Fighter)',
-        content: 'Superviviente supreme. Críticos mejorado y competencias ampliado.',
+        content: 'Supreme survivor. Improved crits and expanded proficiencies.',
         fullInfo: `### Champion
 *Fighter Subclass*
 
@@ -868,7 +868,7 @@ When you score a Critical Hit, you roll additional damage dice equal to your Pro
         id: 'eldritch-knight',
         category: 'Subclass',
         title: 'Eldritch Knight (Fighter)',
-        content: 'Combina magia de evocation con combate. Lanza hechizos de daño con arma en mano.',
+        content: 'Combines evocation magic with combat. Cast damage spells with weapon in hand.',
         fullInfo: `### Eldritch Knight
 *Fighter Subclass*
 
@@ -900,7 +900,7 @@ As a Bonus Action, you can spend 3 sorcery points to become Invisible until the 
         id: 'ascendant-dragon',
         category: 'Subclass',
         title: 'Ascendant Dragon (Monk)',
-        content: 'Canaliza el poder dracónico. Alas, aliento y daño elemental.',
+        content: 'Channels draconic power. Wings, breath, and elemental damage.',
         fullInfo: `### Ascendant Dragon
 *Monk Subclass*
 
@@ -1023,7 +1023,7 @@ You can spend 5 ki points to cast an 8th-level spell from the ElementalEvocation
         id: 'oath-of-devotion',
         category: 'Subclass',
         title: 'Oath of Devotion (Paladin)',
-        content: 'Virtud y justicia absoluta. Protección contra el mal y aura de devoción.',
+        content: 'Virtue and absolute justice. Protection against evil and aura of devotion.',
         fullInfo: `### Oath of Devotion
 *Paladin Subclass*
 
@@ -1133,7 +1133,7 @@ As a Bonus Action, you gain a flying speed equal to your current speed for 1 min
         id: 'beast-master',
         category: 'Subclass',
         title: 'Beast Master (Ranger)',
-        content: 'Vínculo místico con una bestia primal que actúa en combate.',
+        content: 'Mystic bond with a primal beast that acts in combat.',
         fullInfo: `### Beast Master
 *Ranger Subclass*
 
@@ -1169,7 +1169,7 @@ When your Primal Companion drops to 0 Hit Points, you can heal it as a Bonus Act
         id: 'fey-wanderer',
         category: 'Subclass',
         title: 'Fey Wanderer (Ranger)',
-        content: 'Caminante del reino feérico. Hechizos de encanto y daño feérico.',
+        content: 'Walker of the fey realm. Charm spells and fey damage.',
         fullInfo: `### Fey Wanderer
 *Ranger Subclass*
 
@@ -1238,7 +1238,7 @@ When you deal damage to a creature, you can deal additional Psychic damage equal
         id: 'hunter',
         category: 'Subclass',
         title: 'Hunter (Ranger)',
-        content: 'Cazador consumado. Selecciona tácticas contra diferentes presas.',
+        content: 'Consummate hunter. Selects tactics against different prey.',
         fullInfo: `### Hunter
 *Ranger Subclass*
 
@@ -1284,7 +1284,7 @@ You gain one of the following abilities of your choice:
         id: 'winter-walker',
         category: 'Subclass',
         title: 'Winter Walker (Ranger)',
-        content: 'Caminante del frío. Escarcha, suelo helado y teletransporte.',
+        content: 'Cold walker. Frost, frozen ground, and teleport.',
         fullInfo: `### Winter Walker
 *Ranger Subclass*
 
@@ -1319,7 +1319,7 @@ As an Action, you can summon a blizzard that surrounds you for 1 minute. Creatur
         id: 'arcane-trickster',
         category: 'Subclass',
         title: 'Arcane Trickster (Rogue)',
-        content: 'Ladrón con magia de ilusión.仆欺骗和潜伏的大师。',
+        content: 'Rogue with illusion magic. Master of deception and stealth.',
         fullInfo: `### Arcane Trickster
 *Rogue Subclass*
 
@@ -1346,7 +1346,7 @@ When you cast a spell of level 1 or higher, you can gain temporary hit points eq
         id: 'assassin',
         category: 'Subclass',
         title: 'Assassin (Rogue)',
-        content: 'Maestro del asesinato. Attake sorpresa y muerte instantánea.',
+        content: 'Assassination master. Surprise attack and instant death.',
         fullInfo: `### Assassin
 *Rogue Subclass*
 
@@ -1373,7 +1373,7 @@ When you deal damage to a creature that is surprised, you can deal additional da
         id: 'thief',
         category: 'Subclass',
         title: 'Thief (Rogue)',
-        content: 'Ladrón habilidoso. Usa objetos rápidamente y trepa con velocidad.',
+        content: 'Skilled thief. Uses objects quickly and climbs with speed.',
         fullInfo: `### Thief
 *Rogue Subclass*
 
@@ -1402,7 +1402,7 @@ You can take a second turn during the first round of combat, but you can only us
         id: 'aberrant-mind',
         category: 'Subclass',
         title: 'Aberrant Mind (Sorcerer)',
-        content: 'Poder psíquico del caos. Telepatía, daño psiónico y encanto.',
+        content: 'Psychic power of chaos. Telepathy, psionic damage and charm.',
         fullInfo: `### Aberrant Mind
 *Sorcerer Subclass*
 
@@ -1429,7 +1429,7 @@ You can cast Reality Break without expending a spell slot. You can do so once pe
         id: 'clockwork-soul',
         category: 'Subclass',
         title: 'Clockwork Soul (Sorcerer)',
-        content: 'Magia del orden mecánico. Restaura el orden y neutraliza efectos.',
+        content: 'Mechanical order magic. Restores order and neutralizes effects.',
         fullInfo: `### Clockwork Soul
 *Sorcerer Subclass*
 
@@ -1464,7 +1464,7 @@ You can cast Greater Restoration, Heal, or Teleportation Circle without expendin
         id: 'draconic',
         category: 'Subclass',
         title: 'Draconic (Sorcerer)',
-        content: 'Linaje dracónico. Escamas reforzadas y daño elemental adicional.',
+        content: 'Draconic lineage. Reinforced scales and additional elemental damage.',
         fullInfo: `### Draconic
 *Sorcerer Subclass*
 
@@ -1504,7 +1504,7 @@ As an Action, you can emanate dread for 1 minute. Creatures of your choice withi
         id: 'wild-magic',
         category: 'Subclass',
         title: 'Wild Magic (Sorcerer)',
-        content: 'Magia caótica. Produce efectos selvagens e imprevisibles.',
+        content: 'Chaotic magic. Produces wild and unpredictable effects.',
         fullInfo: `### Wild Magic
 *Sorcerer Subclass*
 
@@ -1533,7 +1533,7 @@ You can cast any spell of level 8 or lower without expending a spell slot. Once 
         id: 'archfey',
         category: 'Subclass',
         title: 'Archfey (Warlock)',
-        content: 'Patrón feérico. Engaño, teletransporte y dominio de la mente.',
+        content: 'Fey patron. Deception, teleportation and mind control.',
         fullInfo: `### Archfey
 *Warlock Subclass*
 
@@ -1566,7 +1566,7 @@ As an Action, you can cause a creature to have the Charmed or Frightened conditi
         id: 'fiend',
         category: 'Subclass',
         title: 'Fiend (Warlock)',
-        content: 'Patrón infernal. Daño adicional al reducir enemigos y puntos de vida temporales.',
+        content: 'Infernal patron. Additional damage when reducing enemies and temporary hit points.',
         fullInfo: `### Fiend
 *Warlock Subclass*
 
@@ -1599,7 +1599,7 @@ When you deal damage to a creature, you can deal additional damage equal to your
         id: 'great-old-one',
         category: 'Subclass',
         title: 'Great Old One (Warlock)',
-        content: 'Patrón del cosmos. Comunicación telepática y daño psíquico.',
+        content: 'Cosmic patron. Telepathic communication and psychic damage.',
         fullInfo: `### Great Old One
 *Warlock Subclass*
 
@@ -1632,7 +1632,7 @@ As an Action, you can touch an incapacitated Humanoid. The target has the Stunne
         id: 'hexblade',
         category: 'Subclass',
         title: 'Hexblade (Warlock)',
-        content: 'Patrón dearma sombría. Ataque con arma给你的诅咒。',
+        content: 'Shadow weapon patron. Weapon attack with curse.',
         fullInfo: `### Hexblade
 *Warlock Subclass*
 
@@ -1673,7 +1673,7 @@ When a creature marked by your Hexblade's Curse takes damage, you can deal addit
         id: 'school-of-abjuration',
         category: 'Subclass',
         title: 'School of Abjuration (Wizard)',
-        content: 'Escuela de abjuración. Salud reforzada y contrahechizos.',
+        content: 'School of abjuration. Reinforced health and counterspells.',
         fullInfo: `### School of Abjuration
 *Wizard Subclass*
 
@@ -1703,7 +1703,7 @@ When you cast an Abjuration spell, you gain Temporary Hit Points equal to your I
         id: 'school-of-divination',
         category: 'Subclass',
         title: 'School of Divination (Wizard)',
-        content: 'Escuela de adivinación. Predice el futuro y refuerza tus tiradas.',
+        content: 'School of divination. Predicts the future and reinforces your rolls.',
         fullInfo: `### School of Divination
 *Wizard Subclass*
 
@@ -1736,7 +1736,7 @@ You can roll three d20s instead of two when you use your Portent feature.`
         id: 'school-of-evocation',
         category: 'Subclass',
         title: 'School of Evocation (Wizard)',
-        content: 'Escuela de evocación. Daño elemental máximo y área de efecto potenciada.',
+        content: 'School of evocation. Maximum elemental damage and enhanced area of effect.',
         fullInfo: `### School of Evocation
 *Wizard Subclass*
 
@@ -1766,7 +1766,7 @@ When you cast a Wizard spell of level 1-5 that deals damage, you can deal maximu
         id: 'school-of-illusion',
         category: 'Subclass',
         title: 'School of Illusion (Wizard)',
-        content: 'Escuela de ilusión. Ilusiones realistas y invisibilidad mejorada.',
+        content: 'School of illusion. Realistic illusions and improved invisibility.',
         fullInfo: `### School of Illusion
 *Wizard Subclass*
 
@@ -1798,53 +1798,53 @@ When you cast an Illusion spell of level 1 or higher, you can make one object or
         id: 'aasimar',
         category: 'Species',
         title: 'Aasimar',
-        content: 'Mortales con una chispa del Plano Celestial. Luz divina, sanación y furia celestial.',
+        content: 'Mortals with a spark of the Celestial Plane. Divine light, healing, and celestial fury.',
         fullInfo: `### Aasimar (Player's Handbook)
 
 **Source:** Player's Handbook
 
-**Descripción:** Los Aasimar (pronunciado AH-sih-mar) son mortales que llevan una chispa de los Planos Superiores en sus almas. Ya sean descendientes de un ser angelical o infundidos con poder celestial, pueden encender esa chispa para aportar luz, sanación y furia celestial. Los Aasimar se parecen a sus padres, pero viven hasta 160 años y tienen características que revelan su herencia celestial: pecas metálicas, ojos luminosos, un halo o el color de piel de un ángel (plata, verde opalino o cobrizo).
+**Description:** Aasimar (pronounced AH-sih-mar) are mortals who carry a spark of the Upper Planes in their souls. Whether descended from an angelic being or infused with celestial power, they can ignite that spark to bring forth light, healing, and celestial fury. Aasimar resemble their parentage but live up to 160 years and have features that reveal their celestial heritage: metallic freckles, luminous eyes, a halo, or skin the color of an angel (silver, opal-green, or copper).
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Medium (4-7 feet) or Small (2-4 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Celestial Resistance.** Tienes Resistencia al daño Necrótico y Radiante.
+**Celestial Resistance.** You have Resistance to Necrotic and Radiant damage.
 
-**Darkvision.** Tienes Visión en la Oscuridad a 60 pies.
+**Darkvision.** You have Darkvision out to 60 feet.
 
-**Healing Hands.** Como Acción Mágica, tocas a una criatura y lanzas un número de d4s igual a tu Bono de Competencia. La criatura recupera Puntos de Golpe iguales al total. Una vez usado, no puedes usarlo hasta terminar un Descanso Largo.
+**Healing Hands.** As a Magic Action, you touch a creature and roll a number of d4s equal to your Proficiency Bonus. The creature regains Hit Points equal to the total. Once used, you can't use this again until you finish a Long Rest.
 
-**Light Bearer.** Conoces el truco Light. Charisma es tu característica para lanzar hechizos.
+**Light Bearer.** You know the Light cantrip. Charisma is your spellcasting ability for it.
 
-**Celestial Revelation.** Al alcanzar nivel 3, puedes transformarte como Acción Adicional eligiendo una opción (dura 1 minuto, hasta 2 veces por Descanso Largo):
+**Celestial Revelation.** At level 3, you can transform as a Bonus Action choosing an option (lasts 1 minute, up to twice per Long Rest):
 
-- **Heavenly Wings.** Alas espectrales y Velocidad de Vuelo igual a tu Velocidad.
-- **Inner Radiance.** Luz brillante (10 pies) y daño Radiante adicional a criaturas cercanas.
-- **Necrotic Shroud.** Alas sin vuelo, miedo a criaturas cercanas (CD 8+Carisma+Competencia).`
+- **Heavenly Wings.** Spectral wings and Flight Speed equal to your Speed.
+- **Inner Radiance.** Bright light (10 feet) and extra Radiant damage to nearby creatures.
+- **Necrotic Shroud.** Wings without flight, fear to nearby creatures (DC 8+Charisma+Proficiency).`
     },
     {
         id: 'dragonborn',
         category: 'Species',
-        title: 'Dracónido',
-        content: 'Ancestros dragón. Aliento letal, resistencia elemental y vuelo dracónico.',
+        title: 'Dragonborn',
+        content: 'Dragon ancestors. Lethal breath, elemental resistance, and draconic flight.',
         fullInfo: `### Dragonborn (Player's Handbook)
 
 **Source:** Player's Handbook
 
-**Descripción:** Los ancestros de los dragonborn nacieron de los huevos de dragones cromáticos y metálicos. Una historia dice que estos huevos fueron bendecidos por los dioses dragón Bahamut y Tiamat. Otra dice que los dragones crearon a los primeros dragonborn sin bendiciones divinas. Los dragonborn parecen dragones bípedos sin alas: escamosos, ojos brillantes y huesos gruesos con cuernos en la cabeza.
+**Description:** The ancestors of dragonborn hatched from the eggs of chromatic and metallic dragons. One story says these eggs were blessed by the dragon gods Bahamut and Tiamat. Another says dragons created the first dragonborn without divine blessings. Dragonborn resemble bipedal dragons without wings: scaly, bright-eyed, and thick-boned with horns on their heads.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (5-7 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Medium (5-7 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Draconic Ancestry.** Elige un tipo de dragón que afecta tu Aliento, Resistencia y apariencia:
+**Draconic Ancestry.** Choose a dragon type that affects your Breath, Resistance, and appearance:
 
-| Dragón | Tipo de Daño |
+| Dragon | Damage Type |
 |--------|-------------|
 | Black | Acid |
 | Blue | Lightning |
@@ -1857,230 +1857,230 @@ When you cast an Illusion spell of level 1 or higher, you can make one object or
 | Silver | Cold |
 | White | Cold |
 
-**Breath Weapon.** Como parte de la Acción de Atacar, puedes reemplazar un ataque con una exhalación de energía en un Cono de 15 pies o una Línea de 30 pies (elige cada vez). DC 8+Constitución+Competencia. Daño 1d10 (escala a 2d10/3d10/4d10 en niveles 5/11/17). Usos: Bono de Competencia por Descanso Largo.
+**Breath Weapon.** As part of the Attack Action, you can replace one attack with a breath of energy in a 15-foot Cone or a 30-foot Line (your choice each time). DC 8+Constitution+Proficiency. Damage 1d10 (scales to 2d10/3d10/4d10 at levels 5/11/17). Uses: Proficiency Bonus per Long Rest.
 
-**Damage Resistance.** Resistencia al tipo de daño de tu ancestro dracónico.
+**Damage Resistance.** Resistance to the damage type of your draconic ancestor.
 
-**Darkvision.** 60 pies.
+**Darkvision.** 60 feet.
 
-**Draconic Flight.** Al alcanzar nivel 5, como Acción Adicional ganas Vuelo igual a tu Velocidad por 10 minutos (1 uso por Descanso Largo).`
+**Draconic Flight.** At level 5, as a Bonus Action you gain Flight equal to your Speed for 10 minutes (1 use per Long Rest).`
     },
     {
         id: 'dwarf',
         category: 'Species',
-        title: 'Enano',
-        content: 'Pueblo de las montañas, resistencia al veneno y detección de piedra.',
+        title: 'Dwarf',
+        content: 'Mountain folk, poison resistance, and stone detection.',
         fullInfo: `### Dwarf (Player's Handbook)
 
 **Source:** Player's Handbook
 
-**Descripción:** Los enanos fueron creados de la tierra por un dios de la forja. Llamados de varias formas en diferentes mundos (Moradin, Reorx), ese dios les dio afinidad por la piedra, el metal y la vida subterránea. Los enanos son resilientes como las montañas, con una vida útil de unos 350 años. Los más antiguos cuentan leyendas de conflictos con monstruos de montañas y el Subsuelo.
+**Description:** Dwarves were created from the earth by a god of the forge. Called by various names in different worlds (Moradin, Reorx), that god gave them affinity for stone, metal, and underground life. Dwarves are resilient as the mountains, with a lifespan of about 350 years. The eldest tell legends of conflicts with monsters of the mountains and the Underdark.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (4-5 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Medium (4-5 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Darkvision.** 120 pies.
+**Darkvision.** 120 feet.
 
-**Dwarven Resilience.** Resistencia al daño por Veneno. Ventaja en tiradas de salvación para evitar o terminar la condición Envenenado.
+**Dwarven Resilience.** Resistance to Poison damage. Advantage on saving throws to avoid or end the Poisoned condition.
 
-**Dwarven Toughness.** Tu HP máximo aumenta en 1, y aumenta en 1 adicional cada vez que ganas un nivel.
+**Dwarven Toughness.** Your maximum HP increases by 1, and it increases by 1 additional each time you gain a level.
 
-**Stonecunning.** Como Acción Adicional, ganas Tremorsense a 60 pies por 10 minutos (debes estar en contacto con piedra). Usos: Bono de Competencia por Descanso Largo.`
+**Stonecunning.** As a Bonus Action, you gain Tremorsense out to 60 feet for 10 minutes (you must be in contact with stone). Uses: Proficiency Bonus per Long Rest.`
     },
     {
         id: 'elf',
         category: 'Species',
-        title: 'Elfo',
-        content: 'Pueblo feérico, longevo, trance en 4 horas y linajes mágicos.',
+        title: 'Elf',
+        content: 'Fey folk, long-lived, 4-hour trance, and magical lineages.',
         fullInfo: `### Elf (Player's Handbook)
 
 **Source:** Player's Handbook
 
-**Descripción:** Creados por el dios Corellon, los primeros elfos podían cambiar su forma a voluntad. Perdieron esta habilidad cuando Corellon los maldijo por conspirar con la deidad Lolth. Cuando Lolth fue arrojada al Abismo, la mayoría de los elfos renunciaron a ella y merecieron el perdón de Corellon. Los elfos tienen orejas puntiagudas y carecen de vello facial y corporal. Viven unos 750 años y no duermen sino que entran en trance.
+**Description:** Created by the god Corellon, the first elves could change their form at will. They lost this ability when Corellon cursed them for conspiring with the deity Lolth. When Lolth was thrown into the Abyss, most elves renounced her and earned Corellon's forgiveness. Elves have pointed ears and lack facial and body hair. They live about 750 years and don't sleep but enter a trance.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (5-6 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Medium (5-6 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Darkvision.** 60 pies.
+**Darkvision.** 60 feet.
 
-**Elven Lineage.** Elige un linaje sobrenatural con magia específica:
+**Elven Lineage.** Choose a supernatural lineage with specific magic:
 
-| Linaje | Nivel 1 | Nivel 3 | Nivel 5 |
-|--------|---------|---------|---------|
-| Drow | Visión en Oscuridad 120 pies, Prestidigitation | Faerie Fire | Darkness |
-| High Elf | Prestidigitation (puede cambiarse) | Detect Magic | Misty Step |
-| Wood Elf | Velocidad 35 pies, Druidcraft | Longstrider | Pass without Trace |
-| Lorwyn Elf | Thorn Whip (puede cambiarse) | Command | Silence |
-| Shadowmoor Elf | Visión en Oscuridad 120 pies, Starry Wisp | Heroism | Gentle Repose |
+| Lineage | Level 1 | Level 3 | Level 5 |
+|---------|---------|---------|---------|
+| Drow | Darkvision 120 feet, Prestidigitation | Faerie Fire | Darkness |
+| High Elf | Prestidigitation (can change) | Detect Magic | Misty Step |
+| Wood Elf | Speed 35 feet, Druidcraft | Longstrider | Pass without Trace |
+| Lorwyn Elf | Thorn Whip (can change) | Command | Silence |
+| Shadowmoor Elf | Darkvision 120 feet, Starry Wisp | Heroism | Gentle Repose |
 
-**Fey Ancestry.** Ventaja en tiradas de salvación para evitar o terminar la condición Encantado.
+**Fey Ancestry.** Advantage on saving throws to avoid or end the Charmed condition.
 
-**Keen Senses.** Competencia en una habilidad: Insight, Perception o Survival.
+**Keen Senses.** Proficiency in one skill: Insight, Perception, or Survival.
 
-**Trance.** No necesitas dormir. Puedes terminar un Descanso Largo en 4 horas de meditación.`
+**Trance.** You don't need to sleep. You can finish a Long Rest in 4 hours of meditation.`
     },
     {
         id: 'gnome',
         category: 'Species',
-        title: 'Gnomo',
-        content: 'Pequeños pero ingeniosos, magia innata y defensas mentales superiores.',
+        title: 'Gnome',
+        content: 'Small but ingenious, innate magic, and superior mental defenses.',
         fullInfo: `### Gnome (Player's Handbook)
 
 **Source:** Player's Handbook
 
-**Descripción:** Los gnomos son seres mágicos creados por dioses de la invención, ilusiones y vida subterránea. Las primeras comunidades gnomas rara vez eran vistas debido a su naturaleza secreta. Lo que les faltaba en tamaño, lo compensaban con ingenio. Viven alrededor de 425 años.
+**Description:** Gnomes are magical beings created by gods of invention, illusions, and underground life. The first gnome communities were rarely seen due to their secretive nature. What they lacked in size, they made up for with ingenuity. They live around 425 years.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Small (3-4 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Small (3-4 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Darkvision.** 60 pies.
+**Darkvision.** 60 feet.
 
-**Gnomish Cunning.** Ventaja en tiradas de salvación de Inteligencia, Sabiduría y Carisma.
+**Gnomish Cunning.** Advantage on Intelligence, Wisdom, and Charisma saving throws.
 
-**Gnomish Lineage.** Elige un linaje sobrenatural:
+**Gnomish Lineage.** Choose a supernatural lineage:
 
-**Forest Gnome.** Conoces Minor Illusion. Siempre tienes Speak with Animals preparado (Bono de Competencia usos por Descanso Largo).
+**Forest Gnome.** You know Minor Illusion. You always have Speak with Animals prepared (Proficiency Bonus uses per Long Rest).
 
-**Rock Gnome.** Conoces Mending y Prestidigitation. Puedes gastar 10 minutos para crear un dispositivo clockwork diminuto (AC 5, 1 HP) con efecto de Prestidigitation. Máximo 3 dispositivos simultáneos.`
+**Rock Gnome.** You know Mending and Prestidigitation. You can spend 10 minutes to create a tiny clockwork device (AC 5, 1 HP) with a Prestidigitation effect. Maximum 3 devices at once.`
     },
     {
         id: 'goliath',
         category: 'Species',
-        title: 'Goliat',
-        content: 'Descendientes de gigantes, fuerza ancestral y capacidad de volverse Large.',
+        title: 'Goliath',
+        content: 'Giant descendants, ancestral strength, and ability to become Large.',
         fullInfo: `### Goliath (Player's Handbook)
 
 **Source:** Player's Handbook
 
-**Descripción:** Los goliaths dominan sobre la mayoría, siendo descendientes distantes de gigantes. Cada goliat porta los favores de los primeros gigantes que se manifiestan en varios beneficios sobrenaturales, incluyendo la habilidad de crecer rápidamente y aproximarse temporalmente a la altura de sus parientes gigantes.
+**Description:** Goliaths dominate over most, being distant descendants of giants. Each goliath carries the favors of the first giants manifested in various supernatural benefits, including the ability to grow quickly and temporarily approach the height of their giant relatives.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (7-8 pies)
-**Velocidad:** 35 pies
+**Creature Type:** Humanoid
+**Size:** Medium (7-8 feet)
+**Speed:** 35 feet
 
 #### Traits
 
-**Giant Ancestry.** Elige un beneficio de gigante (Bono de Competencia usos por Descanso Largo):
+**Giant Ancestry.** Choose a giant benefit (Proficiency Bonus uses per Long Rest):
 
-- **Cloud's Jaunt (Cloud Giant).** Como Acción Adicional, teletransporte de 30 pies.
-- **Fire's Burn (Fire Giant).** +1d10 daño Fire al golpear.
-- **Frost's Chill (Frost Giant).** +1d6 Cold y reducir velocidad 10 pies.
-- **Hill's Tumble (Hill Giant).** Otorgar Prone a criaturas Large o menores.
-- **Stone's Endurance (Stone Giant).** Reacción: 1d12+Constitución para reducir daño.
-- **Storm's Thunder (Storm Giant).** Reacción: 1d8 Thunder a criatura que te dañó.
+- **Cloud's Jaunt (Cloud Giant).** As a Bonus Action, teleport 30 feet.
+- **Fire's Burn (Fire Giant).** +1d10 Fire damage when you hit.
+- **Frost's Chill (Frost Giant).** +1d6 Cold and reduce speed by 10 feet.
+- **Hill's Tumble (Hill Giant).** Grant Prone to Large or smaller creatures.
+- **Stone's Endurance (Stone Giant).** Reaction: 1d12+Constitution to reduce damage.
+- **Storm's Thunder (Storm Giant).** Reaction: 1d8 Thunder to creature that damaged you.
 
-**Large Form.** Al alcanzar nivel 5, como Acción Adicional vuélvete Large (ventaja en Fuerza, +10 pies velocidad). Dura 10 minutos. 1 uso por Descanso Largo.
+**Large Form.** At level 5, as a Bonus Action become Large (advantage on Strength, +10 feet speed). Lasts 10 minutes. 1 use per Long Rest.
 
-**Powerful Build.** Ventaja para terminar condiciones Grappled. Cuentas como una categoría de tamaño mayor para capacidad de carga.`
+**Powerful Build.** Advantage to end Grappled conditions. You count as one size larger for carrying capacity.`
     },
     {
         id: 'halfling',
         category: 'Species',
-        title: 'Mediano',
-        content: 'Alegre y afortunado, reroll de 1s y capacidad de esconderse detrás de criaturas.',
+        title: 'Halfling',
+        content: 'Cheerful and lucky, reroll 1s, and ability to hide behind creatures.',
         fullInfo: `### Halfling (Player's Handbook)
 
 **Source:** Player's Handbook
 
-**Descripción:** Queridos y guiados por dioses que valoran la vida, el hogar y el hearth, los medianos gravitan hacia refugios bucólicos donde la familia y la comunidad dan forma a sus vidas. Muchos medianos poseen un espíritu aventurero que los lleva a explorar mundos más grandes. Su tamaño similar al de un niño humano les ayuda a pasar desapercibidos.
+**Description:** Beloved and guided by gods who value life, home, and hearth, halflings gravitate toward bucolic refuges where family and community shape their lives. Many halflings possess an adventurous spirit that leads them to explore larger worlds. Their size similar to a human child helps them go unnoticed.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Small (2-3 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Small (2-3 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Brave.** Ventaja en tiradas de salvación para evitar la condición Asustado.
+**Brave.** Advantage on saving throws to avoid the Frightened condition.
 
-**Halfling Nimbleness.** Puedes moverte a través del espacio de cualquier criatura de tamaño una categoría mayor que la tuya.
+**Halfling Nimbleness.** You can move through the space of any creature that is one size larger than you.
 
-**Luck.** Cuando tiras 1 en un d20 de una Prueba d20, puedes rerrollear el dado y usar el nuevo resultado.
+**Luck.** When you roll a 1 on a d20 for a Test, you can reroll the die and must use the new result.
 
-**Naturally Stealthy.** Puedes tomar la acción de Esconderse incluso cuando estás obscured solo por una criatura al menos una categoría de tamaño mayor.`
+**Naturally Stealthy.** You can take the Hide action even when you are obscured only by a creature at least one size larger than you.`
     },
-    {
+{
         id: 'human',
         category: 'Species',
-        title: 'Humano',
-        content: 'Versátiles y ambiciosos, fuente de inspiración y adaptabilidad.',
+        title: 'Human',
+        content: 'Versatile and ambitious, source of inspiration and adaptability.',
         fullInfo: `### Human (Player's Handbook)
 
 **Source:** Player's Handbook
 
-**Descripción:** Encontrados en todo el multiverso, los humanos son tan variados como numerosos y se esforzan por lograr tanto como puedan en los años que se les dan. Su ambición e ingenio son alabados, respetados y temidos en muchos mundos.
+**Description:** Found throughout the multiverse, humans are as varied as they are numerous and strive to accomplish as much as they can in the years given to them. Their ambition and ingenuity are praised, respected, and feared on many worlds.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (4-7 pies) o Small (2-4 pies), elegido al seleccionar esta especie
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Medium (4-7 feet) or Small (2-4 feet), chosen when selecting this species
+**Speed:** 30 feet
 
 #### Traits
 
-**Resourceful.** Ganas Inspiración Heroica siempre que terminas un Descanso Largo.
+**Resourceful.** You gain Heroic Inspiration whenever you finish a Long Rest.
 
-**Skillful.** Ganas competencia en una habilidad de tu elección.
+**Skillful.** You gain proficiency in one skill of your choice.
 
-**Versatile.** Ganas una Dote de Origen de tu elección.`
+**Versatile.** You gain one Origin Feat of your choice.`
     },
     {
         id: 'orc',
         category: 'Species',
-        title: 'Orco',
-        content: 'Supervivientes implacables con impulso de adrenalina y resistencia inquebrantable.',
+        title: 'Orc',
+        content: 'Relentless survivors with adrenaline rush and unbreakable endurance.',
         fullInfo: `### Orc (Player's Handbook)
 
 **Source:** Player's Handbook
 
-**Descripción:** Los orcos trazan su creación hasta Gruumsh, un dios poderoso que equipó a sus hijos con dones para vagar por llanuras, vastas cavernas y mares turbulentos y enfrentar a los monstruos que acechan allí. Los orcos son altos y fornidos en promedio, con piel gris, orejas puntiagudas y colmillos inferiores prominentes. Conservan los dones de Gruumsh: resistencia, determinación y la habilidad de ver en la oscuridad.
+**Description:** Orcs trace their creation to Gruumsh, a powerful god who equipped his children with gifts to wander plains, vast caverns, and turbulent seas and face the monsters that lurk there. Orcs are tall and stout on average, with gray skin, pointed ears, and prominent lower tusks. They retain Gruumsh's gifts: resilience, determination, and the ability to see in the dark.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (6-7 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Medium (6-7 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Adrenaline Rush.** Puedes tomar la acción de Dash como Acción Adicional. Cuando lo haces, ganas Puntos de Golpe Temporales iguales a tu Bono de Competencia. Usos: Bono de Competencia por Descanso Corto o Largo.
+**Adrenaline Rush.** You can take the Dash action as a Bonus Action. When you do, you gain Temporary Hit Points equal to your Proficiency Bonus. Uses: Proficiency Bonus per Short or Long Rest.
 
-**Darkvision.** 120 pies.
+**Darkvision.** 120 feet.
 
-**Relentless Endurance.** Cuando se te reduce a 0 PG pero no mueres instantáneamente, puedes caer a 1 PG en su lugar. Una vez usado, no puedes usarlo hasta terminar un Descanso Largo.`
+**Relentless Endurance.** When you are reduced to 0 HP but don't die instantly, you can drop to 1 HP instead. Once used, you can't use it again until you finish a Long Rest.`
     },
     {
         id: 'tiefling',
         category: 'Species',
-        title: 'Tiflin',
-        content: 'Legado infernal con magia innata y presencia sobrenatural.',
+        title: 'Tiefling',
+        content: 'Infernal legacy with innate magic and supernatural presence.',
         fullInfo: `### Tiefling (Player's Handbook)
 
 **Source:** Player's Handbook
 
-**Descripción:** Los tieflings nacen en los Planos Inferiores o tienen ancestros infernales. Un tiefling está vinculado por sangre a un diablo, demonio u otro Demonio. Esta conexión es el legado infernal del tiefling, que viene con la promesa de poder pero no afecta su inclinación moral.
+**Description:** Tiefling are born in the Lower Planes or have infernal ancestors. A tiefling is blood-linked to a devil, demon, or other Demon. This connection is the tiefling's infernal legacy, which comes with the promise of power but doesn't affect their moral inclination.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (4-7 pies) o Small (3-4 pies), elegido al seleccionar
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Medium (4-7 feet) or Small (3-4 feet), chosen when selecting
+**Speed:** 30 feet
 
 #### Traits
 
-**Darkvision.** 60 pies.
+**Darkvision.** 60 feet.
 
-**Fiendish Legacy.** Elige un legado sobrenatural:
+**Fiendish Legacy.** Choose a supernatural legacy:
 
-| Legado | Nivel 1 | Nivel 3 | Nivel 5 |
+| Legacy | Level 1 | Level 3 | Level 5 |
 |--------|---------|---------|---------|
-| Abyssal | Resistencia Poison + Poison Spray | Ray of Sickness | Hold Person |
-| Chthonic | Resistencia Necrotic + Chill Touch | False Life | Ray of Enfeeblement |
-| Infernal | Resistencia Fire + Fire Bolt | Hellish Rebuke | Darkness |
+| Abyssal | Poison Resistance + Poison Spray | Ray of Sickness | Hold Person |
+| Chthonic | Necrotic Resistance + Chill Touch | False Life | Ray of Enfeeblement |
+| Infernal | Fire Resistance + Fire Bolt | Hellish Rebuke | Darkness |
 
-**Otherworldly Presence.** Conoces el truco Thaumaturgy. Carisma es tu característica para lanzarlo.`
+**Otherworldly Presence.** You know the Thaumaturgy cantrip. Charisma is your spellcasting ability for it.`
     },
 
     // --- SPECIES (EBERRON) ---
@@ -2088,129 +2088,129 @@ When you cast an Illusion spell of level 1 or higher, you can make one object or
         id: 'changeling',
         category: 'Species',
         title: 'Changeling (Eberron)',
-        content: 'Maestros del cambio de forma con instincts Fey y habilidades sociales.',
+        content: 'Masters of shapeshifting with Fey instincts and social skills.',
         fullInfo: `### Changeling (Eberron)
 
 **Source:** Eberron - Forge of the Artificer
 
-**Descripción:** Con apariencias que cambian constantemente, los changelings residen en muchas sociedades sin ser detectados. Cada changeling puede adoptar sobrenaturalmente cualquier cara que deseen. En su forma verdadera, los changelings parecen desvaídos, sus rasgos casi sin detalles. Sin embargo, muchos changelings desarrollan identidades con más profundidad, creando personas completas con historia y creencias.
+**Description:** With constantly changing appearances, changelings reside in many societies undetected. Each changeling can supernaturally adopt any face they desire. In their true form, changelings appear faded, their features almost detailless. However, many changelings develop identities with more depth, creating complete persons with history and beliefs.
 
-**Tipo de Criatura:** Fey
-**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Fey
+**Size:** Medium (4-7 feet) or Small (2-4 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Changeling Instincts.** Ganas competencia en dos habilidades: Deception, Insight, Intimidation, Performance o Persuasion.
+**Changeling Instincts.** You gain proficiency in two skills: Deception, Insight, Intimidation, Performance, or Persuasion.
 
-**Shape-Shifter.** Como acción, puedes cambiar tu apariencia y voz. Puedes ajustar altura, peso y tamaño entre Medium y Small. Puedes parecerte a otro especie pero tus estadísticas no cambian. No puedes duplicar la apariencia de alguien que nunca has visto. Mientras transformado, tienes Ventaja en cheques de Carisma. 1 uso por turno.`
+**Shape-Shifter.** As an action, you can change your appearance and voice. You can adjust height, weight, and size between Medium and Small. You can look like another species but your stats don't change. You can't duplicate the appearance of someone you've never seen. While transformed, you have Advantage on Charisma checks. 1 use per turn.`
     },
     {
         id: 'kalashtar',
         category: 'Species',
         title: 'Kalashtar (Eberron)',
-        content: 'Unión de humanos y espíritus Quori con telepatía y disciplina mental.',
+        content: 'Union of humans and Quori spirits with telepathy and mental discipline.',
         fullInfo: `### Kalashtar (Eberron)
 
 **Source:** Eberron - Forge of the Artificer
 
-**Descripción:** Los kalashtar (pronunciado kal-ASH-tar) se crean de la unión de humanos y espíritus renegados llamados quori del plano de los sueños. Los kalashtar parecen humanos pero su conexión espiritual los afecta de varias maneras. Tienen rasgos simétricos ligeramente angulares y sus ojos a menudo brillan cuando se concentran o expresan emociones fuertes.
+**Description:** Kalashtar (pronounced kal-ASH-tar) are created from the union of humans and renegade spirits called quori from the plane of dreams. Kalashtar appear human but their spiritual connection affects them in various ways. They have slightly angular, symmetrical features and their eyes often glow when they concentrate or express strong emotions.
 
-**Tipo de Criatura:** Aberration
-**Tamaño:** Medium (6-7 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Aberration
+**Size:** Medium (6-7 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Dual Mind.** Ventaja en tiradas de salvación de Sabiduría y Carisma.
+**Dual Mind.** Advantage on Wisdom and Charisma saving throws.
 
-**Mental Discipline.** Resistencia al daño Psíquico.
+**Mental Discipline.** Resistance to Psychic damage.
 
-**Mind Link.** Telepatía con alcance igual a 10 veces tu nivel. Como Acción Mágica, puedes dar a una criatura la habilidad de hablar telepáticamente contigo por 1 hora.
+**Mind Link.** Telepathy with range equal to 10 times your level. As a Magic Action, you can give a creature the ability to speak telepathically with you for 1 hour.
 
-**Severed from Dreams.** No puedes ser objetivo del hechizo Dream. Además, al terminar un Descanso Largo, ganas competencia en una habilidad de tu elección hasta el siguiente Descanso Largo.`
+**Severed from Dreams.** You can't be targeted by the Dream spell. Additionally, when you finish a Long Rest, you gain proficiency in one skill of your choice until the next Long Rest.`
     },
-    {
+{
         id: 'khoravar',
         category: 'Species',
         title: 'Khoravar (Eberron)',
-        content: 'Medio-elfos de Eberron con magia Fey y resistencia a la inconsciencia.',
+        content: 'Half-elves of Eberron with Fey magic and resistance to unconsciousness.',
         fullInfo: `### Khoravar (Eberron)
 
 **Source:** Eberron - Forge of the Artificer
 
-**Descripción:** A lo largo de siglos, los descendientes de humanos y elfos han desarrollado sus propias comunidades y tradiciones en Khorvaire. Muchos Khoravar defienden la idea de ser "el puente entre", creyendo que están llamados a facilitar la comunicación y cooperación entre diferentes culturas o especies.
+**Description:** Over centuries, descendants of humans and elves have developed their own communities and traditions in Khorvaire. Many Khoravar champion the idea of being "the bridge between," believing they are called to facilitate communication and cooperation between different cultures or species.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (4-6 pies) o Small (2-4 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Medium (4-6 feet) or Small (2-4 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Darkvision.** 60 pies.
+**Darkvision.** 60 feet.
 
-**Fey Ancestry.** Ventaja en tiradas de salvación para evitar o terminar la condición Encantado.
+**Fey Ancestry.** Advantage on saving throws to avoid or end the Charmed condition.
 
-**Fey Gift.** Conoces el truco Friends. Al terminar un Descanso Largo, puedes reemplazarlo por otro truco de las listas de Clérigo, Druida o Mago.
+**Fey Gift.** You know the Friends cantrip. When you finish a Long Rest, you can replace it with another cantrip from the Cleric, Druid, or Wizard lists.
 
-**Lethargy Resilience.** Cuando fallas una tirada de salvación para evitar o terminar la condición Inconsciente, puedes tener éxito en su lugar. Una vez usado, no puedes usarlo hasta terminar 1d4 Descansos Larg.
+**Lethargy Resilience.** When you fail a saving throw to avoid or end the Unconscious condition, you can succeed instead. Once used, you can't use it again until you finish 1d4 Long Rests.
 
-**Skill Versatility.** Ganas competencia en una habilidad o herramienta. Puedes reemplazarla al terminar un Descanso Largo.`
+**Skill Versatility.** You gain proficiency in one skill or tool. You can replace it when you finish a Long Rest.`
     },
     {
         id: 'shifter',
         category: 'Species',
         title: 'Shifter (Eberron)',
-        content: 'Humanoides bestiales con transformación temporal y instintos animales.',
+        content: 'Bestial humanoids with temporary transformation and animal instincts.',
         fullInfo: `### Shifter (Eberron)
 
 **Source:** Eberron - Forge of the Artificer
 
-**Descripción:** Los shifters -a veces llamados "weretouched"- descienden de personas que contrajeron licantropía total o parcial. Los shifters se parecen a humanos en altura y complexión pero son típicamente más ágiles y flexibles. Sus rasgos faciales tienen un aire bestial, a menudo con ojos grandes y orejas puntiagudas.
+**Description:** Shifters - sometimes called "weretouched" - descend from people who contracted full or partial lycanthropy. Shifters look human in height and build but are typically more agile and flexible. Their facial features have a bestial air, often with large eyes and pointed ears.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Medium (4-7 feet) or Small (2-4 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Bestial Instincts.** Ganas competencia en una habilidad: Acrobatics, Athletics, Intimidation o Survival.
+**Bestial Instincts.** You gain proficiency in one skill: Acrobatics, Athletics, Intimidation, or Survival.
 
-**Darkvision.** 60 pies.
+**Darkvision.** 60 feet.
 
-**Shifting.** Como Acción Adicional, puedes transformarte en una apariencia más bestial (1 minuto). Ganas PG Temporales iguales a 2 × Bono de Competencia. Usos: Bono de Competencia por Descanso Largo. Elige un beneficio:
+**Shifting.** As a Bonus Action, you can transform into a more bestial appearance (1 minute). You gain Temporary HP equal to 2 × Proficiency Bonus. Uses: Proficiency Bonus per Long Rest. Choose a benefit:
 
-- **Beasthide.** +1d6 PG Temporales. +1 a CA mientras transformado.
-- **Longtooth.** Puedes hacer Unarmed Strike con colmillos: 1d6+Strength Piercing.
-- **Swiftstride.** +10 pies velocidad. Reacción para moverte 10 pies cuando una criatura termina su turno cerca de ti.
-- **Wildhunt.** Ventaja en cheques de Sabiduría transformado. Ninguna criatura a 30 pies puede tener Ventaja contra ti.`
+- **Beasthide.** +1d6 Temporary HP. +1 to AC while shifted.
+- **Longtooth.** You can make Unarmed Strikes with fangs: 1d6+Strength Piercing.
+- **Swiftstride.** +10 feet speed. Reaction to move 10 feet when a creature ends its turn near you.
+- **Wildhunt.** Advantage on Wisdom checks while shifted. No creature within 30 feet can have Advantage against you.`
     },
     {
         id: 'warforged',
         category: 'Species',
         title: 'Warforged (Eberron)',
-        content: 'Seres construct con armadura integrada y resistencia a veneno.',
+        content: 'Construct beings with integrated armor and poison resistance.',
         fullInfo: `### Warforged (Eberron)
 
 **Source:** Eberron - Forge of the Artificer
 
-**Descripción:** Los warforged son seres mecánicos construidos como armas para pelear en la Última Guerra. Una ruptura inesperada produjo seres sentimentados hechos de madera y metal que sin embargo pueden sentir dolor y emoción. Los warforged comprenden una mezcla de materiales orgánicos e inorgánicos.
+**Description:** Warforged are mechanical beings built as weapons to fight in the Last War. An unexpected rupture produced sentient beings made of wood and metal who can nonetheless feel pain and emotion. Warforged comprise a mix of organic and inorganic materials.
 
-**Tipo de Criatura:** Construct
-**Tamaño:** Medium (6-8 pies) o Small (3-4 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Construct
+**Size:** Medium (6-8 feet) or Small (3-4 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Construct Resilience.** Resistencia al daño por Veneno. Ventaja en tiradas de salvación para evitar o terminar la condición Envenenado.
+**Construct Resilience.** Resistance to Poison damage. Advantage on saving throws to avoid or end the Poisoned condition.
 
-**Integrated Protection.** +1 a tu CA. La armadura que te pones no puede ser removida en tu contra mientras estés vivo.
+**Integrated Protection.** +1 to your AC. The armor you don can't be removed against your will while you are alive.
 
-**Sentry's Rest.** No necesitas dormir. Puedes terminar un Descanso Largo en 6 horas de estado inactivo e inmóvil pero permaneces consciente.
+**Sentry's Rest.** You don't need to sleep. You can finish a Long Rest in 6 hours of inactive, motionless state but remain conscious.
 
-**Specialized Design.** Ganas competencia en una habilidad y una herramienta de tu elección.
+**Specialized Design.** You gain proficiency in one skill and one tool of your choice.
 
-**Tireless.** No ganas niveles de Agotamiento por deshidratación, malnutrición o asfixia.`
+**Tireless.** You don't gain levels of Exhaustion from dehydration, malnutrition, or suffocation.`
     },
 
     // --- SPECIES (LORWYN) ---
@@ -2218,164 +2218,164 @@ When you cast an Illusion spell of level 1 or higher, you can make one object or
         id: 'boggart',
         category: 'Species',
         title: 'Boggart (Lorwyn)',
-        content: 'Goblinoides pequeños con magia Fey, furia del pequeño y escape nimble.',
+        content: 'Small goblinoids with Fey magic, fury of the small, and nimble escape.',
         fullInfo: `### Boggart (Lorwyn)
 
 **Source:** Lorwyn - First Light
 
-**Descripción:** Los boggarts son pequeños humanoides goblinoides encontrados en el reino de Lorwyn-Shadowmoor. Poseen rasgos físicos bestiales incluyendo cuernos y hocicos animales. Más allá de estas общительность, las apariencias de los boggarts varían ampliamente. Un boggart puede parecerse a un erizo mientras que otro puede tener el hocico y orejas carnosas de un cerdo. Los boggarts tienden a amar la elaboración de pociones.
+**Description:** Boggarts are small goblinoid humanoids found in the realm of Lorwyn-Shadowmoor. They possess bestial physical features including horns and animal snouts. Beyond this commonality, boggart appearances vary widely. One boggart might resemble a hedgehog while another might have the snout and fleshy ears of a pig. Boggarts tend to love potion crafting.
 
-**Tipo de Criatura:** Humanoid (goblinoid)
-**Tamaño:** Small (2-4 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid (goblinoid)
+**Size:** Small (2-4 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Darkvision.** 60 pies.
+**Darkvision.** 60 feet.
 
-**Fey Ancestry.** Ventaja en tiradas de salvación para evitar o terminar la condición Encantado.
+**Fey Ancestry.** Advantage on saving throws to avoid or end the Charmed condition.
 
-**Fury of the Small.** Cuando dañas con ataque o hechizo a una criatura más grande que tú, puedes causar daño extra igual a tu Bono de Competencia. Máximo una vez por turno.
+**Fury of the Small.** When you damage with an attack or spell a creature larger than you, you can cause extra damage equal to your Proficiency Bonus. Maximum once per turn.
 
-**Nimble Escape.** Puedes tomar la acción de Disengage o Hide como Acción Adicional en cada uno de tus turnos.`
+**Nimble Escape.** You can take the Disengage or Hide action as a Bonus Action on each of your turns.`
     },
     {
         id: 'faerie',
         category: 'Species',
         title: 'Faerie (Lorwyn)',
-        content: 'Pequeños seres feéricos con magia Druida y vuelo natural.',
+        content: 'Small fey beings with Druid magic and natural flight.',
         fullInfo: `### Faerie (Lorwyn)
 
 **Source:** Lorwyn - First Light
 
-**Descripción:** Conocidos por sus travesuras, las faeries se parecen a insectos con rasgos humanoides. Su tamaño y forma pueden variar, pero todas tienen antenas, ojos negros, piel quitinosa y piernas y alas de insecto. Cada faerie nace de una flor y posee magia innata.
+**Description:** Known for their pranks, faeries resemble insects with humanoid features. Their size and form can vary, but all have antennae, black eyes, chitinous skin, and insectile legs and wings. Each faerie is born from a flower and possesses innate magic.
 
-**Tipo de Criatura:** Fey
-**Tamaño:** Small (2-4 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Fey
+**Size:** Small (2-4 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Fairy Magic.** Conoces Druidcraft.
+**Fairy Magic.** You know Druidcraft.
 
-Desde nivel 3: Puedes lanzar Faerie Fire. Desde nivel 5: También puedes lanzar Enlarge/Reduce. Cada una 1 uso por Descanso Largo. Inteligencia, Sabiduría o Carisma para lanzar.
+From level 3: You can cast Faerie Fire. From level 5: You can also cast Enlarge/Reduce. Each 1 use per Long Rest. Intelligence, Wisdom, or Charisma for casting.
 
-**Flight.**Tienes Velocidad de Vuelo igual a tu Velocidad de Caminata. No puedes usar esta velocidad si usas armadura medium o heavy.
+**Flight.** You have Flight Speed equal to your Walking Speed. You can't use this speed if you wear medium or heavy armor.
 
-**Shadowmoor Faeries.** Visión en Oscuridad 120 pies.`
+**Shadowmoor Faeries.** Darkvision 120 feet.`
     },
     {
         id: 'flamekin',
         category: 'Species',
         title: 'Flamekin (Lorwyn)',
-        content: 'Humanoides de fuego y piedra con Produce Flame y magia de fuego.',
+        content: 'Fire and stone humanoids with Produce Flame and fire magic.',
         fullInfo: `### Flamekin (Lorwyn)
 
 **Source:** Lorwyn - First Light
 
-**Descripción:** Los flamekin son seres creados de dos elementos clave de la creación: fuego y piedra. Como resultado, muchos flamekin sienten una fuerte conexión con el mundo natural. Los cuerpos de los flamekin irradian llamas mágicas inofensivas.
+**Description:** Flamekin are beings created from two key elements of creation: fire and stone. As a result, many flamekin feel a strong connection to the natural world. Flamekin bodies radiate harmless magical flames.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Medium (4-7 feet) or Small (2-4 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Darkvision.** 60 pies.
+**Darkvision.** 60 feet.
 
-**Fire Resistance.** Resistencia al daño por Fuego.
+**Fire Resistance.** Resistance to Fire damage.
 
-**Reach to the Blaze.** Conoces Produce Flame. Desde nivel 3: Puedes lanzar Burning Hands. Desde nivel 5: También puedes lanzar Flame Blade sin componentes materiales. Inteligencia, Sabiduría o Carisma para lanzar.`
+**Reach to the Blaze.** You know Produce Flame. From level 3: You can cast Burning Hands. From level 5: You can also cast Flame Blade without material components. Intelligence, Wisdom, or Charisma for casting.`
     },
     {
         id: 'lorwyn-changeling',
         category: 'Species',
         title: 'Lorwyn Changeling (Lorwyn)',
-        content: 'Shapeshifters Fey con piel azul-verde y movimiento impredecible.',
+        content: 'Fey shapeshifters with blue-green skin and unpredictable movement.',
         fullInfo: `### Lorwyn Changeling (Lorwyn)
 
 **Source:** Lorwyn - First Light
 
-**Descripción:** Los changelings de Lorwyn son shapeshifters carismáticos capaces de crudamente imitar formas de criaturas y plantas. Independientemente de la forma, los changelings de Lorwyn mantienen sus rasgos clave: piel azul-verde, mechones de pelaje como tentáculos y ojos amarillos bulbosos con pupilas verticales.
+**Description:** Lorwyn changelings are charismatic shapeshifters capable of crudely imitating creature and plant forms. Regardless of form, Lorwyn changelings maintain their key features: blue-green skin, tufts of fur-like tentacles, and bulbous yellow eyes with vertical pupils.
 
-**Tipo de Criatura:** Fey
-**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Fey
+**Size:** Medium (4-7 feet) or Small (2-4 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Shape Self.** Como acción, puedes reshapear tu cuerpo a forma Humanoid bípedo o forma Beast cuadrúpedo. Puedes usar ropa y armadura hecha para tu tamaño.
+**Shape Self.** As an action, you can reshape your body to bipedal Humanoid form or quadruped Beast form. You can wear clothes and armor made for your size.
 
-**Darkvision.** 120 pies.
+**Darkvision.** 120 feet.
 
-**Delightful Imitator.** Competencia en Performance.
+**Delightful Imitator.** Proficiency in Performance.
 
-**Unpredictable Movement.** Cuando tiras Iniciativa sin Desventaja, puedes tomar la acción de Dash como Reacción.`
+**Unpredictable Movement.** When you roll Initiative without Disadvantage, you can take the Dash action as a Reaction.`
     },
-    {
+{
         id: 'rimekin',
         category: 'Species',
         title: 'Rimekin (Lorwyn)',
-        content: 'Flamekin transformados con magia de frío y frío intenso.',
+        content: 'Transformed flamekin with cold magic and intense cold.',
         fullInfo: `### Rimekin (Lorwyn)
 
 **Source:** Lorwyn - First Light
 
-**Descripción:** Los rimekin provienen tanto de Lorwyn como de Shadowmoor, aunque los primeros surgieron de flamekin durante la invasión Phyrexiana. Estos flamekin abordaron sus problemas con lógica fría y rechazaron respuestas reactivas. Como resultado, las llamas mágicas que envolvían sus cuerpos tomaron un aire gélido y se volvieron rimekin.
+**Description:** Rimekin come from both Lorwyn and Shadowmoor, though the first ones emerged from flamekin during the Phyrexian invasion. These flamekin approached their problems with cold logic and rejected reactive responses. As a result, the magical flames that wrapped their bodies took on a icy air and became rimekin.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
-**Velocidad:** 30 pies
+**Creature Type:** Humanoid
+**Size:** Medium (4-7 feet) or Small (2-4 feet)
+**Speed:** 30 feet
 
 #### Traits
 
-**Cold Fire Magic.** Conoces Ray of Frost. Desde nivel 3: Ice Knife. Desde nivel 5: Flame Blade (trata Cold en lugar de Fire). Inteligencia, Sabiduría o Carisma para lanzar.
+**Cold Fire Magic.** You know Ray of Frost. From level 3: Ice Knife. From level 5: Flame Blade (deals Cold instead of Fire). Intelligence, Wisdom, or Charisma for casting.
 
-**Cold Resistance.** Resistencia al daño por Frío.
+**Cold Resistance.** Resistance to Cold damage.
 
-**Darkvision.** 60 pies.`
+**Darkvision.** 60 feet.`
     },
 
     // --- SPECIES (EXOTIC) ---
     {
         id: 'dhampir',
         category: 'Species',
-        title: 'Dhampir (Exótico)',
-        content: 'Humanoides con poderes vampíricos y hambre maldita, velocidad y mordida vampírica.',
+        title: 'Dhampir (Exotic)',
+        content: 'Humanoids with vampiric powers and cursed hunger, speed, and vampiric bite.',
         fullInfo: `### Dhampir (Exotic)
 
 **Source:** Astarion's Book of Hungers
 
-**Descripción:** Los dhampirs son seres vivos que poseen poderes vampíricos pero están malditos con un hambre macabra. La mayoría de los dhampirs tienen sed de sangre, pero algunos obtienen sustento de sueños, energía vital u otras fuentes. Los dhampirs deben elegir si luchar para controlar su hambre o ceder a impulsos depredadores.
+**Description:** Dhampirs are living beings who possess vampiric powers but are cursed with a macabre hunger. Most dhampirs have a thirst for blood, but some derive sustenance from dreams, vital energy, or other sources. Dhampirs must choose whether to fight to control their hunger or yield to predatory impulses.
 
-**Tipo de Criatura:** Humanoid
-**Tamaño:** Medium (4-7 pies) o Small (2-4 pies)
-**Velocidad:** 35 pies
+**Creature Type:** Humanoid
+**Size:** Medium (4-7 feet) or Small (2-4 feet)
+**Speed:** 35 feet
 
 #### Traits
 
-**Darkvision.** 60 pies.
+**Darkvision.** 60 feet.
 
-**Spider Climb.** Tienes Velocidad de Escalada igual a tu Velocidad. Desde nivel 3: Puedes moverte por superficies verticales y techos dejando tus manos libres.
+**Spider Climb.** You have Climb Speed equal to your Speed. From level 3: You can move across vertical surfaces and ceilings leaving your hands free.
 
-**Trace of Undeath.** Resistencia al daño Necrótico.
+**Trace of Undeath.** Resistance to Necrotic damage.
 
-**Vampiric Bite.** Cuando usas Unarmed Strike, puedes morder en lugar de otros daños. Daño Piercing 1d4+Constitución en lugar del daño normal de Unarmed Strike.
+**Vampiric Bite.** When you use Unarmed Strike, you can bite instead of other damage. Piercing Damage 1d4+Constitution instead of normal Unarmed Strike damage.
 
-Además, cuando dañas a una criatura que no es Construct o Undead, puedes elegir uno:
+Additionally, when you damage a creature that is not a Construct or Undead, you can choose one:
 
-- **Drain.** Recuperas PG iguales al daño Piercing.
-- **Strengthen.** Obtienes bono a tu siguiente prueba de característica o ataque en 1 minuto igual al daño Piercing.
+- **Drain.** You regain HP equal to the Piercing damage.
+- **Strengthen.** You gain a bonus to your next ability check or attack within 1 minute equal to the Piercing damage.
 
-Usos: Bono de Competencia por Descanso Largo.`
+Uses: Proficiency Bonus per Long Rest.`
     },
 
-    // --- CONDITIONS ---
+// --- CONDITIONS ---
     {
         id: 'blinded',
         category: 'Condition',
-        title: 'Cegado (Blinded)',
-        content: 'No puedes ver. Fallas tiradas de percepción visual. Desventaja en ataques.',
+        title: 'Blinded',
+        content: 'You can\'t see. Fail sight-based perception rolls. Disadvantage on attacks.',
         fullInfo: `### Blinded
 
 *   **Can't See.** Automatically fail any ability check that requires sight.
@@ -2385,8 +2385,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'exhaustion-2024',
         category: 'Condition',
-        title: 'Agotamiento (Exhaustion)',
-        content: 'Penalizaciones acumulativas a pruebas d20 y velocidad. Letal en nivel 6.',
+        title: 'Exhaustion',
+        content: 'Cumulative penalties to d20 tests and speed. Lethal at level 6.',
         fullInfo: `### Exhaustion (New Rules)
 
 *   **D20 Test Penalty.** Each level imparts a -2 penalty to all d20 tests.
@@ -2396,8 +2396,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'grappled',
         category: 'Condition',
-        title: 'Presado (Grappled)',
-        content: 'Velocidad 0. Desventaja en ataques contra otros.',
+        title: 'Grappled',
+        content: 'Speed 0. Disadvantage on attacks against others.',
         fullInfo: `### Grappled
 
 *   **Speed 0.** Your speed can't increase.
@@ -2407,8 +2407,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'incapacitated',
         category: 'Condition',
-        title: 'Incapacitado (Incapacitated)',
-        content: 'No puedes realizar acciones ni reacciones. Rompe la concentración.',
+        title: 'Incapacitated',
+        content: 'You can\'t take actions or reactions. Breaks concentration.',
         fullInfo: `### Incapacitated
 
 *   **No Actions.** You can't take actions, bonus actions, or reactions.
@@ -2417,8 +2417,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'restrained',
         category: 'Condition',
-        title: 'Apresado (Restrained)',
-        content: 'Velocidad 0. Desventaja en ataques y salvaciones de Destreza.',
+        title: 'Restrained',
+        content: 'Speed 0. Disadvantage on attacks and Dexterity saves.',
         fullInfo: `### Restrained
 
 *   **Speed 0.** Your speed can't increase.
@@ -2428,8 +2428,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'charmed',
         category: 'Condition',
-        title: 'Encantado (Charmed)',
-        content: 'No puedes atacar al que te encantó. Desventaja en tiradas contra el encantador.',
+        title: 'Charmed',
+        content: 'You can\'t attack the one who charmed you. Disadvantage on rolls against the charmer.',
         fullInfo: `### Charmed
 
 *   **Can't Attack.** You can't attack or target the creature that charmed you, or deal damage to it.
@@ -2438,8 +2438,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'deafened',
         category: 'Condition',
-        title: 'Sordado (Deafened)',
-        content: 'No puedes oír. Fallas tiradas que dependan de oír.',
+        title: 'Deafened',
+        content: 'You can\'t hear. Fail hearing-dependent rolls.',
         fullInfo: `### Deafened
 
 *   **Can't Hear.** You can't hear. You automatically fail any ability check that requires hearing.`
@@ -2447,8 +2447,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'frightened',
         category: 'Condition',
-        title: 'Asustado (Frightened)',
-        content: 'Desventaja en pruebas y ataques mientras la fuente de miedo esté visible.',
+        title: 'Frightened',
+        content: 'Disadvantage on tests and attacks while the source of fear is visible.',
         fullInfo: `### Frightened
 
 *   **Fear Disadvantage.** You have Disadvantage on ability checks and attack rolls while the source of your fear is within line of sight.
@@ -2457,8 +2457,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'invisible',
         category: 'Condition',
-        title: 'Invisible (Invisible)',
-        content: 'No puedes ser visto sin ayuda especial. Otorga ventaja en ataques, desventaja a ataques contra ti.',
+        title: 'Invisible',
+        content: 'You can\'t be seen without special aid. Grants advantage on attacks, disadvantage to attacks against you.',
         fullInfo: `### Invisible
 
 *   **Undetectable.** You can't be seen without special aids or magic.
@@ -2468,8 +2468,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'paralyzed',
         category: 'Condition',
-        title: 'Paralizado (Paralyzed)',
-        content: 'Incapacitado. No puedes moverte ni actuar. Fallas tiradas de salvación de Destreza. Golpes automáticos.',
+        title: 'Paralyzed',
+        content: 'Incapacitated. Can\'t move or act. Fail Dexterity saves. Automatic hits.',
         fullInfo: `### Paralyzed
 
 *   **Incapacitated.** You can't move or take actions.
@@ -2479,8 +2479,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'petrified',
         category: 'Condition',
-        title: 'Petrified (Petrified)',
-        content: 'Transformado en piedra. Peso x4. Inmune a todo daño. Incapacitado y inconsciente.',
+        title: 'Petrified',
+        content: 'Transformed to stone. Weight x4. Immune to all damage. Incapacitated and unconscious.',
         fullInfo: `### Petrified
 
 *   **Transformed.** You are transformed into stone. Your weight quadruples and you become unaware of your surroundings.
@@ -2492,8 +2492,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'poisoned',
         category: 'Condition',
-        title: 'Envenenado (Poisoned)',
-        content: 'Desventaja en tiradas de ataque y pruebas de característica.',
+        title: 'Poisoned',
+        content: 'Disadvantage on attack rolls and ability checks.',
         fullInfo: `### Poisoned
 
 *   **Attack/Check Disadvantage.** You have Disadvantage on attack rolls and ability checks.`
@@ -2501,8 +2501,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'prone',
         category: 'Condition',
-        title: 'Derribado (Prone)',
-        content: 'Unico movimiento es arrastrarse. Ataques a 5 pies tienen ventaja, ataques a mas de 5 pies tienen desventaja.',
+        title: 'Prone',
+        content: 'Only movement is crawling. Attacks within 5 feet have advantage, attacks beyond 5 feet have disadvantage.',
         fullInfo: `### Prone
 
 *   **Crawling.** The only movement you can make is to crawl or creep on the ground, unless you stand up.
@@ -2512,8 +2512,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'stunned',
         category: 'Condition',
-        title: 'Aturdido (Stunned)',
-        content: 'Incapacitado. No puedes moverte. Fallas tiradas de salvación de Destreza. Golpes automáticos.',
+        title: 'Stunned',
+        content: 'Incapacitated. Can\'t move. Fail Dexterity saves. Automatic hits.',
         fullInfo: `### Stunned
 
 *   **Incapacitated.** You can't move or take actions.
@@ -2523,8 +2523,8 @@ Usos: Bono de Competencia por Descanso Largo.`
     {
         id: 'unconscious',
         category: 'Condition',
-        title: 'Inconsciente (Unconscious)',
-        content: 'Incapacitado. No puedes moverte ni actuar. Ignorado. Golpes automáticos.',
+        title: 'Unconscious',
+        content: 'Incapacitated. Can\'t move or act. Ignored. Automatic hits.',
         fullInfo: `### Unconscious
 
 *   **Incapacitated.** You can't move or take actions.

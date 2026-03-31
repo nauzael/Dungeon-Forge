@@ -4,11 +4,11 @@ import { Ability, Skill, DetailData, SubclassData } from '../../types';
 export const barbarian = {
   details: { 
     name: 'Barbarian', 
-    description: 'Guerreros poderosos impulsados por fuerzas primordiales que se manifiestan como Furia. Más que una emoción, esta Furia es la encarnación de la ferocidad de un depredador y la tormenta.', 
+    description: 'Powerful warriors driven by primal forces that manifest as Rage. More than an emotion, this Rage is the embodiment of a predator\'s ferocity and the storm.',
     traits: [
-        { name: 'Rage', description: 'Como acción adicional, entras en Furia si no llevas armadura pesada. Ganas resistencia a daño físico, daño adicional en ataques de Fuerza y ventaja en pruebas/salvaciones de Fuerza.' }, 
-        { name: 'Unarmored Defense', description: 'Sin armadura, tu CA es 10 + DEX + CON. Puedes usar escudo.' }, 
-        { name: 'Weapon Mastery', description: 'Dominas las propiedades de maestría de dos tipos de armas cuerpo a cuerpo.' }
+        { name: 'Rage', description: 'As a bonus action, you enter Rage if you are not wearing heavy armor. You gain resistance to physical damage, extra damage on Strength attacks, and advantage on Strength checks/saves.' }, 
+        { name: 'Unarmored Defense', description: 'Without armor, your AC is 10 + DEX + CON. You can use a shield.' }, 
+        { name: 'Weapon Mastery', description: 'You master the mastery properties of two types of melee weapons.' }
     ] 
   } as DetailData,
   hitDie: 12,
@@ -37,53 +37,53 @@ export const barbarian = {
   subclasses: [
     { 
         name: 'Path of the Berserker', 
-        description: 'Bárbaros que canalizan su furia hacia la violencia pura.', 
+        description: 'Barbarians who channel their fury toward pure violence.', 
         features: { 
-            3: [{ name: 'Frenzy', description: 'Al usar Ataque Temerario en furia, infliges daño extra igual a dados d6 igual a tu bono de daño de furia al primer objetivo impactado.' }],
-            6: [{ name: 'Mindless Rage', description: 'Inmunidad a Encantado y Asustado mientras estás en furia. Si entras en furia mientras estás afectado, el efecto se suspende.' }],
-            10: [{ name: 'Retaliation', description: 'Cuando recibes daño de una criatura a 5 pies, usa tu reacción para realizar un ataque cuerpo a cuerpo contra ella.' }],
-            14: [{ name: 'Intimidating Presence', description: 'Como Acción Adicional, asusta a criaturas en un área de 30 pies (CD 8+STR+PB). Dura 1 minuto.' }]
+            3: [{ name: 'Frenzy', description: 'When using Reckless Attack while raging, you deal extra damage equal to rage damage dice to the first target hit.' }],
+            6: [{ name: 'Mindless Rage', description: 'Immunity to Charmed and Frightened while raging. If you enter rage while affected, the effect is suspended.' }],
+            10: [{ name: 'Retaliation', description: 'When you take damage from a creature within 5 feet, use your reaction to make a melee attack against it.' }],
+            14: [{ name: 'Intimidating Presence', description: 'As a bonus action, frighten creatures in a 30-foot area (DC 8+STR+PB). Lasts 1 minute.' }]
         } 
     },
     { 
         name: 'Path of the World Tree', 
-        description: 'Creyentes de que su furia los vincula con el fresno cósmico Yggdrasil.', 
+        description: 'Believers that their fury connects them with the cosmic ash tree Yggdrasil.', 
         features: { 
-            3: [{ name: 'Vitality of the Tree', description: 'Ganas THP (dados d6 = PB) al entrar en furia y puedes otorgar THP a aliados al inicio de cada turno.' }],
-            6: [{ name: 'Branches of the Tree', description: 'Mientras estás en furia, puedes teletransportar criaturas a 30 pies de ti mediante una reacción (CD STR).' }],
-            10: [{ name: 'Battering Roots', description: 'Tus armas pesadas o versátiles ganan +10 pies de alcance. Puedes usar Empujar o Derribar además de otra maestría.' }],
-            14: [{ name: 'Travel along the Tree', description: 'Acción adicional para teletransportarte hasta 60 pies y llevar hasta 5 aliados contigo.' }]
+            3: [{ name: 'Vitality of the Tree', description: 'You gain THP (d6 dice = PB) when entering rage and can grant THP to allies at the start of each turn.' }],
+            6: [{ name: 'Branches of the Tree', description: 'While raging, you can teleport creatures within 30 feet of you using a reaction (DC STR).' }],
+            10: [{ name: 'Battering Roots', description: 'Your heavy or versatile weapons gain +10 feet reach. You can use Push or Topple in addition to another mastery.' }],
+            14: [{ name: 'Travel along the Tree', description: 'Bonus action to teleport up to 60 feet and bring up to 5 allies with you.' }]
         } 
     },
     { 
         name: 'Path of the Wild Heart', 
-        description: 'Bárbaros en comunión con los espíritus de la naturaleza.', 
+        description: 'Barbarians in communion with the spirits of nature.', 
         features: { 
             3: [
-                { name: 'Animal Speaker', description: 'Puedes lanzar Sentido Bestial y Hablar con los Animales como rituales (USA WIS).' },
-                { name: 'Rage of the Wilds', description: 'En furia elige: Oso (Resistencia a casi todo), Águila (BA Dash/Disengage), o Lobo (Ventaja aliados).' }
+                { name: 'Animal Speaker', description: 'You can cast Beast Sense and Speak with Animals as rituals (uses WIS).' },
+                { name: 'Rage of the Wilds', description: 'While raging choose: Bear (Resistance to almost everything), Eagle (BA Dash/Disengage), or Wolf (Ally advantage).' }
             ],
-            6: [{ name: 'Aspect of the Wilds', description: 'Mejora pasiva: Búho (Darkvision 60ft), Pantera (Vel. Escalada), o Salmón (Vel. Nado).' }],
-            10: [{ name: 'Nature Speaker', description: 'Puedes lanzar Comulgar con la Naturaleza como ritual.' }],
-            14: [{ name: 'Power of the Wilds', description: 'Mejora de furia: Halcón (Vuelo), León (Desventaja ataques enemigos), o Carnero (Derribar al impactar).' }]
+            6: [{ name: 'Aspect of the Wilds', description: 'Passive upgrade: Owl (Darkvision 60ft), Panther (Climbing Speed), or Salmon (Swimming Speed).' }],
+            10: [{ name: 'Nature Speaker', description: 'You can cast Commune with Nature as a ritual.' }],
+            14: [{ name: 'Power of the Wilds', description: 'Rage upgrade: Falcon (Flight), Lion (Enemy disadvantage on attacks), or Ram (Knock Prone on hit).' }]
         } 
     },
     {
         name: 'Path of the Zealot',
-        description: 'Bárbaros bendecidos por un dios con poder divino.',
+        description: 'Barbarians blessed by a god with divine power.',
         features: {
             3: [
-                { name: 'Divine Fury', description: 'En furia, el primer impacto de cada turno inflige 1d6 + mitad nivel daño Radiante o Necrótico.' },
-                { name: 'Warrior of the Gods', description: 'Reserva de curación (4d12). Como Acción Adicional, te curas a ti mismo. Se recupera en Descanso Largo.' }
+                { name: 'Divine Fury', description: 'While raging, the first hit each turn deals 1d6 + half your level Radiant or Necrotic damage.' },
+                { name: 'Warrior of the Gods', description: 'Healing reserve (4d12). As a bonus action, heal yourself. Recovers on Long Rest.' }
             ],
             6: [
-                { name: 'Fanatical Focus', description: 'Una vez por furia, repite una salvación fallida sumando tu daño de furia como bono.' }
+                { name: 'Fanatical Focus', description: 'Once per rage, repeat a failed save adding your rage damage as a bonus.' }
             ],
             10: [
-                { name: 'Zealous Presence', description: 'Grito de batalla (10 aliados): Ventaja en ataques y salvaciones hasta tu próximo turno.' }
+                { name: 'Zealous Presence', description: 'Battle cry (10 allies): Advantage on attacks and saves until your next turn.' }
             ],
             14: [
-                { name: 'Rage of the Gods', description: 'Forma divina (1 min): Vuelo, Resistencias Necrótico/Radiante/Psíquico y puedes salvar a un aliado de la muerte.' }
+                { name: 'Rage of the Gods', description: 'Divine form (1 min): Flight, Necrotic/Radiant/Psychic Resistances and you can save an ally from death.' }
             ]
         }
     }

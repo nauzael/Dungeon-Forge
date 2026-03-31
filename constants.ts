@@ -29,7 +29,7 @@ export const MOCK_CHARACTERS: Character[] = [
       { id: "m1", name: "Amulet of Health", quantity: 1, equipped: false }
     ],
     preparedSpells: ["Sacred Flame", "Guiding Bolt", "Cure Wounds", "Lesser Restoration", "Revivify", "Greater Restoration", "Flame Strike"],
-    notes: [{ id: "n1", title: "Misión Celestial", content: "Purificar las tierras del norte de la influencia abisal.", date: "24/05/2024" }]
+    notes: [{ id: "n1", title: "Celestial Mission", content: "Purify the northern lands from abyssal influence.", date: "24/05/2024" }]
   },
   {
     id: "demo-monk",
@@ -55,7 +55,7 @@ export const MOCK_CHARACTERS: Character[] = [
       { id: "m2", name: "Dagger", quantity: 1, equipped: true },
       { id: "m3", name: "Herbalism Kit", quantity: 1, equipped: false }
     ],
-    notes: [{ id: "n-monk-1", title: "Juramento de Sanación", content: "Mis manos pueden tanto arrebatar la vida como restaurarla. Debo mantener el equilibrio.", date: "15/06/2024" }]
+    notes: [{ id: "n-monk-1", title: "Oath of Healing", content: "My hands can both take life and restore it. I must maintain balance.", date: "15/06/2024" }]
   },
   {
     id: "demo-wizard",
@@ -82,7 +82,7 @@ export const MOCK_CHARACTERS: Character[] = [
       { id: "a1", name: "Bracers of Defense", quantity: 1, equipped: true }
     ],
     preparedSpells: ["Shield", "Misty Step", "Fireball", "Counterspell", "Banishment", "Cone of Cold"],
-    notes: [{ id: "n1", title: "Misión Arvana", content: "Recuperar el tomo de los siete vientos.", date: "10/05/2024" }]
+    notes: [{ id: "n1", title: "Arvana Mission", content: "Recover the tome of the seven winds.", date: "10/05/2024" }]
   },
   {
     id: "demo-fighter",

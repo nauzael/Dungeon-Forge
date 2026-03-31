@@ -4,11 +4,11 @@ import { Ability, Skill, DetailData, SubclassData } from '../../types';
 export const druid = {
   details: { 
     name: 'Druid', 
-    description: 'Los druidas pertenecen a órdenes antiguas que invocan las fuerzas de la naturaleza. Curan, se transforman en animales y dominan la destrucción elemental.', 
+    description: 'Druids belong to ancient orders that invoke the forces of nature. They heal, transform into animals, and master elemental destruction.', 
     traits: [
-        { name: 'Spellcasting', description: 'Magia primordial basada en Sabiduría. Eres un lanzador de conjuros preparados.' }, 
-        { name: 'Druidic', description: 'Conoces el lenguaje secreto de los druidas. Siempre tienes preparado Hablar con los Animales.' }, 
-        { name: 'Primal Order', description: 'Eliges tu camino: Mago (truco extra y bono a Arcana/Naturaleza) o Guardián (armadura media y armas marciales).' }
+        { name: 'Spellcasting', description: 'Wisdom-based primal magic. You are a prepared spellcaster.' }, 
+        { name: 'Druidic', description: 'You know the secret language of druids. You always have Speak with Animals prepared.' }, 
+        { name: 'Primal Order', description: 'Choose your path: Mage (extra cantrip and bonus to Arcana/Nature) or Guardian (medium armor and martial weapons).' }
     ] 
   } as DetailData,
   hitDie: 8,
@@ -36,44 +36,44 @@ export const druid = {
   subclasses: [
     {
         name: 'Circle of the Land',
-        description: 'Druidas místicos que salvaguardan ritos antiguos dentro de círculos de árboles o piedras, sintonizados con un bioma específico.',
+        description: 'Mystic druids who safeguard ancient rites within circles of trees or stones, attuned to a specific biome.',
         features: {
             3: [
-                { name: 'Circle of the Land Spells', description: 'Tras un descanso largo, elige un bioma: Árido, Polar, Templado o Tropical. Obtienes conjuros preparados adicionales según tu nivel.' },
-                { name: 'Land\'s Aid', description: 'Acción Mágica: Gasta un uso de Forma Salvaje para invocar flores vitales y espinas en un área de 10 pies. Criaturas enemigas reciben 2d6 daño necrótico (CD Sab) y un aliado recupera 2d6 HP.' }
+                { name: 'Circle of the Land Spells', description: 'After a long rest, choose a biome: Arctic, Polar, Temperate, or Tropical. You get additional prepared spells based on your level.' },
+                { name: 'Land\'s Aid', description: 'Magic action: Spend a use of Wild Shape to summon vital flowers and thorns in a 10-foot area. Enemy creatures take 2d6 necrotic damage (DC WIS) and an ally recovers 2d6 HP.' }
             ],
-            6: [{ name: 'Natural Recovery', description: 'Puedes lanzar un conjuro de tu lista de bioma sin gastar espacio. Además, en descanso corto recuperas espacios de conjuro cuya suma de niveles sea igual a la mitad de tu nivel de druida.' }],
-            10: [{ name: 'Nature\'s Ward', description: 'Inmunidad a Envenenado y Resistencia al daño asociado a tu bioma actual (Fuego, Frío, Rayo o Veneno).' }],
-            14: [{ name: 'Nature\'s Sanctuary', description: 'Acción Mágica: Gasta Forma Salvaje para crear un cubo de 15 pies con vegetación espectral (1 min). Tú y aliados tenéis Cobertura Media y las resistencias de Nature\'s Ward.' }]
+            6: [{ name: 'Natural Recovery', description: 'You can cast a spell from your biome list without spending a slot. Additionally, during a short rest you recover spell slots whose sum of levels equals half your druid level.' }],
+            10: [{ name: 'Nature\'s Ward', description: 'Immunity to Poisoned and Resistance to damage associated with your current biome (Fire, Cold, Lightning, or Poison).' }],
+            14: [{ name: 'Nature\'s Sanctuary', description: 'Magic action: Spend Wild Shape to create a 15-foot cube with spectral vegetation (1 min). You and allies have Half Cover and the resistances from Nature\'s Ward.' }]
         }
     },
     {
         name: 'Circle of the Moon',
-        description: 'Druidas que usan la magia lunar para transformarse en combatientes feroces, protegiendo el mundo natural con garra y colmillo.',
+        description: 'Druids who use lunar magic to transform into fierce combatants, protecting the natural world with claw and fang.',
         features: {
             3: [
-                { name: 'Circle Forms', description: 'Tu Forma Salvaje mejora: Puedes usarla como Acción Adicional. Tu CA es 13 + Sabiduría (si es mayor). Ganas THP igual a 3 veces tu nivel de Druid.' },
-                { name: 'Circle of the Moon Spells', description: 'Siempre tienes preparados conjuros como Cure Wounds and Moonbeam. Puedes lanzarlos mientras estás en Forma Salvaje.' }
+                { name: 'Circle Forms', description: 'Your Wild Shape improves: You can use it as a bonus action. Your AC is 13 + Wisdom (if higher). You gain THP equal to 3 times your Druid level.' },
+                { name: 'Circle of the Moon Spells', description: 'You always have spells prepared like Cure Wounds and Moonbeam. You can cast them while in Wild Shape.' }
             ],
             6: [
-                { name: 'Lunar Radiance', description: 'Tus ataques en Forma Salvaje pueden infligir daño Radiante en lugar de su tipo normal.' },
-                { name: 'Increased Toughness', description: 'Puedes sumar tu modificador de Sabiduría a tus tiradas de salvación de Constitución.' }
+                { name: 'Lunar Radiance', description: 'Your attacks in Wild Shape can deal Radiant damage instead of their normal type.' },
+                { name: 'Increased Toughness', description: 'You can add your Wisdom modifier to your Constitution saving throws.' }
             ],
-            10: [{ name: 'Moonlight Step', description: 'Acción Adicional: Te teletransportas hasta 30 pies y tienes ventaja en tu próximo ataque. (Usos = mod Sab, recuperas con descanso largo o gastando espacio lvl 2+).' }],
-            14: [{ name: 'Lunar Form', description: 'Una vez por turno en Forma Salvaje, infliges 2d10 daño Radiante extra. Además, puedes teletransportar a un aliado contigo al usar Moonlight Step.' }]
+            10: [{ name: 'Moonlight Step', description: 'Bonus action: Teleport up to 30 feet and have advantage on your next attack. (Uses = WIS mod, recover on long rest or by spending a slot lvl 2+).' }],
+            14: [{ name: 'Lunar Form', description: 'Once per turn in Wild Shape, deal 2d10 extra Radiant damage. Additionally, you can teleport an ally with you when using Moonlight Step.' }]
         }
     },
     {
         name: 'Circle of the Sea',
-        description: 'Druidas vinculados a la furia de los océanos y las tormentas, encarnando la ira de la naturaleza contra quienes la despojan.',
+        description: 'Druids bound to the fury of the oceans and storms, embodying nature\'s wrath against those who despoil it.',
         features: {
             3: [
-                { name: 'Wrath of the Sea', description: 'Acción Adicional: Gasta Forma Salvaje para crear un aura de rocío marino (10 min). Al final de tu turno, dañas con Trueno (dados d6 = mod Sab) y empujas 15 pies a un enemigo a 10 pies.' },
-                { name: 'Circle of the Sea Spells', description: 'Conjuros preparados adicionales como Fog Cloud, Shatter and Lightning Bolt.' }
+                { name: 'Wrath of the Sea', description: 'Bonus action: Spend Wild Shape to create a sea spray aura (10 min). At the end of your turn, deal Thunder damage (d6 dice = WIS mod) and push 15 feet an enemy within 10 feet.' },
+                { name: 'Circle of the Sea Spells', description: 'Additional prepared spells like Fog Cloud, Shatter and Lightning Bolt.' }
             ],
-            6: [{ name: 'Aquatic Affinity', description: 'El alcance de Wrath of the Sea sube a 10 pies. Ganas velocidad de nado igual a tu velocidad.' }],
-            10: [{ name: 'Stormborn', description: 'Mientras Wrath of the Sea está activa, ganas Vuelo y Resistencia a daño por Frío, Rayo y Trueno.' }],
-            14: [{ name: 'Oceanic Gift', description: 'Puedes manifestar el aura de Wrath of the Sea alrededor de un aliado dispuesto a 60 pies. Gastando dos usos de Forma Salvaje, puedes tenerla tú y el aliado a la vez.' }]
+            6: [{ name: 'Aquatic Affinity', description: 'The range of Wrath of the Sea increases to 10 feet. You gain swimming speed equal to your speed.' }],
+            10: [{ name: 'Stormborn', description: 'While Wrath of the Sea is active, you gain Flight and Resistance to Cold, Lightning, and Thunder damage.' }],
+            14: [{ name: 'Oceanic Gift', description: 'You can manifest the Wrath of the Sea aura around a willing ally within 60 feet. By spending two uses of Wild Shape, you can have it on yourself and the ally at the same time.' }]
         }
     }
   ] as SubclassData[],
