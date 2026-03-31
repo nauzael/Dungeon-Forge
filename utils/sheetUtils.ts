@@ -534,15 +534,16 @@ export const getFinalStats = (character: Character): Record<string, number> => {
 
     // 1. FIXED STAT FEATS (2024 General Feats with fixed ASI)
     if (character.feats.some(f => f.includes('Actor'))) stats.CHA = Math.min(20, stats.CHA + 1);
-    if (character.feats.some(f => f.includes('Experto en ballestas') || f.includes('Crossbow Expert'))) stats.DEX = Math.min(20, stats.DEX + 1);
+    if (character.feats.some(f => f.includes('Experto en Ballesta') || f.includes('Crossbow Expert'))) stats.DEX = Math.min(20, stats.DEX + 1);
     if (character.feats.some(f => f.includes('Duelista Defensivo') || f.includes('Defensive Duelist'))) stats.DEX = Math.min(20, stats.DEX + 1);
     if (character.feats.some(f => f.includes('Durable'))) stats.CON = Math.min(20, stats.CON + 1); // "Durable" is General (+1 CON). "Tough" = "Resistente" is Origin (No ASI, gives HP instead).
     
-    if (character.feats.some(f => f.includes('Maestro en armas pesadas') || f.includes('Great Weapon Master'))) stats.STR = Math.min(20, stats.STR + 1);
+    if (character.feats.some(f => f.includes('Maestro de Armas Pesadas') || f.includes('Great Weapon Master'))) stats.STR = Math.min(20, stats.STR + 1);
+    if (character.feats.some(f => f.includes('Pesadamente Armado') || f.includes('Heavily Armored'))) stats.STR = Math.min(20, stats.STR + 1);
     if (character.feats.some(f => f.includes('Maestro de Armadura Pesada') || f.includes('Heavy Armor Master'))) stats.STR = Math.min(20, stats.STR + 1);
-    if (character.feats.some(f => f.includes('Mente aguda') || f.includes('Keen Mind'))) stats.INT = Math.min(20, stats.INT + 1);
-    if (character.feats.some(f => f.includes('Tirador de primera') || f.includes('Sharpshooter'))) stats.DEX = Math.min(20, stats.DEX + 1);
-    if (character.feats.some(f => f.includes('Maestro en escudos') || f.includes('Shield Master'))) stats.STR = Math.min(20, stats.STR + 1);
+    if (character.feats.some(f => f.includes('Mente Aguda') || f.includes('Keen Mind'))) stats.INT = Math.min(20, stats.INT + 1);
+    if (character.feats.some(f => f.includes('Tirador de Elite') || f.includes('Sharpshooter'))) stats.DEX = Math.min(20, stats.DEX + 1);
+    if (character.feats.some(f => f.includes('Maestro del Escudo') || f.includes('Shield Master'))) stats.STR = Math.min(20, stats.STR + 1);
     if (character.feats.some(f => f.includes('Veloz') || f.includes('Speedy'))) stats.DEX = Math.min(20, stats.DEX + 1);
 
     // 2. VARIABLE STAT FEATS & EPIC BOONS
@@ -558,7 +559,7 @@ export const getFinalStats = (character: Character): Record<string, number> => {
         // Ideally, we should remove the fixed ones from this check or make the fixed check more specific.
         // For now, let's assume Fixed ones don't need parsing.
         
-        const fixedFeats = ['Actor', 'Experto en ballestas', 'Crossbow Expert', 'Duelista Defensivo', 'Defensive Duelist', 'Resistente', 'Durable', 'Maestro en armas pesadas', 'Great Weapon Master', 'Maestro de Armadura Pesada', 'Heavy Armor Master', 'Mente aguda', 'Keen Mind', 'Tirador de primera', 'Sharpshooter', 'Maestro en escudos', 'Shield Master', 'Veloz', 'Speedy'];
+        const fixedFeats = ['Actor', 'Experto en Ballesta', 'Crossbow Expert', 'Duelista Defensivo', 'Defensive Duelist', 'Resistente', 'Durable', 'Maestro de Armas Pesadas', 'Great Weapon Master', 'Pesadamente Armado', 'Heavily Armored', 'Maestro de Armadura Pesada', 'Heavy Armor Master', 'Mente Aguda', 'Keen Mind', 'Tirador de Elite', 'Sharpshooter', 'Maestro del Escudo', 'Shield Master', 'Veloz', 'Speedy'];
         if (fixedFeats.some(f => feat.includes(f))) return;
 
         // Parse stat
