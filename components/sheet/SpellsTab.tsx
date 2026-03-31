@@ -65,7 +65,7 @@ const getProgressiveValue = (table: Record<number, number> | undefined, level: n
 };
 
 const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }) => {
-    const { getSpellDisplayName } = useGameData();
+    const { getSpellDisplayName, getSpellByName } = useGameData();
     const t = {
         save_dc: 'Save DC',
         attack_bonus: 'Attack Bonus',
@@ -151,10 +151,10 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
     const currentPreparedForActiveLevel = useMemo(() => {
         const levelToCheck = grimoireLevel;
         return (character.preparedSpells || []).filter(name => {
-            const spell = SPELL_DETAILS[name];
+            const spell = getSpellByName(name);
             return spell?.level === levelToCheck;
         }).length;
-    }, [character.preparedSpells, grimoireLevel]);
+    }, [character.preparedSpells, grimoireLevel, getSpellByName]);
 
     const maxPreparedForActiveLevel = useMemo(() => {
         if (grimoireLevel === 0) {
@@ -201,18 +201,18 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                  // If we return global limit here, it will look like "0 / 15" for level 1, "0 / 15" for level 2.
                  // This might be confusing but accurate for Known casters.
                  
-                 const totalKnown = getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
-                 const currentTotalKnown = (character.preparedSpells || []).filter(s => SPELL_DETAILS[s]?.level !== 0).length;
-                 const currentOthers = currentTotalKnown - currentPreparedForActiveLevel;
-                 
-                 // Remaining capacity
-                 return Math.max(0, totalKnown - currentOthers + currentPreparedForActiveLevel); 
-             }
-             
-             // For other known casters (Bard, Sorcerer, Ranger)
-             if (SPELLS_KNOWN_BY_LEVEL[character.class]) {
-                 const totalKnown = getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
-                 const currentTotalKnown = (character.preparedSpells || []).filter(s => SPELL_DETAILS[s]?.level !== 0).length;
+                  const totalKnown = getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
+                  const currentTotalKnown = (character.preparedSpells || []).filter(s => getSpellByName(s)?.level !== 0).length;
+                  const currentOthers = currentTotalKnown - currentPreparedForActiveLevel;
+                  
+                  // Remaining capacity
+                  return Math.max(0, totalKnown - currentOthers + currentPreparedForActiveLevel); 
+              }
+              
+              // For other known casters (Bard, Sorcerer, Ranger)
+              if (SPELLS_KNOWN_BY_LEVEL[character.class]) {
+                  const totalKnown = getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
+                  const currentTotalKnown = (character.preparedSpells || []).filter(s => getSpellByName(s)?.level !== 0).length;
                  const currentOthers = currentTotalKnown - currentPreparedForActiveLevel;
                  return Math.max(0, totalKnown - currentOthers + currentPreparedForActiveLevel);
              }
@@ -292,7 +292,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
         if (isReadOnly) return;
         const current = character.preparedSpells || [];
         const isPrepared = current.includes(spellName);
-        const spellData = SPELL_DETAILS[spellName];
+        const spellData = getSpellByName(spellName);
         if (!spellData) return;
         
         const isCantrip = spellData.level === 0;
@@ -327,7 +327,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
 
     const saveDC = 8 + character.profBonus + spellMod;
     const spellAttack = character.profBonus + spellMod;
-    const SPELL_DETAILSToShow = allPreparedSpells.filter(s => SPELL_DETAILS[s]?.level === activeSpellLevel).sort();
+    const SPELL_DETAILSToShow = allPreparedSpells.filter(s => getSpellByName(s)?.level === activeSpellLevel).sort();
     const slotCount = getSlots(effectiveCasterType, character.level, activeSpellLevel);
 
     const getLimitColor = (current: number, max: number) => {
@@ -441,9 +441,9 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                    <p className="text-slate-500 text-sm mb-2">{t.no_spells_prepared}</p>
                    <button onClick={() => setShowGrimoire(true)} className="text-primary font-bold text-sm">{t.view_grimoire}</button>
                </div>
-           ) : SPELL_DETAILSToShow.map(spellName => {
-               const spell = SPELL_DETAILS[spellName];
-               if (!spell) return null;
+            ) : SPELL_DETAILSToShow.map(spellName => {
+                const spell = getSpellByName(spellName);
+                if (!spell) return null;
                const summary = getSpellSummary(spell.description, spell.school);
                const isPactSpell = character.pactCantrips?.includes(spellName) || character.pactRituals?.includes(spellName);
                
@@ -548,26 +548,26 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                    </div>
                </div>
 
-               <div className="flex-1 overflow-y-auto p-4 gap-3 flex flex-col pb-24 no-scrollbar bg-gradient-to-b from-surface-dark/20 to-background-dark">
-                   {getSourceList(grimoireSource)
-                       .filter(name => {
-                           const spell = SPELL_DETAILS[name];
-                           // Visibility Check: Show spell if its level is in the available levels list
-                           const level = spell?.level || 0;
-                           const hasAccess = availableSpellLevels.includes(level);
+                <div className="flex-1 overflow-y-auto p-4 gap-3 flex flex-col pb-24 no-scrollbar bg-gradient-to-b from-surface-dark/20 to-background-dark">
+                    {getSourceList(grimoireSource)
+                        .filter(name => {
+                            const spell = getSpellByName(name);
+                            // Visibility Check: Show spell if its level is in the available levels list
+                            const level = spell?.level || 0;
+                            const hasAccess = availableSpellLevels.includes(level);
 
-                           return level === grimoireLevel && hasAccess && name.toLowerCase().includes(grimoireSearch.toLowerCase());
-                       })
-                       .sort()
-                       .map(name => {
-                           const isPrepared = allPreparedSpells.includes(name);
-                           const isPactChoice = character.pactCantrips?.includes(name) || character.pactRituals?.includes(name);
-                           const isExpanded = expandedGrimoireId === name;
-                           const spell = SPELL_DETAILS[name];
-                           const summary = spell ? getSpellSummary(spell.description, spell.school) : { classes: '', icon: 'help', label: '' };
+                            return level === grimoireLevel && hasAccess && name.toLowerCase().includes(grimoireSearch.toLowerCase());
+                        })
+                        .sort()
+                        .map(name => {
+                            const isPrepared = allPreparedSpells.includes(name);
+                            const isPactChoice = character.pactCantrips?.includes(name) || character.pactRituals?.includes(name);
+                            const isExpanded = expandedGrimoireId === name;
+                            const spell = getSpellByName(name);
+                            const summary = spell ? getSpellSummary(spell.description, spell.school) : { classes: '', icon: 'help', label: '' };
 
-                           const isAtLevelLimit = currentPreparedForActiveLevel >= maxPreparedForActiveLevel;
-                           const isBlocked = !isPrepared && isAtLevelLimit && !isPactChoice;
+                            const isAtLevelLimit = currentPreparedForActiveLevel >= maxPreparedForActiveLevel;
+                            const isBlocked = !isPrepared && isAtLevelLimit && !isPactChoice;
 
                            return (
                                <div key={name} className={`flex flex-col rounded-2xl border transition-all duration-300 ${isPrepared ? 'bg-primary/5 border-primary/50 shadow-md shadow-primary/5' : isBlocked ? 'bg-white/[0.02] border-white/5 opacity-60' : 'bg-surface-dark border-white/5 hover:border-white/10'}`}>
@@ -625,14 +625,14 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
            document.body
        )}
 
-       {selectedSpellName && createPortal(
-            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setSelectedSpellName(null)}>
-                <div className="w-full max-w-sm bg-white dark:bg-surface-dark rounded-3xl p-6 shadow-2xl animate-scaleUp flex flex-col max-h-[85vh] relative overflow-hidden" onClick={e => e.stopPropagation()}>
-                    <div className="absolute top-0 left-0 w-full h-1.5 bg-primary/20"></div>
-                    {(() => {
-                        const spell = SPELL_DETAILS[selectedSpellName];
-                        if (!spell) return null;
-                        const summary = getSpellSummary(spell.description, spell.school);
+        {selectedSpellName && createPortal(
+             <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setSelectedSpellName(null)}>
+                 <div className="w-full max-w-sm bg-white dark:bg-surface-dark rounded-3xl p-6 shadow-2xl animate-scaleUp flex flex-col max-h-[85vh] relative overflow-hidden" onClick={e => e.stopPropagation()}>
+                     <div className="absolute top-0 left-0 w-full h-1.5 bg-primary/20"></div>
+                     {(() => {
+                         const spell = getSpellByName(selectedSpellName);
+                         if (!spell) return null;
+                         const summary = getSpellSummary(spell.description, spell.school);
 
                         return (
                         <>
