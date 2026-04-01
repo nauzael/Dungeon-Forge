@@ -69,6 +69,30 @@ const Step1Identity: React.FC<Step1Props> = ({
     const subspeciesScrollRef = useRef<HTMLDivElement>(null);
     const backgroundScrollRef = useRef<HTMLDivElement>(null);
 
+    // Free cantrips from species/subspecies (level 0 innate spells)
+    const freeSpeciesCantrips = useMemo(() => {
+        const cantrips: string[] = [];
+        
+        // Base species innate spells (level 0)
+        if (speciesData?.innateSpells) {
+            speciesData.innateSpells
+                .filter((s: any) => s.level === 0)
+                .forEach((s: any) => cantrips.push(s.spell));
+        }
+        
+        // Subspecies innate spells (level 0)
+        if (selectedSubspecies) {
+            const subspecies = availableSubspecies.find((s: any) => s.name === selectedSubspecies);
+            if (subspecies?.innateSpells) {
+                subspecies.innateSpells
+                    .filter((s: any) => s.level === 0)
+                    .forEach((s: any) => cantrips.push(s.spell));
+            }
+        }
+        
+        return cantrips;
+    }, [speciesData, selectedSubspecies, availableSubspecies]);
+
     // Background magic detection (PHB 2024 Magic Initiate)
     const bgMagicConfig = useMemo(() => {
         if (!backgroundData) return null;
@@ -145,6 +169,10 @@ const Step1Identity: React.FC<Step1Props> = ({
 
     const toggleBgSpell = (spellName: string, lvl: number) => {
         if (!bgMagicConfig) return;
+        
+        // Don't allow selecting spells that are free from species/subspecies
+        if (freeSpeciesCantrips.includes(spellName)) return;
+        
         const current = [...bgSpells];
         const isSelected = current.includes(spellName);
         
@@ -607,13 +635,19 @@ const Step1Identity: React.FC<Step1Props> = ({
                                 <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">{t.choose_cantrips}</h4>
                                 <span className={`text-xs font-black px-2 py-0.5 rounded-full ${bgSpells.filter(s => SPELL_DETAILS[s]?.level === 0).length === bgMagicConfig.cantripsNeeded ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'}`}>
                                     {bgSpells.filter(s => SPELL_DETAILS[s]?.level === 0).length} / {bgMagicConfig.cantripsNeeded}
+                                    {freeSpeciesCantrips.length > 0 && <span className="text-emerald-400 ml-1">(+{freeSpeciesCantrips.length} free)</span>}
                                 </span>
                             </div>
                             <div className="grid grid-cols-1 gap-2">
                                 {bgMagicConfig.sourceList.filter(s => SPELL_DETAILS[s]?.level === 0).map(name => {
                                     const isSel = bgSpells.includes(name);
+                                    const isFreeSpecies = freeSpeciesCantrips.includes(name);
                                     const spell = SPELL_DETAILS[name];
                                     const theme = SCHOOL_THEMES[spell.school] || { text: 'text-slate-400', bg: 'bg-slate-500/10', icon: 'auto_fix' };
+                                    
+                                    // Don't show spells that are free from species
+                                    if (isFreeSpecies) return null;
+                                    
                                     return (
                                         <button key={name} onClick={() => toggleBgSpell(name, 0)} className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${isSel ? 'bg-primary/10 border-primary shadow-lg scale-[1.02]' : 'bg-white dark:bg-surface-dark border-slate-200 dark:border-white/5 opacity-80 hover:opacity-100'}`}>
                                             <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${isSel ? 'bg-primary text-white shadow-inner' : theme.bg + ' ' + theme.text}`}>
