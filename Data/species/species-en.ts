@@ -57,7 +57,7 @@ export const dhampirEn: DetailData = {
   speed: 35,
   traits: [
     { name: 'Darkvision', description: 'You have Darkvision with a range of 60 feet.' },
-    { name: 'Spider Climb', description: 'You have a Climb Speed equal to your Speed. When you reach character level 3, you can move up, down, and across vertical surfaces and along ceilings while leaving your hands free.' },
+    { name: 'Spider Climb', description: 'You have a Climb Speed equal to your Speed. When you reach character level 3, you can move up, down, and across vertical surfaces and along ceilings while leaving your hands free.', level: 3 },
     { name: 'Trace of Undeath', description: 'You have Resistance to Necrotic damage.' },
     { name: 'Vampiric Bite', description: 'When you use your Unarmed Strike and deal damage, you can bite with your fangs. You deal Piercing damage equal to 1d4 plus your Constitution modifier instead of the normal damage. When you deal this damage to a creature that isn\'t a Construct or Undead, you can empower yourself: Drain (regain HP equal to damage dealt) or Strengthen (bonus to next ability check or attack roll equal to damage dealt). Uses equal to Proficiency Bonus per Long Rest.' },
   ],
@@ -75,7 +75,7 @@ export const dragonbornEn: DetailData = {
     { name: 'Breath Weapon', description: 'When you take the Attack action on your turn, you can replace one of your attacks with an exhalation of magical energy in either a 15-foot Cone or a 30-foot Line. Each creature in that area must make a Dexterity saving throw (DC 8 plus your Constitution modifier and Proficiency Bonus). On a failed save, a creature takes 1d10 damage of your draconic type. On a successful save, a creature takes half as much damage. This damage increases by 1d10 at levels 5, 11, and 17. You can use this a number of times equal to your Proficiency Bonus, regaining all uses when you finish a Long Rest.' },
     { name: 'Damage Resistance', description: 'You have Resistance to the damage type determined by your Draconic Ancestry trait.' },
     { name: 'Darkvision', description: 'You have Darkvision with a range of 60 feet.' },
-    { name: 'Draconic Flight', description: 'When you reach character level 5, you can channel draconic magic to give yourself temporary flight. As a Bonus Action, you sprout spectral wings on your back that last for 10 minutes. During that time, you have a Fly Speed equal to your Speed. Once you use this trait, you can\'t use it again until you finish a Long Rest.' },
+    { name: 'Draconic Flight', description: 'When you reach character level 5, you can channel draconic magic to give yourself temporary flight. As a Bonus Action, you sprout spectral wings on your back that last for 10 minutes. During that time, you have a Fly Speed equal to your Speed. Once you use this trait, you can\'t use it again until you finish a Long Rest.', level: 5 },
   ],
   subspecies: [
     {
@@ -309,7 +309,7 @@ export const goliathEn: DetailData = {
   speed: 35,
   traits: [
     { name: 'Giant Ancestry', description: 'You are descended from Giants. Choose one benefit from: Cloud\'s Jaunt (teleport 30ft as Bonus Action), Fire\'s Burn (1d10 Fire damage on hit), Frost\'s Chill (1d6 Cold damage and slow 10ft), Hill\'s Tumble (knock Prone on hit), Stone\'s Endurance (reduce damage by 1d12+CON), Storm\'s Thunder (1d8 Thunder damage when hit). Use a number of times equal to Proficiency Bonus per Long Rest.' },
-    { name: 'Large Form', description: 'Starting at character level 5, you can change your size to Large as a Bonus Action if you\'re in a big enough space. This transformation lasts for 10 minutes. For that duration, you have Advantage on Strength checks, and your Speed increases by 10 feet. Once you use this trait, you can\'t use it again until you finish a Long Rest.' },
+    { name: 'Large Form', description: 'Starting at character level 5, you can change your size to Large as a Bonus Action if you\'re in a big enough space. This transformation lasts for 10 minutes. For that duration, you have Advantage on Strength checks, and your Speed increases by 10 feet. Once you use this trait, you can\'t use it again until you finish a Long Rest.', level: 5 },
     { name: 'Powerful Build', description: 'You have Advantage on any ability check you make to end the Grappled condition. You also count as one size larger when determining your carrying capacity.' },
   ],
   subspecies: [

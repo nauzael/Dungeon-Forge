@@ -73,10 +73,20 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         const speciesData = SPECIES_DETAILS[character.species];
         
         if (speciesData) {
-            speciesData.traits.forEach(t => list.push({...t, source: 'Species', level: 1}));
+            speciesData.traits.forEach(t => {
+                const traitLevel = t.level || 1;
+                if (traitLevel <= character.level) {
+                    list.push({...t, source: 'Species', level: traitLevel});
+                }
+            });
             if (character.subspecies) {
                 const subData = speciesData.subspecies?.find(s => s.name === character.subspecies);
-                subData?.traits.forEach(t => list.push({...t, source: 'Species', level: 1}));
+                subData?.traits.forEach(t => {
+                    const traitLevel = t.level || 1;
+                    if (traitLevel <= character.level) {
+                        list.push({...t, source: 'Species', level: traitLevel});
+                    }
+                });
             }
         }
 

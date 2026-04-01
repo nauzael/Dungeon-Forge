@@ -144,6 +144,7 @@ export interface BackgroundData {
 export interface Trait {
     name: string;
     description: string;
+    level?: number;  // Character level when trait unlocks. Default is 1.
 }
 
 export interface SpeciesSpell {
