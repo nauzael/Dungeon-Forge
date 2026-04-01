@@ -85,13 +85,16 @@ export const MAX_SPELL_LEVEL: Record<'full' | 'half' | 'pact', Record<number, nu
 };
 
 export const CANTRIPS_KNOWN_BY_LEVEL: Record<string, Record<number, number>> = {
+    // Note: Ranger and Paladin get 0 cantrips by default
+    // They can get 2 cantrips from Fighting Style (Druidic Warrior / Blessed Warrior)
+    // but we don't track Fighting Style, so default to 0
     'Bard': { 1: 2, 4: 3, 10: 4},
     'Cleric': { 1: 3, 4: 4, 10: 5},
     'Druid': { 1: 2, 4: 3, 10: 4},
     'Sorcerer': { 1: 4, 4: 5, 10: 6},
     'Warlock': { 1: 2, 4: 3, 10: 4},
-    'Paladin': { 1: 2, 4: 3, 10: 4},
-    'Ranger': { 1: 2, 4: 3, 10: 4},
+    'Paladin': { 1: 0, 4: 0, 10: 0},
+    'Ranger': { 1: 0, 4: 0, 10: 0},
     'Wizard': { 1: 3, 4: 4, 10: 5},
 };
 
