@@ -155,75 +155,60 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
     }, [character.preparedSpells, grimoireLevel]);
 
     const maxPreparedForActiveLevel = useMemo(() => {
+        // CASE 1: CANTRIPS (level 0)
         if (grimoireLevel === 0) {
-            let count = 0;
-            if (effectiveCasterType === 'third') count = character.level >= 10 ? 3 : 2;
-            else if (character.class === 'Ranger') count = character.level >= 10 ? 3 : 2;
-            else if (character.class === 'Paladin') count = 0; // Paladins get cantrips via Fighting Style or subclass usually, base 0 in 2014, 2024 has changes. Assuming standard logic.
-            else count = getProgressiveValue(CANTRIPS_KNOWN_BY_LEVEL[character.class], character.level, 0);
-            
-            // Warlock Pact of the Tome? Not checking feats here yet.
-            // Magic Initiate?
-            if (magicInitiateType) count += 2; 
+            // Third casters (Eldritch Knight, Arcane Trickster) don't get cantrips
+            if (effectiveCasterType === 'third') return 0;
+
+            // Standard cantrip progression per class
+            let count = getProgressiveValue(CANTRIPS_KNOWN_BY_LEVEL[character.class], character.level, 0);
+
+            // Magic Initiate adds +2 cantrips from the feat's class
+            if (magicInitiateType) count += 2;
+
+            // Warlock Pact of the Tome adds 3 cantrips (handled separately via pactCantrips)
+            // Innate species spells don't count against cantrip limit
 
             return count;
         }
 
-        // SPELLS KNOWN CLASSES (Bard, Ranger, Sorcerer, Warlock, Arcane Trickster, Eldritch Knight)
-        // These classes have a global "Spells Known" limit, not per level.
-        // We need to check if the total prepared (known) SPELL_DETAILS exceed the global limit.
-        const knownCasters = ['Bard', 'Ranger', 'Sorcerer', 'Warlock'];
-        const isKnownCaster = knownCasters.includes(character.class) || effectiveCasterType === 'third';
-
-        if (isKnownCaster) {
-             // For Known Casters, we don't limit per level strictly in UI (except for max slot level), 
-             // but we limit the TOTAL number of SPELL_DETAILS known.
-             // However, the user request asks for "Max SPELL_DETAILS per level".
-             // In 5e/OneDnD, Known Casters don't have per-level limits (except must have slot).
-             // Prepared Casters (Cleric, Druid, Paladin, Wizard) prepare X SPELL_DETAILS total (Level + Mod).
-             
-             // BUT, if the user specifically asked for "5 SPELL_DETAILS at level 1, etc.", they might be referring to
-             // how PREPARED casters in 2024 are changing to "Prepared = Slots".
-             
-             // Let's implement the 2024 "Prepared = Slots" rule for everyone if that's the requested behavior,
-             // OR strictly follow the class table if provided.
-             
-             // User said: "respetando la tabla de cada clase".
-             // If it's a Warlock, they have Spells Known table.
-             
-             if (character.class === 'Warlock') {
-                 // Warlock limit is global.
-                 // We should return the global limit minus SPELL_DETAILS known of OTHER levels to see how many "slots" are left for this level?
-                 // Or just return the global limit for display?
-                 // The UI compares currentPreparedForActiveLevel vs maxPreparedForActiveLevel.
-                 // If we return global limit here, it will look like "0 / 15" for level 1, "0 / 15" for level 2.
-                 // This might be confusing but accurate for Known casters.
-                 
-                 const totalKnown = getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
-                 const currentTotalKnown = (character.preparedSpells || []).filter(s => SPELL_DETAILS[s]?.level !== 0).length;
-                 const currentOthers = currentTotalKnown - currentPreparedForActiveLevel;
-                 
-                 // Remaining capacity
-                 return Math.max(0, totalKnown - currentOthers + currentPreparedForActiveLevel); 
-             }
-             
-             // For other known casters (Bard, Sorcerer, Ranger)
-             if (SPELLS_KNOWN_BY_LEVEL[character.class]) {
-                 const totalKnown = getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
-                 const currentTotalKnown = (character.preparedSpells || []).filter(s => SPELL_DETAILS[s]?.level !== 0).length;
-                 const currentOthers = currentTotalKnown - currentPreparedForActiveLevel;
-                 return Math.max(0, totalKnown - currentOthers + currentPreparedForActiveLevel);
-             }
+        // CASE 2: KNOWN CASTERS (Bard, Ranger, Sorcerer, Warlock)
+        // These classes have a global "Spells Known" limit at their current character level
+        if (SPELLS_KNOWN_BY_LEVEL[character.class]) {
+            // Return the TOTAL spells known limit for this level
+            return getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
         }
 
-        // PREPARED CASTERS (Cleric, Druid, Paladin, Wizard - 2024 Rules)
+        // CASE 3: THIRD CASTERS (Eldritch Knight, Arcane Trickster)
+        if (effectiveCasterType === 'third') {
+            // Third casters use their own spells known progression
+            const subclass = character.subclass || '';
+            if (SPELLS_KNOWN_BY_LEVEL[subclass]) {
+                return getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[subclass], character.level, 0);
+            }
+            // Fallback: use half caster progression
+            const slots = getSlots('half', character.level, grimoireLevel);
+            return slots;
+        }
+
+        // CASE 4: PREPARED CASTERS (Cleric, Druid, Paladin, Wizard)
+        // The limit is the number of spell SLOTS at this level
+        // In 5e 2024, "Prepared = Slots" for these casters
         const slots = getSlots(effectiveCasterType, character.level, grimoireLevel);
-        
-        // Exception: Magic Initiate feat grants +1 level 1 slot
+
+        // Exception: Magic Initiate feat grants +1 level 1 spell
         if (grimoireLevel === 1 && magicInitiateType) return slots + 1;
-        
+
+        // Exception: Paladin and Ranger are "half casters" but use "Spells Known" table
+        // However, they still can't prepare more than their slots allow
+        if (['Paladin', 'Ranger'].includes(character.class)) {
+            // Paladin/Ranger spells known are separate from prepared
+            // They use SPELLS_KNOWN_BY_LEVEL which we already handled above
+            return slots;
+        }
+
         return slots;
-    }, [character.class, character.level, grimoireLevel, effectiveCasterType, magicInitiateType, character.preparedSpells, currentPreparedForActiveLevel]);
+    }, [character.class, character.subclass, character.level, grimoireLevel, effectiveCasterType, magicInitiateType, character.preparedSpells]);
 
     // Level tab visibility based on class ability
     const availableSpellLevels = useMemo(() => {
