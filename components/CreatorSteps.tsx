@@ -128,16 +128,18 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
     const innateSpells: string[] = [];
     
     // Base species innate spells (e.g., Aasimar's Light, Tiefling's Thaumaturgy)
+    // All species innate spells are always prepared once unlocked via level gating
     if (speciesData.innateSpells) {
       speciesData.innateSpells.forEach((s: SpeciesSpell) => {
         if (s.level <= level) {
           spells.push(s.spell);
-          if (s.alwaysPrepared) innateSpells.push(s.spell);
+          innateSpells.push(s.spell);
         }
       });
     }
     
     // Subspecies innate spells (e.g., Drow's spells, Infernal Tiefling's spells)
+    // All subspecies innate spells are always prepared once unlocked via level gating
     if (speciesData.subspecies && selectedSubspecies) {
       const subspeciesData = speciesData.subspecies.find(
         sub => sub.name === selectedSubspecies || sub.name.includes(selectedSubspecies)
@@ -146,7 +148,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
         subspeciesData.innateSpells.forEach((s: SpeciesSpell) => {
           if (s.level <= level) {
             spells.push(s.spell);
-            if (s.alwaysPrepared) innateSpells.push(s.spell);
+            innateSpells.push(s.spell);
           }
         });
       }

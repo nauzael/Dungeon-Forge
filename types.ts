@@ -174,6 +174,7 @@ export interface SubclassData {
     name: string;
     description: string;
     features: Record<number, Trait[]>;
+    alwaysPreparedSpells?: Record<number, string[]>;
 }
 
 export interface Feat {
@@ -201,10 +202,12 @@ export interface CampaignResource {
     party_id: string;
     title: string;
     url: string;
+    thumbnail_url?: string; // Base64 thumbnail o URL a thumbnail en storage
     type: 'Map' | 'Setting' | 'NPC' | 'Item';
     description?: string;
     is_persistent: boolean;
     created_at?: string;
+    is_optimizing?: boolean; // Flag para mostrar estado de migración
 }
 
 export interface SharedResourceEvent {

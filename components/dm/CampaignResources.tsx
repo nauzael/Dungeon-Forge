@@ -1,7 +1,16 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { CampaignResource } from '../../types';
-import { getPartyResources, addPartyResource, deletePartyResource, broadcastResourceShare, broadcastResourceHide, uploadResourceImage, updatePartyResourcePersistence } from '../../utils/supabase';
+import { 
+    getPartyResources, 
+    addPartyResource, 
+    deletePartyResource, 
+    broadcastResourceShare, 
+    broadcastResourceHide, 
+    uploadResourceImage, 
+    updatePartyResourcePersistence,
+    migrateExistingResourceImages 
+} from '../../utils/supabase';
 
 const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
     const [resources, setResources] = useState<CampaignResource[]>([]);
@@ -9,9 +18,12 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
     const [isUploading, setIsUploading] = useState(false);
     const [showAdd, setShowAdd] = useState(false);
     const [activeRevealedId, setActiveRevealedId] = useState<string | null>(null);
+    const [migratingCount, setMigratingCount] = useState(0);
+    const [fullResolutionId, setFullResolutionId] = useState<string | null>(null); // Para cargar full res bajo demanda
     const [newRes, setNewRes] = useState({ 
         title: '', 
         url: '', 
+        thumbnail_url: '', // NUEVO: thumbnail local para preview
         type: 'Setting' as any, 
         description: '',
         is_persistent: true 
@@ -25,8 +37,29 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
         setIsLoading(false);
     };
 
+    // Migración automática de imágenes existentes al montar
     useEffect(() => {
         fetchResources();
+        
+        // Verificar si hay recursos sin thumbnail y migrar en background
+        const checkAndMigrate = async () => {
+            const data = await getPartyResources(partyId);
+            const unoptimized = data.filter(r => !r.thumbnail_url);
+            
+            if (unoptimized.length > 0) {
+                setMigratingCount(unoptimized.length);
+                
+                // Migrar en background
+                migrateExistingResourceImages(partyId).then(result => {
+                    console.log(`Migration complete: ${result.migrated} migrated, ${result.failed} failed`);
+                    setMigratingCount(0);
+                    // Refrescar recursos para ver thumbnails actualizados
+                    fetchResources();
+                });
+            }
+        };
+        
+        checkAndMigrate();
     }, [partyId]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,9 +67,13 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
         if (!file) return;
 
         setIsUploading(true);
-        const publicUrl = await uploadResourceImage(file);
-        if (publicUrl) {
-            setNewRes(prev => ({ ...prev, url: publicUrl }));
+        const result = await uploadResourceImage(file);
+        if (result) {
+            setNewRes(prev => ({ 
+                ...prev, 
+                url: result.fullUrl,
+                thumbnail_url: result.thumbnailUrl 
+            }));
         } else {
             alert("Error uploading image. Try again.");
         }
@@ -52,13 +89,18 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
         setIsLoading(true);
         const added = await addPartyResource({
             party_id: partyId,
-            ...newRes
+            title: newRes.title,
+            url: newRes.url,
+            thumbnail_url: newRes.thumbnail_url,
+            type: newRes.type,
+            description: newRes.description,
+            is_persistent: newRes.is_persistent
         });
 
         if (added) {
             setResources(prev => [added, ...prev]);
             setShowAdd(false);
-            setNewRes({ title: '', url: '', type: 'Setting', description: '', is_persistent: true });
+            setNewRes({ title: '', url: '', thumbnail_url: '', type: 'Setting', description: '', is_persistent: true });
         }
         setIsLoading(false);
     };
@@ -98,12 +140,36 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
         }
     };
 
+    const handleViewHD = (res: CampaignResource) => {
+        // Toggle: si ya está cargando en HD, volver a thumbnail
+        if (fullResolutionId === res.id) {
+            setFullResolutionId(null);
+        } else {
+            setFullResolutionId(res.id);
+        }
+    };
+
+    // Función para obtener la URL correcta (thumbnail o full)
+    const getDisplayUrl = (res: CampaignResource) => {
+        // Si el usuario pidió ver HD o no hay thumbnail, usar full
+        if (fullResolutionId === res.id || !res.thumbnail_url) {
+            return res.url;
+        }
+        // Usar thumbnail para carga rápida
+        return res.thumbnail_url;
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div className="space-y-0.5">
                     <h2 className="text-xl font-black italic uppercase tracking-tight text-white/90 leading-none">Scenario Management</h2>
                     <p className="text-[9px] font-black uppercase text-blue-400 tracking-tighter">Campaign Tactical Atlas</p>
+                    {migratingCount > 0 && (
+                        <p className="text-[8px] text-amber-400 font-bold animate-pulse">
+                            Optimizing {migratingCount} images...
+                        </p>
+                    )}
                 </div>
                 <button 
                     onClick={() => setShowAdd(true)}
@@ -130,18 +196,18 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                             className={`w-full aspect-video border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden relative ${newRes.url ? 'border-emerald-500/50' : 'border-white/10 hover:border-blue-500/30'}`}
                         >
                             <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
-                            {newRes.url ? (
+                            {newRes.thumbnail_url ? (
                                 <>
-                                    <img src={newRes.url} className="w-full h-full object-cover opacity-40" alt="Preview" />
+                                    <img src={newRes.thumbnail_url} className="w-full h-full object-cover opacity-40" alt="Preview" />
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                                         <span className="material-symbols-outlined text-emerald-400 text-3xl">check_circle</span>
-                                        <span className="text-[10px] font-black text-emerald-400 uppercase mt-2">Image Ready</span>
+                                        <span className="text-[10px] font-black text-emerald-400 uppercase mt-2">Optimized</span>
                                     </div>
                                 </>
                             ) : isUploading ? (
                                 <div className="flex flex-col items-center gap-2">
                                     <span className="material-symbols-outlined text-blue-400 animate-spin text-3xl">sync</span>
-                                    <span className="text-[10px] font-black text-blue-400 uppercase">Subiendo...</span>
+                                    <span className="text-[10px] font-black text-blue-400 uppercase">Optimizing...</span>
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center gap-2">
@@ -195,7 +261,11 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                 {resources.map(res => (
                     <div key={res.id} className="group bg-[#1e293b] rounded-3xl overflow-hidden border border-white/5 shadow-2xl transition-all hover:border-blue-500/20">
                         <div className="h-48 relative overflow-hidden">
-                            <img src={res.url} alt={res.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <img 
+                                src={getDisplayUrl(res)} 
+                                alt={res.title} 
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                            />
                             
                             <div className="absolute top-4 left-4 flex flex-col gap-2">
                                 <span className="bg-black/60 backdrop-blur-md text-[8px] font-black uppercase text-blue-400 px-2 py-1 rounded-full border border-blue-500/20 tracking-widest w-fit">{res.type}</span>
@@ -204,7 +274,32 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
                                         <span className="material-symbols-outlined text-[10px]">sensors</span> LIVE
                                     </span>
                                 )}
+                                {res.is_optimizing && (
+                                    <span className="bg-amber-500/80 backdrop-blur-md text-[8px] font-black uppercase text-white px-2 py-1 rounded-full border border-amber-400/20 tracking-widest flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-[10px] animate-spin">sync</span> Optimizing
+                                    </span>
+                                )}
                             </div>
+
+                            {/* Badge para indicar que hay HD disponible */}
+                            {res.thumbnail_url && fullResolutionId !== res.id && (
+                                <button
+                                    onClick={() => handleViewHD(res)}
+                                    className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-[8px] font-black uppercase text-white px-2 py-1 rounded-full border border-white/20 tracking-widest flex items-center gap-1 hover:bg-black/80 transition-colors"
+                                >
+                                    <span className="material-symbols-outlined text-[10px]">hd</span> Ver HD
+                                </button>
+                            )}
+
+                            {/* Badge para indicar que se muestra HD */}
+                            {fullResolutionId === res.id && (
+                                <button
+                                    onClick={() => handleViewHD(res)}
+                                    className="absolute top-4 right-4 bg-blue-500/80 backdrop-blur-md text-[8px] font-black uppercase text-white px-2 py-1 rounded-full border border-blue-400/20 tracking-widest flex items-center gap-1 hover:bg-blue-600/80 transition-colors"
+                                >
+                                    <span className="material-symbols-outlined text-[10px]">hd</span> HD
+                                </button>
+                            )}
                             
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
                             

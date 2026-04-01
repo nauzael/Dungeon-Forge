@@ -4,6 +4,7 @@ import { Character, ViewState } from './types';
 import { MOCK_CHARACTERS } from './constants';
 import CharacterList from './components/CharacterList';
 import Login from './components/Login';
+import { migrateCharacters } from './utils/characterMigrations';
 
 import { 
     supabase, 
@@ -157,10 +158,13 @@ const App: React.FC = () => {
   }, []);
   
   // Initialize characters from localStorage if available, otherwise use mocks
+  // Apply migrations to existing characters on load
   const [characters, setCharacters] = useState<Character[]>(() => {
     try {
       const saved = localStorage.getItem('dnd-characters');
-      return saved ? JSON.parse(saved) : MOCK_CHARACTERS;
+      const loaded: Character[] = saved ? JSON.parse(saved) : MOCK_CHARACTERS;
+      const { characters: migratedChars } = migrateCharacters(loaded);
+      return migratedChars;
     } catch (e) {
       console.error("Failed to load characters from local storage", e);
       return MOCK_CHARACTERS;

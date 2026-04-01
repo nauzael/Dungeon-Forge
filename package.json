@@ -25,6 +25,7 @@
     "@supabase/supabase-js": "^2.100.0",
     "@tarquinen/opencode-dcp": "^3.0.4",
     "@zenobius/opencode-skillful": "^1.2.5",
+    "browser-image-compression": "^2.0.2",
     "jsonc-parser": "^3.3.1",
     "micode": "^0.10.0",
     "octto": "^0.3.1",

@@ -145,14 +145,17 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
         return Array.from(new Set([...prepared, ...pact, ...pactRituals]));
     }, [character.preparedSpells, character.pactCantrips, character.pactRituals]);
 
-    // 2024 LIMITS: Preparation per level
+    // 2024 LIMITS: Preparation per level (excludes innate spells - they don't count against capacity)
     const currentPreparedForActiveLevel = useMemo(() => {
         const levelToCheck = grimoireLevel;
+        const innateSet = new Set(character.innateSpells || []);
         return (character.preparedSpells || []).filter(name => {
+            // Exclude innate spells - they're auto-prepared and don't consume capacity
+            if (innateSet.has(name)) return false;
             const spell = SPELL_DETAILS[name];
             return spell?.level === levelToCheck;
         }).length;
-    }, [character.preparedSpells, grimoireLevel]);
+    }, [character.preparedSpells, character.innateSpells, grimoireLevel]);
 
     const maxPreparedForActiveLevel = useMemo(() => {
         // CASE 1: CANTRIPS (level 0)
@@ -320,6 +323,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
     };
 
     const getSourceList = (source: string): string[] => {
+        // Note: Innate spells are included in the list but marked as non-selectable in the render
         if (source === 'All') {
             const list = new Set<string>();
             const mainClassList = SPELL_LIST_BY_CLASS[character.class] || (['Eldritch Knight', 'Arcane Trickster'].includes(character.subclass || '') ? ARCANE_SPELLS : []);
@@ -333,14 +337,14 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
             }
             return Array.from(list);
         }
-        if (source === 'Pact') return character.pactCantrips || [];
+        if (source === 'Pact') return (character.pactCantrips || []);
         if (source === character.class) {
-            if (character.subclass === 'Warrior of the Mystic Arts') return SPELL_LIST_BY_CLASS['Sorcerer'] || [];
-            return SPELL_LIST_BY_CLASS[character.class] || (['Eldritch Knight', 'Arcane Trickster'].includes(character.subclass || '') ? ARCANE_SPELLS : []);
+            if (character.subclass === 'Warrior of the Mystic Arts') return (SPELL_LIST_BY_CLASS['Sorcerer'] || []);
+            return (SPELL_LIST_BY_CLASS[character.class] || (['Eldritch Knight', 'Arcane Trickster'].includes(character.subclass || '') ? ARCANE_SPELLS : []));
         }
         if (source.includes('(Feat)')) {
             const className = source.split(' ')[0];
-            return SPELL_LIST_BY_CLASS[className] || [];
+            return (SPELL_LIST_BY_CLASS[className] || []);
         }
         return [];
     };
@@ -531,26 +535,30 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                    </div>
                </div>
 
-               <div className="flex-1 overflow-y-auto p-4 gap-3 flex flex-col pb-24 no-scrollbar bg-gradient-to-b from-surface-dark/20 to-background-dark">
-                   {getSourceList(grimoireSource)
-                       .filter(name => {
-                           const spell = SPELL_DETAILS[name];
-                           // Visibility Check: Show spell if its level is in the available levels list
-                           const level = spell?.level || 0;
-                           const hasAccess = availableSpellLevels.includes(level);
+                <div className="flex-1 overflow-y-auto p-4 gap-3 flex flex-col pb-24 no-scrollbar bg-gradient-to-b from-surface-dark/20 to-background-dark">
+                    {getSourceList(grimoireSource)
+                        .filter(name => {
+                            const spell = SPELL_DETAILS[name];
+                            // Skip spells without details (not yet implemented in spell data)
+                            if (!spell) return false;
+                            // Visibility Check: Show spell if its level is in the available levels list
+                            const level = spell?.level || 0;
+                            const hasAccess = availableSpellLevels.includes(level);
 
-                           return level === grimoireLevel && hasAccess && name.toLowerCase().includes(grimoireSearch.toLowerCase());
-                       })
-                       .sort()
-                       .map(name => {
-                           const isPrepared = allPreparedSpells.includes(name);
-                           const isPactChoice = character.pactCantrips?.includes(name) || character.pactRituals?.includes(name);
-                           const isExpanded = expandedGrimoireId === name;
-                           const spell = SPELL_DETAILS[name];
-                           const summary = spell ? getSpellSummary(spell.description, spell.school) : { classes: '', icon: 'help', label: '' };
+                            return level === grimoireLevel && hasAccess && name.toLowerCase().includes(grimoireSearch.toLowerCase());
+                        })
+                        .sort()
+                        .map(name => {
+                            const isPrepared = allPreparedSpells.includes(name);
+                            const isPactChoice = character.pactCantrips?.includes(name) || character.pactRituals?.includes(name);
+                            const isExpanded = expandedGrimoireId === name;
+                            const spell = SPELL_DETAILS[name];
+                            const summary = spell ? getSpellSummary(spell.description, spell.school) : { classes: '', icon: 'help', label: '' };
 
-                           const isAtLevelLimit = currentPreparedForActiveLevel >= maxPreparedForActiveLevel;
-                           const isBlocked = !isPrepared && isAtLevelLimit && !isPactChoice;
+                            // Check if this is an innate spell (auto-prepared, doesn't consume slots)
+                            const isInnate = character.innateSpells?.includes(name);
+                            const isAtLevelLimit = currentPreparedForActiveLevel >= maxPreparedForActiveLevel;
+                            const isBlocked = (!isPrepared && isAtLevelLimit && !isPactChoice) || isInnate;
 
                            return (
                                <div key={name} className={`flex flex-col rounded-2xl border transition-all duration-300 ${isPrepared ? 'bg-primary/5 border-primary/50 shadow-md shadow-primary/5' : isBlocked ? 'bg-white/[0.02] border-white/5 opacity-60' : 'bg-surface-dark border-white/5 hover:border-white/10'}`}>
@@ -564,14 +572,15 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                                                <span className={`material-symbols-outlined text-slate-500 text-lg transition-transform duration-300 ${isExpanded ? 'rotate-180 text-primary' : ''}`}>expand_more</span>
                                            </div>
 
-                                           <div className="flex items-center gap-2 pl-5">
-                                                <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-wider ${summary.classes}`}>
-                                                    <span className="material-symbols-outlined text-[12px]">{summary.icon}</span>
-                                                    {summary.label}
-                                                </div>
-                                                {isPactChoice && <span className="text-[8px] font-black bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded uppercase">{t.pact_source}</span>}
-                                                {isBlocked && !isPactChoice && <span className="text-[8px] font-black bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 py-0.5 rounded uppercase flex items-center gap-1"><span className="material-symbols-outlined text-[10px]">lock</span>{t.limit}</span>}
-                                           </div>
+                                             <div className="flex items-center gap-2 pl-5">
+                                                  <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-wider ${summary.classes}`}>
+                                                      <span className="material-symbols-outlined text-[12px]">{summary.icon}</span>
+                                                      {summary.label}
+                                                  </div>
+                                                  {isPactChoice && <span className="text-[8px] font-black bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded uppercase">{t.pact_source}</span>}
+                                                  {isInnate && <span className="text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded uppercase flex items-center gap-1"><span className="material-symbols-outlined text-[10px]">auto_awesome</span>Innate</span>}
+                                                  {isBlocked && !isPactChoice && !isInnate && <span className="text-[8px] font-black bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 py-0.5 rounded uppercase flex items-center gap-1"><span className="material-symbols-outlined text-[10px]">lock</span>{t.limit}</span>}
+                                             </div>
                                        </button>
                                        <button
                                             onClick={() => !isBlocked && togglePreparedSpell(name)}

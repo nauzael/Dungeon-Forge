@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { compressImage, generateThumbnail, optimizeExistingImage } from './imageOptimizer';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
@@ -296,13 +297,19 @@ export const updatePartyResourcePersistence = async (resourceId: string, is_pers
 
 export const uploadResourceImage = async (file: File) => {
     try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
+        // 1. Comprimir imagen
+        const compressedFile = await compressImage(file);
+
+        // 2. Generar thumbnail base64
+        const thumbnailDataUrl = await generateThumbnail(file);
+
+        // 3. Subir imagen comprimida a Storage
+        const fileName = `${Date.now()}.webp`;
         const filePath = `atlas/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
             .from('atlas')
-            .upload(filePath, file);
+            .upload(filePath, compressedFile);
 
         if (uploadError) {
             console.error("Supabase Storage Error:", uploadError);
@@ -313,10 +320,79 @@ export const uploadResourceImage = async (file: File) => {
             .from('atlas')
             .getPublicUrl(filePath);
 
-        return data.publicUrl;
+        // 4. Devolver both: full URL y thumbnail (base64)
+        return {
+            fullUrl: data.publicUrl,
+            thumbnailUrl: thumbnailDataUrl
+        };
     } catch (e: any) {
         console.error("Upload failed details:", e.message || e);
         return null;
+    }
+};
+
+/**
+ * Actualiza el thumbnail_url de un recurso existente en la base de datos.
+ */
+export const updateResourceThumbnail = async (resourceId: string, thumbnailUrl: string) => {
+    try {
+        const { error } = await supabase
+            .from('party_resources')
+            .update({ thumbnail_url: thumbnailUrl })
+            .eq('id', resourceId);
+
+        if (error) throw error;
+        return true;
+    } catch (e) {
+        console.error("Failed to update resource thumbnail:", e);
+        return false;
+    }
+};
+
+/**
+ * Migra imágenes existentes: optimiza y genera thumbnail para recursos sin uno.
+ * Procesa en background, no bloquea la UI.
+ */
+export const migrateExistingResourceImages = async (partyId: string): Promise<{
+    migrated: number;
+    failed: number;
+}> => {
+    try {
+        // 1. Obtener recursos sin thumbnail
+        const { data: resources, error: fetchError } = await supabase
+            .from('party_resources')
+            .select('*')
+            .eq('party_id', partyId)
+            .is('thumbnail_url', null);
+
+        if (fetchError) throw fetchError;
+        if (!resources || resources.length === 0) {
+            return { migrated: 0, failed: 0 };
+        }
+
+        let migrated = 0;
+        let failed = 0;
+
+        // 2. Procesar cada recurso
+        for (const resource of resources) {
+            try {
+                const result = await optimizeExistingImage(resource.url);
+                if (result && result.thumbnailDataUrl) {
+                    await updateResourceThumbnail(resource.id, result.thumbnailDataUrl);
+                    migrated++;
+                } else {
+                    failed++;
+                }
+            } catch (err) {
+                console.error(`Error migrating resource ${resource.id}:`, err);
+                failed++;
+            }
+        }
+
+        return { migrated, failed };
+    } catch (e) {
+        console.error("Migration failed:", e);
+        return { migrated: 0, failed: 0 };
     }
 };
 

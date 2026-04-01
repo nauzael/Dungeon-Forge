@@ -37,7 +37,14 @@ export const artificerEn = {
         15: [
           { name: 'Chemical Mastery', description: 'Alchemical Eruption: when Artificer spell deals Acid/Fire/Poison damage, add 2d8 Force damage. Chemical Resistance: Resistance to Acid and Poison, immunity to Poisoned. Conjured Cauldron: cast Tasha\'s Bubbling Cauldron without slot/components using Alchemist\'s Supplies. Once per Long Rest.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Healing Word', 'Ray of Sickness'],
+        5: ['Flaming Sphere', "Melf's Acid Arrow"],
+        9: ['Gaseous Form', 'Mass Healing Word'],
+        13: ['Death Ward', 'Vitriolic Sphere'],
+        17: ['Cloudkill', 'Raise Dead'],
+      },
     },
     {
       name: 'Armorer',
@@ -57,7 +64,14 @@ export const artificerEn = {
         15: [
           { name: 'Perfected Armor', description: 'Dreadnaught: demolisher damage 2d6; Giant Stature reach +10, can become Huge, Advantage on Strength checks/saves. Guardian: Thunder Pulse damage 1d10; Reaction pull Huge or smaller creature 25 feet toward you, attack if within 5 feet. Infiltrator: Lightning Launcher 2d6; target glimmers (Disadvantage on attacks against you); Bonus Action Fly Speed twice Speed.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Magic Missile', 'Thunderwave'],
+        5: ['Mirror Image', 'Shatter'],
+        9: ['Hypnotic Pattern', 'Lightning Bolt'],
+        13: ['Fire Shield', 'Greater Invisibility'],
+        17: ['Passwall', 'Wall of Force'],
+      },
     },
     {
       name: 'Artillerist',
@@ -77,7 +91,14 @@ export const artificerEn = {
         15: [
           { name: 'Fortified Position', description: 'Double Firepower: two cannons at once, create both with same action. Shimmering Field: Half Cover for you and allies within 10 feet of cannon.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Shield', 'Thunderwave'],
+        5: ['Scorching Ray', 'Shatter'],
+        9: ['Fireball', 'Wind Wall'],
+        13: ['Ice Storm', 'Wall of Fire'],
+        17: ['Cone of Cold', 'Wall of Force'],
+      },
     },
     {
       name: 'Battle Smith',
@@ -97,7 +118,14 @@ export const artificerEn = {
         15: [
           { name: 'Improved Steel Defender', description: 'Steel Defender gains: Immune to your spells; Bonus to AC equal to Int modifier; attack uses d8; Defensive/Defiant improved; can take Dash, Disengage, Help, or Use an Object as Bonus Action.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Heroism', 'Shield'],
+        5: ['Shining Smite', 'Warding Bond'],
+        9: ['Aura of Vitality', 'Conjure Barrage'],
+        13: ['Aura of Purity', 'Fire Shield'],
+        17: ['Banishing Smite', 'Mass Cure Wounds'],
+      },
     },
     {
       name: 'Cartographer',
@@ -118,7 +146,14 @@ export const artificerEn = {
         15: [
           { name: 'Perfect Cartography', description: 'Strategic Mark marks an area (100-foot Cube). When you enter marked area, choose: gain Tremorsense 60 feet for 1 minute; or create three magic mouth alarms that last until rest. When casting Teleportation Circle, it becomes permanent without requiring a key object.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Identify', 'Longstrider'],
+        5: ['Locate Object', 'Suggestion'],
+        9: ['Clairvoyance', 'Sending'],
+        13: ['Locate Creature', 'Tongues'],
+        17: ['Legend Lore', 'Teleportation Circle'],
+      },
     },
   ] as SubclassData[],
   masteriesCount: 2,
@@ -769,7 +804,14 @@ export const paladinEn = {
         20: [
           { name: 'Holy Nimbus', description: 'Bonus Action imbue Aura with holy power for 10 minutes: Advantage on saves vs. Fiends/Undead; Radiant damage to enemies starting turn in aura equal to Charisma plus Proficiency Bonus; Aura becomes sunlight. Long rest to reuse, or expend level 5 spell slot.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Protection from Evil and Good', 'Shield of Faith'],
+        5: ['Aid', 'Zone of Truth'],
+        9: ['Beacon of Hope', 'Dispel Magic'],
+        13: ['Freedom of Movement', 'Guardian of Faith'],
+        17: ['Commune', 'Flame Strike'],
+      },
     },
     {
       name: 'Oath of Glory',
@@ -789,7 +831,14 @@ export const paladinEn = {
         20: [
           { name: 'Living Legend', description: 'Bonus Action for 10 minutes: Advantage on Charisma checks; reroll failed saving throws; once per turn when weapon attack misses, it hits instead. Long rest to reuse, or expend level 5 spell slot.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Guiding Bolt', 'Heroism'],
+        5: ['Enhance Ability', 'Magic Weapon'],
+        9: ['Haste', 'Protection from Energy'],
+        13: ['Compulsion', 'Freedom of Movement'],
+        17: ['Legend Lore', "Yolande's Regal Presence"],
+      },
     },
     {
       name: 'Oath of the Ancients',
@@ -808,7 +857,14 @@ export const paladinEn = {
         20: [
           { name: 'Elder Champion', description: 'Bonus Action imbue Aura with primal power for 1 minute: Enemies have Disadvantage on saves vs. your spells and Channel Divinity; regenerate 10 HP at start of each turn; cast spells with casting time of action as Bonus Action. Long rest to reuse, or expend level 5 spell slot.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Ensnaring Strike', 'Speak with Animals'],
+        5: ['Misty Step', 'Moonbeam'],
+        9: ['Plant Growth', 'Protection from Energy'],
+        13: ['Ice Storm', 'Stoneskin'],
+        17: ['Commune with Nature', 'Tree Stride'],
+      },
     },
     {
       name: 'Oath of the Noble Genies',
@@ -847,7 +903,14 @@ export const paladinEn = {
         20: [
           { name: 'Avenging Angel', description: 'Bonus Action for 10 minutes: spectral wings, Fly Speed 60 feet and hover; Frightful Aura (Wisdom save or Frightened, attacks against Frightened have Advantage). Long rest to reuse, or expend level 5 spell slot.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Bane', "Hunter's Mark"],
+        5: ['Hold Person', 'Misty Step'],
+        9: ['Haste', 'Protection from Energy'],
+        13: ['Banishment', 'Dimension Door'],
+        17: ['Hold Monster', 'Scrying'],
+      },
     },
   ] as SubclassData[],
   masteriesCount: 2,
@@ -905,7 +968,14 @@ export const rangerEn = {
         15: [
           { name: 'Misty Wanderer', description: 'Cast Misty Step without spell slot. Uses equal to Wisdom modifier per Long Rest. When casting Misty Step, bring one willing creature within 5 feet to space near your destination.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Charm Person'],
+        5: ['Misty Step'],
+        9: ['Summon Fey'],
+        13: ['Dimension Door'],
+        17: ['Mislead'],
+      },
     },
     {
       name: 'Gloom Stalker',
@@ -925,7 +995,14 @@ export const rangerEn = {
         15: [
           { name: 'Shadowy Dodge', description: 'When creature makes attack roll against you, Reaction impose Disadvantage. Whether hit or miss, teleport up to 30 feet to unoccupied visible space.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Disguise Self'],
+        5: ['Rope Trick'],
+        9: ['Fear'],
+        13: ['Greater Invisibility'],
+        17: ['Seeming'],
+      },
     },
     {
       name: 'Hunter',
@@ -964,7 +1041,14 @@ export const rangerEn = {
         15: [
           { name: 'Frozen Haunt', description: 'When casting Hunter\'s Mark, adopt ghostly snowy form until spell ends: Immunity to Cold; 15-foot Emanation deals 2d4 Cold damage to creatures of your choice when you adopt form and at start of each turn; Immunity to Grappled, Prone, Restrained; move through creatures/objects as Difficult Terrain (1d10 Force if ending turn inside). Once per Long Rest, or expend level 4+ spell slot.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Ice Knife'],
+        5: ['Hold Person'],
+        9: ['Remove Curse'],
+        13: ['Ice Storm'],
+        17: ['Cone of Cold'],
+      },
     },
   ] as SubclassData[],
   masteriesCount: 2,
@@ -1119,7 +1203,13 @@ export const sorcererEn = {
         18: [
           { name: 'Warping Implosion', description: 'Magic action teleport to visible unoccupied space within 120 feet. Creatures within 30 feet of space you left Strength save: 3d10 Force damage and pulled toward space, or half on success. Once per Long Rest, or spend 5 Sorcery Points.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Arms of Hadar', 'Calm Emotions', 'Detect Thoughts', 'Dissonant Whispers', 'Mind Sliver'],
+        5: ['Hunger of Hadar', 'Sending'],
+        7: ["Evard's Black Tentacles", 'Summon Aberration'],
+        9: ["Rary's Telepathic Bond", 'Telekinesis'],
+      },
     },
     {
       name: 'Clockwork Sorcery',
@@ -1138,7 +1228,13 @@ export const sorcererEn = {
         18: [
           { name: 'Clockwork Cavalcade', description: 'Magic action summon spirits in 30-foot Cube (modron-like, intangible, invulnerable): Heal (restore up to 100 HP divided among creatures); Repair (damaged objects repaired); Dispel (end spells level 6 and lower). Once per Long Rest, or spend 7 Sorcery Points.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Aid', 'Alarm', 'Lesser Restoration', 'Protection from Evil and Good'],
+        5: ['Dispel Magic', 'Protection from Energy'],
+        7: ['Freedom of Movement', 'Summon Construct'],
+        9: ['Greater Restoration', 'Wall of Force'],
+      },
     },
     {
       name: 'Draconic Sorcery',
@@ -1157,7 +1253,13 @@ export const sorcererEn = {
         18: [
           { name: 'Dragon Companion', description: 'Cast Summon Dragon without Material component. Once without spell slot per Long Rest. Can modify to not require Concentration (1 minute duration).' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Alter Self', 'Chromatic Orb', 'Command', "Dragon's Breath"],
+        5: ['Fear', 'Fly'],
+        7: ['Arcane Eye', 'Charm Monster'],
+        9: ['Legend Lore', 'Summon Dragon'],
+      },
     },
     {
       name: 'Spellfire Sorcery',
@@ -1176,7 +1278,13 @@ export const sorcererEn = {
         18: [
           { name: 'Crown of Spellfire', description: 'When using Innate Sorcery, alter it: Burning Life Force (when hit, expend Hit Point Dice up to Charisma mod, reduce damage by total rolled); Flight (Fly Speed 60 feet and hover); Spell Avoidance (when save for half damage, take no damage on success, half on fail). Once per Long Rest, or spend 5 Sorcery Points.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Cure Wounds', 'Guiding Bolt', 'Lesser Restoration', 'Scorching Ray'],
+        5: ['Aura of Vitality', 'Dispel Magic'],
+        7: ['Fire Shield', 'Wall of Fire'],
+        9: ['Greater Restoration', 'Flame Strike'],
+      },
     },
     {
       name: 'Wild Magic Sorcery',
@@ -1234,7 +1342,13 @@ export const warlockEn = {
         14: [
           { name: 'Bewitching Magic', description: 'After casting Enchantment/Illusion spell with action and spell slot, cast Misty Step as part of same action without expending slot.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Calm Emotions', 'Faerie Fire', 'Misty Step', 'Phantasmal Force', 'Sleep'],
+        5: ['Blink', 'Plant Growth'],
+        7: ['Dominate Beast', 'Greater Invisibility'],
+        9: ['Dominate Person', 'Seeming'],
+      },
     },
     {
       name: 'Celestial Patron',
@@ -1253,7 +1367,13 @@ export const warlockEn = {
         14: [
           { name: 'Searing Vengeance', description: 'When ally within 60 feet makes Death Save, unleash radiant energy. Creature regains half HP maximum and can end Prone. Each creature within 30 feet takes 2d8 plus Charisma Radiant damage and Blinded until end of current turn. Once per Long Rest.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Aid', 'Cure Wounds', 'Guiding Bolt', 'Lesser Restoration', 'Light', 'Sacred Flame'],
+        5: ['Daylight', 'Revivify'],
+        7: ['Guardian of Faith', 'Wall of Fire'],
+        9: ['Greater Restoration', 'Summon Celestial'],
+      },
     },
     {
       name: 'Fiend Patron',
@@ -1272,7 +1392,13 @@ export const warlockEn = {
         14: [
           { name: 'Hurl Through Hell', description: 'When hitting creature with attack, transport target through Lower Planes. Charisma save or take 8d10 Psychic damage, Incapacitated until end of your next turn, then return. Once per Long Rest, or expend spell slot.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Burning Hands', 'Command', 'Scorching Ray', 'Suggestion'],
+        5: ['Fireball', 'Stinking Cloud'],
+        7: ['Fire Shield', 'Wall of Fire'],
+        9: ['Geas', 'Insect Plague'],
+      },
     },
     {
       name: 'Great Old One Patron',
@@ -1293,7 +1419,13 @@ export const warlockEn = {
         14: [
           { name: 'Create Thrall', description: 'When casting Summon Aberration, modify to not require Concentration (1 minute duration). Aberration has Temporary Hit Points equal to Warlock level plus Charisma modifier. First time each turn Aberration hits creature under Hex, deal extra Psychic damage equal to spell\'s bonus damage.' },
         ],
-      }
+      },
+      alwaysPreparedSpells: {
+        3: ['Detect Thoughts', 'Dissonant Whispers', 'Phantasmal Force', "Tasha's Hideous Laughter"],
+        5: ['Clairvoyance', 'Hunger of Hadar'],
+        7: ['Confusion', 'Summon Aberration'],
+        9: ['Modify Memory', 'Telekinesis'],
+      },
     },
   ] as SubclassData[],
   masteriesCount: 0,

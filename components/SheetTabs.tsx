@@ -176,7 +176,24 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
           updatedChar.focus = { current: nextLevel, max: nextLevel };
       }
 
-      if (needsSubclass && pendingSubclass) updatedChar.subclass = pendingSubclass;
+      if (needsSubclass && pendingSubclass) {
+          updatedChar.subclass = pendingSubclass;
+          
+          const subclassData = SUBCLASS_OPTIONS[character.class]?.find(s => s.name === pendingSubclass);
+          
+          if (subclassData?.alwaysPreparedSpells) {
+              const spellsToAdd: string[] = [];
+              Object.entries(subclassData.alwaysPreparedSpells).forEach(([lvl, spells]) => {
+                  if (parseInt(lvl) <= nextLevel) {
+                      spellsToAdd.push(...spells);
+                  }
+              });
+              
+              if (spellsToAdd.length > 0) {
+                  updatedChar.preparedSpells = [...new Set([...(updatedChar.preparedSpells || []), ...spellsToAdd])];
+              }
+          }
+      }
       if (needsAsi) {
           if (pendingAsiType === 'feat' && pendingFeat) updatedChar.feats = [...(updatedChar.feats || []), pendingFeat];
           else {

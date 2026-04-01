@@ -2,7 +2,7 @@
 ## Fix Features to Appear Only When Unlocked by Level
 
 ### Date: 2026-04-01
-### Status: draft
+### Status: validated
 
 ---
 
