@@ -11,6 +11,79 @@ import { LEVEL7 } from './spells/level7';
 import { LEVEL8 } from './spells/level8';
 import { LEVEL9 } from './spells/level9';
 
+// Warlock spell list (official 2024)
+export const WARLOCK_SPELLS = [
+  // Cantrips (level 0)
+  'Blade Ward', 'Chill Touch', 'Eldritch Blast', 'Friends', 'Mage Hand', 'Mind Sliver', 'Minor Illusion', 'Poison Spray', 'Prestidigitation', 'Thunderclap', 'Toll the Dead', 'True Strike',
+  // 1st level
+  'Armor of Agathys', 'Arms of Hadar', 'Bane', 'Charm Person', 'Comprehend Languages', 'Detect Magic', 'Expeditious Retreat', 'Hellish Rebuke', 'Hex', 'Illusory Script', 'Protection from Evil and Good', 'Speak with Animals', 'Tasha\'s Hideous Laughter', 'Unseen Servant', 'Witch Bolt',
+  // 2nd level
+  'Cloud of Daggers', 'Crown of Madness', 'Darkness', 'Enthrall', 'Hold Person', 'Invisibility', 'Mind Spike', 'Mirror Image', 'Misty Step', 'Ray of Enfeeblement', 'Spider Climb', 'Suggestion',
+  // 3rd level
+  'Counterspell', 'Dispel Magic', 'Fear', 'Fly', 'Gaseous Form', 'Hunger of Hadar', 'Hypnotic Pattern', 'Magic Circle', 'Major Image', 'Remove Curse', 'Summon Fey', 'Summon Undead', 'Tongues', 'Vampiric Touch',
+  // 4th level
+  'Backlash', 'Banishment', 'Blight', 'Charm Monster', 'Dimension Door', 'Doomtide', 'Hallucinatory Terrain', 'Summon Aberration',
+  // 5th level
+  'Contact Other Plane', 'Dream', 'Hold Monster', 'Jallarzi\'s Storm of Radiance', 'Mislead', 'Planar Binding', 'Scrying', 'Synaptic Static', 'Teleportation Circle',
+  // 6th level
+  'Arcane Gate', 'Circle of Death', 'Create Undead', 'Eyebite', 'Summon Fiend', 'Tasha\'s Bubbling Cauldron', 'True Seeing',
+  // 7th level
+  'Etherealness', 'Finger of Death', 'Forcecage', 'Plane Shift',
+  // 8th level
+  'Befuddlement', 'Demiplane', 'Dominate Monster', 'Glibness', 'Power Word Stun',
+  // 9th level
+  'Astral Projection', 'Blade of Disaster', 'Foresight', 'Gate', 'Imprisonment', 'Power Word Kill', 'True Polymorph', 'Weird',
+];
+
+// Bard spell list (official 2024 from dnd2024.wikidot.com)
+export const BARD_SPELLS = [
+  // Cantrips (13)
+  'Blade Ward', 'Dancing Lights', 'Friends', 'Light', 'Mage Hand', 'Mending', 'Message', 'Minor Illusion', 'Prestidigitation', 'Starry Wisp', 'Thunderclap', 'True Strike', 'Vicious Mockery',
+  // Level 1 (24)
+  'Animal Friendship', 'Bane', 'Charm Person', 'Color Spray', 'Command', 'Comprehend Languages', 'Cure Wounds', 'Detect Magic', 'Disguise Self', 'Dissonant Whispers', 'Faerie Fire', 'Feather Fall', 'Healing Word', 'Heroism', 'Identify', 'Illusory Script', 'Longstrider', 'Silent Image', 'Sleep', 'Speak with Animals', 'Tasha\'s Hideous Laughter', 'Thunderwave', 'Unseen Servant', 'Wardaway',
+  // Level 2 (25)
+  'Aid', 'Animal Messenger', 'Blindness/Deafness', 'Calm Emotions', 'Cloud of Daggers', 'Crown of Madness', 'Detect Thoughts', 'Enhance Ability', 'Enlarge/Reduce', 'Enthrall', 'Heat Metal', 'Hold Person', 'Invisibility', 'Knock', 'Lesser Restoration', 'Locate Animals or Plants', 'Locate Object', 'Magic Mouth', 'Mirror Image', 'Phantasmal Force', 'See Invisibility', 'Shatter', 'Silence', 'Suggestion', 'Zone of Truth',
+  // Level 3 (19)
+  'Bestow Curse', 'Cacophonic Shield', 'Clairvoyance', 'Dispel Magic', 'Fear', 'Feign Death', 'Glyph of Warding', 'Hypnotic Pattern', 'Leomund\'s Tiny Hut', 'Major Image', 'Mass Healing Word', 'Nondetection', 'Plant Growth', 'Sending', 'Slow', 'Speak with Dead', 'Speak with Plants', 'Stinking Cloud', 'Tongues',
+  // Level 4 (14)
+  'Backlash', 'Charm Monster', 'Compulsion', 'Confusion', 'Dimension Door', 'Doomtide', 'Fount of Moonlight', 'Freedom of Movement', 'Greater Invisibility', 'Hallucinatory Terrain', 'Locate Creature', 'Phantasmal Killer', 'Polymorph',
+  // Level 5 (20)
+  'Alustriel\'s Mooncloak', 'Animate Objects', 'Awaken', 'Dominate Person', 'Dream', 'Geas', 'Greater Restoration', 'Hold Monster', 'Legend Lore', 'Mass Cure Wounds', 'Mislead', 'Modify Memory', 'Planar Binding', 'Raise Dead', 'Rary\'s Telepathic Bond', 'Scrying', 'Seeming', 'Synaptic Static', 'Teleportation Circle', 'Yolande\'s Regal Presence',
+  // Level 6 (9)
+  'Dirge', 'Eyebite', 'Find the Path', 'Guards and Wards', 'Heroes\' Feast', 'Mass Suggestion', 'Otto\'s Irresistible Dance', 'Programmed Illusion', 'True Seeing',
+  // Level 7 (7)
+  'Etherealness', 'Forcecage', 'Mirage Arcane', 'Mordenkainen\'s Magnificent Mansion', 'Mordenkainen\'s Sword', 'Power Word Fortify', 'Prismatic Spray',
+  // Level 8 (8)
+  'Antimagic Field', 'Befuddlement', 'Clone', 'Control Weather', 'Demiplane', 'Dominate Monster', 'Glibness', 'Incendiary Cloud', 'Maze', 'Mind Blank', 'Power Word Stun', 'Sunburst',
+  // Level 9 (8)
+  'Astral Projection', 'Foresight', 'Gate', 'Imprisonment', 'Meteor Swarm', 'Power Word Heal', 'Power Word Kill', 'True Resurrection',
+];
+
+// Sorcerer spell list (official 2024 from dnd2024.wikidot.com)
+export const SORCERER_SPELLS = [
+  // Cantrips (19)
+  'Acid Splash', 'Blade Ward', 'Chill Touch', 'Dancing Lights', 'Elementalism', 'Fire Bolt', 'Friends', 'Light', 'Mage Hand', 'Mending', 'Message', 'Mind Sliver', 'Minor Illusion', 'Poison Spray', 'Prestidigitation', 'Ray of Frost', 'Shocking Grasp', 'Sorcerous Burst', 'Thunderclap', 'True Strike',
+  // Level 1 (23)
+  'Burning Hands', 'Charm Person', 'Chromatic Orb', 'Color Spray', 'Comprehend Languages', 'Detect Magic', 'Disguise Self', 'Expeditious Retreat', 'False Life', 'Feather Fall', 'Fog Cloud', 'Grease', 'Ice Knife', 'Jump', 'Mage Armor', 'Magic Missile', 'Ray of Sickness', 'Shield', 'Silent Image', 'Sleep', 'Spellfire Flare', 'Thunderwave', 'Witch Bolt',
+  // Level 2 (30)
+  'Alter Self', 'Arcane Vigor', 'Blindness/Deafness', 'Blur', 'Cloud of Daggers', 'Crown of Madness', 'Darkness', 'Darkvision', 'Death Armor', 'Detect Thoughts', 'Dragon\'s Breath', 'Enhance Ability', 'Enlarge/Reduce', 'Flame Blade', 'Flaming Sphere', 'Gust of Wind', 'Hold Person', 'Invisibility', 'Knock', 'Levitate', 'Magic Weapon', 'Mind Spike', 'Mirror Image', 'Misty Step', 'Phantasmal Force', 'Scorching Ray', 'See Invisibility', 'Shatter', 'Spider Climb', 'Suggestion', 'Web',
+  // Level 3 (23)
+  'Blink', 'Cacophonic Shield', 'Clairvoyance', 'Counterspell', 'Daylight', 'Dispel Magic', 'Fear', 'Fireball', 'Fly', 'Gaseous Form', 'Haste', 'Hypnotic Pattern', 'Laeral\'s Silver Lance', 'Lightning Bolt', 'Major Image', 'Protection from Energy', 'Sleet Storm', 'Slow', 'Stinking Cloud', 'Tongues', 'Vampiric Touch', 'Water Breathing', 'Water Walk',
+  // Level 4 (15)
+  'Backlash', 'Banishment', 'Blight', 'Charm Monster', 'Confusion', 'Dimension Door', 'Dominate Beast', 'Fire Shield', 'Greater Invisibility', 'Ice Storm', 'Polymorph', 'Spellfire Storm', 'Stoneskin', 'Vitriolic Sphere', 'Wall of Fire',
+  // Level 5 (14)
+  'Animate Objects', 'Bigby\'s Hand', 'Cloudkill', 'Cone of Cold', 'Creation', 'Dominate Person', 'Hold Monster', 'Insect Plague', 'Seeming', 'Songal\'s Elemental Suffusion', 'Synaptic Static', 'Telekinesis', 'Teleportation Circle', 'Wall of Stone',
+  // Level 6 (11)
+  'Arcane Gate', 'Chain Lightning', 'Circle of Death', 'Disintegrate', 'Elminster\'s Effulgent Spheres', 'Eyebite', 'Globe of Invulnerability', 'Mass Suggestion', 'Move Earth', 'Otto\'s Irresistible Dance', 'Sunbeam',
+  // Level 7 (10)
+  'Delayed Blast Fireball', 'Etherealness', 'Finger of Death', 'Forcecage', 'Mirage Arcane', 'Mordenkainen\'s Magnificent Mansion', 'Mordenkainen\'s Sword', 'Plane Shift', 'Prismatic Spray', 'Simulacrum',
+  // Level 8 (8)
+  'Antimagic Field', 'Clone', 'Control Weather', 'Demiplane', 'Incendiary Cloud', 'Maze', 'Mind Blank', 'Power Word Stun',
+  // Level 9 (8)
+  'Astral Projection', 'Foresight', 'Gate', 'Imprisonment', 'Meteor Swarm', 'Power Word Heal', 'Power Word Kill', 'True Resurrection',
+];
+
+// Wizard spell list (official 2024)
 export const ARCANE_SPELLS = [
   'Acid Splash', 'Blade Ward', 'Chill Touch', 'Dancing Lights', 'Eldritch Blast', 'Elementalism', 'Fire Bolt', 'Friends', 'Light', 'Mage Hand', 'Mending', 'Message', 'Mind Sliver', 'Minor Illusion', 'Poison Spray', 'Prestidigitation', 'Ray of Frost', 'Shocking Grasp', 'Sorcerous Burst', 'Thunderclap', 'Toll the Dead', 'True Strike', 'Vicious Mockery',
   'Alarm', 'Animal Friendship', 'Armor of Agathys', 'Arms of Hadar', 'Bane', 'Burning Hands', 'Charm Person', 'Chromatic Orb', 'Color Spray', 'Command', 'Comprehend Languages', 'Cure Wounds', 'Detect Magic', 'Disguise Self', 'Dissonant Whispers', 'Expeditious Retreat', 'Faerie Fire', 'False Life', 'Feather Fall', 'Find Familiar', 'Fog Cloud', 'Grease', 'Healing Word', 'Hellish Rebuke', 'Heroism', 'Hex', 'Ice Knife', 'Identify', 'Illusory Script', 'Jump', 'Longstrider', 'Mage Armor', 'Magic Missile', 'Protection from Evil and Good', 'Ray of Sickness', 'Shield', 'Silent Image', 'Sleep', 'Speak with Animals', 'Tasha\'s Hideous Laughter', 'Tenser\'s Floating Disk', 'Thunderwave', 'Unseen Servant', 'Witch Bolt',
@@ -39,11 +112,11 @@ export const DIVINE_SPELLS = [
 
 export const PRIMAL_SPELLS = [
   'Druidcraft', 'Elementalism', 'Guidance', 'Poison Spray', 'Produce Flame', 'Resistance', 'Shillelagh', 'Starry Wisp', 'Thorn Whip', 'Thunderclap',
-  'Animal Friendship', 'Create or Destroy Water', 'Cure Wounds', 'Detect Magic', 'Detect Poison and Disease', 'Entangle', 'Faerie Fire', 'Fog Cloud', 'Goodberry', 'Healing Word', 'Ice Knife', 'Jump', 'Longstrider', 'Protection from Evil and Good', 'Purify Food and Drink', 'Speak with Animals', 'Thunderwave',
-  'Aid', 'Animal Messenger', 'Barkskin', 'Beast Sense', 'Darkvision', 'Enhance Ability', 'Enlarge/Reduce', 'Find Traps', 'Flame Blade', 'Flaming Sphere', 'Gust of Wind', 'Heat Metal', 'Hold Person', 'Lesser Restoration', 'Locate Animals or Plants', 'Locate Object', 'Moonbeam', 'Pass without Trace', 'Protection from Poison', 'Spike Growth', 'Summon Beast',
-  'Aura of Vitality', 'Call Lightning', 'Conjure Animals', 'Conjure Barrage', 'Daylight', 'Dispel Magic', 'Elemental Weapon', 'Feign Death', 'Lightning Arrow', 'Meld into Stone', 'Plant Growth', 'Protection from Energy', 'Revivify', 'Sleet Storm', 'Speak with Plants', 'Summon Fey', 'Water Breathing', 'Water Walk', 'Wind Wall',
-  'Blight', 'Charm Monster', 'Confusion', 'Conjure Minor Elementals', 'Conjure Woodland Beings', 'Control Water', 'Dominate Beast', 'Fire Shield', 'Fount of Moonlight', 'Freedom of Movement', 'Giant Insect', 'Grasping Vine', 'Hallucinatory Terrain', 'Ice Storm', 'Locate Creature', 'Polymorph', 'Stone Shape', 'Stoneskin', 'Summon Elemental', 'Wall of Fire',
-  'Antilife Shell', 'Awaken', 'Commune with Nature', 'Cone of Cold', 'Conjure Elemental', 'Contagion', 'Geas', 'Greater Restoration', 'Insect Plague', 'Mass Cure Wounds', 'Planar Binding', 'Reincarnate', 'Scrying', 'Swift Quiver', 'Tree Stride', 'Wall of Stone',
+  'Animal Friendship', 'Charm Person', 'Create or Destroy Water', 'Cure Wounds', 'Detect Magic', 'Detect Poison and Disease', 'Disguise Self', 'Entangle', 'Faerie Fire', 'Fog Cloud', 'Goodberry', 'Healing Word', 'Ice Knife', 'Jump', 'Longstrider', 'Protection from Evil and Good', 'Purify Food and Drink', 'Speak with Animals', 'Thunderwave',
+  'Aid', 'Animal Messenger', 'Barkskin', 'Beast Sense', 'Darkvision', 'Enhance Ability', 'Enlarge/Reduce', 'Find Traps', 'Flame Blade', 'Flaming Sphere', 'Gust of Wind', 'Heat Metal', 'Hold Person', 'Lesser Restoration', 'Locate Animals or Plants', 'Locate Object', 'Misty Step', 'Moonbeam', 'Pass without Trace', 'Protection from Poison', 'Rope Trick', 'Spike Growth', 'Summon Beast',
+  'Aura of Vitality', 'Call Lightning', 'Conjure Animals', 'Conjure Barrage', 'Daylight', 'Dispel Magic', 'Elemental Weapon', 'Fear', 'Feign Death', 'Lightning Arrow', 'Meld into Stone', 'Plant Growth', 'Protection from Energy', 'Revivify', 'Sleet Storm', 'Speak with Plants', 'Summon Fey', 'Water Breathing', 'Water Walk', 'Wind Wall',
+  'Blight', 'Charm Monster', 'Confusion', 'Conjure Minor Elementals', 'Conjure Woodland Beings', 'Control Water', 'Dimension Door', 'Dominate Beast', 'Fire Shield', 'Fount of Moonlight', 'Freedom of Movement', 'Giant Insect', 'Grasping Vine', 'Greater Invisibility', 'Hallucinatory Terrain', 'Ice Storm', 'Locate Creature', 'Polymorph', 'Stone Shape', 'Stoneskin', 'Summon Elemental', 'Wall of Fire',
+  'Antilife Shell', 'Awaken', 'Commune with Nature', 'Cone of Cold', 'Conjure Elemental', 'Contagion', 'Geas', 'Greater Restoration', 'Insect Plague', 'Mass Cure Wounds', 'Mislead', 'Planar Binding', 'Reincarnate', 'Scrying', 'Seeming', 'Swift Quiver', 'Tree Stride', 'Wall of Stone',
   'Conjure Fey', 'Find the Path', 'Flesh to Stone', 'Heal', 'Heroes\' Feast', 'Move Earth', 'Sunbeam', 'Transport via Plants', 'Wall of Thorns', 'Wind Walk',
   'Fire Storm', 'Mirage Arcane', 'Plane Shift', 'Regenerate', 'Reverse Gravity', 'Symbol',
   'Animal Shapes', 'Antipathy/Sympathy', 'Befuddlement', 'Control Weather', 'Earthquake', 'Incendiary Cloud', 'Sunburst', 'Tsunami',
@@ -51,13 +124,13 @@ export const PRIMAL_SPELLS = [
 ];
 
 export const SPELL_LIST_BY_CLASS: Record<string, string[]> = {
-    'Bard': ARCANE_SPELLS,
+    'Bard': BARD_SPELLS,
     'Cleric': DIVINE_SPELLS,
     'Druid': PRIMAL_SPELLS,
     'Paladin': DIVINE_SPELLS,
     'Ranger': PRIMAL_SPELLS,
-    'Sorcerer': ARCANE_SPELLS,
-    'Warlock': ARCANE_SPELLS,
+    'Sorcerer': SORCERER_SPELLS,
+    'Warlock': WARLOCK_SPELLS,
     'Wizard': ARCANE_SPELLS,
 };
 
