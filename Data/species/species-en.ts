@@ -173,7 +173,7 @@ export const elfEn: DetailData = {
       name: 'Drow',
       description: 'Bonds with the Underdark and shadow magic.',
       traits: [
-        { name: 'Drow Magic', description: 'The range of your Darkvision increases to 120 feet. You also know the Dancing Lights cantrip.\n\nAt level 3: Faerie Fire.\nAt level 5: Darkness.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
+        { name: 'Drow Magic', description: 'The range of your Darkvision increases to 120 feet. You also know the Dancing Lights cantrip.\n\nAt level 3: Faerie Fire.\nAt level 5: Darkness.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.', level: 3 },
       ],
       innateSpells: [
         { level: 0, spell: 'Dancing Lights' },
@@ -185,7 +185,7 @@ export const elfEn: DetailData = {
       name: 'High Elf',
       description: 'Bonds with the Wilds and pure arcane magic of the upper planes.',
       traits: [
-        { name: 'High Elf Magic', description: 'You know the Prestidigitation cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Wizard spell list.\n\nAt level 3: Detect Magic.\nAt level 5: Misty Step.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
+        { name: 'High Elf Magic', description: 'You know the Prestidigitation cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Wizard spell list.\n\nAt level 3: Detect Magic.\nAt level 5: Misty Step.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.', level: 3 },
       ],
       innateSpells: [
         { level: 0, spell: 'Prestidigitation' },
@@ -197,7 +197,7 @@ export const elfEn: DetailData = {
       name: 'Wood Elf',
       description: 'Swift hunters attuned to the power of primordial forests.',
       traits: [
-        { name: 'Wood Elf Magic', description: 'Your Speed increases to 35 feet. You also know the Druidcraft cantrip.\n\nAt level 3: Longstrider.\nAt level 5: Pass without Trace.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
+        { name: 'Wood Elf Magic', description: 'Your Speed increases to 35 feet. You also know the Druidcraft cantrip.\n\nAt level 3: Longstrider.\nAt level 5: Pass without Trace.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.', level: 3 },
         { name: 'Fleet of Foot', description: 'Your walking speed increases to 35 feet.' },
       ],
       innateSpells: [
@@ -210,7 +210,7 @@ export const elfEn: DetailData = {
       name: 'Lorwyn Elf',
       description: 'Elves from the realm of Lorwyn.',
       traits: [
-        { name: 'Lorwyn Elf Magic', description: 'You know the Thorn Whip cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Druid spell list.\n\nAt level 3: Command.\nAt level 5: Silence.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
+        { name: 'Lorwyn Elf Magic', description: 'You know the Thorn Whip cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Druid spell list.\n\nAt level 3: Command.\nAt level 5: Silence.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.', level: 3 },
       ],
       innateSpells: [
         { level: 0, spell: 'Thorn Whip' },
@@ -222,7 +222,7 @@ export const elfEn: DetailData = {
       name: 'Shadowmoor Elf',
       description: 'Elves from the realm of Shadowmoor.',
       traits: [
-        { name: 'Shadowmoor Elf Magic', description: 'The range of your Darkvision increases to 120 feet. You also know the Starry Wisp cantrip.\n\nAt level 3: Heroism.\nAt level 5: Gentle Repose.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.' },
+        { name: 'Shadowmoor Elf Magic', description: 'The range of your Darkvision increases to 120 feet. You also know the Starry Wisp cantrip.\n\nAt level 3: Heroism.\nAt level 5: Gentle Repose.\n\nYou always have these spells prepared and can cast them once without expending a spell slot per Long Rest. Intelligence, Wisdom, or Charisma is your spellcasting ability.', level: 3 },
       ],
       innateSpells: [
         { level: 0, spell: 'Starry Wisp' },
