@@ -1,6 +1,7 @@
 
 import { createPortal } from 'react-dom';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, memo } from 'react';
+import { useModalScrollLock } from '../../hooks/useModalScrollLock';
 import { Character, Ability, WeaponData, ArmorData, InventoryItem } from '../../types';
 import { SKILL_ABILITY_MAP, SKILL_DESCRIPTIONS } from '../../Data/skills';
 import { useSkills } from '../../Data/skills/index';
@@ -46,10 +47,31 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
     const [inspectedStat, setInspectedStat] = useState<'AC' | 'Init' | 'Spd' | 'Prof' | 'Insp' | 'HP' | 'Save_STR' | 'Save_DEX' | 'Save_CON' | 'Save_INT' | 'Save_WIS' | 'Save_CHA' | null>(null);
     const [weaponStatModal, setWeaponStatModal] = useState<{ item: any; weapon: any; type: 'toHit' | 'damage'; isSpell?: boolean } | null>(null);
     const [skillDescriptions, setSkillDescriptions] = useState<Record<string, string>>({});
+    const { lockScroll, unlockScroll } = useModalScrollLock();
 
     useEffect(() => {
         // Translation removed - all content in English
     }, [selectedSkill]);
+
+    useEffect(() => {
+        if (hpModal.show) lockScroll();
+        else unlockScroll();
+    }, [hpModal.show, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (selectedSkill) lockScroll();
+        else unlockScroll();
+    }, [selectedSkill, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (weaponStatModal) lockScroll();
+        else unlockScroll();
+    }, [weaponStatModal, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (inspectedStat) lockScroll();
+        else unlockScroll();
+    }, [inspectedStat, lockScroll, unlockScroll]);
 
     const finalStats = useMemo(() => getFinalStats(character), [character]);
     const armorClass = useMemo(() => getArmorClass(character, finalStats), [character, finalStats]);
@@ -1348,4 +1370,6 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
     );
 };
 
-export default CombatTab;
+const CombatTabMemo = memo(CombatTab);
+CombatTabMemo.displayName = 'CombatTab';
+export default CombatTabMemo;

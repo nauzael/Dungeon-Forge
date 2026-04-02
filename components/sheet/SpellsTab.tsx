@@ -1,8 +1,9 @@
 
 import { createPortal } from 'react-dom';
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, memo, useCallback } from 'react';
 import { Character } from '../../types';
 import { SPELL_DETAILS, SPELL_LIST_BY_CLASS, CANTRIPS_KNOWN_BY_LEVEL, SPELLS_KNOWN_BY_LEVEL, MAX_SPELL_LEVEL, SPELLCASTING_ABILITY, ARCANE_SPELLS } from '../../Data/spells';
+import { SUBCLASS_OPTIONS } from '../../Data/characterOptions';
 import { SCHOOL_THEMES, formatModifier, getFinalStats, getSpellSummary } from '../../utils/sheetUtils';
 
 interface SpellsTabProps {
@@ -124,10 +125,25 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
         return 'none';
     }, [character.class, character.subclass]);
 
+    // Detect subclass spell sources (for subclasses that grant spells from OTHER class lists)
+    // e.g., Warlock Celestial grants Cleric spells, Spellfire grants Divine spells
+    const subclassSpellSource = useMemo(() => {
+        if (character.class === 'Warlock' && character.subclass === 'Celestial Patron') {
+            return 'Cleric';
+        }
+        if (character.class === 'Sorcerer' && character.subclass === 'Spellfire Sorcery') {
+            return 'Divine';
+        }
+        return null;
+    }, [character.class, character.subclass]);
+
     const availableSources = useMemo(() => {
         const sources = ['All'];
         if (effectiveCasterType !== 'none') {
             sources.push(character.class);
+        }
+        if (subclassSpellSource) {
+            sources.push(`${subclassSpellSource} (${character.subclass})`);
         }
         if (magicInitiateType) {
             sources.push(`${magicInitiateType} (Feat)`);
@@ -136,7 +152,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
             sources.push('Pact');
         }
         return sources;
-    }, [character.class, effectiveCasterType, magicInitiateType, character.pactCantrips]);
+    }, [character.class, character.subclass, effectiveCasterType, magicInitiateType, character.pactCantrips, subclassSpellSource]);
 
     const allPreparedSpells = useMemo(() => {
         const prepared = character.preparedSpells || [];
@@ -144,6 +160,22 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
         const pactRituals = character.pactRituals || [];
         return Array.from(new Set([...prepared, ...pact, ...pactRituals]));
     }, [character.preparedSpells, character.pactCantrips, character.pactRituals]);
+
+    // Calculate spells that are always prepared from subclass
+    const subclassAlwaysPreparedSpells = useMemo(() => {
+        if (!character.subclass) return new Set<string>();
+        const subclassData = SUBCLASS_OPTIONS[character.class]?.find(s => s.name === character.subclass);
+        if (!subclassData?.alwaysPreparedSpells) return new Set<string>();
+        
+        const spells = new Set<string>();
+        Object.entries(subclassData.alwaysPreparedSpells).forEach(([lvl, spellList]) => {
+            // lvl is character level when the spells are gained
+            if (parseInt(lvl) <= character.level) {
+                spellList.forEach(spell => spells.add(spell));
+            }
+        });
+        return spells;
+    }, [character.subclass, character.class, character.level]);
 
     // 2024 LIMITS: Preparation per level (excludes innate spells - they don't count against capacity)
     const currentPreparedForActiveLevel = useMemo(() => {
@@ -345,6 +377,12 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
         if (source.includes('(Feat)')) {
             const className = source.split(' ')[0];
             return (SPELL_LIST_BY_CLASS[className] || []);
+        }
+        // Handle subclass spell sources (e.g., "Cleric (Celestial Patron)" - Warlock Celestial grants Cleric spells)
+        // Also handles "Divine (Spellfire Sorcery)" - Spellfire grants Divine spells)
+        // Return ONLY the specific spells from alwaysPreparedSpells, not the full list
+        if ((source.includes('(') && source.includes('Celestial Patron')) || source.includes('Spellfire')) {
+            return Array.from(subclassAlwaysPreparedSpells);
         }
         return [];
     };
@@ -557,6 +595,8 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
 
                             // Check if this is an innate spell (auto-prepared, doesn't consume slots)
                             const isInnate = character.innateSpells?.includes(name);
+                            // Check if this is a subclass always-prepared spell
+                            const isSubclassSpell = subclassAlwaysPreparedSpells.has(name);
                             const isAtLevelLimit = currentPreparedForActiveLevel >= maxPreparedForActiveLevel;
                             const isBlocked = (!isPrepared && isAtLevelLimit && !isPactChoice) || isInnate;
 
@@ -577,9 +617,10 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                                                       <span className="material-symbols-outlined text-[12px]">{summary.icon}</span>
                                                       {summary.label}
                                                   </div>
-                                                  {isPactChoice && <span className="text-[8px] font-black bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded uppercase">{t.pact_source}</span>}
-                                                  {isInnate && <span className="text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded uppercase flex items-center gap-1"><span className="material-symbols-outlined text-[10px]">auto_awesome</span>Innate</span>}
-                                                  {isBlocked && !isPactChoice && !isInnate && <span className="text-[8px] font-black bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 py-0.5 rounded uppercase flex items-center gap-1"><span className="material-symbols-outlined text-[10px]">lock</span>{t.limit}</span>}
+{isPactChoice && <span className="text-[8px] font-black bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded uppercase">{t.pact_source}</span>}
+                                                   {isSubclassSpell && <span className="text-[8px] font-black bg-purple-500/20 text-purple-400 border border-purple-500/30 px-1.5 py-0.5 rounded uppercase flex items-center gap-1"><span className="material-symbols-outlined text-[10px]">auto_awesome</span>Always Prepared</span>}
+                                                   {isInnate && <span className="text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded uppercase flex items-center gap-1"><span className="material-symbols-outlined text-[10px]">auto_awesome</span>Innate</span>}
+                                                   {isBlocked && !isPactChoice && !isInnate && <span className="text-[8px] font-black bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 py-0.5 rounded uppercase flex items-center gap-1"><span className="material-symbols-outlined text-[10px]">lock</span>{t.limit}</span>}
                                              </div>
                                        </button>
                                        <button
@@ -685,4 +726,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
   );
 };
 
-export default SpellsTab;
+const SpellsTabMemo = memo(SpellsTab);
+SpellsTabMemo.displayName = 'SpellsTab';
+
+export default SpellsTabMemo;

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 // Added AsiDecision to the import list from types
 import { Character, CreatorStep, Ability, Trait, SubclassData, AsiDecision, SpeciesSpell } from '../types';
+import { useModalScrollLock } from '../hooks/useModalScrollLock';
 import { 
   CLASS_SKILL_DATA, 
   BACKGROUNDS_DATA, 
@@ -79,6 +80,13 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
   const [asiDecisions, setAsiDecisions] = useState<Record<number, AsiDecision>>({});
   const [showFeatModal, setShowFeatModal] = useState(false);
   const [featModalContext, setFeatModalContext] = useState<{ type: 'human' | 'asi', level?: number } | null>(null);
+
+  const { lockScroll, unlockScroll } = useModalScrollLock();
+
+  useEffect(() => {
+      if (showFeatModal) lockScroll();
+      else unlockScroll();
+  }, [showFeatModal, lockScroll, unlockScroll]);
 
   const [trinket] = useState<string>(() => {
       const randomIndex = Math.floor(Math.random() * TRINKETS.length);
@@ -408,6 +416,43 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
         if (hasLucky) {
             newCharacter.lucky = { current: newCharacter.profBonus, max: newCharacter.profBonus };
         }
+        // Initialize class-specific resources
+        const chaMod = Math.floor(((finalStats.CHA || 10) - 10) / 2);
+        if (selectedClass === 'Barbarian') {
+            newCharacter.rageUses = { current: 2, max: 2 };
+            newCharacter.rageDamage = 2;
+        }
+        if (selectedClass === 'Bard') {
+            const bardicMax = Math.max(1, chaMod);
+            newCharacter.bardicInspiration = { current: bardicMax, max: bardicMax };
+            newCharacter.bardicInspirationDie = 6;
+        }
+        if (selectedClass === 'Cleric') {
+            newCharacter.channelDivinity = { current: 1, max: 1 };
+        }
+        if (selectedClass === 'Paladin') {
+            newCharacter.channelDivinity = { current: 1, max: 1 };
+            newCharacter.layOnHands = { current: 5, max: 5 };
+        }
+        if (selectedClass === 'Fighter') {
+            newCharacter.actionSurge = { current: 1, max: 1 };
+            newCharacter.secondWind = { current: 1, max: 1 };
+        }
+        if (selectedClass === 'Monk') {
+            newCharacter.kiMax = level;
+            newCharacter.martialArtsDie = 6;
+        }
+        if (selectedClass === 'Rogue') {
+            newCharacter.sneakAttackDie = 1;
+        }
+        if (selectedClass === 'Sorcerer') {
+            newCharacter.sorceryPoints = { current: 0, max: 0 };
+            newCharacter.innateSorcery = { current: 2, max: 2 };
+        }
+        if (selectedClass === 'Druid') {
+            newCharacter.wildShape = { current: 2, max: 2 };
+            newCharacter.wildShapeMax = 1;
+        }
         onFinish(newCharacter);
     }
   };
@@ -434,6 +479,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
                 selectedSpecies={selectedSpecies} setSelectedSpecies={setSelectedSpecies} 
                 selectedSubspecies={selectedSubspecies} setSelectedSubspecies={setSelectedSubspecies}
                 selectedBackground={selectedBackground} setSelectedBackground={setSelectedBackground}
+                selectedFeat={selectedFeat}
                 bgSpells={bgSpells} setBgSpells={setBgSpells}
                 bgSkilledSkills={bgSkilledSkills} setBgSkilledSkills={setBgSkilledSkills}
             />

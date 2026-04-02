@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 // Deploy Trigger: Syntax verification commit
-import { Character, ViewState } from './types';
+import { Character, ViewState, SharedResourceEvent, OTAUpdate, VersionJsonResponse, CharacterWithOwner } from './types';
 import { MOCK_CHARACTERS } from './constants';
 import CharacterList from './components/CharacterList';
 import Login from './components/Login';
@@ -26,11 +26,11 @@ const DMDashboard = lazy(() => import('./components/DMDashboard'));
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('list');
-  const [sharedResource, setSharedResource] = useState<any | null>(null);
+  const [sharedResource, setSharedResource] = useState<SharedResourceEvent | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [user, setUser] = useState<{name: string, id: string} | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [updateAvailable, setUpdateAvailable] = useState<{version: string, message: string, payload: any} | null>(null);
+  const [updateAvailable, setUpdateAvailable] = useState<OTAUpdate | null>(null);
 
   // Auto-Restart when update is read
   useEffect(() => {
@@ -89,12 +89,12 @@ const App: React.FC = () => {
           const resp = await fetch(`${supabaseUrl}/storage/v1/object/public/updates/version.json?t=${Date.now()}`);
           
           if (resp.ok) {
-            const data = await resp.json();
+            const data: VersionJsonResponse = await resp.json();
             
             // Log local stored version
             const currentVersion = localStorage.getItem('app_version') || '1.0.0';
             
-            if (data.version && data.version !== currentVersion) {
+            if (data.version && data.version !== currentVersion && data.url) {
               console.log(`Downloading new OTA update: ${data.version}`);
               
               const update = await CapacitorUpdater.download({
@@ -208,7 +208,7 @@ const App: React.FC = () => {
             if (syncList.length > 0) {
                 setIsSyncing(true);
                 for (const char of syncList) {
-                   await saveCharacterToCloud(char, (char as any).user_id || user?.id || 'guest');
+                   await saveCharacterToCloud(char, (char as CharacterWithOwner).user_id || user?.id || 'guest');
                 }
                 setIsSyncing(false);
             }
@@ -317,7 +317,7 @@ const App: React.FC = () => {
 
     // 2. Persist to cloud (Supabase)
     // We try to preserve the original owner user_id if we have it in the character data
-    const ownerId = (updatedChar as any).user_id || user?.id; 
+    const ownerId = (updatedChar as CharacterWithOwner).user_id || user?.id || 'guest'; 
     await saveCharacterToCloud(updatedChar, ownerId);
 
     // 3. Broadcast to the party

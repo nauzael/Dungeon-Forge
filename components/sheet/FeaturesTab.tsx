@@ -1,7 +1,8 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { Character, Ability, Trait } from '../../types';
+import { useModalScrollLock } from '../../hooks/useModalScrollLock';
 import { SPECIES_DETAILS, CLASS_DETAILS, CLASS_PROGRESSION, SUBCLASS_OPTIONS, ELDRITCH_INVOCATIONS } from '../../Data/characterOptions';
 import { FEAT_OPTIONS, GENERIC_FEATURES } from '../../Data/feats/index';
 import { CANTRIPS } from '../../Data/spells/cantrips';
@@ -48,6 +49,23 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
 
     const [showLessonsConfig, setShowLessonsConfig] = useState(false);
     const [targetLessonsInstance, setTargetLessonsInstance] = useState<string | null>(null);
+
+    const { lockScroll, unlockScroll } = useModalScrollLock();
+
+    useEffect(() => {
+        if (showInvocationsModal) lockScroll();
+        else unlockScroll();
+    }, [showInvocationsModal, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (showOriginFeatSelector) lockScroll();
+        else unlockScroll();
+    }, [showOriginFeatSelector, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (showLessonsConfig) lockScroll();
+        else unlockScroll();
+    }, [showLessonsConfig, lockScroll, unlockScroll]);
 
     const finalStats = useMemo(() => getFinalStats(character), [character]);
     const chaMod = Math.floor(((finalStats.CHA || 10) - 10) / 2);
@@ -485,4 +503,6 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
     );
 };
 
-export default FeaturesTab;
+const FeaturesTabMemo = memo(FeaturesTab);
+FeaturesTabMemo.displayName = 'FeaturesTab';
+export default FeaturesTabMemo;

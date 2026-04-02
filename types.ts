@@ -31,12 +31,19 @@ export interface Character {
   inspiration?: { current: number; max: number }; // Heroic Inspiration counter
   // Class-specific resource trackers
   rageUses?: { current: number; max: number }; // Barbarian
+  rageDamage?: number; // Barbarian: bonus damage (2 at Lv1, +1 at Lv5,9,13,17)
   bardicInspiration?: { current: number; max: number }; // Bard
+  bardicInspirationDie?: number; // Bard: d6 at Lv1, d8 at Lv5, d10 at Lv10, d12 at Lv15
   channelDivinity?: { current: number; max: number }; // Cleric / Paladin
-  wildShape?: { current: number; max: number }; // Druid
+  wildShape?: { current: number; max: number }; // Druid uses
+  wildShapeMax?: number; // Druid: max CR and flying speed level
   layOnHands?: { current: number; max: number }; // Paladin (pool of HP)
   actionSurge?: { current: number; max: number }; // Fighter
   secondWind?: { current: number; max: number }; // Fighter
+  indomitable?: { current: number; max: number }; // Fighter uses
+  sneakAttackDie?: number; // Rogue: d6 at Lv1, increases every few levels
+  martialArtsDie?: number; // Monk: d6 at Lv1, d8 at Lv5, d10 at Lv11, d12 at Lv17
+  kiMax?: number; // Monk: max Ki points (equals level)
   concentrationSpell?: string; // Active concentration spell name
   ac: number; // Base or override, calculated usually
   init: number;
@@ -70,7 +77,9 @@ export interface Character {
   party_name?: string;
   usedSlots?: Record<string, boolean>; // Spell slot tracking
   spellSlots?: Record<number, { current: number; max: number }>; // Added for 2024 spell slot tracking
-  sorceryPoints?: { current: number; max: number };
+  sorceryPoints?: { current: number; max: number }; // Sorcerer
+  innateSorcery?: { current: number; max: number }; // Sorcerer uses (Lv1=2)
+  extraAttacks?: number; // Number of attacks per Attack action (Fighter: 1 at Lv5, 2 at Lv11, 3 at Lv20)
   isRaging?: boolean;
   activeConcentration?: string; // Spell name being concentrated on
 }
@@ -214,4 +223,20 @@ export interface SharedResourceEvent {
     url: string;
     title: string;
     description?: string;
+}
+
+export interface OTAUpdate {
+    version: string;
+    message: string;
+    payload: unknown;
+}
+
+export interface VersionJsonResponse {
+    version?: string;
+    url?: string;
+    message?: string;
+}
+
+export interface CharacterWithOwner extends Character {
+    user_id?: string;
 }

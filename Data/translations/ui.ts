@@ -195,6 +195,8 @@ export interface Translation {
   no_results_found: string;
   to: string;
   levelUp: string;
+  levelUpComplete: string;
+  viewCharacterSheet: string;
   hpMaxIncrease: string;
   chooseMetamagic: string;
   selectSubclass: string;
@@ -460,6 +462,8 @@ export const TRANSLATIONS: Translation = {
   no_results_found: 'No results found',
   to: 'to',
   levelUp: 'Level Up!',
+  levelUpComplete: 'Level Up Complete!',
+  viewCharacterSheet: 'View Character Sheet',
   hpMaxIncrease: 'Max HP Increase',
   chooseMetamagic: 'Choose Metamagic(s)',
   selectSubclass: 'Select Subclass...',

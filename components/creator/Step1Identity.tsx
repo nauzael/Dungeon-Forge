@@ -3,6 +3,7 @@ import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { SectionSeparator } from './Shared';
 import { HIT_DIE, CLASS_STAT_PRIORITIES, SUBCLASS_OPTIONS, CLASS_LIST, SPECIES_LIST } from '../../Data/characterOptions';
+import { useModalScrollLock } from '../../hooks/useModalScrollLock';
 import { CLASS_UI_MAP, SPECIES_UI_MAP, BACKGROUND_UI_MAP } from '../../constants';
 import { SPELL_DETAILS, SPELL_LIST_BY_CLASS } from '../../Data/spells';
 import { SCHOOL_THEMES } from '../../utils/sheetUtils';
@@ -30,6 +31,7 @@ interface Step1Props {
     setSelectedSubspecies: (v: string) => void;
     selectedBackground: string;
     setSelectedBackground: (v: string) => void;
+    selectedFeat: string;
     bgSpells: string[];
     setBgSpells: (v: string[]) => void;
     bgSkilledSkills: string[];
@@ -43,6 +45,7 @@ const Step1Identity: React.FC<Step1Props> = ({
     selectedClass, setSelectedClass, selectedSubclass, setSelectedSubclass,
     selectedSpecies, setSelectedSpecies, selectedSubspecies, setSelectedSubspecies,
     selectedBackground, setSelectedBackground,
+    selectedFeat,
     bgSpells, setBgSpells,
     bgSkilledSkills, setBgSkilledSkills
 }) => {
@@ -68,6 +71,18 @@ const Step1Identity: React.FC<Step1Props> = ({
     const speciesScrollRef = useRef<HTMLDivElement>(null);
     const subspeciesScrollRef = useRef<HTMLDivElement>(null);
     const backgroundScrollRef = useRef<HTMLDivElement>(null);
+
+    const { lockScroll, unlockScroll } = useModalScrollLock();
+
+    useEffect(() => {
+        if (showMagicModal) lockScroll();
+        else unlockScroll();
+    }, [showMagicModal, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (showSkilledModal) lockScroll();
+        else unlockScroll();
+    }, [showSkilledModal, lockScroll, unlockScroll]);
 
     // Free cantrips from species/subspecies (level 0 innate spells)
     const freeSpeciesCantrips = useMemo(() => {
@@ -95,24 +110,43 @@ const Step1Identity: React.FC<Step1Props> = ({
 
     // Background magic detection (PHB 2024 Magic Initiate)
     const bgMagicConfig = useMemo(() => {
-        if (!backgroundData) return null;
-        const featName = backgroundData.feat;
-        const isMagicInitiate = featName.includes('Magic Initiate') || featName.includes('Iniciado en la Magia');
+        // Check background magic initiate
+        if (backgroundData) {
+            const featName = backgroundData.feat;
+            const isMagicInitiate = featName.includes('Magic Initiate') || featName.includes('Iniciado en la Magia');
+            
+            if (isMagicInitiate) {
+                let listType: 'Cleric' | 'Druid' | 'Wizard' = 'Wizard';
+                if (featName.includes('Cleric') || featName.includes('Clérigo')) listType = 'Cleric';
+                if (featName.includes('Druid') || featName.includes('Druida')) listType = 'Druid';
+                
+                return {
+                    type: listType,
+                    cantripsNeeded: 2,
+                    level1Needed: 1,
+                    sourceList: SPELL_LIST_BY_CLASS[listType] || [],
+                    source: 'background' as const
+                };
+            }
+        }
         
-        if (isMagicInitiate) {
+        // Check Human origin feat Magic Initiate
+        if (selectedSpecies === 'Human' && selectedFeat.includes('Magic Initiate')) {
             let listType: 'Cleric' | 'Druid' | 'Wizard' = 'Wizard';
-            if (featName.includes('Cleric') || featName.includes('Clérigo')) listType = 'Cleric';
-            if (featName.includes('Druid') || featName.includes('Druida')) listType = 'Druid';
+            if (selectedFeat.includes('Cleric') || selectedFeat.includes('Clérigo')) listType = 'Cleric';
+            if (selectedFeat.includes('Druid') || selectedFeat.includes('Druida')) listType = 'Druid';
             
             return {
                 type: listType,
                 cantripsNeeded: 2,
                 level1Needed: 1,
-                sourceList: SPELL_LIST_BY_CLASS[listType] || []
+                sourceList: SPELL_LIST_BY_CLASS[listType] || [],
+                source: 'human' as const
             };
         }
+        
         return null;
-    }, [backgroundData]);
+    }, [backgroundData, selectedSpecies, selectedFeat]);
 
     // Background Skilled feat detection (PHB 2024)
     const bgSkilledConfig = useMemo(() => {
@@ -129,11 +163,11 @@ const Step1Identity: React.FC<Step1Props> = ({
         return null;
     }, [backgroundData]);
 
-    // Clear spells if background changes and subspecies if species changes
+    // Clear spells if background changes, subspecies if species changes, or human feat changes
     useEffect(() => {
         setBgSpells([]);
         setBgSkilledSkills([]);
-    }, [selectedBackground, setBgSpells, setBgSkilledSkills]);
+    }, [selectedBackground, selectedFeat, setBgSpells, setBgSkilledSkills]);
 
     useEffect(() => {
         if (selectedSpecies && availableSubspecies.length > 0) {
@@ -623,7 +657,9 @@ const Step1Identity: React.FC<Step1Props> = ({
                         <button onClick={() => setShowMagicModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
                         <div className="text-center">
                              <h3 className="text-sm font-black uppercase tracking-widest text-primary">{t.magic_initiate}</h3>
-                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{bgMagicConfig.type}</p>
+                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                {bgMagicConfig.source === 'human' ? 'Human Origin Feat' : bgMagicConfig.type}
+                             </p>
                         </div>
                         <div className="w-10"></div>
                     </div>

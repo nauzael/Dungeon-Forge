@@ -8,7 +8,7 @@ import { SPECIES_DETAILS } from '../Data/characterOptions';
  * Migrations are tracked and only applied once per character.
  */
 
-const MIGRATION_VERSION = '2026.4.1';
+const MIGRATION_VERSION = '2026.4.2';
 
 /**
  * Get the set of migrations that have been applied to characters
@@ -106,11 +106,94 @@ const migrateInnateSpells = (character: Character): Character => {
 };
 
 /**
+ * Migration: Initialize class-specific resource fields for characters created before LevelUpWizard updates
+ * Adds missing rageUses, bardicInspiration, channelDivinity, sneakAttackDie, kiMax, martialArtsDie, etc.
+ */
+const migrateClassResources = (character: Character): Character => {
+  const level = character.level || 1;
+  const charClass = character.class;
+  
+  const getChaMod = () => {
+    const cha = character.stats?.CHA || 10;
+    return Math.floor((cha - 10) / 2);
+  };
+  
+  let updated = { ...character };
+  let didUpdate = false;
+
+  if (charClass === 'Barbarian' && !updated.rageUses) {
+    const rageMax = level >= 20 ? 99 : level >= 17 ? 6 : level >= 13 ? 5 : level >= 9 ? 4 : level >= 5 ? 3 : 2;
+    const rageDmg = level >= 17 ? 6 : level >= 13 ? 5 : level >= 9 ? 4 : level >= 5 ? 3 : 2;
+    updated.rageUses = { current: rageMax, max: rageMax };
+    updated.rageDamage = rageDmg;
+    didUpdate = true;
+  }
+  
+  if (charClass === 'Bard' && !updated.bardicInspiration) {
+    const chaMod = Math.max(1, getChaMod());
+    updated.bardicInspiration = { current: chaMod, max: chaMod };
+    const bardicDie = level >= 15 ? 12 : level >= 10 ? 10 : level >= 5 ? 8 : 6;
+    updated.bardicInspirationDie = bardicDie;
+    didUpdate = true;
+  }
+  
+  if (charClass === 'Cleric' && !updated.channelDivinity) {
+    updated.channelDivinity = { current: 1, max: 1 };
+    didUpdate = true;
+  }
+  
+  if (charClass === 'Paladin' && !updated.channelDivinity) {
+    updated.channelDivinity = { current: 1, max: 1 };
+    updated.layOnHands = { current: level * 5, max: level * 5 };
+    didUpdate = true;
+  }
+  
+  if (charClass === 'Fighter' && !updated.actionSurge) {
+    updated.actionSurge = { current: 1, max: 1 };
+    updated.secondWind = { current: 1, max: 1 };
+    if (level >= 9 && !updated.indomitable) {
+      updated.indomitable = { current: 1, max: level >= 13 ? 3 : 2 };
+    }
+    didUpdate = true;
+  }
+  
+  if (charClass === 'Monk' && !updated.kiMax) {
+    updated.kiMax = level;
+    updated.martialArtsDie = level >= 17 ? 12 : level >= 11 ? 10 : level >= 5 ? 8 : 6;
+    didUpdate = true;
+  }
+  
+  if (charClass === 'Rogue' && !updated.sneakAttackDie) {
+    updated.sneakAttackDie = Math.min(Math.ceil(level / 2), 10);
+    didUpdate = true;
+  }
+  
+  if (charClass === 'Sorcerer' && !updated.sorceryPoints) {
+    updated.sorceryPoints = { current: level >= 2 ? level : 0, max: level >= 2 ? level : 0 };
+    updated.innateSorcery = { current: 2, max: 2 };
+    didUpdate = true;
+  }
+  
+  if (charClass === 'Druid' && !updated.wildShape) {
+    updated.wildShape = { current: 2, max: 2 };
+    updated.wildShapeMax = level >= 8 ? 3 : level >= 4 ? 2 : 1;
+    didUpdate = true;
+  }
+  
+  if (didUpdate) {
+    console.log(`[Migration] Initialized class resources for "${character.name}" (${charClass} Lv${level})`);
+  }
+  
+  return updated;
+};
+
+/**
  * Apply all migrations to a character
  */
 export const migrateCharacter = (character: Character): Character => {
   let migrated = character;
   migrated = migrateInnateSpells(migrated);
+  migrated = migrateClassResources(migrated);
   return migrated;
 };
 

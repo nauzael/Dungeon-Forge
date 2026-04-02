@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, memo } from 'react';
 import { Character, NoteItem, CampaignResource } from '../../types';
 import { getPartyResources } from '../../utils/supabase';
 
@@ -242,4 +242,6 @@ const NotesTab: React.FC<NotesTabProps> = ({ character, onUpdate, isReadOnly }) 
     );
 };
 
-export default NotesTab;
+const NotesTabMemo = memo(NotesTab);
+NotesTabMemo.displayName = 'NotesTab';
+export default NotesTabMemo;

@@ -1,180 +1,177 @@
-<div align="center">
-  <img width="200" height="200" src="https://cdn-icons-png.flaticon.com/512/8232/8232560.png" alt="Dungeon Forge Logo" />
-</div>
+# Supabase CLI
 
-# ⚔️ Dungeon Forge
+[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=develop)](https://coveralls.io/github/supabase/cli?branch=develop) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
+](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
 
-**D&D 5e (2024 Edition) Character Management Companion**
+[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
 
-Dungeon Forge is a mobile-first web application for creating and managing D&D 5e characters. Built with React 19, TypeScript, and Capacitor for seamless Android/iOS deployment.
+This repository contains all the functionality for Supabase CLI.
 
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?logo=typescript)
-![Vite](https://img.shields.io/badge/Vite-5.2-646CFF?logo=vite)
+- [x] Running Supabase locally
+- [x] Managing database migrations
+- [x] Creating and deploying Supabase Functions
+- [x] Generating types directly from your database schema
+- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
 
----
+## Getting started
 
-## ✨ Features
+### Install the CLI
 
-### Character Creation
-- **5-Step Wizard**: Identity → Stats → Details → Skills → Review
-- **Standard Array Suggestions**: Class-optimized stat distributions
-- **Weapon Mastery (2024)**: Select and manage weapon masteries
-- **ASI/Feat Decisions**: Choose between stat increases or feats at level-ups
-
-### Game Management
-- **Combat Tab**: HP tracking, spell slots, class resources (Rage, Bardic Inspiration, etc.)
-- **Inventory Tab**: Equipment management with weapon mastery display
-- **Spells Tab**: Full spell preparation and casting
-- **Features Tab**: Class features with detailed descriptions
-- **Notes Tab**: Campaign notes and session reminders
-
-### Dungeon Master Tools
-- **Party Dashboard**: Monitor all party members in real-time
-- **Observer Mode**: Players can view their characters shared by DM
-- **Shared Resources**: Broadcast maps and images to the party
-- **Monster Builder**: Basic stat block creation
-
-### Technical
-- **Offline-First**: PWA with Service Worker caching
-- **Cloud Sync**: Supabase real-time synchronization
-- **OTA Updates**: Capacitor Updater for seamless app updates
-- **Dark Theme**: Gold and dark color scheme optimized for mobile
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+
-- npm or pnpm
-
-### Installation
+Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd dungeon-forge
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
+npm i supabase --save-dev
 ```
 
-The app will be available at `http://localhost:5173`
+When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
 
-### Environment Variables
-
-Create a `.env.local` file with your API keys:
-
-```env
-VITE_API_KEY=your_gemini_api_key
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+NODE_OPTIONS=--no-experimental-fetch yarn add supabase
 ```
 
-### Android Build
+> **Note**
+For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
+
+<details>
+  <summary><b>macOS</b></summary>
+
+  Available via [Homebrew](https://brew.sh). To install:
+
+  ```sh
+  brew install supabase/tap/supabase
+  ```
+
+  To install the beta release channel:
+  
+  ```sh
+  brew install supabase/tap/supabase-beta
+  brew link --overwrite supabase-beta
+  ```
+  
+  To upgrade:
+
+  ```sh
+  brew upgrade supabase
+  ```
+</details>
+
+<details>
+  <summary><b>Windows</b></summary>
+
+  Available via [Scoop](https://scoop.sh). To install:
+
+  ```powershell
+  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+  scoop install supabase
+  ```
+
+  To upgrade:
+
+  ```powershell
+  scoop update supabase
+  ```
+</details>
+
+<details>
+  <summary><b>Linux</b></summary>
+
+  Available via [Homebrew](https://brew.sh) and Linux packages.
+
+  #### via Homebrew
+
+  To install:
+
+  ```sh
+  brew install supabase/tap/supabase
+  ```
+
+  To upgrade:
+
+  ```sh
+  brew upgrade supabase
+  ```
+
+  #### via Linux packages
+
+  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
+
+  ```sh
+  sudo apk add --allow-untrusted <...>.apk
+  ```
+
+  ```sh
+  sudo dpkg -i <...>.deb
+  ```
+
+  ```sh
+  sudo rpm -i <...>.rpm
+  ```
+
+  ```sh
+  sudo pacman -U <...>.pkg.tar.zst
+  ```
+</details>
+
+<details>
+  <summary><b>Other Platforms</b></summary>
+
+  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
+
+  ```sh
+  go install github.com/supabase/cli@latest
+  ```
+
+  Add a symlink to the binary in `$PATH` for easier access:
+
+  ```sh
+  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
+  ```
+
+  This works on other non-standard Linux distros.
+</details>
+
+<details>
+  <summary><b>Community Maintained Packages</b></summary>
+
+  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
+  To install in your working directory:
+
+  ```bash
+  pkgx install supabase
+  ```
+
+  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
+</details>
+
+### Run the CLI
 
 ```bash
-cd android
-./gradlew assembleDebug
+supabase bootstrap
 ```
 
-The APK will be at `android/app/build/outputs/apk/debug/`
-
----
-
-## 📁 Project Structure
-
-```
-Dungeon Forge/
-├── components/          # React components
-│   ├── creator/         # Character creation wizard steps
-│   ├── sheet/          # Character sheet tabs
-│   └── dm/             # DM dashboard components
-├── Data/               # Game data (classes, spells, items, etc.)
-│   ├── classes/        # D&D class definitions
-│   ├── species/        # Species/race definitions
-│   ├── spells/         # Spell data by level
-│   └── feats/          # Feat definitions
-├── hooks/              # Custom React hooks
-├── utils/              # Utility functions
-├── public/             # Static assets
-└── thoughts/           # Agent workflows and designs
-```
-
----
-
-## 🎮 Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| Frontend | React 19 + TypeScript |
-| Styling | Tailwind CSS |
-| Build | Vite |
-| Mobile | Capacitor |
-| Backend | Supabase |
-| AI | Google Gemini |
-| Icons | Material Symbols |
-
----
-
-## 📖 D&D 5e (2024) Content
-
-All content follows the **Player's Handbook 2024** rules:
-
-- **12 Classes**: Barbarian, Bard, Cleric, Druid, Fighter, Monk, Paladin, Ranger, Rogue, Sorcerer, Warlock, Wizard
-- **Weapon Mastery**: Nick, Vex, Graze, Topple, Push, Slow
-- **Updated Spells**: New versions of classic spells
-- **Standard Array**: Point Buy alternative for character creation
-
----
-
-## 🔧 Development
-
-### Available Scripts
+Or using npx:
 
 ```bash
-npm run dev        # Start dev server
-npm run build      # Production build
-npm run preview    # Preview production build
-npm run ota        # Build + deploy OTA update
+npx supabase bootstrap
 ```
 
-### Adding New Content
+The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
 
-Game data files follow a consistent pattern:
-- `Data/classes/*.ts` - Class definitions with progression
-- `Data/species/*.ts` - Species with traits and subspecies
-- `Data/spells/level*.ts` - Spells organized by spell level
-- `Data/feats/index.ts` - All feats with English descriptions
+## Docs
 
----
+Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
 
-## 📱 Mobile App
+## Breaking changes
 
-Dungeon Forge is designed as a **Progressive Web App (PWA)** that can be installed on mobile devices:
+We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
 
-1. Open the app in Chrome/Safari
-2. Tap "Add to Home Screen"
-3. The app will work offline with full functionality
+However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
 
-For native Android/iOS builds, see the **Android Build** section above.
+## Developing
 
----
+To run from source:
 
-## 📄 License
-
-Private project - All rights reserved.
-
----
-
-<div align="center">
-
-**Forged with ⚔️ and 🔮**
-
-_Dungeon Forge - Your Adventure Companion_
-
-</div>
+```sh
+# Go >= 1.22
+go run . help
+```

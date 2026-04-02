@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { Character, InventoryItem, ItemData, WeaponData, ArmorData, Ability } from '../../types';
 import { ALL_ITEMS, MASTERY_DESCRIPTIONS, MAGIC_ITEMS } from '../../Data/items';
@@ -419,4 +419,6 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
   );
 };
 
-export default InventoryTab;
+const InventoryTabMemo = memo(InventoryTab);
+InventoryTabMemo.displayName = 'InventoryTab';
+export default InventoryTabMemo;

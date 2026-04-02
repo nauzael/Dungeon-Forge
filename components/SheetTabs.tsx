@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, memo, useCallback } from 'react';
 import { Character, SheetTab, Ability } from '../types';
 import CombatTab from './sheet/CombatTab';
 import InventoryTab from './sheet/InventoryTab';
@@ -7,6 +7,7 @@ import SpellsTab from './sheet/SpellsTab';
 import FeaturesTab from './sheet/FeaturesTab';
 import NotesTab from './sheet/NotesTab';
 import JoinPartyModal from './JoinPartyModal';
+import LevelUpWizard from './sheet/LevelUpWizard/LevelUpWizard';
 import { getEffectiveCasterType, getFinalStats } from '../utils/sheetUtils';
 import { HIT_DIE, CLASS_PROGRESSION, SUBCLASS_OPTIONS, METAMAGIC_OPTIONS } from '../Data/characterOptions';
 import { FEAT_OPTIONS, GENERIC_FEATURES } from '../Data/feats/index';
@@ -449,95 +450,14 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
       </div>
 
       {showLevelUp && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-              <div className="w-full max-w-md bg-white dark:bg-surface-dark rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col max-h-[85vh] animate-scaleUp">
-                  <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-emerald-600"></div>
-                  <div className="text-center mb-4 shrink-0 pt-2">
-                      <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 flex items-center justify-center mx-auto mb-3 border-4 border-white dark:border-surface-dark shadow-lg">
-                          <span className="material-symbols-outlined text-3xl">arrow_upward</span>
-                      </div>
-                      <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{t.levelUp}</h3>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-                          {t.level} <span className="text-slate-900 dark:text-white">{character.level}</span> <span className="material-symbols-outlined text-[10px] align-middle px-1">arrow_forward</span> <span className="text-green-500">{nextLevel}</span>
-                      </p>
-                  </div>
-                  <div className="flex-1 overflow-y-auto no-scrollbar pr-1 space-y-5 border-t border-slate-100 dark:border-white/5 mt-4 pt-6">
-                      <div className="bg-slate-50 dark:bg-black/20 p-4 rounded-2xl border border-slate-100 dark:border-white/5">
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 text-center">{t.hpMaxIncrease}</label>
-                          <div className="flex items-center justify-center gap-4">
-                              <button onClick={() => setManualHpGain(String(Math.max(1, parseInt(manualHpGain || '0') - 1)))} className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-white/10 flex items-center justify-center hover:bg-slate-300 dark:hover:bg-white/20 transition-colors"><span className="material-symbols-outlined">remove</span></button>
-                              <input type="number" value={manualHpGain} onChange={(e) => setManualHpGain(e.target.value)} className="w-20 text-center bg-transparent text-3xl font-bold text-slate-900 dark:text-white outline-none border-b-2 border-slate-300 focus:border-green-500 transition-colors" />
-                              <button onClick={() => setManualHpGain(String(parseInt(manualHpGain || '0') + 1))} className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-white/10 flex items-center justify-center hover:bg-slate-300 dark:hover:bg-white/20 transition-colors"><span className="material-symbols-outlined">add</span></button>
-                          </div>
-                      </div>
-                      {needsMetamagic && (
-                          <div className="space-y-3 animate-fadeIn">
-                              <h4 className="text-xs font-bold uppercase tracking-wider text-purple-500 flex items-center gap-1">
-                                  <span className="material-symbols-outlined text-sm">auto_fix_normal</span> {t.chooseMetamagic.replace('{metamagicCount}', String(metamagicCount))}
-                              </h4>
-                              <div className="grid grid-cols-1 gap-2">
-                                  {METAMAGIC_OPTIONS.filter(m => !character.metamagics?.includes(m.name)).map(meta => {
-                                      const isSelected = pendingMetamagics.includes(meta.name);
-                                      return (
-                                          <button key={meta.name} onClick={() => togglePendingMetamagic(meta.name)} className={`text-left p-3 rounded-xl border transition-all ${isSelected ? 'bg-purple-500/10 border-purple-500' : 'bg-white dark:bg-surface-dark border-slate-200 dark:border-white/5'}`}>
-                                              <p className={`font-bold text-sm ${isSelected ? 'text-purple-500' : 'text-slate-900 dark:text-white'}`}>{meta.name}</p>
-                                              <p className="text-[10px] text-slate-500 leading-snug">{meta.description}</p>
-                                          </button>
-                                      );
-                                  })}
-                              </div>
-                          </div>
-                      )}
-                      {needsSubclass && (
-                          <div className="space-y-2 animate-fadeIn">
-                              <h4 className="text-xs font-bold uppercase tracking-wider text-purple-500 flex items-center gap-1"><span className="material-symbols-outlined text-sm">auto_awesome</span> {t.chooseSubclass}</h4>
-                              <div className="relative">
-                                <select value={pendingSubclass} onChange={(e) => setPendingSubclass(e.target.value)} className="w-full p-4 bg-white dark:bg-surface-dark border border-purple-500/30 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-purple-500 text-slate-900 dark:text-white">
-                                    <option value="" disabled>{t.selectSubclass}</option>
-                                    {(SUBCLASS_OPTIONS[character.class] || []).map(sub => <option key={sub.name} value={sub.name}>{sub.name}</option>)}
-                                </select>
-                              </div>
-                          </div>
-                      )}
-                                           {needsAsi && (
-                          <div className="space-y-3 animate-fadeIn">
-                              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-500 flex items-center gap-1"><span className="material-symbols-outlined text-sm">stars</span> {t.abilityImprovement}</h4>
-                              <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl">
-                                  <button onClick={() => setPendingAsiType('stat')} className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${pendingAsiType === 'stat' ? 'bg-white dark:bg-surface-dark shadow text-primary' : 'text-slate-500'}`}>{t.stats}</button>
-                                  <button onClick={() => setPendingAsiType('feat')} className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${pendingAsiType === 'feat' ? 'bg-white dark:bg-surface-dark shadow text-primary' : 'text-slate-500'}`}>{t.feat}</button>
-                              </div>
-                              {pendingAsiType === 'stat' ? (
-                                  <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10">
-                                      <div>
-                                          <label className="text-[10px] text-slate-400 uppercase font-bold block mb-1">+1 a...</label>
-                                          <select value={pendingStat1} onChange={(e) => setPendingStat1(e.target.value as Ability)} className="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-lg py-2 px-2 text-sm font-bold outline-none">
-                                              {(['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as Ability[]).map(s => <option key={s} value={s}>{s}</option>)}
-                                          </select>
-                                      </div>
-                                      <div>
-                                          <label className="text-[10px] text-slate-400 uppercase font-bold block mb-1">+1 a...</label>
-                                          <select value={pendingStat2} onChange={(e) => setPendingStat2(e.target.value as Ability)} className="w-full bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-lg py-2 px-2 text-sm font-bold outline-none">
-                                              {(['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as Ability[]).map(s => <option key={s} value={s}>{s}</option>)}
-                                          </select>
-                                      </div>
-                                  </div>
-                              ) : (
-                                  <div>
-                                      <select value={pendingFeat} onChange={(e) => setPendingFeat(e.target.value)} className="w-full p-4 bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 rounded-2xl text-sm font-bold outline-none text-slate-900 dark:text-white">
-                                          <option value="" disabled>{t.selectFeat}</option>
-                                          {FEAT_OPTIONS.map(f => <option key={f.name} value={f.name}>{f.name}</option>)}
-                                      </select>
-                                  </div>
-                              )}
-                          </div>
-                      )}
-                  </div>
-                   <div className="grid grid-cols-2 gap-3 mt-8 shrink-0">
-                      <button onClick={() => setShowLevelUp(false)} className="py-3.5 rounded-2xl font-bold text-sm text-slate-500 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">{t.cancel}</button>
-                      <button onClick={confirmLevelUp} disabled={!isLevelUpValid()} className={`py-3.5 rounded-2xl font-bold text-sm text-white shadow-lg transition-all active:scale-95 ${isLevelUpValid() ? 'bg-green-500 hover:bg-green-600 shadow-green-500/30' : 'bg-slate-300 dark:bg-white/10 cursor-not-allowed shadow-none'}`}>{t.confirm}</button>
-                  </div>
-              </div>
-          </div>
+          <LevelUpWizard
+              character={character}
+              onComplete={(updatedChar) => {
+                  onUpdate(updatedChar);
+                  setShowLevelUp(false);
+              }}
+              onCancel={() => setShowLevelUp(false)}
+          />
       )}
 
       {showJoinParty && (
@@ -551,4 +471,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({ character, onBack, onUpdate, isRe
   );
 };
 
-export default SheetTabs;
+const SheetTabsMemo = memo(SheetTabs);
+SheetTabsMemo.displayName = 'SheetTabs';
+
+export default SheetTabsMemo;

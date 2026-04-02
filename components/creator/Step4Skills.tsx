@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Ability, Skill, BackgroundData } from '../../types';
 import { SKILL_ABILITY_MAP } from '../../Data/skills';
 import { useSkills } from '../../Data/skills/index';
 import { METAMAGIC_OPTIONS } from '../../Data/characterOptions';
 import { MASTERY_DESCRIPTIONS } from '../../Data/items';
+import { useModalScrollLock } from '../../hooks/useModalScrollLock';
 
 interface Step4Props {
     selectedSpecies: string;
@@ -47,6 +48,12 @@ const Step4Skills: React.FC<Step4Props> = ({
     const availableWeapons = allWeapons.filter(w => w.mastery && w.mastery !== '-');
     const skills = useSkills();
     const SKILL_LIST = skills.map(s => s.name);
+    const { lockScroll, unlockScroll } = useModalScrollLock();
+
+    useEffect(() => {
+        if (showMasteryModal) lockScroll();
+        else unlockScroll();
+    }, [showMasteryModal, lockScroll, unlockScroll]);
     
     return (
         <div className="px-6 py-4 space-y-6">
