@@ -31,9 +31,14 @@ if (!serviceKey) {
 
 const supabase = createClient(supabaseUrl, serviceKey);
 
-// Generate new version based on timestamp
+// Read version from package.json
+const pkg = JSON.parse(fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf-8'));
+const semanticVersion = pkg.version || '1.1.0';
+
+// Generate new version based on semantic version + timestamp for uniqueness
 const versionDate = new Date();
-const versionStr = `${versionDate.getFullYear()}.${versionDate.getMonth() + 1}.${versionDate.getDate()}-${versionDate.getHours()}${versionDate.getMinutes()}${versionDate.getSeconds()}`;
+const timestamp = `${versionDate.getFullYear()}.${versionDate.getMonth() + 1}.${versionDate.getDate()}-${versionDate.getHours()}${versionDate.getMinutes()}${versionDate.getSeconds()}`;
+const versionStr = `${semanticVersion}-${timestamp}`;
 const zipFile = `app-update-${versionStr}.zip`;
 
 // Pick up message argument (e.g. npm run ota "arreglé cositas")

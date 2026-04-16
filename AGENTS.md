@@ -136,7 +136,8 @@ Ubicar en `.agents/skills/`:
 
 | Versión | Git Tag | OTA Version | Fecha | Estado |
 |---------|---------|-------------|-------|--------|
-| **v1.0.0** | `v1.0.0` | `2026.4.16-123234` | 2026-04-16 | ✅ ESTABLE |
+| **v1.0.0** | `v1.0.0` | `1.0.0-2026.4.16-182359` | 2026-04-16 | ✅ ESTABLE |
+| **v1.0.0-Beta** | `v1.0.0-beta` | `2026.4.16-123234` | 2026-04-16 | ⚠️ OBSOLETA |
 
 ### Procedimiento de Rollback a una Versión Estable
 
