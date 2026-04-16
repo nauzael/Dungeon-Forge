@@ -1,8 +1,7 @@
 
 import React, { useState } from 'react';
-import { FEAT_OPTIONS } from '../../Data/feats';
-
-interface FeatModalProps {
+import { FEAT_OPTIONS } from '../../Data/feats/index';
+import { UI } from '../../constants/ui';
     featModalContext: { type: 'human' | 'asi', level?: number } | null;
     selectedFeat: string;
     asiDecisions: any;
@@ -10,10 +9,7 @@ interface FeatModalProps {
     onClose: () => void;
 }
 
-import { useLanguage } from '../../hooks/useLanguage';
-
 const FeatModal: React.FC<FeatModalProps> = ({ featModalContext, selectedFeat, asiDecisions, handleFeatSelect, onClose }) => {
-    const { t } = useLanguage();
     const [featSearchQuery, setFeatSearchQuery] = useState('');
 
     const contextLevel = featModalContext?.type === 'asi' ? (featModalContext.level || 1) : 1;

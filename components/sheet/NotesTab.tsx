@@ -1,5 +1,7 @@
 
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, memo } from 'react';
+import { createPortal } from 'react-dom';
+import { useImageZoom } from '../../hooks/useImageZoom';
 import { Character, NoteItem, CampaignResource } from '../../types';
 import { getPartyResources } from '../../utils/supabase';
 
@@ -40,7 +42,7 @@ const NoteCard: React.FC<{
             <div className="flex justify-between items-start mb-3 pl-3">
                 <input 
                     type="text" 
-                    placeholder="Sin título"
+                    placeholder="No title"
                     value={note.title}
                     onChange={(e) => onUpdate(note.id, 'title', e.target.value)}
                     readOnly={isReadOnly}
@@ -50,7 +52,7 @@ const NoteCard: React.FC<{
                     <button 
                         onClick={() => onDelete(note.id)}
                         className="opacity-0 group-hover:opacity-100 focus:opacity-100 text-slate-300 hover:text-red-500 -mt-1 -mr-1 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
-                        title="Borrar nota"
+                        title="Delete note"
                     >
                         <span className="material-symbols-outlined text-xl">delete</span>
                     </button>
@@ -63,7 +65,7 @@ const NoteCard: React.FC<{
                 onChange={(e) => onUpdate(note.id, 'content', e.target.value)}
                 readOnly={isReadOnly}
                 className="w-full bg-transparent border-none p-0 pl-3 text-sm leading-7 text-slate-600 dark:text-slate-300 placeholder:text-slate-400/50 dark:placeholder:text-slate-600/50 focus:ring-0 resize-none overflow-hidden font-body"
-                placeholder="Escribe tus aventuras aquí..."
+                placeholder="Write your adventures here..."
                 spellCheck={false}
                 rows={1}
             />
@@ -96,19 +98,25 @@ const NotesTab: React.FC<NotesTabProps> = ({ character, onUpdate, isReadOnly }) 
 
     const [campaignAtlas, setCampaignAtlas] = useState<CampaignResource[]>([]);
     const [isLoadingAtlas, setIsLoadingAtlas] = useState(false);
+    const [atlasViewerResource, setAtlasViewerResource] = useState<CampaignResource | null>(null);
+    const atlasZoom = useImageZoom({ minScale: 1, maxScale: 6, step: 0.25 });
 
     // Fetch Campaign Resources (Atlas)
     useEffect(() => {
         if (!character.party_id) return;
         
+        let cancelled = false;
         const fetchAtlas = async () => {
             setIsLoadingAtlas(true);
             const resources = await getPartyResources(character.party_id!);
-            setCampaignAtlas(resources);
-            setIsLoadingAtlas(false);
+            if (!cancelled) {
+                setCampaignAtlas(resources);
+                setIsLoadingAtlas(false);
+            }
         };
         
         fetchAtlas();
+        return () => { cancelled = true; };
     }, [character.party_id]);
 
     // Debounce save logic
@@ -152,7 +160,7 @@ const NotesTab: React.FC<NotesTabProps> = ({ character, onUpdate, isReadOnly }) 
                 <div className="mb-8 animate-fadeIn">
                     <div className="flex items-center gap-2 mb-4">
                         <span className="material-symbols-outlined text-blue-500">map</span>
-                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Atlas de Campaña</h3>
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Campaign Atlas</h3>
                         <div className="flex-1 h-px bg-slate-200 dark:bg-white/5 ml-2"></div>
                     </div>
 
@@ -166,14 +174,14 @@ const NotesTab: React.FC<NotesTabProps> = ({ character, onUpdate, isReadOnly }) 
                         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
                             {campaignAtlas.length === 0 ? (
                                 <div className="w-full py-6 px-4 rounded-3xl border-2 border-dashed border-slate-200 dark:border-white/5 flex flex-col items-center justify-center text-center">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">El Master aún no ha compartido recursos persistentes.</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">The Master has not shared persistent resources yet.</p>
                                 </div>
                             ) : (
                                 campaignAtlas.map(res => (
-                                    <div 
-                                        key={res.id} 
-                                        className="snap-center min-w-[240px] group relative bg-surface-light dark:bg-surface-dark rounded-2xl overflow-hidden border border-slate-200 dark:border-white/5 shadow-sm active:scale-95 transition-transform"
-                                        onClick={() => window.open(res.url, '_blank')}
+                                    <div
+                                        key={res.id}
+                                        className="snap-center min-w-[240px] group relative bg-surface-light dark:bg-surface-dark rounded-2xl overflow-hidden border border-slate-200 dark:border-white/5 shadow-sm active:scale-95 transition-transform cursor-pointer"
+                                        onClick={() => { setAtlasViewerResource(res); atlasZoom.resetZoom(); }}
                                     >
                                         <div className="h-32 relative">
                                             <img src={res.url} alt={res.title} className="w-full h-full object-cover" />
@@ -201,7 +209,7 @@ const NotesTab: React.FC<NotesTabProps> = ({ character, onUpdate, isReadOnly }) 
                         <span className="material-symbols-outlined text-2xl">history_edu</span>
                     </div>
                     <div>
-                        <h3 className="font-bold text-slate-900 dark:text-white text-xl leading-tight">Crónicas</h3>
+                        <h3 className="font-bold text-slate-900 dark:text-white text-xl leading-tight">Chronicles</h3>
                         <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Tus notas y secretos personales.</p>
                     </div>
                 </div>
@@ -223,23 +231,91 @@ const NotesTab: React.FC<NotesTabProps> = ({ character, onUpdate, isReadOnly }) 
                         <div className="w-20 h-20 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4 border border-slate-200 dark:border-white/5">
                             <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">edit_note</span>
                         </div>
-                        <p className="text-base font-bold text-slate-500 dark:text-slate-400">Página en Blanco</p>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center mt-1">Tu historia comienza aquí.</p>
+                        <p className="text-base font-bold text-slate-500 dark:text-slate-400">Blank Page</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center mt-1">Your story begins here.</p>
                     </div>
                 )}
 
                 {notesList.map((note) => (
-                    <NoteCard 
-                        key={note.id} 
-                        note={note} 
-                        onUpdate={updateNote} 
-                        onDelete={deleteNote} 
+                    <NoteCard
+                        key={note.id}
+                        note={note}
+                        onUpdate={updateNote}
+                        onDelete={deleteNote}
                         isReadOnly={isReadOnly}
                     />
                 ))}
             </div>
+
+            {atlasViewerResource && createPortal(
+                <div
+                    className="fixed inset-0 z-[300] bg-black flex flex-col"
+                    onClick={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onTouchMove={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
+                >
+                    {/* Header con safe-area */}
+                    <div className="flex items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 bg-black/60 backdrop-blur-sm shrink-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <span className="px-2 py-0.5 rounded-full bg-blue-600/90 text-[8px] font-black uppercase text-white tracking-widest shrink-0">
+                                {atlasViewerResource.type}
+                            </span>
+                            <h3 className="text-sm font-black uppercase italic text-white tracking-tight truncate">
+                                {atlasViewerResource.title}
+                            </h3>
+                        </div>
+                        <button
+                            onClick={() => { setAtlasViewerResource(null); atlasZoom.resetZoom(); }}
+                            className="ml-3 shrink-0 size-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white active:bg-white/40 transition-colors"
+                        >
+                            <span className="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+
+                    {/* Visor táctil */}
+                    <div
+                        ref={atlasZoom.viewportRef}
+                        className="flex-1 flex items-center justify-center overflow-hidden touch-none cursor-grab active:cursor-grabbing"
+                        onTouchStart={atlasZoom.handleTouchStart}
+                        onTouchMove={atlasZoom.handleTouchMove}
+                        onTouchEnd={atlasZoom.handleTouchEnd}
+                        onWheel={atlasZoom.handleWheel}
+                        onMouseDown={atlasZoom.handleMouseDown}
+                        onMouseMove={atlasZoom.handleMouseMove}
+                        onMouseUp={atlasZoom.handleMouseUp}
+                        onMouseLeave={atlasZoom.handleMouseUp}
+                    >
+                        <div ref={atlasZoom.contentRef} style={atlasZoom.transformStyle}>
+                            <img
+                                src={atlasViewerResource.url}
+                                className="max-w-[100vw] max-h-[calc(100vh-9rem)] object-contain select-none"
+                                alt={atlasViewerResource.title}
+                                draggable={false}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Controles con safe-area bottom */}
+                    <div className="flex justify-center items-center gap-2 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shrink-0">
+                        <button onClick={atlasZoom.zoomOut} className="size-12 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white backdrop-blur-sm active:bg-white/40">
+                            <span className="material-symbols-outlined text-2xl">remove</span>
+                        </button>
+                        <span className="text-white text-sm font-bold min-w-[70px] text-center">{Math.round(atlasZoom.scale * 100)}%</span>
+                        <button onClick={atlasZoom.zoomIn} className="size-12 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white backdrop-blur-sm active:bg-white/40">
+                            <span className="material-symbols-outlined text-2xl">add</span>
+                        </button>
+                        <button onClick={atlasZoom.resetZoom} className="size-12 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white backdrop-blur-sm active:bg-white/40 ml-2">
+                            <span className="material-symbols-outlined text-2xl">fit_screen</span>
+                        </button>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };
 
-export default NotesTab;
+const NotesTabMemo = memo(NotesTab);
+NotesTabMemo.displayName = 'NotesTab';
+export default NotesTabMemo;

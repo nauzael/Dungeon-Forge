@@ -1,0 +1,33 @@
+# Capacitor (mobile only)
+android/
+ios/
+
+# Scripts de build
+scripts/
+
+# Docs
+docs/
+*.md
+
+# Tests
+tests/
+*.test.ts
+*.test.tsx
+
+# Configs locales
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Node modules (Vercel los instala)
+node_modules/
+
+# Dist (se genera en build)
+dist/

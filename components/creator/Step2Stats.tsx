@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Ability, BackgroundData, AsiDecision } from '../../types';
-import { FEAT_OPTIONS } from '../../Data/feats';
+import { FEAT_OPTIONS } from '../../Data/feats/index';
 
 interface Step2Props {
     selectedBackground: string;
@@ -32,7 +32,7 @@ interface Step2Props {
     setBaseStats: (v: Record<Ability, number>) => void;
 }
 
-import { useLanguage } from '../../hooks/useLanguage';
+import { UI } from '../../constants/ui';
 
 const Step2Stats: React.FC<Step2Props> = ({
     selectedBackground, backgroundData, bgAsiMode, setBgAsiMode, bgPlus2, setBgPlus2, bgPlus1, setBgPlus1,

@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { Trait, SubclassData } from '../../types';
-import { GENERIC_FEATURES } from '../../Data/feats';
-import { useLanguage } from '../../hooks/useLanguage';
+import { GENERIC_FEATURES } from '../../Data/feats/index';
+import { UI } from '../../constants/ui';
 import { useClasses } from '../../Data/classes/index';
 
 export const SectionSeparator = ({ label }: { label: string }) => (

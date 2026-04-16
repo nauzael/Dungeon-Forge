@@ -1,7 +1,11 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { ALIGNMENTS, LANGUAGES } from '../../Data/characterOptions';
-// Imported FEAT_OPTIONS from the correct Data/feats module
-import { FEAT_OPTIONS } from '../../Data/feats';
+import { FEAT_OPTIONS } from '../../Data/feats/index';
+import { SPELL_DETAILS, SPELL_LIST_BY_CLASS } from '../../Data/spells';
+import { SCHOOL_THEMES } from '../../utils/sheetUtils';
+import { UI } from '../../constants/ui';
+import { useGameData } from '../../hooks/useGameData';
 
 interface Step3Props {
     selectedAlignment: string;
@@ -17,18 +21,48 @@ interface Step3Props {
     setSpellcastingAbility: (v: any) => void;
     useStartingGold: boolean;
     setUseStartingGold: (v: boolean) => void;
+    showHumanMagicModal: boolean;
+    setShowHumanMagicModal: (v: boolean) => void;
+    bgSpells: string[];
+    setBgSpells: (v: string[]) => void;
 }
-
-import { useLanguage } from '../../hooks/useLanguage';
-import { useGameData } from '../../hooks/useGameData';
 
 const Step3Details: React.FC<Step3Props> = ({
     selectedAlignment, setSelectedAlignment, selectedLanguage1, setSelectedLanguage1,
     selectedLanguage2, setSelectedLanguage2, selectedSpecies, selectedFeat, openFeatModal,
-    spellcastingAbility, setSpellcastingAbility, useStartingGold, setUseStartingGold
+    spellcastingAbility, setSpellcastingAbility, useStartingGold, setUseStartingGold,
+    showHumanMagicModal, setShowHumanMagicModal, bgSpells, setBgSpells
 }) => {
     const { t } = useLanguage();
     const { alignments, languages } = useGameData();
+
+    // Human Magic Initiate config
+    const humanMagicConfig = React.useMemo(() => {
+        if (selectedSpecies !== 'Human' || !selectedFeat.includes('Magic Initiate')) return null;
+        let listType: 'Cleric' | 'Druid' | 'Wizard' = 'Wizard';
+        if (selectedFeat.includes('Cleric') || selectedFeat.includes('Clérigo')) listType = 'Cleric';
+        if (selectedFeat.includes('Druid') || selectedFeat.includes('Druida')) listType = 'Druid';
+        return {
+            type: listType,
+            cantripsNeeded: 2,
+            level1Needed: 1,
+            sourceList: SPELL_LIST_BY_CLASS[listType] || []
+        };
+    }, [selectedSpecies, selectedFeat]);
+
+    const toggleBgSpell = (spellName: string, spellLevel: number) => {
+        const isSelected = bgSpells.includes(spellName);
+        if (isSelected) {
+            setBgSpells(bgSpells.filter(s => s !== spellName));
+        } else {
+            // Check limits
+            const currentCantrips = bgSpells.filter(s => SPELL_DETAILS[s]?.level === 0).length;
+            const currentLevel1 = bgSpells.filter(s => SPELL_DETAILS[s]?.level === 1).length;
+            if (spellLevel === 0 && currentCantrips >= 2) return;
+            if (spellLevel === 1 && currentLevel1 >= 1) return;
+            setBgSpells([...bgSpells, spellName]);
+        }
+    };
 
     return (
         <div className="px-6 py-4 space-y-4">

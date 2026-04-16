@@ -1,0 +1,39 @@
+{
+  "name": "Dungeon Forge - D&D 5e Companion",
+  "short_name": "Dungeon Forge",
+  "description": "D&D 5e (2024) Character Management Companion - Create characters, track combat, manage spells and inventory",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#0F172A",
+  "orientation": "portrait-primary",
+  "categories": ["games", "entertainment", "utilities"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/8232/8232560.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/8232/8232560.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Create Character",
+      "short_name": "New PC",
+      "description": "Start a new character creation",
+      "url": "/?action=create",
+      "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/8232/8232560.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

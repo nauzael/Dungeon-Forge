@@ -24,7 +24,7 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
       onJoined(partyId, partyName || '');
       onClose();
     } else {
-      setError(joinError || 'CÓDIGO INVÁLIDO O ERROR DE CONEXIÓN.');
+      setError(joinError || 'INVALID CODE OR CONNECTION ERROR.');
     }
     setIsJoining(false);
   };
@@ -35,23 +35,23 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
         <div className="size-16 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
           <span className="material-symbols-outlined text-3xl">hub</span>
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">Unirse a la Party</h2>
+        <h2 className="text-xl font-bold text-white mb-2">Join Party</h2>
         <p className="text-slate-400 text-xs mb-6 px-2">
-          Ingresa el código que te dio tu DM para que pueda ver tus estadísticas en tiempo real.
+          Enter the code your DM gave you so they can see your stats in real time.
         </p>
 
         <input 
           type="text" 
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          placeholder="Código (ej: DF-8291)"
+          placeholder="Code (e.g. DF-8291)"
           className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-center text-lg font-black tracking-widest text-blue-400 focus:outline-none focus:border-blue-500/50 mb-4 uppercase"
         />
 
         {character.party_id && (
           <p className="text-amber-500 text-[10px] mb-4 font-black uppercase italic leading-tight px-2 bg-amber-500/5 py-2 rounded-xl border border-amber-500/10">
-            ⚠️ Actualmente en: {character.party_name || 'Campaña Activa'}.<br/>
-            Al vincularte, abandonarás la mesa anterior automáticamente.
+            ⚠️ Currently in: {character.party_name || 'Active Campaign'}.<br/>
+            By linking, you will leave the previous table automatically.
           </p>
         )}
 
@@ -62,14 +62,14 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
             onClick={onClose}
             className="py-3 rounded-xl font-bold text-xs text-slate-500 bg-white/5 hover:bg-white/10 transition-colors"
           >
-            Cancelar
+            Cancel
           </button>
           <button 
             onClick={handleJoin}
             disabled={isJoining}
             className="py-3 rounded-xl font-black text-xs text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-900/40 transition-all active:scale-95 disabled:opacity-50"
           >
-            {isJoining ? 'Uniendo...' : 'Vincular'}
+            {isJoining ? 'Joining...' : 'Link'}
           </button>
         </div>
       </div>

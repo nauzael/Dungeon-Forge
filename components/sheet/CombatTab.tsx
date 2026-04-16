@@ -1,12 +1,15 @@
 
 import { createPortal } from 'react-dom';
-import React, { useState, useMemo, useEffect } from 'react';
-import { Character, Ability, WeaponData, ArmorData, InventoryItem } from '../../types';
+import React, { useState, useMemo, useEffect, memo } from 'react';
+import { useModalScrollLock } from '../../hooks/useModalScrollLock';
+import { Character, Ability, WeaponData } from '../../types';
 import { SKILL_ABILITY_MAP, SKILL_DESCRIPTIONS } from '../../Data/skills';
 import { useSkills } from '../../Data/skills/index';
 import { MASTERY_DESCRIPTIONS } from '../../Data/items';
-import { CLASS_SAVING_THROWS, HIT_DIE } from '../../Data/characterOptions';
+import { HIT_DIE } from '../../Data/characterOptions';
 import { SPELL_DETAILS } from '../../Data/spells';
+import { RageIndicator } from './components/RageIndicator';
+import { WildShapePanel, WildShapeModal } from './WildShape';
 import { 
     getFinalStats, 
     getArmorClass, 
@@ -21,35 +24,101 @@ import {
     getWeaponDamageBreakdown,
     getHPBreakdown,
     getSkillBonus,
+    getSkillBreakdown,
     getSaveBreakdown,
     getTotalSpeed,
     getSpellSlotSummary,
     isProficientInSave,
-    getAbilityModifier
+    getAbilityModifier,
+    getAbilityBreakdown
 } from '../../utils/sheetUtils';
+import { 
+    transformIntoBeast, 
+    restoreOriginalForm,
+    getWildShapeFromLocalStorage,
+    initializeWildShapeUses,
+    getBeastByName
+} from '../../utils/wildShapeUtils';
+import { BeastStats, WildShapeState } from '../../types';
 
 interface CombatTabProps {
     character: Character;
-    onUpdate: (char: Character) => void;
+    onUpdate: (update: Partial<Character>) => void;
     isReadOnly?: boolean;
+    onShowJoinParty?: () => void;
+    onShowLevelReset?: () => void;
+    onShowRestModal?: () => void;
+    onInitiateLevelUp?: () => void;
+    hasSnapshots?: boolean;
 }
 
-const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }) => {
+const CombatTab: React.FC<CombatTabProps> = ({ 
+    character, 
+    onUpdate, 
+    isReadOnly,
+    onShowJoinParty,
+    onShowLevelReset,
+    onShowRestModal,
+    onInitiateLevelUp,
+    hasSnapshots
+}) => {
     const skills = useSkills();
     const SKILL_LIST = skills.map(s => s.name);
-    // const [isRaging, setIsRaging] = useState(false); // REMOVED local state
-    const isRaging = character.isRaging || false;
-    const setIsRaging = (val: boolean) => !isReadOnly && onUpdate({ ...character, isRaging: val });
-    const [hpModal, setHpModal] = useState<{ show: boolean; type: 'damage' | 'heal' }>({ show: false, type: 'damage' });
+    const [hpModal, setHpModal] = useState<{ show: boolean; type: 'damage' | 'heal' | 'temp' }>({ show: false, type: 'damage' });
     const [hpAmount, setHpAmount] = useState('');
     const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
-    const [inspectedStat, setInspectedStat] = useState<'AC' | 'Init' | 'Spd' | 'Prof' | 'Insp' | 'HP' | 'Save_STR' | 'Save_DEX' | 'Save_CON' | 'Save_INT' | 'Save_WIS' | 'Save_CHA' | null>(null);
+    const [inspectedStat, setInspectedStat] = useState<'AC' | 'Init' | 'Spd' | 'Prof' | 'Insp' | 'HP' | 'Save_STR' | 'Save_DEX' | 'Save_CON' | 'Save_INT' | 'Save_WIS' | 'Save_CHA' | 'Ability_STR' | 'Ability_DEX' | 'Ability_CON' | 'Ability_INT' | 'Ability_WIS' | 'Ability_CHA' | null>(null);
     const [weaponStatModal, setWeaponStatModal] = useState<{ item: any; weapon: any; type: 'toHit' | 'damage'; isSpell?: boolean } | null>(null);
-    const [skillDescriptions, setSkillDescriptions] = useState<Record<string, string>>({});
+    const [showWildShapeModal, setShowWildShapeModal] = useState(false);
+    const [wildShapeState, setWildShapeState] = useState<WildShapeState | null>(null);
+    const { lockScroll, unlockScroll } = useModalScrollLock();
 
     useEffect(() => {
-        // Translation removed - all content in English
-    }, [selectedSkill]);
+        if (hpModal.show) lockScroll();
+        else unlockScroll();
+    }, [hpModal.show, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (selectedSkill) lockScroll();
+        else unlockScroll();
+    }, [selectedSkill, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (weaponStatModal) lockScroll();
+        else unlockScroll();
+    }, [weaponStatModal, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (inspectedStat) lockScroll();
+        else unlockScroll();
+    }, [inspectedStat, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        let char = character;
+        if (char.class === 'Druid' && !char.wildShape) {
+            char = initializeWildShapeUses(char);
+            onUpdate(char);
+        }
+        
+        const saved = getWildShapeFromLocalStorage(char.id);
+        if (saved && char.activeWildShape) {
+            const beast = getBeastByName(saved.form);
+            if (beast) {
+                setWildShapeState({
+                    form: saved.form,
+                    originalStats: saved.originalStats || (char.stats as Record<Ability, number>),
+                    originalHP: saved.originalHP || { ...char.hp },
+                    originalAC: saved.originalAC || char.ac,
+                    thpGained: saved.thpGained || (char.class === 'Druid' && char.subclass === 'Circle of the Moon'
+                        ? char.level * 3
+                        : char.level),
+                    startedAt: saved.timestamp,
+                    isLunarRadiance: false,
+                    attacks: []
+                });
+            }
+        }
+    }, [character, onUpdate]);
 
     const finalStats = useMemo(() => getFinalStats(character), [character]);
     const armorClass = useMemo(() => getArmorClass(character, finalStats), [character, finalStats]);
@@ -82,6 +151,21 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
     const isCleric = character.class === 'Cleric';
     const isPaladin = character.class === 'Paladin';
     const isDruid = character.class === 'Druid';
+
+    const handleWildShapeTransform = (beast: BeastStats) => {
+        const { updatedChar, wildShapeState: newState } = transformIntoBeast(character, beast);
+        setWildShapeState(newState);
+        onUpdate(updatedChar);
+    };
+
+    const handleWildShapeRestore = () => {
+        if (wildShapeState) {
+            const restoredChar = restoreOriginalForm(character, wildShapeState);
+            setWildShapeState(null);
+            onUpdate(restoredChar);
+        }
+    };
+    
     const isFighter = character.class === 'Fighter';
     const isWarriorOfMercy = isMonk && character.subclass === 'Warrior of Mercy';
     const isMysticArtsMonk = isMonk && character.subclass === 'Warrior of the Mystic Arts';
@@ -141,14 +225,6 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
         return 2;
     }, [character.level]);
     const rageUnlimited = character.level >= 20;
-    const rageCurrent = character.rageUses?.current ?? rageMax;
-    const useRage = () => {
-        if (!isReadOnly && (rageUnlimited || rageCurrent > 0))
-            onUpdate({ ...character, rageUses: { current: rageUnlimited ? 99 : Math.max(0, rageCurrent - 1), max: rageMax } });
-    };
-    const resetRage = () => {
-        if (!isReadOnly) onUpdate({ ...character, rageUses: { current: rageMax, max: rageMax } });
-    };
 
     // ── Bard Bardic Inspiration ─────────────────────────────────────────
     const bardicInspirationDie = useMemo(() => {
@@ -201,9 +277,6 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
     };
     const resetActionSurge = () => onUpdate({ ...character, actionSurge: { current: actionSurgeMax, max: actionSurgeMax } });
     const secondWindCurrent = character.secondWind?.current ?? 1;
-    const useSecondWind = () => {
-        if (secondWindCurrent > 0) onUpdate({ ...character, secondWind: { current: 0, max: 1 } });
-    };
     const resetSecondWind = () => onUpdate({ ...character, secondWind: { current: 1, max: 1 } });
     const healSecondWind = () => {
         const conMod = Math.floor(((finalStats.CON || 10) - 10) / 2);
@@ -228,12 +301,6 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
         onUpdate({ 
             ...character, 
             lucky: { current: luckyCurrent - 1, max: luckyMax } 
-        });
-    };
-    const regainLuckyPoint = () => {
-        onUpdate({ 
-            ...character, 
-            lucky: { current: Math.min(luckyCurrent + 1, luckyMax), max: luckyMax } 
         });
     };
     const resetLucky = () => {
@@ -311,7 +378,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
     };
 
 
-    const openHpModal = (type: 'damage' | 'heal') => {
+    const openHpModal = (type: 'damage' | 'heal' | 'temp') => {
         setHpModal({ show: true, type });
         setHpAmount('');
     };
@@ -325,11 +392,14 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
         }
         let newCurrent = character.hp.current;
         let newTemp = character.hp.temp;
+        
         if (hpModal.type === 'heal') {
             newCurrent = Math.min(character.hp.max, newCurrent + amount);
+        } else if (hpModal.type === 'temp') {
+            newTemp = Math.max(newTemp, amount);
         } else {
             let remainingDamage = amount;
-            if (isBarbarian && isRaging) remainingDamage = Math.floor(remainingDamage / 2);
+            if (isBarbarian && character.isRaging) remainingDamage = Math.floor(remainingDamage / 2);
             if (newTemp > 0) {
                 const absorbed = Math.min(newTemp, remainingDamage);
                 newTemp -= absorbed;
@@ -382,7 +452,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 const { item, data: weapon } = entry;
                 const toHitItems = getWeaponToHitBreakdown(character, item, weapon, finalStats);
                 const toHit = toHitItems.reduce((acc, curr) => acc + (typeof curr.value === 'number' ? curr.value : 0), 0);
-                const dmgItems = getWeaponDamageBreakdown(character, item, weapon, finalStats, isRaging);
+                const dmgItems = getWeaponDamageBreakdown(character, item, weapon, finalStats, character.isRaging ?? false);
                 const dmgMod = dmgItems.reduce((acc, curr) => acc + (typeof curr.value === 'number' ? curr.value : 0), 0);
                 const damageDie = dmgItems.find(i => typeof i.value === 'string')?.value || weapon.damage;
 
@@ -413,7 +483,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                 <span className="text-xs font-bold text-slate-400 group-hover:text-primary uppercase tracking-wider mb-1">Damage</span>
                                 <span className="text-lg font-bold text-slate-900 dark:text-white">{damageDie}{dmgMod >= 0 ? '+' : ''}{dmgMod}</span>
                                 {weapon.mastery === 'Graze' && (character.weaponMasteries || []).includes(weapon.name) && (
-                                    <span className="text-[9px] text-amber-500 font-bold mt-0.5">Graze: {formatModifier(dmgItems.find(i => i.label.includes('Maestría: Graze'))?.value as number || 0)} on miss</span>
+                                    <span className="text-[9px] text-amber-500 font-bold mt-0.5">Graze: {formatModifier(dmgItems.find(i => i.label.includes('Mastery: Graze'))?.value as number || 0)} on miss</span>
                                 )}
                             </button>
                         </div>
@@ -440,11 +510,11 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <button onClick={() => setWeaponStatModal({ item: entry, weapon: entry, type: 'toHit', isSpell: true })} className="flex flex-col items-center justify-center py-2 px-4 rounded-xl bg-fuchsia-500/5 dark:bg-black/20 group border border-fuchsia-500/10">
-                                <span className="text-[10px] font-black text-fuchsia-400 group-hover:text-fuchsia-500 uppercase tracking-widest mb-1">Impacto</span>
+                                <span className="text-[10px] font-black text-fuchsia-400 group-hover:text-fuchsia-500 uppercase tracking-widest mb-1">Hit</span>
                                 <span className="text-lg font-bold text-slate-900 dark:text-white">{formatModifier(entry.toHit)}</span> 
                             </button>
                             <button onClick={() => setWeaponStatModal({ item: entry, weapon: entry, type: 'damage', isSpell: true })} className="flex flex-col items-center justify-center py-2 px-4 rounded-xl bg-fuchsia-500/5 dark:bg-black/20 group border border-fuchsia-500/10">
-                                <span className="text-[10px] font-black text-fuchsia-400 group-hover:text-fuchsia-500 uppercase tracking-widest mb-1">Daño Arcano</span>
+                                <span className="text-[10px] font-black text-fuchsia-400 group-hover:text-fuchsia-500 uppercase tracking-widest mb-1">Arcane Damage</span>
                                 <span className="text-lg font-bold text-slate-900 dark:text-white">{entry.displayDamage}</span>
                             </button>
                         </div>
@@ -480,20 +550,20 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                     const score = finalStats[stat] || 10;
                     const mod = Math.floor((score - 10) / 2);
                     return (
-                        <div key={stat} className="flex flex-col items-center p-2 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm">
+                        <button key={stat} onClick={() => setInspectedStat(`Ability_${stat}` as 'Ability_STR' | 'Ability_DEX' | 'Ability_CON' | 'Ability_INT' | 'Ability_WIS' | 'Ability_CHA')} className="flex flex-col items-center p-2 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm active:scale-95 transition-all hover:border-primary/30">
                             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">{stat}</span>
                             <div className="flex items-baseline gap-1.5">
                                 <span className="text-xl font-bold text-slate-900 dark:text-white leading-none">{formatModifier(mod)}</span>
                                 <span className="text-[10px] text-slate-400 font-medium">{score}</span>
                             </div>
-                        </div>
+                        </button>
                     );
                 })}
             </div>
 
             {/* SECCIÓN DE TIRADAS DE SALVACIÓN RESTAURADA */}
             <div className="mb-6">
-                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Tiradas de Salvación</h3>
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Saving Throws</h3>
                 <div className="grid grid-cols-3 gap-2">
                     {(['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as Ability[]).map(stat => {
                         const isProf = isProficientInSave(character, stat);
@@ -502,7 +572,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         const total = abilityMod + (isProf ? character.profBonus : 0) + globalBonus;
                         
                         return (
-                            <button key={stat} onClick={() => setInspectedStat(`Save_${stat}` as any)} className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm active:scale-95 transition-all">
+                            <button key={stat} onClick={() => setInspectedStat(`Save_${stat}` as 'Save_STR' | 'Save_DEX' | 'Save_CON' | 'Save_INT' | 'Save_WIS' | 'Save_CHA')} className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm active:scale-95 transition-all">
                                 <div className="flex items-center gap-1.5 min-w-0">
                                     <div className={`w-1 h-1 rounded-full ${isProf ? 'bg-primary' : 'bg-slate-300 dark:bg-white/10'}`}></div>
                                     <span className="text-[10px] font-black text-slate-500 uppercase">{stat}</span>
@@ -515,16 +585,18 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
             </div>
 
             <div className="flex flex-col gap-3 mb-6">
+                {isBarbarian && !isReadOnly && (
+                    <RageIndicator character={character} onUpdate={onUpdate} isReadOnly={isReadOnly} />
+                )}
+                {isDruid && !isReadOnly && (
+                    <WildShapePanel 
+                        character={character}
+                        wildShapeState={wildShapeState}
+                        onTransform={() => setShowWildShapeModal(true)}
+                        onRestore={handleWildShapeRestore}
+                    />
+                )}
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 overflow-hidden relative group/hp">
-                    {!isReadOnly && isBarbarian && (
-                        <div className="absolute top-4 right-5">
-                            <button onClick={() => setIsRaging(!isRaging)} className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase transition-all ${isRaging ? 'bg-red-500 text-white shadow-lg' : 'bg-slate-100 dark:bg-white/10 text-slate-500'}`}>
-                                <span className="material-symbols-outlined text-xs">local_fire_department</span>
-                                {isRaging ? 'Rage Active' : 'Enter Rage'}
-                            </button>
-                        </div>
-                    )}
-                    
                     <div className="flex justify-between items-end">
                         <div className="flex flex-col cursor-pointer" onClick={() => setInspectedStat('HP')}>
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1">
@@ -534,18 +606,32 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             <div className="flex items-baseline gap-2">
                                 <span className={`text-5xl font-black tracking-tight ${hpColorClass}`}>{character.hp.current}</span>
                                 <span className="text-xl font-bold text-slate-400">/ {character.hp.max}</span>
+                                {character.hp.temp > 0 && (
+                                    <span className="text-lg font-bold text-blue-400">🛡️+{(character.hp.temp || 0)}</span>
+                                )}
                             </div>
+                            {character.hp.temp > 0 && character.class === 'Barbarian' && character.isRaging && character.subclass === 'Path of the World Tree' && (
+                                <span className="text-xs text-blue-400 font-medium mt-1">🌳 Vitality of the Tree</span>
+                            )}
                         </div>
                         {!isReadOnly && (
                             <div className="flex gap-2">
                                 <button onClick={() => openHpModal('damage')} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-black/20 border border-red-500/30 text-red-500 active:scale-90 transition-all"><span className="material-symbols-outlined font-bold">heart_broken</span></button>
                                 <button onClick={() => openHpModal('heal')} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-black/20 border border-emerald-500/30 text-emerald-500 active:scale-90 transition-all"><span className="material-symbols-outlined font-bold">healing</span></button>
+                                <button onClick={() => openHpModal('temp')} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-black/20 border border-blue-500/30 text-blue-500 active:scale-90 transition-all" title="Apply Temporary HP"><span className="material-symbols-outlined font-bold">shield</span></button>
                             </div>
                         )}
                     </div>
                     <div className="relative h-2 w-full rounded-full bg-slate-100 dark:bg-black/40 overflow-hidden">
                         <div className={`absolute top-0 left-0 h-full rounded-full transition-all duration-700 ease-out ${hpPercent < 25 ? 'bg-red-500' : 'bg-primary'}`} style={{ width: `${Math.min(100, hpPercent)}%` }}></div>
                     </div>
+
+                    {isCleric && character.subclass === 'Life Domain' && character.level >= 6 && (
+                        <div className="mt-3 flex items-center gap-2 text-[10px] text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2">
+                            <span className="material-symbols-outlined text-sm">favorite</span>
+                            <span><strong>Blessed Healer:</strong> Healing others heals you (+{character.level + 2} HP)</span>
+                        </div>
+                    )}
 
                     <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
                         <div className="flex flex-col">
@@ -583,7 +669,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                     <span className="material-symbols-outlined text-sm text-amber-500">casino</span>
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Suerte (Lucky)</span>
                                 </div>
-                                <span className="text-[10px] font-bold text-slate-400">Recarga: Descanso Largo</span>
+                                <span className="text-[10px] font-bold text-slate-400">Refresh: Long Rest</span>
                             </div>
                             <div className="flex justify-between items-center bg-slate-50 dark:bg-black/20 p-2 rounded-xl border border-slate-100 dark:border-white/5">
                                 <div className="flex gap-2">
@@ -602,7 +688,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                     <button 
                                         onClick={resetLucky}
                                         className="size-8 flex items-center justify-center rounded-lg bg-white dark:bg-white/5 text-slate-400 hover:text-amber-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all"
-                                        title="Recuperar Todo"
+                                        title="Recover All"
                                     >
                                         <span className="material-symbols-outlined text-[18px]">refresh</span>
                                     </button>
@@ -632,14 +718,14 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
 
                         <div className="mt-2 pt-2">
                             <div className="flex justify-between items-center mb-3">
-                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Habilidades de Monje</span>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Monk Abilities</span>
                             </div>
                             <div className="grid grid-cols-4 gap-2 mb-4">
                                 {[
-                                    { id: 'flurry', label: 'Ráfaga', icon: 'sports_martial_arts', cost: 1 },
+                                    { id: 'flurry', label: 'Flurry', icon: 'sports_martial_arts', cost: 1 },
                                     { id: 'def', label: 'Defense', icon: 'security', cost: 1 },
-                                    { id: 'step', label: 'Paso', icon: 'air', cost: 1 },
-                                    ...(character.level >= 5 ? [{ id: 'stun', label: 'Aturdir', icon: 'offline_bolt', cost: 1 }] : [])
+                                    { id: 'step', label: 'Step', icon: 'air', cost: 1 },
+                                    ...(character.level >= 5 ? [{ id: 'stun', label: 'Stun', icon: 'offline_bolt', cost: 1 }] : [])
                                 ].map(skill => (
                                     <button 
                                         key={skill.id}
@@ -656,7 +742,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             {isWarriorOfMercy && (
                                 <div className="space-y-2 mt-4 pt-4 border-t border-slate-100 dark:border-white/5">
                                     <div className="flex justify-between items-center px-1">
-                                        <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Gasto de Misericordia</span>
+                                        <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Mercy Spending</span>
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button 
@@ -666,7 +752,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                         >
                                             <span className="material-symbols-outlined text-[16px] text-emerald-500">back_hand</span>
                                             <div className="flex flex-col items-start min-w-0">
-                                                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase leading-none">Sanación</span>
+                                                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase leading-none">Healing</span>
                                                 <span className="text-[8px] text-slate-400 font-mono">1d{martialArtsDie.substring(1)}+{wisMod}</span>
                                             </div>
                                         </button>
@@ -677,7 +763,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                         >
                                             <span className="material-symbols-outlined text-[16px] text-rose-500">skull</span>
                                             <div className="flex flex-col items-start min-w-0">
-                                                <span className="text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase leading-none">Daño</span>
+                                                <span className="text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase leading-none">Damage</span>
                                                 <span className="text-[8px] text-slate-400 font-mono">1d{martialArtsDie.substring(1)}+{wisMod}</span>
                                             </div>
                                         </button>
@@ -699,50 +785,12 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 )}
             </div>
 
-            {/* ── BARBARIAN RAGE ── */}
-            {isBarbarian && (
-                <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-1">Furia</span>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-4xl font-black tracking-tighter text-orange-500">
-                                    {rageUnlimited ? '∞' : rageCurrent}
-                                </span>
-                                {!rageUnlimited && <span className="text-lg font-bold text-slate-400">/ {rageMax}</span>}
-                            </div>
-                        </div>
-                        <div className="flex gap-2">
-                            <button onClick={useRage} disabled={!rageUnlimited && rageCurrent <= 0}
-                                className={`size-12 rounded-2xl border active:scale-90 transition-all flex items-center justify-center text-orange-500 ${(!rageUnlimited && rageCurrent <= 0) ? 'opacity-30 cursor-not-allowed bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5' : 'bg-orange-500/10 border-orange-500/20 hover:bg-orange-500/20'}`}
-                                title="Entrar en Furia">
-                                <span className="material-symbols-outlined font-bold">local_fire_department</span>
-                            </button>
-                            <button onClick={resetRage} className="size-12 rounded-2xl bg-white dark:bg-white/5 text-slate-400 hover:text-orange-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all flex items-center justify-center" title="Descanso Largo">
-                                <span className="material-symbols-outlined font-bold">refresh</span>
-                            </button>
-                        </div>
-                    </div>
-                    {!rageUnlimited && (
-                        <div className="flex gap-1.5">
-                            {Array.from({ length: rageMax }, (_, i) => (
-                                <div key={i} className={`flex-1 h-2 rounded-full transition-colors ${i < rageCurrent ? 'bg-orange-500' : 'bg-slate-200 dark:bg-white/10'}`} />
-                            ))}
-                        </div>
-                    )}
-                    <div className="text-xs text-slate-400 text-center font-medium">
-                        Daño +{Math.floor(((finalStats.STR || 10) - 10) / 2)} extra • Resistencia a B/P/S
-                        {character.level >= 20 && ' • ¡Furia Ilimitada!'}
-                    </div>
-                </div>
-            )}
-
             {/* ── BARD BARDIC INSPIRATION ── */}
             {isBard && (
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-1">Inspiración de Bardo</span>
+                            <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-1">Bardic Inspiration</span>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-4xl font-black tracking-tighter text-purple-500">{bardicCurrent}</span>
                                 <span className="text-lg font-bold text-slate-400">/ {bardicMax}</span>
@@ -751,7 +799,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         <div className="flex gap-2">
                             <button onClick={useBardicInspiration} disabled={bardicCurrent <= 0}
                                 className={`size-12 rounded-2xl border active:scale-90 transition-all flex items-center justify-center text-purple-500 ${bardicCurrent <= 0 ? 'opacity-30 cursor-not-allowed bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5' : 'bg-purple-500/10 border-purple-500/20 hover:bg-purple-500/20'}`}
-                                title="Usar Inspiración">
+                                title="Use Inspiration">
                                 <span className="material-symbols-outlined font-bold">music_note</span>
                             </button>
                             <button onClick={resetBardicInspiration} className="size-12 rounded-2xl bg-white dark:bg-white/5 text-slate-400 hover:text-purple-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all flex items-center justify-center" title="Descanso Largo">
@@ -764,7 +812,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             <div key={i} className={`flex-1 h-2 rounded-full transition-colors ${i < bardicCurrent ? 'bg-purple-500' : 'bg-slate-200 dark:bg-white/10'}`} />
                         ))}
                     </div>
-                    <div className="text-xs text-slate-400 text-center font-medium">Dado: {bardicInspirationDie} • Usos = Mod. CAR</div>
+                    <div className="text-xs text-slate-400 text-center font-medium">Die: {bardicInspirationDie} • Uses = CHA Mod</div>
                 </div>
             )}
 
@@ -773,7 +821,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest mb-1">Canal de Divinidad</span>
+                            <span className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest mb-1">Channel Divinity</span>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-4xl font-black tracking-tighter text-yellow-500">{channelDivinityCurrent}</span>
                                 <span className="text-lg font-bold text-slate-400">/ {channelDivinityMax}</span>
@@ -782,7 +830,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         <div className="flex gap-2">
                             <button onClick={useChannelDivinity} disabled={channelDivinityCurrent <= 0}
                                 className={`size-12 rounded-2xl border active:scale-90 transition-all flex items-center justify-center text-yellow-500 ${channelDivinityCurrent <= 0 ? 'opacity-30 cursor-not-allowed bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5' : 'bg-yellow-500/10 border-yellow-500/20 hover:bg-yellow-500/20'}`}
-                                title="Usar Canal de Divinidad">
+                                title="Use Channel Divinity">
                                 <span className="material-symbols-outlined font-bold">verified_user</span>
                             </button>
                             <button onClick={resetChannelDivinity} className="size-12 rounded-2xl bg-white dark:bg-white/5 text-slate-400 hover:text-yellow-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all flex items-center justify-center" title="Descanso Corto/Largo">
@@ -795,7 +843,33 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             <div key={i} className={`size-5 rounded-full border-2 transition-colors ${i < channelDivinityCurrent ? 'bg-yellow-500 border-yellow-500' : 'bg-transparent border-slate-300 dark:border-slate-600'}`} />
                         ))}
                     </div>
-                    <div className="text-xs text-slate-400 text-center font-medium">Se repone con Descanso Corto o Largo</div>
+                    <div className="text-xs text-slate-400 text-center font-medium">Restores on Short or Long Rest</div>
+                </div>
+            )}
+
+            {/* ── PRESERVE LIFE (Life Domain Cleric) ── */}
+            {isCleric && character.subclass === 'Life Domain' && character.level >= 3 && channelDivinityCurrent > 0 && (
+                <div className="flex flex-col gap-4 rounded-3xl bg-emerald-500/5 dark:bg-emerald-500/10 p-6 shadow-lg border border-emerald-500/20 mb-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Preserve Life</span>
+                                <span className="text-[8px] font-black text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30">Channel Divinity</span>
+                            </div>
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-4xl font-black tracking-tighter text-emerald-500">{character.level * 5}</span>
+                                <span className="text-sm font-bold text-slate-400">HP Pool</span>
+                            </div>
+                        </div>
+                        <button onClick={useChannelDivinity} disabled={channelDivinityCurrent <= 0}
+                            className={`size-14 rounded-2xl border active:scale-90 transition-all flex items-center justify-center text-emerald-500 ${channelDivinityCurrent <= 0 ? 'opacity-30 cursor-not-allowed bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5' : 'bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/20'}`}
+                            title="Use Preserve Life (costs 1 Channel Divinity)">
+                            <span className="material-symbols-outlined font-bold text-2xl">favorite</span>
+                        </button>
+                    </div>
+                    <div className="text-[10px] text-emerald-400/80 text-center leading-relaxed">
+                        Divide among bloodied creatures within 30 ft. Each target heals up to half their max HP.
+                    </div>
                 </div>
             )}
 
@@ -804,7 +878,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Forma Salvaje</span>
+                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Wild Shape</span>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-4xl font-black tracking-tighter text-emerald-500">{wildShapeCurrent}</span>
                                 <span className="text-lg font-bold text-slate-400">/ 2</span>
@@ -813,7 +887,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         <div className="flex gap-2">
                             <button onClick={useWildShape} disabled={wildShapeCurrent <= 0}
                                 className={`size-12 rounded-2xl border active:scale-90 transition-all flex items-center justify-center text-emerald-500 ${wildShapeCurrent <= 0 ? 'opacity-30 cursor-not-allowed bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5' : 'bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/20'}`}
-                                title="Usar Forma Salvaje">
+                                title="Use Wild Shape">
                                 <span className="material-symbols-outlined font-bold">forest</span>
                             </button>
                             <button onClick={resetWildShape} className="size-12 rounded-2xl bg-white dark:bg-white/5 text-slate-400 hover:text-emerald-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all flex items-center justify-center" title="Descanso Corto/Largo">
@@ -826,7 +900,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             <div key={i} className={`size-6 rounded-full border-2 transition-colors ${i < wildShapeCurrent ? 'bg-emerald-500 border-emerald-500' : 'bg-transparent border-slate-300 dark:border-slate-600'}`} />
                         ))}
                     </div>
-                    <div className="text-xs text-slate-400 text-center font-medium">Se repone con Descanso Corto o Largo</div>
+                    <div className="text-xs text-slate-400 text-center font-medium">Restores on Short or Long Rest</div>
                 </div>
             )}
 
@@ -835,10 +909,10 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-sky-500 uppercase tracking-widest mb-1">Imposición de Manos</span>
+                            <span className="text-[10px] font-bold text-sky-500 uppercase tracking-widest mb-1">Lay On Hands</span>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-4xl font-black tracking-tighter text-sky-500">{layOnHandsCurrent}</span>
-                                <span className="text-lg font-bold text-slate-400">/ {layOnHandsMax} PG</span>
+                                <span className="text-lg font-bold text-slate-400">/ {layOnHandsMax} HP</span>
                             </div>
                         </div>
                         <button onClick={resetLayOnHands} className="size-12 rounded-2xl bg-white dark:bg-white/5 text-slate-400 hover:text-sky-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all flex items-center justify-center" title="Descanso Largo">
@@ -852,7 +926,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         {[1, 5, 10].map(amount => (
                             <button key={amount} onClick={() => healWithLayOnHands(amount)} disabled={layOnHandsCurrent < amount}
                                 className={`py-2 rounded-xl border text-xs font-bold transition-all active:scale-95 ${layOnHandsCurrent >= amount ? 'bg-sky-500/10 border-sky-500/20 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20' : 'opacity-30 cursor-not-allowed border-slate-200 dark:border-white/5 text-slate-400'}`}>
-                                -{amount} PG
+                                -{amount} HP
                             </button>
                         ))}
                     </div>
@@ -862,10 +936,10 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
             {/* ── FIGHTER: ACTION SURGE + SECOND WIND ── */}
             {isFighter && (
                 <div className="flex flex-col gap-3 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4">
-                    <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Recursos del Guerrero</span>
+                    <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Fighter Resources</span>
                     <div className="grid grid-cols-2 gap-3">
                         <div className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${actionSurgeCurrent > 0 ? 'bg-red-500/5 border-red-500/20' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/5 opacity-50'}`}>
-                            <span className="text-[9px] font-black text-red-500 uppercase tracking-widest">Oleada de Acción</span>
+                            <span className="text-[9px] font-black text-red-500 uppercase tracking-widest">Action Surge</span>
                             <div className="flex gap-1.5">
                                 {Array.from({ length: actionSurgeMax }, (_, i) => (
                                     <div key={i} className={`size-4 rounded-full border-2 ${i < actionSurgeCurrent ? 'bg-red-500 border-red-500' : 'bg-transparent border-slate-300 dark:border-slate-600'}`} />
@@ -874,7 +948,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             <div className="flex gap-1">
                                 <button onClick={useActionSurge} disabled={actionSurgeCurrent <= 0}
                                     className={`flex-1 py-1.5 rounded-lg text-[10px] font-black active:scale-90 transition-all ${actionSurgeCurrent > 0 ? 'bg-red-500 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-400 cursor-not-allowed'}`}>
-                                    USAR
+                                    USE
                                 </button>
                                 <button onClick={resetActionSurge} className="px-2 py-1.5 rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-red-500 text-[10px] font-black active:scale-90 transition-all">
                                     <span className="material-symbols-outlined text-[14px]">refresh</span>
@@ -882,12 +956,12 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             </div>
                         </div>
                         <div className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${secondWindCurrent > 0 ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/5 opacity-50'}`}>
-                            <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">2do Aliento</span>
+                            <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Second Wind</span>
                             <div className={`size-4 rounded-full border-2 ${secondWindCurrent > 0 ? 'bg-emerald-500 border-emerald-500' : 'bg-transparent border-slate-300 dark:border-slate-600'}`} />
                             <div className="flex gap-1">
                                 <button onClick={healSecondWind} disabled={secondWindCurrent <= 0}
                                     className={`flex-1 py-1.5 rounded-lg text-[10px] font-black active:scale-90 transition-all ${secondWindCurrent > 0 ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-400 cursor-not-allowed'}`}>
-                                    CURAR
+                                    HEAL
                                 </button>
                                 <button onClick={resetSecondWind} className="px-2 py-1.5 rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-emerald-500 text-[10px] font-black active:scale-90 transition-all">
                                     <span className="material-symbols-outlined text-[14px]">refresh</span>
@@ -895,7 +969,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             </div>
                         </div>
                     </div>
-                    <div className="text-xs text-slate-400 text-center font-medium">Se repone con Descanso Corto o Largo</div>
+                    <div className="text-xs text-slate-400 text-center font-medium">Restores on Short or Long Rest</div>
                 </div>
             )}
 
@@ -907,9 +981,9 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             <span className="material-symbols-outlined text-slate-500">visibility_off</span>
                         </div>
                         <div>
-                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ataque Furtivo</div>
+                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Sneak Attack</div>
                             <div className="text-2xl font-black text-slate-900 dark:text-white">{sneakAttackDice}d6</div>
-                            <div className="text-[10px] text-slate-400">Una vez por turno</div>
+                            <div className="text-[10px] text-slate-400">Once per turn</div>
                         </div>
                     </div>
                     <div className="text-right">
@@ -927,14 +1001,14 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4 border-l-4 border-cyan-500">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-1">Conversión Mística</span>
-                            <span className="text-xs text-slate-400">Canje de Espacios y Foco</span>
+                            <span className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-1">Mystic Conversion</span>
+                            <span className="text-xs text-slate-400">Slot and Focus Exchange</span>
                         </div>
                         <span className="material-symbols-outlined text-cyan-500">auto_fix_normal</span>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-2">
-                            <span className="text-[9px] font-black text-slate-400 uppercase text-center">Espacio → Foco</span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase text-center">Slot → Focus</span>
                             {[1, 2, 3, 4, 5].map(lvl => {
                                 const current = character.spellSlots?.[lvl]?.current ?? 0;
                                 const max = character.spellSlots?.[lvl]?.max ?? 0;
@@ -942,13 +1016,13 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                 return (
                                     <button key={lvl} onClick={() => convertSlotToFocus(lvl)} disabled={current <= 0}
                                         className={`py-1.5 rounded-xl border text-[10px] font-bold transition-all active:scale-95 flex items-center justify-center gap-2 ${current > 0 ? 'bg-cyan-500/10 border-cyan-500/20 text-cyan-600 dark:text-cyan-400' : 'opacity-20 border-slate-200 dark:border-white/5 text-slate-400'}`}>
-                                        Lv{lvl} ({current}) → +{lvl} Foco
+                                        Lv{lvl} ({current}) → +{lvl} Focus
                                     </button>
                                 );
                             })}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <span className="text-[9px] font-black text-slate-400 uppercase text-center">Foco → Espacio</span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase text-center">Focus → Slot</span>
                             {[1, 2, 3, 4, 5].map(lvl => {
                                 const cost = lvl + 1;
                                 const max = character.spellSlots?.[lvl]?.max ?? 0;
@@ -957,7 +1031,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                 return (
                                     <button key={lvl} onClick={() => convertFocusToSlot(lvl)} disabled={currentFocus < cost || current >= max}
                                         className={`py-1.5 rounded-xl border text-[10px] font-bold transition-all active:scale-95 flex items-center justify-center gap-2 ${currentFocus >= cost && current < max ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400' : 'opacity-20 border-slate-200 dark:border-white/5 text-slate-400'}`}>
-                                        {cost} Foco → Lv{lvl}
+                                        {cost} Focus → Lv{lvl}
                                     </button>
                                 );
                             })}
@@ -971,10 +1045,10 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4 border-l-4 border-amber-500">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Ataque Furtivo Potenciado</span>
+                            <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Empowered Sneak Attack</span>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-4xl font-black tracking-tighter text-amber-500">{eseCurrent}</span>
-                                <span className="text-lg font-bold text-slate-400">/ {eseMax} Usos</span>
+                                <span className="text-lg font-bold text-slate-400">/ {eseMax} Uses</span>
                             </div>
                         </div>
                         <button onClick={resetEmpoweredSneakAttack} className="size-12 rounded-2xl bg-white dark:bg-white/5 text-slate-400 hover:text-amber-500 shadow-sm border border-slate-200 dark:border-white/5 active:scale-90 transition-all flex items-center justify-center" title="Descanso Corto/Largo">
@@ -983,9 +1057,9 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                     </div>
                     <button onClick={useEmpoweredSneakAttack} disabled={eseCurrent <= 0}
                         className={`w-full py-3 rounded-2xl border font-black text-xs uppercase tracking-widest transition-all active:scale-[0.98] ${eseCurrent > 0 ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-400 opacity-50'}`}>
-                        Empoderar Ataque (+{eseCurrent}d6)
+                        Empower Attack (+{eseCurrent}d6)
                     </button>
-                    <p className="text-[10px] text-slate-500 text-center">Se recarga al lanzar un conjuro de nivel 1+ o con un Descanso</p>
+                    <p className="text-[10px] text-slate-500 text-center">Recharges when casting a level 1+ spell or on a Rest</p>
                 </div>
             )}
 
@@ -994,14 +1068,14 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4 border-l-4 border-purple-500">
                    <div className="flex justify-between items-center">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-1">Compañero Vestigial</span>
-                            <span className="text-lg font-black text-slate-900 dark:text-white leading-none">{character.vestige?.type || 'Vestigio'}</span>
+                            <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-1">Vestige Companion</span>
+                            <span className="text-lg font-black text-slate-900 dark:text-white leading-none">{character.vestige?.type || 'Vestige'}</span>
                         </div>
                         <div className="size-10 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center"><span className="material-symbols-outlined text-xl">tempest</span></div>
                    </div>
                    <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase mb-1">Puntos de Golpe</span>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase mb-1">Hit Points</span>
                             <div className="flex items-baseline gap-1.5">
                                 <span className="text-2xl font-black text-purple-500">{vestigeHpCurrent}</span>
                                 <span className="text-xs font-bold text-slate-400">/ {vestigeHpMax}</span>
@@ -1017,12 +1091,12 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                    </div>
                    <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-500">
                         <div className="p-2 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
-                            <span className="font-bold block text-purple-500 uppercase">Aura: {character.vestige?.domain || 'Patrón'}</span>
-                            Bonus de +{character.profBonus} a salvaciones vs magia.
+                            <span className="font-bold block text-purple-500 uppercase">Aura: {character.vestige?.domain || 'Pattern'}</span>
+                            Bonus of +{character.profBonus} to saves vs magic.
                         </div>
                         <div className="p-2 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
-                            <span className="font-bold block text-purple-500 uppercase">Ataque</span>
-                            1d8 + {character.profBonus} daño de fuerza.
+                            <span className="font-bold block text-purple-500 uppercase">Attack</span>
+                            1d8 + {character.profBonus} force damage.
                         </div>
                    </div>
                 </div>
@@ -1033,17 +1107,17 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 mb-4 border-l-4 border-sky-400">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-1">Vínculo del Guardián</span>
-                            <span className="text-xs text-slate-400">Protegiendo a un aliado</span>
+                            <span className="text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-1">Guardian Bond</span>
+                            <span className="text-xs text-slate-400">Protecting an ally</span>
                         </div>
                         <span className="material-symbols-outlined text-sky-400">safety_check</span>
                     </div>
                     <div className="p-3 rounded-2xl bg-sky-400/5 border border-sky-400/20">
-                         <p className="text-xs text-slate-600 dark:text-slate-300">Aliado vinculado recibe <span className="font-bold text-sky-400">+{character.profBonus}</span> a CA y Salvaciones si está en tu Aura de Protección.</p>
+                         <p className="text-xs text-slate-600 dark:text-slate-300">Linked ally receives <span className="font-bold text-sky-400">+{character.profBonus}</span> to AC and Saves if in your Protection Aura.</p>
                          <div className="mt-3 flex gap-2 items-center">
                             <input 
                                 type="text" 
-                                placeholder="Nombre del aliado..." 
+                                placeholder="Ally name..." 
                                 value={character.guardianBondTarget || ''}
                                 onChange={(e) => onUpdate({ ...character, guardianBondTarget: e.target.value })}
                                 className="flex-1 bg-black/10 border border-white/5 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-sky-400/50"
@@ -1057,7 +1131,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 <div className="mb-6">
                     <div className="flex items-center gap-2 mb-3 px-1">
                         <span className="material-symbols-outlined text-xs text-slate-400">auto_awesome</span>
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Conjuros</h3>
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Spells</h3>
                     </div>
                     <div className="grid grid-cols-1 gap-2">
                         {Object.entries(spellSlotSummary).map(([level, slots]) => {
@@ -1067,7 +1141,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                 <div key={lvl} className="p-3 rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm">
                                     <div className="flex justify-between items-center mb-2">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[10px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded uppercase tracking-tighter">Nivel {lvl}</span>
+                                            <span className="text-[10px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded uppercase tracking-tighter">Level {lvl}</span>
                                         </div>
                                         <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{slots.current} / {slots.max}</span>
                                     </div>
@@ -1088,7 +1162,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
 
             {character.weaponMasteries && character.weaponMasteries.length > 0 && (
                 <div className="mb-6">
-                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Maestrías Activas</h3>
+                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Active Masteries</h3>
                     <div className="grid grid-cols-1 gap-2">
                         {character.weaponMasteries.map(m => {
                             const weaponData = getItemData(m) as WeaponData;
@@ -1120,7 +1194,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             </div>
                         </div>
                         <div className="text-right">
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Mod. Magia</div>
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Spell Mod</div>
                             <div className="text-xl font-black text-primary leading-none mt-0.5">{formatModifier(spellcastingStats.mod)}</div>
                         </div>
                     </div>
@@ -1128,7 +1202,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
             )}
       
             <div className="mb-6">
-                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Habilidades</h3>
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Abilities</h3>
                 <div className="grid grid-cols-2 gap-2">
                     {SKILL_LIST.map(skill => {
                         const isProf = character.skills.includes(skill);
@@ -1148,6 +1222,93 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 </div>
             </div>
 
+            {/* Quick Actions Bar */}
+            {!isReadOnly && (
+                <div className="sticky bottom-0 left-0 right-0 p-4 z-10 safe-area-inset-bottom">
+                    <div className="bg-white dark:bg-surface-dark rounded-3xl shadow-lg border border-slate-200 dark:border-white/5 p-4">
+                        <div className="grid grid-cols-2 gap-3">
+                            {/* Level Up */}
+                            <div className="flex items-center gap-3">
+                                {(onInitiateLevelUp && character.level < 20) ? (
+                                    <button
+                                        onClick={onInitiateLevelUp}
+                                        className="w-12 h-12 rounded-xl bg-emerald-500 text-white shadow-md shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center flex-shrink-0"
+                                        aria-label="Level up"
+                                    >
+                                        <span className="material-symbols-outlined text-lg font-bold">keyboard_double_arrow_up</span>
+                                    </button>
+                                ) : (
+                                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+                                        <span className="material-symbols-outlined text-lg font-bold text-amber-500">stars</span>
+                                    </div>
+                                )}
+                                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Level Up</span>
+                            </div>
+
+                            {/* Short Rest */}
+                            <div className="flex items-center gap-3">
+                                {onShowRestModal ? (
+                                    <button
+                                        onClick={onShowRestModal}
+                                        className="w-12 h-12 rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center flex-shrink-0"
+                                        aria-label="Short rest"
+                                    >
+                                        <span className="material-symbols-outlined text-lg font-bold">bedtime</span>
+                                    </button>
+                                ) : (
+                                    <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center flex-shrink-0">
+                                        <span className="material-symbols-outlined text-lg text-slate-400">bedtime_off</span>
+                                    </div>
+                                )}
+                                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Short Rest</span>
+                            </div>
+
+                            {/* Reset Level */}
+                            <div className="flex items-center gap-3">
+                                {onShowLevelReset && hasSnapshots ? (
+                                    <button
+                                        onClick={onShowLevelReset}
+                                        className="w-12 h-12 rounded-xl bg-purple-500 text-white shadow-md shadow-purple-500/20 active:scale-95 transition-all flex items-center justify-center flex-shrink-0"
+                                        aria-label="Level reset"
+                                    >
+                                        <span className="material-symbols-outlined text-lg font-bold">history</span>
+                                    </button>
+                                ) : (
+                                    <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center flex-shrink-0">
+                                        <span className="material-symbols-outlined text-lg text-slate-400">history</span>
+                                    </div>
+                                )}
+                                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Reset Level</span>
+                            </div>
+
+                            {/* Party */}
+                            <div className="flex items-center gap-3">
+                                {onShowJoinParty ? (
+                                    <button
+                                        onClick={onShowJoinParty}
+                                        className={`w-12 h-12 rounded-xl transition-all active:scale-95 flex items-center justify-center flex-shrink-0 shadow-md ${
+                                            character.party_id
+                                                ? 'bg-blue-500 text-white shadow-blue-500/20'
+                                                : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                                        }`}
+                                        aria-label={character.party_id ? 'Connected to party' : 'Join party'}
+                                    >
+                                        <span className={`material-symbols-outlined text-lg font-bold ${character.party_id ? '' : 'text-slate-500 dark:text-slate-400'}`}>
+                                            {character.party_id ? 'hub' : 'link'}
+                                        </span>
+                                    </button>
+                                ) : (
+                                    <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center flex-shrink-0">
+                                        <span className="material-symbols-outlined text-lg text-slate-400">link_off</span>
+                                    </div>
+                                )}
+                                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Party</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Stat Breakdowns */}
             {inspectedStat && createPortal(
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setInspectedStat(null)}>
@@ -1155,14 +1316,9 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                         <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-widest mb-6">
                             {inspectedStat === 'HP' ? 'Hit Points' 
                              : inspectedStat?.startsWith('Save_') 
-                                ? `Salvación de ${{
-                                    'STR': 'Fuerza',
-                                    'DEX': 'Destreza',
-                                    'CON': 'Constitución',
-                                    'INT': 'Inteligencia',
-                                    'WIS': 'Sabiduría',
-                                    'CHA': 'Carisma'
-                                  }[inspectedStat.split('_')[1] as Ability] || inspectedStat.split('_')[1]}` 
+                                ? `${inspectedStat.split('_')[1]} Save`
+                                : inspectedStat?.startsWith('Ability_')
+                                ? `${inspectedStat.split('_')[1]} Ability Score`
                                 : inspectedStat} Breakdown
                         </h3>
                         
@@ -1177,23 +1333,41 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                 ? getHPBreakdown(character, finalStats)
                                 : inspectedStat?.startsWith('Save_')
                                 ? getSaveBreakdown(character, inspectedStat.split('_')[1] as Ability, finalStats)
+                                : inspectedStat?.startsWith('Ability_')
+                                ? getAbilityBreakdown(character, inspectedStat.split('_')[1] as Ability, finalStats)
                                 : []
-                            ).map((item, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
+                            ).map((item, idx) => {
+                                const iconColor = item.isTotal ? 'text-emerald-400' : 
+                                    item.source === 'Feats' ? 'text-purple-400' :
+                                    item.source === 'Magic Item' ? 'text-amber-400' :
+                                    item.source === 'Class' ? 'text-orange-400' :
+                                    inspectedStat === 'HP' ? 'text-red-400' : 'text-primary';
+                                
+                                return (
+                                <div key={idx} className={`flex items-center justify-between p-3 rounded-xl ${item.isTotal ? 'bg-emerald-500/10 border border-emerald-500/30 dark:bg-emerald-500/20' : 'bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5'}`}>
                                     <div className="flex items-center gap-3">
-                                        <span className={`material-symbols-outlined text-sm ${inspectedStat === 'HP' ? 'text-red-400' : 'text-primary'}`}>{item.icon}</span>
+                                        <span className={`material-symbols-outlined text-sm ${iconColor}`}>{item.icon}</span>
                                         <span className="text-xs font-bold text-slate-500 dark:text-slate-400">{item.label}</span>
+                                        {item.source && !item.isTotal && (
+                                            <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${
+                                                item.source === 'Feats' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
+                                                item.source === 'Magic Item' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                                                item.source === 'Class' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' :
+                                                'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+                                            }`}>{item.source}</span>
+                                        )}
                                     </div>
-                                    <span className="text-sm font-bold text-slate-900 dark:text-white">{typeof item.value === 'number' && inspectedStat !== 'HP' ? formatModifier(item.value) : item.value}</span>
+                                    <span className={`text-sm font-bold ${item.isTotal ? 'text-emerald-400' : 'text-slate-900 dark:text-white'}`}>{typeof item.value === 'number' && inspectedStat !== 'HP' && !item.isTotal ? formatModifier(item.value) : item.value}</span>
                                 </div>
-                            ))}
+                                );
+                            })}
 
                             {inspectedStat === 'Insp' && (
                                 <div className="flex flex-col gap-4">
                                     <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
                                         <div className="flex items-center gap-3">
                                             <span className="material-symbols-outlined text-sm text-cyan-500">military_tech</span>
-                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Puntos Actuales</span>
+                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Current Points</span>
                                         </div>
                                         <span className="text-sm font-bold text-slate-900 dark:text-white">{inspCurrent} / {inspMax}</span>
                                     </div>
@@ -1211,7 +1385,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                             className="flex items-center justify-center gap-2 py-3 rounded-xl bg-cyan-500 text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 hover:bg-cyan-600 transition-all shadow-sm shadow-cyan-500/20"
                                         >
                                             <span className="material-symbols-outlined text-[18px]">remove</span>
-                                            <span className="text-xs uppercase tracking-wider">Gastar</span>
+                                            <span className="text-xs uppercase tracking-wider">Spend</span>
                                         </button>
                                         <button 
                                             onClick={addInspiration} 
@@ -1219,7 +1393,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                             className="flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 hover:bg-slate-200 dark:hover:bg-white/20 transition-all"
                                         >
                                             <span className="material-symbols-outlined text-[18px]">add</span>
-                                            <span className="text-xs uppercase tracking-wider">Añadir</span>
+                                            <span className="text-xs uppercase tracking-wider">Add</span>
                                         </button>
                                     </div>
                                 </div>
@@ -1228,12 +1402,14 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
 
                         {inspectedStat !== 'Insp' && (
                         <div className="mt-6 pt-4 border-t border-slate-100 dark:border-white/10 flex justify-between items-center px-1">
-                            <span className="text-xs font-black text-slate-400 uppercase">Máximo Total</span>
+                            <span className="text-xs font-black text-slate-400 uppercase">{inspectedStat?.startsWith('Ability_') ? 'Final Score' : 'Total Maximum'}</span>
                             <span className={`text-2xl font-black ${inspectedStat === 'HP' ? 'text-red-500' : 'text-slate-900 dark:text-white'}`}>
                                 {inspectedStat === 'AC' ? armorClass 
                                  : inspectedStat === 'Init' ? formatModifier(initiativeTotal) 
                                  : inspectedStat === 'Spd' ? speedTotal 
                                  : inspectedStat === 'HP' ? character.hp.max 
+                                 : inspectedStat?.startsWith('Ability_')
+                                    ? finalStats[inspectedStat.split('_')[1] as Ability] || 10
                                  : inspectedStat?.startsWith('Save_') 
                                     ? formatModifier(getSaveBreakdown(character, inspectedStat.split('_')[1] as Ability, finalStats).reduce((acc, item) => acc + (typeof item.value === 'number' ? item.value : 0), 0))
                                     : 0}
@@ -1249,10 +1425,50 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
             {hpModal.show && createPortal(
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setHpModal({ ...hpModal, show: false })}>
                     <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()}>
-                        <input type="number" value={hpAmount} onChange={(e) => setHpAmount(e.target.value)} autoFocus className="w-full text-center text-5xl font-black bg-transparent border-b-2 border-slate-200 dark:border-white/10 py-3 mb-8 outline-none text-slate-900 dark:text-white" placeholder="0"/>
+                        {/* Type Tabs */}
+                        <div className="flex gap-1 mb-6 bg-slate-100 dark:bg-black/20 p-1 rounded-xl">
+                            <button onClick={() => setHpModal({ ...hpModal, type: 'damage' })} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'damage' ? 'bg-red-500 text-white shadow-red-500/30' : 'text-slate-500'}`}>Damage</button>
+                            <button onClick={() => setHpModal({ ...hpModal, type: 'heal' })} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'heal' ? 'bg-emerald-500 text-white shadow-emerald-500/30' : 'text-slate-500'}`}>Heal</button>
+                            <button onClick={() => setHpModal({ ...hpModal, type: 'temp' })} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'temp' ? 'bg-blue-500 text-white shadow-blue-500/30' : 'text-slate-500'}`}>Temp</button>
+                        </div>
+                        
+                        {/* Title */}
+                        <p className="text-center text-xs font-bold text-slate-400 mb-4 uppercase tracking-widest">
+                            {hpModal.type === 'damage' ? 'Apply Damage' : hpModal.type === 'heal' ? 'Apply Healing' : 'Apply Temporary HP'}
+                        </p>
+                        
+                        {/* Input */}
+                        <input type="number" value={hpAmount} onChange={(e) => setHpAmount(e.target.value)} autoFocus className={`w-full text-center text-5xl font-black bg-transparent border-b-2 py-3 mb-6 outline-none text-slate-900 dark:text-white ${hpModal.type === 'damage' ? 'border-red-500/50' : hpModal.type === 'heal' ? 'border-emerald-500/50' : 'border-blue-500/50'}`} placeholder="0"/>
+                        
+                        {/* Info for temp HP */}
+                        {hpModal.type === 'temp' && (
+                            <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+                                <p className="text-xs text-blue-600 dark:text-blue-400 text-center">
+                                    🛡️ Temporary HP absorbs damage first. Does not stack - replaced if higher.
+                                </p>
+                            </div>
+                        )}
+                        
+                        
+                        
+                        {/* Temp HP Section */}
+                        {(character.hp.temp || 0) > 0 && (
+                            <div className="mb-4 space-y-2">
+                                <p className="text-center text-xs font-bold text-blue-500 uppercase tracking-widest">Current Temp HP: {(character.hp.temp || 0)}</p>
+                                <button 
+                                    onClick={() => onUpdate({ ...character, hp: { ...character.hp, temp: 0 } })}
+                                    disabled={isReadOnly}
+                                    className="w-full py-2 bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition-all"
+                                >
+                                    Discard Temp HP
+                                </button>
+                            </div>
+                        )}
+                        
+                        {/* Actions */}
                         <div className="grid grid-cols-2 gap-3">
                             <button onClick={() => setHpModal({ ...hpModal, show: false })} className="py-3 rounded-2xl font-bold text-sm text-slate-500 bg-slate-100 dark:bg-white/5">Cancel</button>
-                            <button onClick={applyHpChange} className={`py-3 rounded-2xl font-bold text-sm text-white shadow-lg ${hpModal.type === 'heal' ? 'bg-emerald-500 shadow-emerald-500/30' : 'bg-red-500 shadow-red-500/30'}`}>Confirm</button>
+                            <button onClick={applyHpChange} className={`py-3 rounded-2xl font-bold text-sm text-white shadow-lg ${hpModal.type === 'heal' ? 'bg-emerald-500 shadow-emerald-500/30' : hpModal.type === 'temp' ? 'bg-blue-500 shadow-blue-500/30' : 'bg-red-500 shadow-red-500/30'}`}>Confirm</button>
                         </div>
                     </div>
                 </div>,
@@ -1271,7 +1487,25 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             <button onClick={() => setSelectedSkill(null)} className="size-8 rounded-full bg-slate-100 dark:bg-white/5 text-slate-400"><span className="material-symbols-outlined">close</span></button>
                         </div>
                         <div className="flex-1 overflow-y-auto pr-1 no-scrollbar space-y-4">
-                            <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Descripción</span></div>
+                            <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Bonus Breakdown</span></div>
+                            {getSkillBreakdown(character, selectedSkill, finalStats).map((item, idx) => {
+                                const iconColor = item.isTotal ? 'text-emerald-400' : 
+                                    item.source === 'Expertise' ? 'text-amber-400' :
+                                    item.source === 'Proficiency' ? 'text-blue-400' :
+                                    item.source === 'Magic Item' ? 'text-amber-500' :
+                                    item.source === 'Status' ? 'text-red-400' :
+                                    'text-primary';
+                                return (
+                                <div key={idx} className={`flex items-center justify-between p-3 rounded-xl ${item.isTotal ? 'bg-emerald-500/10 border border-emerald-500/30 dark:bg-emerald-500/20' : 'bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5'}`}>
+                                    <div className="flex items-center gap-3">
+                                        <span className={`material-symbols-outlined text-sm ${iconColor}`}>{item.icon}</span>
+                                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400">{item.label}</span>
+                                    </div>
+                                    <span className={`text-sm font-bold ${item.isTotal ? 'text-emerald-400' : 'text-slate-900 dark:text-white'}`}>{item.value}</span>
+                                </div>
+                                );
+                            })}
+                            <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-100 dark:border-white/5"><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Description</span></div>
                             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-body">{SKILL_DESCRIPTIONS[selectedSkill || '']}</p>
                         </div>
                     </div>
@@ -1301,7 +1535,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                             <div className="flex items-center justify-between p-3 rounded-xl bg-fuchsia-500/5 dark:bg-black/20 border border-fuchsia-500/10">
                                                 <div className="flex items-center gap-2">
                                                     <span className="material-symbols-outlined text-sm text-fuchsia-400">school</span>
-                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Competencia</span>
+                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Proficiency</span>
                                                 </div>
                                                 <span className="text-sm font-bold text-slate-900 dark:text-white">+{character.profBonus}</span>
                                             </div>
@@ -1320,13 +1554,13 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                                             <div className="flex items-center justify-between p-3 rounded-xl bg-fuchsia-500/5 dark:bg-black/20 border border-fuchsia-500/10">
                                                 <div className="flex items-center gap-2">
                                                     <span className="material-symbols-outlined text-sm text-fuchsia-400">bolt</span>
-                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Explosión Agonizante (CHA)</span>
+                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Agonizing Blast (CHA)</span>
                                                 </div>
                                                 <span className="text-sm font-bold text-slate-900 dark:text-white">{formatModifier(chaMod)}</span>
                                             </div>
                                             {weaponStatModal.item.isEB && (
                                                 <div className="p-2 text-[10px] text-fuchsia-400 font-bold uppercase text-center">
-                                                    Atacas {weaponStatModal.item.scale} veces con este conjuro
+                                                    You attack {weaponStatModal.item.scale} times with this spell
                                                 </div>
                                             )}
                                         </>
@@ -1335,7 +1569,7 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                             ) : (
                                 (weaponStatModal.type === 'toHit' 
                                     ? getWeaponToHitBreakdown(character, weaponStatModal.item, weaponStatModal.weapon, finalStats)
-                                    : getWeaponDamageBreakdown(character, weaponStatModal.item, weaponStatModal.weapon, finalStats, isRaging)
+                                    : getWeaponDamageBreakdown(character, weaponStatModal.item, weaponStatModal.weapon, finalStats, character.isRaging ?? false)
                                 ).map((b, i) => (
                                     <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
                                         <div className="flex items-center gap-2">
@@ -1351,8 +1585,21 @@ const CombatTab: React.FC<CombatTabProps> = ({ character, onUpdate, isReadOnly }
                 </div>,
                 document.body
             )}
+
+            {/* Wild Shape Modal */}
+            {showWildShapeModal && (
+                <WildShapeModal
+                    isOpen={showWildShapeModal}
+                    onClose={() => setShowWildShapeModal(false)}
+                    character={character}
+                    onSelect={handleWildShapeTransform}
+                    onUpdate={onUpdate}
+                />
+            )}
         </div>
     );
 };
 
-export default CombatTab;
+const CombatTabMemo = memo(CombatTab);
+CombatTabMemo.displayName = 'CombatTab';
+export default CombatTabMemo;
