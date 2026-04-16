@@ -127,3 +127,34 @@ Ubicar en `.agents/skills/`:
 | performance-optimization | Optimizar rendimiento |
 | context-engineering | Optimizar contexto agente |
 | incremental-implementation | Cambios multi-archivo |
+
+---
+
+## 🛡️ Versiones Estables & Rollback
+
+### Puntos de Control Registrados
+
+| Versión | Git Tag | OTA Version | Fecha | Estado |
+|---------|---------|-------------|-------|--------|
+| **v1.0.0** | `v1.0.0` | `2026.4.16-123234` | 2026-04-16 | ✅ ESTABLE |
+
+### Procedimiento de Rollback a una Versión Estable
+
+**Rollback Solo OTA** (1 minuto — solo afecta lo que ven los usuarios):
+```bash
+node scripts/restore_ota.mjs 2026.4.16-123234 "Rollback a v1.0 Stable"
+```
+
+**Rollback Completo** (código + OTA):
+```bash
+git checkout v1.0.0
+node scripts/restore_ota.mjs 2026.4.16-123234 "Rollback completo a v1.0"
+npm install
+```
+
+**Rama Archivada** (estado exacto sellado, nunca cambia):
+```bash
+git checkout stable-v1.0
+```
+
+> Ver `/docs/v1.0-architecture.md` para detalles completos de infraestructura, DB, y variables de entorno.
