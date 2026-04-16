@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": ["Read", "Write", "Bash", "WebFetch", "Edit", "Glob", "Grep", "LS"]
+  },
+  "tools": {
+    "hooks": {
+      "preToolUse": []
+    }
+  }
+}
