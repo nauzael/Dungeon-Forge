@@ -40,7 +40,7 @@ const Step2Stats: React.FC<Step2Props> = ({
     hpMethod, setHpMethod, manualRolledHP, setManualRolledHP, level, renderHpBreakdown,
     asiLevels, asiDecisions, handleAsiChange, openFeatModal, suggestedArray, setBaseStats
 }) => {
-    const { t } = useLanguage();
+    const t = UI;
 
     const getStatTranslation = (stat: Ability) => {
         const keyMap: Record<Ability, string> = {

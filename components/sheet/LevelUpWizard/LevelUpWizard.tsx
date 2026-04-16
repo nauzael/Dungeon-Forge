@@ -29,7 +29,7 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
         };
     }, []);
 
-    const { t } = useLanguage();
+    const t = UI;
     
     const nextLevel = character.level + 1;
     const stats = getFinalStats(character);
@@ -147,7 +147,7 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
                 return !needsMetamagic || pendingMetamagics.length === metamagicCount;
             case 'asiFeat':
                 if (asiType === 'stat') {
-                    return stat1 !== '';
+                    return !!stat1;
                 }
                 if (feat && featHasAsi) {
                     return featStat !== null;

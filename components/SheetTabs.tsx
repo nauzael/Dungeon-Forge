@@ -25,7 +25,7 @@ import { FEAT_OPTIONS, GENERIC_FEATURES } from '../Data/feats/index';
 interface SheetTabsProps {
   character: Character;
   onBack: () => void;
-  onUpdate: (char: Character) => void;
+  onUpdate: (update: Character | Partial<Character>) => void;
   isReadOnly?: boolean;
   isObserver?: boolean;
 }
@@ -140,6 +140,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
 
   const onTouchEnd = () => {
     if (zoomImage) return;
+    if (!touchStart.current || !touchEnd.current) return;
     const distanceX = touchStart.current.x - touchEnd.current.x;
     const distanceY = touchStart.current.y - touchEnd.current.y;
     if (Math.abs(distanceY) > Math.abs(distanceX)) return;
@@ -462,7 +463,6 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
                   onClick={(e) => {
                     e.stopPropagation();
                     setZoomImage(character.imageUrl || null);
-                    setZoomScale(1);
                   }}
                   className="w-full h-full object-cover cursor-zoom-in"
                   alt={character.name}

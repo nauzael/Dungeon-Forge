@@ -55,7 +55,7 @@ export interface CharacterSnapshot {
   fontOfInspiration?: { current: number; max: number };
   lucky?: { current: number; max: number };
   savantSpellsAdded?: boolean;
-  savantSpellsAddedAt?: number;
+  savantSpellsAddedAt?: number[];
   savantSpells?: string[];
   inspiration?: { current: number; max: number };
   empoweredSneakAttack?: { dice: number };

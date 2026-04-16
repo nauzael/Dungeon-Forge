@@ -12,7 +12,7 @@ interface WeaponMasteryModalProps {
 }
 
 const WeaponMasteryModal: React.FC<WeaponMasteryModalProps> = ({ currentSlot, selectedMasteries, onSelect, onClose }) => {
-    const { t } = useLanguage();
+    const t = UI;
     const [searchQuery, setSearchQuery] = useState('');
     
     const availableWeapons = (Object.values(WEAPONS_DB) as WeaponData[])

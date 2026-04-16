@@ -23,7 +23,7 @@ const createMockCharacter = (overrides: Partial<Character> = {}): Character => (
   level: 3,
   class: 'Fighter',
   species: 'Human',
-  hp: { current: 25, max: 30 },
+  hp: { current: 25, max: 30, temp: 0 },
   stats: { STR: 16, DEX: 14, CON: 14, INT: 10, WIS: 12, CHA: 8 },
   skills: ['Athletics', 'Perception'],
   feats: ['Great Weapon Master'],
@@ -43,7 +43,7 @@ const createMockCharacter = (overrides: Partial<Character> = {}): Character => (
 describe('levelResetUtils', () => {
   describe('compressCharacterToSnapshot', () => {
     it('should compress character to snapshot format', () => {
-      const character = createMockCharacter({ level: 5, hp: { current: 40, max: 45 } });
+      const character = createMockCharacter({ level: 5, hp: { current: 40, max: 45, temp: 0 } });
       
       const snapshot = compressCharacterToSnapshot(character);
       
@@ -88,13 +88,13 @@ describe('levelResetUtils', () => {
     it('should handle optional fields correctly', () => {
       const character = createMockCharacter({
         subclass: 'Champion',
-        rageUses: { remaining: 2, max: 2 },
+        rageUses: { current: 2, max: 2 },
       });
       
       const snapshot = compressCharacterToSnapshot(character);
       
       expect(snapshot.subclass).toBe('Champion');
-      expect(snapshot.rageUses?.remaining).toBe(2);
+      expect(snapshot.rageUses?.current).toBe(2);
     });
   });
 
@@ -102,7 +102,7 @@ describe('levelResetUtils', () => {
     it('should restore character from snapshot', () => {
       const original = createMockCharacter();
       const snapshot = compressCharacterToSnapshot(original);
-      const currentCharacter = createMockCharacter({ level: 7, hp: { current: 50, max: 55 } });
+      const currentCharacter = createMockCharacter({ level: 7, hp: { current: 50, max: 55, temp: 0 } });
       
       const restored = restoreCharacterFromSnapshot(currentCharacter, snapshot);
       
@@ -141,8 +141,8 @@ describe('levelResetUtils', () => {
 
   describe('calculateLevelResetChanges', () => {
     it('should calculate HP change', () => {
-      const current = createMockCharacter({ hp: { current: 50, max: 55 } });
-      const target = createMockCharacter({ hp: { current: 30, max: 35 } });
+      const current = createMockCharacter({ hp: { current: 50, max: 55, temp: 0 } });
+      const target = createMockCharacter({ hp: { current: 30, max: 35, temp: 0 } });
       
       const changes = calculateLevelResetChanges(current, target);
       

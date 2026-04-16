@@ -20,7 +20,7 @@ export const SectionSeparator = ({ label }: { label: string }) => (
 
 export const ClassProgressionList = ({ selectedClass, subclassData, currentLevel }: { selectedClass: string, subclassData?: SubclassData, currentLevel: number }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { t } = useLanguage();
+  const t = UI;
   const classes = useClasses();
   const classData = (classes[selectedClass] as any);
 

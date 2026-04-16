@@ -35,7 +35,7 @@ const Step5Review: React.FC<Step5Props> = ({
     finalStats, selectedBackground, selectedAlignment, backgroundData, selectedFeat, asiLevels,
     asiDecisions, activePassives, selectedMetamagics, languages, trainedSkills, onConfirm
 }) => {
-    const { t } = useLanguage();
+    const t = UI;
 
     const getStatShortName = (stat: string) => {
         const keyMap: Record<string, string> = {

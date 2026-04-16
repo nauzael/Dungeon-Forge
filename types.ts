@@ -88,6 +88,7 @@ export interface Character {
   guardianBondTarget?: string; // Paladin: Oath of the Spellguard
   party_id?: string;
   party_name?: string;
+  user_id?: string;
   usedSlots?: Record<string, boolean>; // Spell slot tracking
   spellSlots?: Record<number, { current: number; max: number }>; // Added for 2024 spell slot tracking
   sorceryPoints?: { current: number; max: number }; // Sorcerer
@@ -118,6 +119,7 @@ export interface Character {
   wildShapeForms?: string[]; // Bestias conocidas por el Druida
   activeWildShape?: string; // Seguro: bestia activa al recargar
   savantSpellsAdded?: boolean; // Wizard Savant: ya seleccionó hechizos gratuitos
+  savantSpellsAddedAt?: number[];
   savantSpells?: string[]; // Wizard Savant: hechizos gratuitos de la escuela
   featureUsages?: Record<string, FeatureUsage>; // Feature usage tracking (generic system)
 }
@@ -137,7 +139,7 @@ export interface FeatureUsage {
 }
 
 export interface FeatureUsageConfig {
-  maxFormula: 'WIS' | 'INT' | 'CHA' | 'DEX' | 'CON' | 'level' | 'proficiencyBonus' | '1';
+  maxFormula: 'STR' | 'DEX' | 'CON' | 'INT' | 'WIS' | 'CHA' | 'level' | 'proficiencyBonus' | '1' | '2' | '3';
   resetType: ResetType;
   costToRestore?: ResourceCost;
 }
@@ -302,7 +304,7 @@ export interface SpellDetail {
 }
 
 export interface CampaignResource {
-  id: string;
+  id?: string;
   party_id: string;
   title: string;
   url: string;

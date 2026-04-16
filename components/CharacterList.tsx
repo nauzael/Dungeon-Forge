@@ -3,6 +3,7 @@ import React, { useState, useRef, useMemo, memo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Character } from '../types';
 import { UI } from '../constants/ui';
+const t = UI;
 
 interface CharacterListProps {
   characters: Character[];

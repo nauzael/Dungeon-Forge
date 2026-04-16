@@ -123,10 +123,10 @@ const ASIFeatStep: React.FC<ASIFeatStepProps> = ({
                         </div>
 
                         {/* Segunda Elección */}
-                        {stat1 !== '' && (
+                        {stat1 && (
                             <div>
                                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-                                    {stat1 && stat1 !== '' ? `Second Increase (or +1 more to ${stat1})` : 'Second Increase'}
+                                    {stat1 ? `Second Increase (or +1 more to ${stat1})` : 'Second Increase'}
                                 </h3>
                                 <div className="grid grid-cols-2 gap-3">
                                     {stats.map((stat) => {

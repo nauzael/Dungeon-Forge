@@ -8,6 +8,7 @@ import { CLASS_UI_MAP, SPECIES_UI_MAP, BACKGROUND_UI_MAP } from '../../constants
 import { SPELL_DETAILS, SPELL_LIST_BY_CLASS } from '../../Data/spells';
 import { SCHOOL_THEMES } from '../../utils/sheetUtils';
 import { UI } from '../../constants/ui';
+const t = UI;
 import { useClasses } from '../../Data/classes';
 import { useSpecies } from '../../Data/species';
 import { useGameData } from '../../hooks/useGameData';

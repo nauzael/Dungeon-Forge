@@ -41,7 +41,7 @@ const Step4Skills: React.FC<Step4Props> = ({
     maxMasteries, selectedMasteries, setMasteryAtIndex,
     maxExpertise, selectedExpertise, toggleExpertise
 }) => {
-    const { t } = useLanguage();
+    const t = UI;
     const { metamagics: metamagicOptions, weapons: allWeapons } = useGameData();
     const [showMasteryModal, setShowMasteryModal] = useState(false);
     const [activeMasterySlot, setActiveMasterySlot] = useState(0);

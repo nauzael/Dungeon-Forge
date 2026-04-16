@@ -368,9 +368,9 @@ const App: React.FC = () => {
                     setObservedCharacter(payload.new.data as Character);
                 }
             },
-            (broadcastChar: Character) => {
-                if (broadcastChar.id === observedCharacter.id) {
-                    setObservedCharacter(broadcastChar);
+            (broadcastChar: any) => {
+                if (broadcastChar && broadcastChar.id === observedCharacter.id) {
+                    setObservedCharacter(broadcastChar as Character);
                 }
             }
         );
@@ -656,7 +656,7 @@ const App: React.FC = () => {
                       isReadOnly={true}
                       isObserver={true}
                       onBack={() => setView('dm-dashboard')}
-                      onUpdate={handleDMCharacterUpdate}
+                      onUpdate={(update) => handleDMCharacterUpdate(update as Character)}
                     />
                   )}
                 </Suspense>

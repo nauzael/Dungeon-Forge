@@ -10,6 +10,7 @@ import {
   SpeciesSpell,
 } from '../types';
 import { UI } from '../constants/ui';
+const t = UI;
 import { useModalScrollLock } from '../hooks/useModalScrollLock';
 import {
   CLASS_SKILL_DATA,
@@ -33,7 +34,6 @@ import Step5Review from './creator/Step5Review';
 import FeatModal from './creator/FeatModal';
 
 import { getTotalInitiative } from '../utils/sheetUtils';
-import { useLanguage } from '../hooks/useLanguage';
 
 interface CreatorStepsProps {
   onBack: () => void;

@@ -336,7 +336,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                                     onUpdate({
                                         ...character,
                                         money: {
-                                            ...(character.money || { cp:0, sp:0, gp:0 }),
+                                            ...(character.money || { cp: 0, sp: 0, gp: 0, ep: 0, pp: 0 }),
                                             [key]: val
                                         }
                                     });

@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback, memo } from 'react';
 import { createPortal } from 'react-dom';
-import { Character, Ability, Trait } from '../../types';
+import { Character, Ability, Trait, FeatureUsage } from '../../types';
 import { useModalScrollLock } from '../../hooks/useModalScrollLock';
 import { SPECIES_DETAILS, CLASS_DETAILS, CLASS_PROGRESSION, SUBCLASS_OPTIONS, ELDRITCH_INVOCATIONS } from '../../Data/characterOptions';
 import { FEAT_OPTIONS, GENERIC_FEATURES } from '../../Data/feats/index';
@@ -9,6 +9,8 @@ import { CANTRIPS } from '../../Data/spells/cantrips';
 import { LEVEL1 } from '../../Data/spells/level1';
 import { SPELL_DETAILS } from '../../Data/spells';
 import { getFinalStats } from '../../utils/sheetUtils';
+import { UI } from '../../constants/ui';
+const t = UI;
 import { FEATURE_USAGE_CONFIGS } from '../../utils/featureUsageConfig';
 import { calculateMaxUses } from '../../utils/featureUsageCalculator';
 import FeatureUsageCounter from './features/FeatureUsageCounter';
@@ -165,7 +167,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
     const initializeFeatureUsages = useCallback(() => {
         const allFeatureNames = Object.values(groupedFeatures).flat().map(f => f.name);
         const existingUsages = character.featureUsages || {};
-        const newUsages: Record<string, { current: number; max: number; resetType: string; costToRestore?: { resource: string; amount: number } }> = { ...existingUsages };
+        const newUsages: Record<string, FeatureUsage> = { ...existingUsages } as Record<string, FeatureUsage>;
         let hasChanges = false;
 
         allFeatureNames.forEach(name => {

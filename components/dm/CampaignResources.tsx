@@ -164,13 +164,13 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
         title: res.title,
         description: res.description,
       });
-      setActiveRevealedId(res.id);
+      setActiveRevealedId(res.id!);
     }
   };
 
   const handlePersistenceToggle = async (res: CampaignResource) => {
     const newStatus = !res.is_persistent;
-    const success = await updatePartyResourcePersistence(res.id, newStatus);
+    const success = await updatePartyResourcePersistence(res.id!, newStatus);
     if (success) {
       setResources((prev) =>
         prev.map((r) => (r.id === res.id ? { ...r, is_persistent: newStatus } : r))
@@ -196,7 +196,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
     if (fullResolutionId === res.id) {
       setFullResolutionId(null);
     } else {
-      setFullResolutionId(res.id);
+      setFullResolutionId(res.id!);
     }
   };
 
@@ -446,7 +446,7 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
 
               {/* DELETE BUTTON */}
               <button
-                onClick={() => handleDelete(res.id)}
+                onClick={() => handleDelete(res.id!)}
                 className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/5 text-slate-500 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-500 transition-all active:scale-95"
               >
                 <span className="material-symbols-outlined text-xl mb-1">delete</span>

@@ -20,7 +20,7 @@ const SpellsStep: React.FC<SpellsStepProps> = ({
     selectedMetamagics,
     onMetamagicChange
 }) => {
-    const { t } = useLanguage();
+    const t = UI;
     const isSpellcaster = SPELL_CLASSES.includes(character.class);
     const needsMetamagic = character.class === 'Sorcerer' && (nextLevel === 2 || nextLevel === 10 || nextLevel === 17);
 

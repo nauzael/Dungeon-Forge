@@ -39,7 +39,7 @@ const WizardCantripsStep: React.FC<WizardCantripsStepProps> = ({
     onCantripsChange,
     isAdditional = false,
 }) => {
-    const { t } = useLanguage();
+    const t = UI;
     const [showPicker, setShowPicker] = useState(false);
 
     const toggleCantrip = (cantripName: string) => {

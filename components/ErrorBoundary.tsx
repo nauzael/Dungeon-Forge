@@ -31,7 +31,7 @@ const logErrorToStorage = (error: Error, errorInfo: ErrorInfo) => {
       message: error.message,
       name: error.name,
       stack: error.stack || 'No stack trace',
-      componentStack: errorInfo.componentStack,
+      componentStack: errorInfo.componentStack ?? undefined,
       userAgent: navigator.userAgent,
       url: window.location.href,
     };

@@ -169,14 +169,15 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                 setMembers(prev => prev.filter(c => c.id !== oldId));
             }
         },
-        (broadcastChar: Character) => {
+        (broadcastChar: any) => {
             // Broadcast (Ephemeral Live Update)
             setMembers(prev => {
-                const exists = prev.find(c => c.id === broadcastChar.id);
+                const char = broadcastChar as Character;
+                const exists = prev.find(c => c.id === char.id);
                 if (exists) {
-                    return prev.map(c => c.id === broadcastChar.id ? broadcastChar : c);
+                    return prev.map(c => c.id === char.id ? char : c);
                 } else {
-                    return [...prev, broadcastChar];
+                    return [...prev, char];
                 }
             });
         }

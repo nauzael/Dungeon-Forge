@@ -24,7 +24,7 @@ const SchoolSavantStep: React.FC<SchoolSavantStepProps> = ({
     onSpellsChange,
     schoolName
 }) => {
-    const { t } = useLanguage();
+    const t = UI;
     const [filterLevel, setFilterLevel] = useState<number>(0);
 
     const allSpells = useMemo(() => {

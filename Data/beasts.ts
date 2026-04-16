@@ -5,7 +5,7 @@ export interface BeastStats {
   cr: number;
   hp: number;
   ac: number;
-  size: 'Tiny' | 'Small' | 'Medium' | 'Large';
+  size: 'Tiny' | 'Small' | 'Medium' | 'Large' | 'Huge';
   speed: number;
   flySpeed?: number;
   swimSpeed?: number;

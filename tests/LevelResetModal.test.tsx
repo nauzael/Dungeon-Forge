@@ -52,7 +52,7 @@ const createMockSnapshot = (level: number, timestamp: number): LevelSnapshot => 
   metadata: {
     reason: `Level ${level} completed`,
     characterName: 'Test Hero',
-    totalLevels: level,
+
     source: 'level_up' as const,
   },
 });

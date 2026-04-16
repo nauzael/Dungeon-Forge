@@ -6,7 +6,6 @@ import { CANTRIPS } from '../../../../Data/spells/cantrips';
 const DRUID_CANTRIP_NAMES = ['Druidcraft', 'Guidance', 'Produce Flame', 'Resistance', 'Shillelagh', 'Thorn Whip', 'Starry Wisp'];
 
 const DRUID_CANTRIPS = DRUID_CANTRIP_NAMES.map(name => ({
-  name,
   ...CANTRIPS[name]
 })).filter(c => c && c.name);
 

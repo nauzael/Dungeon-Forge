@@ -23,7 +23,7 @@ interface SummaryStepProps {
 }
 
 const SummaryStep: React.FC<SummaryStepProps> = ({ character, nextLevel, pending, onConfirm }) => {
-    const { t } = useLanguage();
+    const t = UI;
 
     return (
         <div className="flex flex-col h-full p-5">
