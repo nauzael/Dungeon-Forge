@@ -2,6 +2,10 @@
 import React, { useState } from 'react';
 import { FEAT_OPTIONS } from '../../Data/feats/index';
 import { UI } from '../../constants/ui';
+
+const t = UI;
+
+interface FeatModalProps {
     featModalContext: { type: 'human' | 'asi', level?: number } | null;
     selectedFeat: string;
     asiDecisions: any;
