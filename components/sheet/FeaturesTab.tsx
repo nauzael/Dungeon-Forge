@@ -1,13 +1,17 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { Character, Ability, Trait } from '../../types';
+import { useModalScrollLock } from '../../hooks/useModalScrollLock';
 import { SPECIES_DETAILS, CLASS_DETAILS, CLASS_PROGRESSION, SUBCLASS_OPTIONS, ELDRITCH_INVOCATIONS } from '../../Data/characterOptions';
-import { FEAT_OPTIONS, GENERIC_FEATURES } from '../../Data/feats';
+import { FEAT_OPTIONS, GENERIC_FEATURES } from '../../Data/feats/index';
 import { CANTRIPS } from '../../Data/spells/cantrips';
 import { LEVEL1 } from '../../Data/spells/level1';
 import { SPELL_DETAILS } from '../../Data/spells';
 import { getFinalStats } from '../../utils/sheetUtils';
+import { FEATURE_USAGE_CONFIGS } from '../../utils/featureUsageConfig';
+import { calculateMaxUses } from '../../utils/featureUsageCalculator';
+import FeatureUsageCounter from './features/FeatureUsageCounter';
 
 interface FeaturesTabProps {
     character: Character;
@@ -49,10 +53,39 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
     const [showLessonsConfig, setShowLessonsConfig] = useState(false);
     const [targetLessonsInstance, setTargetLessonsInstance] = useState<string | null>(null);
 
+    const [showWarBondConfig, setShowWarBondConfig] = useState(false);
+    const [tempBondedWeapons, setTempBondedWeapons] = useState<string[]>(character.bondedWeapons || []);
+
+    const [showWarMagicModal, setShowWarMagicModal] = useState(false);
+    const [showImprovedWarMagicModal, setShowImprovedWarMagicModal] = useState(false);
+
+    const { lockScroll, unlockScroll } = useModalScrollLock();
+
+    useEffect(() => {
+        if (showInvocationsModal) lockScroll();
+        else unlockScroll();
+    }, [showInvocationsModal, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (showOriginFeatSelector) lockScroll();
+        else unlockScroll();
+    }, [showOriginFeatSelector, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (showLessonsConfig) lockScroll();
+        else unlockScroll();
+    }, [showLessonsConfig, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (showWarBondConfig) lockScroll();
+        else unlockScroll();
+    }, [showWarBondConfig, lockScroll, unlockScroll]);
+
     const finalStats = useMemo(() => getFinalStats(character), [character]);
     const chaMod = Math.floor(((finalStats.CHA || 10) - 10) / 2);
 
     const isWarlock = character.class === 'Warlock';
+    const isEldritchKnight = character.class === 'Fighter' && character.subclass === 'Eldritch Knight';
 
     const maxInvocations = useMemo(() => {
         const lvl = character.level;
@@ -73,10 +106,20 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         const speciesData = SPECIES_DETAILS[character.species];
         
         if (speciesData) {
-            speciesData.traits.forEach(t => list.push({...t, source: 'Species', level: 1}));
+            speciesData.traits.forEach(t => {
+                const traitLevel = t.level || 1;
+                if (traitLevel <= character.level) {
+                    list.push({...t, source: 'Species', level: traitLevel});
+                }
+            });
             if (character.subspecies) {
                 const subData = speciesData.subspecies?.find(s => s.name === character.subspecies);
-                subData?.traits.forEach(t => list.push({...t, source: 'Species', level: 1}));
+                subData?.traits.forEach(t => {
+                    const traitLevel = t.level || 1;
+                    if (traitLevel <= character.level) {
+                        list.push({...t, source: 'Species', level: traitLevel});
+                    }
+                });
             }
         }
 
@@ -119,6 +162,113 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         return groups;
     }, [character]);
 
+    const initializeFeatureUsages = useCallback(() => {
+        const allFeatureNames = Object.values(groupedFeatures).flat().map(f => f.name);
+        const existingUsages = character.featureUsages || {};
+        const newUsages: Record<string, { current: number; max: number; resetType: string; costToRestore?: { resource: string; amount: number } }> = { ...existingUsages };
+        let hasChanges = false;
+
+        allFeatureNames.forEach(name => {
+            const config = FEATURE_USAGE_CONFIGS[name];
+            if (!config) return;
+            
+            if (!newUsages[name]) {
+                const max = calculateMaxUses(config, character);
+                newUsages[name] = {
+                    current: max,
+                    max: max,
+                    resetType: config.resetType,
+                    costToRestore: config.costToRestore,
+                };
+                hasChanges = true;
+            } else {
+                const newMax = calculateMaxUses(config, character);
+                if (newUsages[name].max !== newMax) {
+                    newUsages[name] = {
+                        ...newUsages[name],
+                        max: newMax,
+                        current: Math.min(newUsages[name].current, newMax),
+                    };
+                    hasChanges = true;
+                }
+            }
+        });
+
+        if (hasChanges) {
+            onUpdate({ ...character, featureUsages: newUsages });
+        }
+    }, [groupedFeatures, character, onUpdate]);
+
+    useEffect(() => {
+        initializeFeatureUsages();
+    }, [initializeFeatureUsages]);
+
+    const handleFeatureUse = (featureName: string) => {
+        if (isReadOnly) return;
+        const usages = character.featureUsages || {};
+        const usage = usages[featureName];
+        if (!usage || usage.current <= 0) return;
+
+        onUpdate({
+            ...character,
+            featureUsages: {
+                ...usages,
+                [featureName]: {
+                    ...usage,
+                    current: usage.current - 1,
+                },
+            },
+        });
+    };
+
+    const handleRestoreFeature = (featureName: string) => {
+        if (isReadOnly) return;
+        const usages = character.featureUsages || {};
+        const usage = usages[featureName];
+        const config = FEATURE_USAGE_CONFIGS[featureName];
+        if (!usage || !usage.costToRestore || !config) return;
+
+        const costAmount = usage.costToRestore.amount;
+        const costResource = usage.costToRestore.resource;
+
+        let canRestore = false;
+        switch (costResource) {
+            case 'ki':
+                const kiCurrent = character.focus?.current || 0;
+                canRestore = kiCurrent >= costAmount;
+                if (canRestore) {
+                    onUpdate({
+                        ...character,
+                        focus: { ...character.focus!, current: kiCurrent - costAmount },
+                        featureUsages: {
+                            ...usages,
+                            [featureName]: { ...usage, current: usage.max },
+                        },
+                    });
+                }
+                return;
+            case 'psionicEnergyDice':
+                canRestore = true;
+                break;
+            case 'sorceryPoints':
+                const spCurrent = character.sorceryPoints?.current || 0;
+                canRestore = spCurrent >= costAmount;
+                if (canRestore) {
+                    onUpdate({
+                        ...character,
+                        sorceryPoints: { ...character.sorceryPoints!, current: spCurrent - costAmount },
+                        featureUsages: {
+                            ...usages,
+                            [featureName]: { ...usage, current: usage.max },
+                        },
+                    });
+                }
+                return;
+            default:
+                return;
+        }
+    };
+
     const toggleInvocation = (name: string) => {
         if (isReadOnly) return;
         const current = character.invocations || [];
@@ -140,7 +290,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         const currentInvs = character.invocations || [];
         const currentFeats = character.feats || [];
         const currentLessons = character.lessonsFeats || [];
-        let updatedHp = { ...character.hp };
+        const updatedHp = { ...character.hp };
         if (featName === 'Duro' || featName === 'Tough') {
             const bonus = character.level * 2;
             updatedHp.max += bonus;
@@ -164,7 +314,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
         const featMatch = fullInvName.match(/Lessons of the First Ones \((.*)\)/);
         if (featMatch) {
             const featName = featMatch[1];
-            let updatedHp = { ...character.hp };
+            const updatedHp = { ...character.hp };
             if (featName === 'Duro' || featName === 'Tough') {
                 const bonus = character.level * 2;
                 updatedHp.max = Math.max(1, updatedHp.max - bonus);
@@ -192,20 +342,36 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                     <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">{title === 'Feat' ? 'Feats & Features' : `${title} Features`}</h3>
                 </div>
                 <div className="space-y-2">
-                    {items.map((feat, idx) => (
-                        <div key={`${feat.name}-${idx}`} onClick={() => setSelectedFeature(feat)} className="rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm hover:border-primary/40 transition-all cursor-pointer group active:scale-[0.98]">
-                            <div className="p-4 flex items-center justify-between gap-4">
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <h4 className="text-slate-900 dark:text-white text-base font-bold truncate group-hover:text-primary transition-colors">{feat.name}</h4>
-                                        {feat.level > 1 && <span className="text-[10px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded">Lvl {feat.level}</span>}
+                    {items.map((feat, idx) => {
+                        const hasUsageConfig = !!FEATURE_USAGE_CONFIGS[feat.name];
+                        const usage = character.featureUsages?.[feat.name];
+                        const showCounter = hasUsageConfig && usage && usage.resetType !== 'never';
+                        return (
+                            <div key={`${feat.name}-${idx}`} onClick={() => setSelectedFeature(feat)} className="rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm hover:border-primary/40 transition-all cursor-pointer group active:scale-[0.98]">
+                                <div className="p-4 flex items-center justify-between gap-4">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <h4 className="text-slate-900 dark:text-white text-base font-bold truncate group-hover:text-primary transition-colors">{feat.name}</h4>
+                                            {feat.level > 1 && <span className="text-[10px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded">Lvl {feat.level}</span>}
+                                            {feat.name === 'Supreme Healing' && (
+                                                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded flex items-center gap-1 cursor-help" title="When healing with dice, use the maximum value instead of rolling. E.g., 2d6 becomes 12 HP.">
+                                                    <span className="material-symbols-outlined text-[10px]">auto_awesome</span>Max Dice
+                                                </span>
+                                            )}
+                                            {showCounter && (
+                                                <FeatureUsageCounter
+                                                    usage={usage}
+                                                    disabled={isReadOnly}
+                                                />
+                                            )}
+                                        </div>
+                                        {feat.description && <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{feat.description.split('\n')[0]}</p>}
                                     </div>
-                                    {feat.description && <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{feat.description.split('\n')[0]}</p>}
+                                    <span className="material-symbols-outlined text-slate-400 opacity-50">chevron_right</span>
                                 </div>
-                                <span className="material-symbols-outlined text-slate-400 opacity-50">chevron_right</span>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         );
@@ -233,47 +399,229 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                 </div>
             )}
 
+            {isEldritchKnight && (
+                <div className="space-y-3 mb-8">
+                    <div className="relative overflow-hidden group/warbond shadow-sm">
+                        <div className="absolute inset-0 bg-cyan-500/5 blur-2xl group-hover/warbond:bg-cyan-500/10 transition-colors"></div>
+                        <div className="relative flex flex-col gap-3 rounded-3xl bg-surface-light dark:bg-surface-dark p-5 border border-cyan-500/30 backdrop-blur-md shadow-[0_4px_20px_-10px_rgba(34,211,238,0.3)]">
+                            <div className="flex items-center gap-4">
+                                <div className="size-12 rounded-2xl bg-cyan-500/10 dark:bg-cyan-500/20 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shrink-0 border border-cyan-500/20">
+                                    <span className="material-symbols-outlined text-2xl">content_cut</span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="text-[10px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-wider leading-none mb-1">War Bond</h4>
+                                    <p className="text-sm font-bold text-slate-700 dark:text-white truncate">{character.bondedWeapons?.length || 0} / 2 Weapons Bonded</p>
+                                </div>
+                                <button onClick={() => { setTempBondedWeapons(character.bondedWeapons || []); setShowWarBondConfig(true); }} className="px-4 py-2.5 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-cyan-500/20 active:scale-95 transition-all whitespace-nowrap shrink-0">{isReadOnly ? 'View' : 'Configure'}</button>
+                            </div>
+                            {character.summonedWeapon && (
+                                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                                    <span className="material-symbols-outlined text-cyan-500 text-lg">bolt</span>
+                                    <span className="text-sm font-bold text-cyan-600 dark:text-cyan-400">Summoned: {character.summonedWeapon}</span>
+                                    <button onClick={() => onUpdate({ ...character, summonedWeapon: null })} className="ml-auto px-2 py-1 rounded-lg bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-[10px] font-bold uppercase">Dismiss</button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    {character.level >= 7 && (
+                        <div className="relative overflow-hidden group/warmagic shadow-sm">
+                            <div className="absolute inset-0 bg-purple-500/5 blur-2xl group-hover/warmagic:bg-purple-500/10 transition-colors"></div>
+                            <div className="relative flex flex-col gap-3 rounded-3xl bg-surface-light dark:bg-surface-dark p-5 border border-purple-500/30 backdrop-blur-md shadow-[0_4px_20px_-10px_rgba(168,85,247,0.3)]">
+                                <div className="flex items-center gap-4">
+                                    <div className="size-12 rounded-2xl bg-purple-500/10 dark:bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0 border border-purple-500/20">
+                                        <span className="material-symbols-outlined text-2xl">auto_awesome</span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider leading-none mb-1">War Magic</h4>
+                                        <p className="text-sm font-bold text-slate-700 dark:text-white truncate">
+                                            {character.warMagicCantrip ? character.warMagicCantrip : 'No cantrip selected'}
+                                        </p>
+                                    </div>
+                                    <button onClick={() => setShowWarMagicModal(true)} className="px-4 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-purple-500/20 active:scale-95 transition-all whitespace-nowrap shrink-0">{isReadOnly ? 'View' : 'Configure'}</button>
+                                </div>
+                                {character.warMagicCantrip && (
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => onUpdate({ ...character, warMagicActive: !character.warMagicActive })}
+                                            className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all ${character.warMagicActive ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30' : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400'}`}
+                                        >
+                                            {character.warMagicActive ? 'Replace Attack ON' : 'Replace Attack OFF'}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                    {character.level >= 10 && (
+                        <div className="relative overflow-hidden group/eldritch shadow-sm">
+                            <div className="absolute inset-0 bg-amber-500/5 blur-2xl group-hover/eldritch:bg-amber-500/10 transition-colors"></div>
+                            <div className="relative flex flex-col gap-3 rounded-3xl bg-surface-light dark:bg-surface-dark p-5 border border-amber-500/30 backdrop-blur-md shadow-[0_4px_20px_-10px_rgba(245,158,11,0.3)]">
+                                <div className="flex items-center gap-4">
+                                    <div className="size-12 rounded-2xl bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0 border border-amber-500/20">
+                                        <span className="material-symbols-outlined text-2xl">bolt</span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider leading-none mb-1">Eldritch Strike</h4>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400">Hit gives Disadvantage on next spell save</p>
+                                    </div>
+                                    <button
+                                        onClick={() => onUpdate({ ...character, eldritchStrikeActive: !character.eldritchStrikeActive })}
+                                        className={`px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-all ${character.eldritchStrikeActive ? 'bg-amber-500 text-white shadow-amber-500/30' : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400'}`}
+                                    >
+                                        {character.eldritchStrikeActive ? 'Active' : 'Inactive'}
+                                    </button>
+                                </div>
+                                {character.eldritchStrikeActive && (
+                                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                                        <span className="material-symbols-outlined text-amber-500 animate-pulse">priority_high</span>
+                                        <span className="text-xs text-amber-600 dark:text-amber-400">Creature has Disadvantage on next save vs your spells</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                    {character.level >= 15 && (
+                        <div className="relative overflow-hidden group/arcane shadow-sm">
+                            <div className="absolute inset-0 bg-indigo-500/5 blur-2xl group-hover/arcane:bg-indigo-500/10 transition-colors"></div>
+                            <div className="relative flex flex-col gap-3 rounded-3xl bg-surface-light dark:bg-surface-dark p-5 border border-indigo-500/30 backdrop-blur-md shadow-[0_4px_20px_-10px_rgba(99,102,241,0.3)]">
+                                <div className="flex items-center gap-4">
+                                    <div className="size-12 rounded-2xl bg-indigo-500/10 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 border border-indigo-500/20">
+                                        <span className="material-symbols-outlined text-2xl">switch_access</span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider leading-none mb-1">Arcane Charge</h4>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400">Teleport 30ft after Action Surge</p>
+                                    </div>
+                                    <button
+                                        onClick={() => onUpdate({ ...character, arcaneChargeActive: !character.arcaneChargeActive })}
+                                        className={`px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-all ${character.arcaneChargeActive ? 'bg-indigo-500 text-white shadow-indigo-500/30' : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400'}`}
+                                    >
+                                        {character.arcaneChargeActive ? 'Active' : 'Inactive'}
+                                    </button>
+                                </div>
+                                {character.arcaneChargeActive && (
+                                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+                                        <span className="material-symbols-outlined text-indigo-500 animate-pulse">swap_vert</span>
+                                        <span className="text-xs text-indigo-600 dark:text-indigo-400">Ready to teleport after Action Surge</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                    {character.level >= 18 && (
+                        <div className="relative overflow-hidden group/improved shadow-sm">
+                            <div className="absolute inset-0 bg-rose-500/5 blur-2xl group-hover/improved:bg-rose-500/10 transition-colors"></div>
+                            <div className="relative flex flex-col gap-3 rounded-3xl bg-surface-light dark:bg-surface-dark p-5 border border-rose-500/30 backdrop-blur-md shadow-[0_4px_20px_-10px_rgba(244,63,94,0.3)]">
+                                <div className="flex items-center gap-4">
+                                    <div className="size-12 rounded-2xl bg-rose-500/10 dark:bg-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 border border-rose-500/20">
+                                        <span className="material-symbols-outlined text-2xl">upgrade</span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider leading-none mb-1">Improved War Magic</h4>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400">Replace 2 attacks with L1-L2 spell</p>
+                                    </div>
+                                    <button onClick={() => setShowImprovedWarMagicModal(true)} className="px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-rose-500/20 active:scale-95 transition-all whitespace-nowrap shrink-0">{isReadOnly ? 'View' : 'Configure'}</button>
+                                </div>
+                                {character.improvedWarMagicActive && (
+                                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
+                                        <span className="material-symbols-outlined text-rose-500">check_circle</span>
+                                        <span className="text-xs text-rose-600 dark:text-rose-400">Ready to replace 2 attacks with L1-L2 spell</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
             {renderSection('Species', groupedFeatures['Species'])}
             {renderSection('Class', groupedFeatures['Class'])}
             {renderSection('Subclass', groupedFeatures['Subclass'])}
             {renderSection('Feat', groupedFeatures['Feat'])}
 
-            {selectedFeature && createPortal(
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setSelectedFeature(null)}>
-                    <div className="w-full max-w-sm bg-white dark:bg-surface-dark rounded-3xl p-6 shadow-2xl flex flex-col max-h-[80vh] animate-scaleUp" onClick={e => e.stopPropagation()}>
-                        <div className="flex justify-between items-start mb-5 border-b border-slate-100 dark:border-white/5 pb-4">
-                            <div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{selectedFeature.name}</h3>
-                                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full mt-2 border border-primary/10">
-                                    <span className="material-symbols-outlined text-[12px]">{ICON_MAP[selectedFeature.source]}</span>
-                                    {selectedFeature.source}
-                                </span>
+            {selectedFeature && (() => {
+                const featureUsageConfig = FEATURE_USAGE_CONFIGS[selectedFeature.name];
+                const featureUsage = character.featureUsages?.[selectedFeature.name];
+                const hasUsageTracking = featureUsageConfig && featureUsage && featureUsageConfig.resetType !== 'always';
+                
+                return createPortal(
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setSelectedFeature(null)}>
+                        <div className="w-full max-w-sm bg-white dark:bg-surface-dark rounded-3xl p-6 shadow-2xl flex flex-col max-h-[80vh] animate-scaleUp" onClick={e => e.stopPropagation()}>
+                            <div className="flex justify-between items-start mb-5 border-b border-slate-100 dark:border-white/5 pb-4">
+                                <div className="flex-1">
+                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{selectedFeature.name}</h3>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/10">
+                                            <span className="material-symbols-outlined text-[12px]">{ICON_MAP[selectedFeature.source]}</span>
+                                            {selectedFeature.source}
+                                        </span>
+                                        {hasUsageTracking && (
+                                            <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 rounded-full px-3 py-1">
+                                                <span className="text-sm font-black text-amber-600 dark:text-amber-400">
+                                                    {featureUsage.current}/{featureUsage.max}
+                                                </span>
+                                                <span className="text-[10px] text-amber-600/70 dark:text-amber-400/70 font-medium">
+                                                    {featureUsage.resetType === 'long_rest' ? 'Long Rest' : featureUsage.resetType === 'short_rest' ? 'Short Rest' : ''}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {selectedFeature.name === 'Supreme Healing' && (
+                                        <div className="mt-2 flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-1 rounded-lg">
+                                            <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                                            <span>All healing dice use maximum values</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <button onClick={() => setSelectedFeature(null)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-400"><span className="material-symbols-outlined">close</span></button>
                             </div>
-                            <button onClick={() => setSelectedFeature(null)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-400"><span className="material-symbols-outlined">close</span></button>
+                            <div className="flex-1 overflow-y-auto no-scrollbar space-y-4">
+                                <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Description</span></div>
+                                <div className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-body whitespace-pre-wrap">{selectedFeature.description}</div>
+                            </div>
+                            {hasUsageTracking && (
+                                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-white/10 space-y-3">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleFeatureUse(selectedFeature.name); setSelectedFeature(null); }}
+                                        disabled={featureUsage.current <= 0 || isReadOnly}
+                                        className="w-full py-3.5 bg-red-500 hover:bg-red-600 disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-slate-700 dark:disabled:text-slate-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                                    >
+                                        <span className="material-symbols-outlined text-xl">sports_martial_arts</span>
+                                        Use Ability
+                                        {featureUsage.current <= 0 && <span className="text-xs opacity-75">(No uses remaining)</span>}
+                                    </button>
+                                    {featureUsageConfig.costToRestore && (
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); handleRestoreFeature(selectedFeature.name); setSelectedFeature(null); }}
+                                            disabled={isReadOnly}
+                                            className="w-full py-3.5 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-slate-700 dark:disabled:text-slate-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                                        >
+                                            <span className="material-symbols-outlined text-xl">refresh</span>
+                                            Restore ({featureUsageConfig.costToRestore.amount} {featureUsageConfig.costToRestore.resource})
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+                            <button onClick={() => setSelectedFeature(null)} className="w-full py-4 bg-primary text-background-dark font-bold rounded-2xl mt-4">Close</button>
                         </div>
-                        <div className="flex-1 overflow-y-auto no-scrollbar space-y-4">
-                            <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Description</span></div>
-                            <div className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-body whitespace-pre-wrap">{selectedFeature.description}</div>
-                        </div>
-                        <button onClick={() => setSelectedFeature(null)} className="w-full py-4 bg-primary text-background-dark font-bold rounded-2xl mt-6">Close</button>
-                    </div>
-                </div>,
-                document.body
-            )}
+                    </div>,
+                    document.body
+                );
+            })()}
 
             {/* MODALES DEL BRUJO */}
             {showInvocationTray && createPortal(
                 <div className="fixed inset-0 z-[60] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
                     <div className="p-4 bg-surface-light dark:bg-surface-dark border-b border-black/5 dark:border-white/10 flex items-center justify-between">
                         <button onClick={() => setShowInvocationTray(false)} className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500"><span className="material-symbols-outlined">close</span></button>
-                        <h3 className="text-lg font-black uppercase tracking-widest text-fuchsia-500">Invocaciones Arcanas</h3>
+                        <h3 className="text-lg font-black uppercase tracking-widest text-fuchsia-500">Arcane Invocations</h3>
                         <div className="w-10"></div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
                         <div className="bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-2xl p-4 flex justify-between items-center">
                             <div className="flex-1 pr-4">
                                 <p className="text-[10px] font-black uppercase tracking-wider text-fuchsia-600 dark:text-fuchsia-400 mb-1">Pact Boon</p>
-                                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Límite de Invocaciones</h4>
+                                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Invocation Limit</h4>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className={`text-xl font-black ${currentInvocationsCount >= maxInvocations ? 'text-red-500' : 'text-fuchsia-500'}`}>{currentInvocationsCount}</span>
@@ -295,8 +643,8 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                                         </div>
                                         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">{invData?.description}</p>
                                         <div className="flex flex-wrap gap-2">
-                                            {isTome && <button onClick={() => setShowTomeConfig(true)} className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase border border-blue-500/20 active:scale-95 transition-all"><span className="material-symbols-outlined text-xs">auto_stories</span> Configurar Tomo</button>}
-                                            {isAgonizing && <button onClick={() => setShowAgonizingConfig(true)} className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase border border-amber-500/20 active:scale-95 transition-all"><span className="material-symbols-outlined text-xs">bolt</span> Configurar Rayos</button>}
+                                            {isTome && <button onClick={() => setShowTomeConfig(true)} className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase border border-blue-500/20 active:scale-95 transition-all"><span className="material-symbols-outlined text-xs">auto_stories</span> Configure Tome</button>}
+                                            {isAgonizing && <button onClick={() => setShowAgonizingConfig(true)} className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase border border-amber-500/20 active:scale-95 transition-all"><span className="material-symbols-outlined text-xs">bolt</span> Configure Rays</button>}
                                             {isLessons && <button onClick={() => { setTargetLessonsInstance(invName); setShowLessonsConfig(true); }} className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase border border-emerald-500/20 active:scale-95 transition-all"><span className="material-symbols-outlined text-xs">military_tech</span> Change Feat</button>}
                                         </div>
                                     </div>
@@ -317,7 +665,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                         <div className="flex items-center gap-4 p-4">
                             <button onClick={() => setShowInvocationsModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors"><span className="material-symbols-outlined">arrow_back</span></button>
                             <div className="flex-1 relative">
-                                <input type="text" placeholder="Buscar invocación..." value={invocationSearch} onChange={(e) => setInvocationSearch(e.target.value)} autoFocus className="w-full bg-slate-100 dark:bg-black/20 border border-slate-200 rounded-xl py-2 pl-10 pr-4 text-slate-900 dark:text-white outline-none focus:border-fuchsia-500/50" />
+                                <input type="text" placeholder="Search invocation..." value={invocationSearch} onChange={(e) => setInvocationSearch(e.target.value)} autoFocus className="w-full bg-slate-100 dark:bg-black/20 border border-slate-200 rounded-xl py-2 pl-10 pr-4 text-slate-900 dark:text-white outline-none focus:border-fuchsia-500/50" />
                                 <span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-500">search</span>
                             </div>
                         </div>
@@ -343,7 +691,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                 <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
                     <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
                         <button onClick={() => setShowOriginFeatSelector(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
-                        <h3 className="text-sm font-black uppercase tracking-widest text-emerald-500">Lecciones de los Primeros</h3>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-emerald-500">Lessons of the First</h3>
                         <div className="w-10"></div>
                     </div>
                     <div className="p-4 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 text-xs font-bold text-center border-b border-emerald-500/10 uppercase tracking-tighter">Choose an Origin Feat (Level 1)</div>
@@ -363,12 +711,12 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                 <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
                     <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
                         <button onClick={() => setShowTomeConfig(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
-                        <h3 className="text-sm font-black uppercase tracking-widest text-blue-500">Pacto del Tomo</h3>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-blue-500">Tome Pact</h3>
                         <div className="w-10"></div>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 space-y-8">
                         <div>
-                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex justify-between items-center px-1"><span>3 Trucos de cualquier clase</span><span className={`text-[10px] ${tempPactCantrips.length === 3 ? 'text-primary' : 'text-slate-500'}`}>{tempPactCantrips.length}/3</span></h4>
+                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex justify-between items-center px-1"><span>3 Cantrips from any class</span><span className={`text-[10px] ${tempPactCantrips.length === 3 ? 'text-primary' : 'text-slate-500'}`}>{tempPactCantrips.length}/3</span></h4>
                             <div className="grid grid-cols-1 gap-2">
                                 {Object.keys(CANTRIPS).map(name => {
                                     const isSelected = tempPactCantrips.includes(name);
@@ -382,7 +730,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                             </div>
                         </div>
                         <div>
-                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex justify-between items-center px-1"><span>2 Rituales de nivel 1</span><span className={`text-[10px] ${tempPactRituals.length === 2 ? 'text-primary' : 'text-slate-500'}`}>{tempPactRituals.length}/2</span></h4>
+                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 flex justify-between items-center px-1"><span>2 Level 1 Rituals</span><span className={`text-[10px] ${tempPactRituals.length === 2 ? 'text-primary' : 'text-slate-500'}`}>{tempPactRituals.length}/2</span></h4>
                             <div className="grid grid-cols-1 gap-2">
                                 {Object.keys(LEVEL1).filter(name => LEVEL1[name].description.includes('Ritual')).map(name => {
                                     const isSelected = tempPactRituals.includes(name);
@@ -397,7 +745,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                         </div>
                     </div>
                     <div className="p-4 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-t border-black/5 dark:border-white/5">
-                        <button onClick={() => { onUpdate({ ...character, pactCantrips: tempPactCantrips, pactRituals: tempPactRituals }); setShowTomeConfig(false); }} className="w-full py-4 rounded-2xl bg-primary text-background-dark font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20">Sellar Pacto</button>
+                        <button onClick={() => { onUpdate({ ...character, pactCantrips: tempPactCantrips, pactRituals: tempPactRituals }); setShowTomeConfig(false); }} className="w-full py-4 rounded-2xl bg-primary text-background-dark font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20">Seal Pact</button>
                     </div>
                 </div>,
                 document.body
@@ -442,7 +790,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                             <button key={feat.name} onClick={() => {
                                 const currentFeat = targetLessonsInstance?.match(/\((.*)\)/)?.[1];
                                 if (currentFeat) {
-                                    let updatedHp = { ...character.hp };
+                                    const updatedHp = { ...character.hp };
                                     if (currentFeat === 'Duro' || currentFeat === 'Tough') {
                                         const bonus = character.level * 2;
                                         updatedHp.max = Math.max(1, updatedHp.max - bonus);
@@ -471,8 +819,159 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
                 </div>,
                 document.body
             )}
+
+            {showWarBondConfig && createPortal(
+                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                    <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
+                        <button onClick={() => setShowWarBondConfig(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-cyan-500">War Bond</h3>
+                        <div className="w-10"></div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-2xl p-4">
+                            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                Create a magical bond with up to 2 weapons over 1 hour (during Short Rest). Bonded weapons cannot be taken from you unless you have the Incapacitated condition, and you can summon one as a Bonus Action.
+                            </p>
+                        </div>
+                        <div className="flex items-center justify-between bg-surface-light dark:bg-surface-dark p-3 rounded-xl">
+                            <span className="text-sm font-bold text-slate-700 dark:text-white">Weapons Bonded</span>
+                            <span className="text-cyan-500 font-black">{tempBondedWeapons.length} / 2</span>
+                        </div>
+                        <div className="space-y-2">
+                            {tempBondedWeapons.length < 2 && (
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Enter weapon name..."
+                                        className="flex-1 px-4 py-3 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                                                setTempBondedWeapons(prev => [...prev, e.currentTarget.value.trim()]);
+                                                e.currentTarget.value = '';
+                                            }
+                                        }}
+                                    />
+                                    <button
+                                        onClick={(e) => {
+                                            const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                            if (input.value.trim() && tempBondedWeapons.length < 2) {
+                                                setTempBondedWeapons(prev => [...prev, input.value.trim()]);
+                                                input.value = '';
+                                            }
+                                        }}
+                                        className="px-4 py-3 rounded-xl bg-cyan-600 text-white font-bold text-sm active:scale-95 transition-all"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                            )}
+                            {tempBondedWeapons.map((weapon, idx) => (
+                                <div key={idx} className="flex items-center gap-3 p-4 rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5">
+                                    <span className="material-symbols-outlined text-cyan-500">content_cut</span>
+                                    <span className="flex-1 font-bold text-slate-900 dark:text-white">{weapon}</span>
+                                    {tempBondedWeapons.length > 1 && (
+                                        <button onClick={() => setTempBondedWeapons(prev => prev.filter((_, i) => i !== idx))} className="text-red-500/50 hover:text-red-500 transition-colors">
+                                            <span className="material-symbols-outlined">delete</span>
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        {tempBondedWeapons.length > 0 && character.summonedWeapon === null && (
+                            <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20">
+                                <p className="text-xs text-cyan-600 dark:text-cyan-400 mb-3">Click below to summon one of your bonded weapons to your hand:</p>
+                                <div className="flex gap-2">
+                                    {tempBondedWeapons.map((weapon, idx) => (
+                                        <button key={idx} onClick={() => {
+                                            onUpdate({ ...character, summonedWeapon: weapon });
+                                            setShowWarBondConfig(false);
+                                        }} className="flex-1 py-3 rounded-xl bg-cyan-600 text-white font-bold text-sm active:scale-95 transition-all">
+                                            Summon {weapon}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="p-4 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-t border-black/5 dark:border-white/5">
+                        <button onClick={() => { onUpdate({ ...character, bondedWeapons: tempBondedWeapons }); setShowWarBondConfig(false); }} className="w-full py-4 rounded-2xl bg-cyan-500 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-cyan-500/20">Save Bonded Weapons</button>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {showWarMagicModal && createPortal(
+                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                    <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
+                        <button onClick={() => setShowWarMagicModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-purple-500">War Magic</h3>
+                        <div className="w-10"></div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        <div className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-4">
+                            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                When you take the Attack action on your turn, you can replace one of the attacks with a casting of one of your Wizard cantrips that has a casting time of an action. Choose which cantrip to use.
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
+                            {character.preparedSpells?.filter(s => {
+                                const spell = SPELL_DETAILS[s];
+                                return spell?.level === 0 && (spell.description.includes('action') || !spell.description.includes('bonus'));
+                            }).map(cantrip => {
+                                const isSelected = character.warMagicCantrip === cantrip;
+                                return (
+                                    <button key={cantrip} onClick={() => onUpdate({ ...character, warMagicCantrip: cantrip })} className={`text-left p-4 rounded-2xl border transition-all ${isSelected ? 'bg-purple-500/10 border-purple-500 shadow-sm' : 'bg-white dark:bg-surface-dark border-slate-200 dark:border-white/5'}`}>
+                                        <div className="flex justify-between items-center">
+                                            <span className={`font-bold ${isSelected ? 'text-purple-500' : 'text-slate-900 dark:text-white'}`}>{cantrip}</span>
+                                            {isSelected && <span className="material-symbols-outlined text-purple-500">check_circle</span>}
+                                        </div>
+                                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">{SPELL_DETAILS[cantrip]?.castingTime} | {SPELL_DETAILS[cantrip]?.range}</p>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                    <div className="p-4 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-t border-black/5 dark:border-white/5 flex gap-3">
+                        <button onClick={() => { onUpdate({ ...character, warMagicCantrip: undefined, warMagicActive: false }); setShowWarMagicModal(false); }} className="flex-1 py-4 rounded-2xl bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400 font-bold text-xs uppercase tracking-widest">Clear</button>
+                        <button onClick={() => setShowWarMagicModal(false)} className="flex-1 py-4 rounded-2xl bg-purple-500 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-purple-500/20">Done</button>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {showImprovedWarMagicModal && createPortal(
+                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                    <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
+                        <button onClick={() => setShowImprovedWarMagicModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-rose-500">Improved War Magic</h3>
+                        <div className="w-10"></div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-4">
+                            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                When you take the Attack action on your turn, you can replace two of the attacks with a casting of one of your level 1 or level 2 Wizard spells that has a casting time of an action.
+                            </p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm font-bold text-slate-700 dark:text-white">Active</span>
+                            <button
+                                onClick={() => onUpdate({ ...character, improvedWarMagicActive: !character.improvedWarMagicActive })}
+                                className={`w-12 h-7 rounded-full transition-all ${character.improvedWarMagicActive ? 'bg-rose-500' : 'bg-slate-300 dark:bg-white/20'}`}
+                            >
+                                <div className={`w-5 h-5 rounded-full bg-white shadow-md transition-transform ${character.improvedWarMagicActive ? 'translate-x-6' : 'translate-x-1'}`}></div>
+                            </button>
+                        </div>
+                    </div>
+                    <div className="p-4 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-t border-black/5 dark:border-white/5">
+                        <button onClick={() => setShowImprovedWarMagicModal(false)} className="w-full py-4 rounded-2xl bg-rose-500 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-rose-500/20">Done</button>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };
 
-export default FeaturesTab;
+const FeaturesTabMemo = memo(FeaturesTab);
+FeaturesTabMemo.displayName = 'FeaturesTab';
+export default FeaturesTabMemo;

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { Character, InventoryItem, ItemData, WeaponData, ArmorData, Ability } from '../../types';
 import { ALL_ITEMS, MASTERY_DESCRIPTIONS, MAGIC_ITEMS } from '../../Data/items';
@@ -21,7 +21,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
 
     const inventory = character.inventory || [];
 
-    // Helper para verificar sintonización
+    // Helper to check attunement
     const checkAttunement = (name: string) => {
         const data = getItemData(name);
         return data?.description?.toLowerCase().includes('requires attunement') || false;
@@ -194,18 +194,18 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                    </button>
                </div>
                <div className="flex-1 overflow-y-auto space-y-3 mb-6 no-scrollbar pr-1 border-t border-slate-100 dark:border-white/5 pt-4">
-                   <div className="flex justify-between py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500">Peso</span><span className="font-bold text-slate-900 dark:text-white">{data.weight} lb</span></div>
-                   <div className="flex justify-between py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500">Coste</span><span className="font-bold text-slate-900 dark:text-white">{data.cost}</span></div>
+                   <div className="flex justify-between py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500">Weight</span><span className="font-bold text-slate-900 dark:text-white">{data.weight} lb</span></div>
+                   <div className="flex justify-between py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500">Cost</span><span className="font-bold text-slate-900 dark:text-white">{data.cost}</span></div>
                    {data.type === 'Weapon' && (
                        <>
                            <div className="flex justify-between py-2 border-b border-slate-100 dark:border-white/5">
-                               <span className="text-sm text-slate-500">Daño</span>
+                               <span className="text-sm text-slate-500">Damage</span>
                                <span className="font-bold text-slate-900 dark:text-white">
                                    {asWeapon.damage} {enchantmentLevel > 0 && isPreview ? `+${enchantmentLevel}` : ''} {asWeapon.damageType}
                                </span>
                            </div>
-                           {asWeapon.properties && asWeapon.properties.length > 0 && (<div className="py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500 block mb-1">Propiedades</span><div className="flex flex-wrap gap-1">{asWeapon.properties.map(p => (<span key={p} className="px-2 py-0.5 bg-slate-100 dark:bg-white/10 rounded text-xs font-medium text-slate-600 dark:text-slate-300">{p}</span>))}</div></div>)}
-                           {asWeapon.mastery && (<div className="py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500 block mb-1">Maestría: <span className="font-bold text-primary">{asWeapon.mastery}</span></span><p className="text-xs text-slate-400 italic leading-snug">{MASTERY_DESCRIPTIONS[asWeapon.mastery]}</p></div>)}
+                           {asWeapon.properties && asWeapon.properties.length > 0 && (<div className="py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500 block mb-1">Properties</span><div className="flex flex-wrap gap-1">{asWeapon.properties.map(p => (<span key={p} className="px-2 py-0.5 bg-slate-100 dark:bg-white/10 rounded text-xs font-medium text-slate-600 dark:text-slate-300">{p}</span>))}</div></div>)}
+                           {asWeapon.mastery && (<div className="py-2 border-b border-slate-100 dark:border-white/5"><span className="text-sm text-slate-500 block mb-1">Mastery: <span className="font-bold text-primary">{asWeapon.mastery}</span></span><p className="text-xs text-slate-400 italic leading-snug">{MASTERY_DESCRIPTIONS[asWeapon.mastery]}</p></div>)}
                        </>
                    )}
                    {data.type === 'Armor' && (
@@ -237,11 +237,11 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                    {isPreview && data.type === 'Weapon' && (
                        <div className="py-2 border-b border-slate-100 dark:border-white/5">
                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Scaling Attribute</span>
-                           <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-white/5 p-1 rounded-xl">
-                               {['Default', 'STR', 'DEX', 'INT', 'WIS', 'CHA'].map(stat => (
-                                   <button 
-                                       key={stat}
-                                       onClick={() => setSelectedStat(stat as any)}
+                            <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-white/5 p-1 rounded-xl">
+                               {(['Default', 'STR', 'DEX', 'INT', 'WIS', 'CHA'] as const).map(stat => (
+                                    <button 
+                                        key={stat}
+                                        onClick={() => setSelectedStat(stat as Ability | 'Default')}
                                        className={`py-1.5 rounded-lg text-[10px] font-black transition-all ${selectedStat === stat ? 'bg-white dark:bg-surface-dark shadow text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                                    >
                                        {stat}
@@ -292,7 +292,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                </div>
                <div className="flex flex-col gap-2">
                   <div className="flex justify-between items-end">
-                     <label className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Sintonización</label>
+                     <label className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Attunement</label>
                      <span className="text-slate-800 dark:text-white text-sm font-medium"><span className={`${attunedCount >= 3 ? 'text-amber-500' : 'text-purple-500'}`}>{attunedCount}</span> / 3</span>
                   </div>
                   <div className="h-1.5 w-full bg-gray-200 dark:bg-surface-dark rounded-full overflow-hidden">
@@ -316,24 +316,28 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Money & Coins</span>
                     <span className="material-symbols-outlined text-amber-500 text-lg">payments</span>
                 </div>
-                <div className="grid grid-cols-5 gap-4">
-                    {['pp', 'gp', 'ep', 'sp', 'cp'].map(coin => (
-                        <div key={coin} className="flex flex-col items-center gap-2 group">
-                            <span className={`text-[10px] font-black uppercase tracking-widest ${coin === 'gp' ? 'text-amber-500' : coin === 'pp' ? 'text-slate-300' : coin === 'sp' ? 'text-slate-400' : 'text-orange-600'}`}>
-                                {coin}
+                <div className="grid grid-cols-3 gap-4">
+                    {[
+                        { key: 'gp', label: 'Gold', color: 'text-amber-500' },
+                        { key: 'sp', label: 'Silver', color: 'text-slate-400' },
+                        { key: 'cp', label: 'Copper', color: 'text-orange-600' }
+                    ].map(({ key, label, color }) => (
+                        <div key={key} className="flex flex-col items-center gap-2 group">
+                            <span className={`text-[10px] font-black uppercase tracking-widest ${color}`}>
+                                {label}
                             </span>
                             <input 
                                 type="number" 
                                 readOnly={isReadOnly}
-                                value={character.money?.[coin as keyof typeof character.money] || 0}
+                                value={character.money?.[key as keyof typeof character.money] || 0}
                                 onChange={(e) => {
                                     if (isReadOnly) return;
                                     const val = parseInt(e.target.value) || 0;
                                     onUpdate({
                                         ...character,
                                         money: {
-                                            ...(character.money || { cp:0, sp:0, gp:0, ep:0, pp:0 }),
-                                            [coin]: val
+                                            ...(character.money || { cp:0, sp:0, gp:0 }),
+                                            [key]: val
                                         }
                                     });
                                 }}
@@ -393,7 +397,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                     return renderItemDetail(
                         itemData, 
                         isEquippable ? () => { toggleEquip(selectedItem.id); setSelectedItem(null); } : undefined,
-                        selectedItem.equipped ? 'Desequipar' : 'Equipar'
+                        selectedItem.equipped ? 'Unequip' : 'Equip'
                     );
                 })()}
             </div>
@@ -419,4 +423,6 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
   );
 };
 
-export default InventoryTab;
+const InventoryTabMemo = memo(InventoryTab);
+InventoryTabMemo.displayName = 'InventoryTab';
+export default InventoryTabMemo;

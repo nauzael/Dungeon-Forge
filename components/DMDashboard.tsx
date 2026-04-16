@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { supabase, createParty, subscribeToParty, removeFromParty, updatePartyName, deleteParty } from '../utils/supabase';
-import { Character, Ability } from '../types';
+import { Character, Ability, InitiativeCombatant } from '../types';
 import { 
     getSpellSlotSummary, 
     getArmorClass, 
@@ -16,6 +16,8 @@ import {
 const CampaignResources = lazy(() => import('./dm/CampaignResources'));
 const Compendium = lazy(() => import('./dm/Compendium'));
 const MonsterBuilder = lazy(() => import('./dm/MonsterBuilder'));
+const InitiativeTracker = lazy(() => import('./dm/InitiativeTracker'));
+const CriticalFumbleTable = lazy(() => import('./dm/CriticalFumbleTable'));
 
 interface DMDashboardProps {
   onBack: () => void;
@@ -23,7 +25,7 @@ interface DMDashboardProps {
   user: { name: string, id: string } | null;
 }
 
-type DashboardTab = 'party' | 'resources' | 'compendium' | 'monsters';
+type DashboardTab = 'party' | 'resources' | 'compendium' | 'monsters' | 'initiative' | 'critical';
 
 const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user }) => {
   const [party, setParty] = useState<{ id: string, name: string, code: string } | null>(null);
@@ -36,6 +38,32 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
   const [isCreating, setIsCreating] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
+    const [initiativeCombatants, setInitiativeCombatants] = useState<InitiativeCombatant[]>([]);
+
+    const buildInitiativeState = (
+        currentCombatants: InitiativeCombatant[],
+        partyMembers: Character[]
+    ): InitiativeCombatant[] => {
+        const playerMap = new Map(
+            currentCombatants.filter((combatant) => combatant.isPlayer).map((combatant) => [combatant.id, combatant])
+        );
+
+        const syncedPlayers: InitiativeCombatant[] = partyMembers.map((member) => {
+            const existing = playerMap.get(member.id);
+            return {
+                id: member.id,
+                name: member.name,
+                initiative: existing?.initiative ?? null,
+                isPlayer: true,
+                isCurrentTurn: existing?.isCurrentTurn ?? false,
+                ac: member.ac,
+                hp: member.hp,
+            };
+        });
+
+        const monsters = currentCombatants.filter((combatant) => !combatant.isPlayer);
+        return [...syncedPlayers, ...monsters];
+    };
 
   // 1. Fetch existing party created by user
   const fetchAllParties = async () => {
@@ -52,6 +80,50 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
   useEffect(() => {
     fetchAllParties();
   }, [user]);
+
+    useEffect(() => {
+        if (!party) {
+            setInitiativeCombatants([]);
+            return;
+        }
+
+        try {
+            const raw = localStorage.getItem(`df-dm-initiative-${party.id}`);
+            if (!raw) {
+                setInitiativeCombatants([]);
+                return;
+            }
+
+            const parsed = JSON.parse(raw) as InitiativeCombatant[];
+            if (!Array.isArray(parsed)) {
+                setInitiativeCombatants([]);
+                return;
+            }
+
+            setInitiativeCombatants(parsed);
+        } catch (e) {
+            console.error('Failed to load initiative tracker:', e);
+            setInitiativeCombatants([]);
+        }
+    }, [party?.id]);
+
+    useEffect(() => {
+        if (!party) return;
+
+        const timer = setTimeout(() => {
+            try {
+                localStorage.setItem(`df-dm-initiative-${party.id}`, JSON.stringify(initiativeCombatants));
+            } catch (e) {
+                console.error('Failed to save initiative tracker:', e);
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [initiativeCombatants, party]);
+
+    useEffect(() => {
+        setInitiativeCombatants((prev) => buildInitiativeState(prev, members));
+    }, [members]);
 
   // 2. Fetch members of the party
   const fetchMembers = async (partyId: string) => {
@@ -133,27 +205,27 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
 
   const handleDeleteParty = async () => {
     if (!party || !user) return;
-    if (window.confirm(`¿Estás seguro de que quieres ELIMINAR permanentemente la mesa "${party.name}"? Los jugadores serán expulsados.`)) {
+    if (window.confirm(`Are you sure you want to PERMANENTLY DELETE the table "${party.name}"? Players will be removed.`)) {
         setIsLoading(true);
         const success = await deleteParty(party.id, user.id);
         if (success) {
             setParties(prev => prev.filter(p => p.id !== party.id));
             setParty(null);
         } else {
-            alert("Error al eliminar la mesa.");
+            alert("Error deleting table.");
         }
         setIsLoading(false);
     }
   };
 
   const handleKickCharacter = async (id: string, name: string) => {
-    if (window.confirm(`¿Estás seguro de que quieres expulsar a ${name} de tu mesa?`)) {
+    if (window.confirm(`Are you sure you want to kick ${name} from your table?`)) {
         setIsLoading(true);
         const success = await removeFromParty(id);
         if (success) {
             setMembers(prev => prev.filter(c => c.id !== id));
         } else {
-            alert("Error al expulsar al personaje del Nexo.");
+            alert("Error removing character from the Nexus.");
         }
         setIsLoading(false);
     }
@@ -183,7 +255,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                   className="flex items-center gap-1 text-[10px] font-black uppercase tracking-tighter text-blue-400/50 hover:text-blue-400 transition-colors mb-1"
                 >
                     <span className="material-symbols-outlined text-[12px]">arrow_back</span>
-                    Volver a Selección
+                    Back to Selection
                 </button>
             )}
             {isEditingName ? (
@@ -211,7 +283,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                         }}
                         className="text-xl font-black text-white/95 tracking-tight cursor-pointer hover:text-white transition-colors"
                     >
-                        {party ? party.name : 'Tus Mesas'}
+                        {party ? party.name : 'Your Tables'}
                     </h1>
                     {party && (
                         <span 
@@ -228,14 +300,14 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
             )}
             
             <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{party ? 'En Campaña' : 'Seleccionar Mesa'}</span>
+                <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">{party ? 'In Campaign' : 'Select Table'}</span>
                 {party && (
                     <>
                         <span className="text-slate-700 text-[10px]">•</span>
                         <div 
                             onClick={() => {
                                 navigator.clipboard.writeText(party.code);
-                                alert("Código compartido copiado!");
+                                alert("Share code copied!");
                             }}
                             className="flex items-center gap-1.5 cursor-pointer group/code"
                         >
@@ -252,19 +324,19 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                 <>
                     <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[8px] font-black uppercase tracking-tighter border ${realtimeStatus === 'connected' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20 animate-pulse'}`}>
                         <span className="material-symbols-outlined text-[10px]">{realtimeStatus === 'connected' ? 'rss_feed' : 'sync'}</span>
-                        {realtimeStatus === 'connected' ? 'En Vivo' : 'Conectando...'}
+                        {realtimeStatus === 'connected' ? 'Live' : 'Connecting...'}
                     </div>
                     <button 
                         onClick={() => party && fetchMembers(party.id)}
                         className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-slate-400 hover:text-white transition-colors"
-                        title="Sincronizar Manualmente"
+                        title="Sync Manually"
                     >
                         <span className={`material-symbols-outlined ${isLoading ? 'animate-spin' : ''}`}>refresh</span>
                     </button>
                     <button 
                         onClick={handleDeleteParty}
                         className="w-10 h-10 flex items-center justify-center rounded-full bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-md shadow-red-900/10"
-                        title="Eliminar Mesa"
+                        title="Delete Table"
                     >
                         <span className="material-symbols-outlined text-sm">delete</span>
                     </button>
@@ -285,8 +357,8 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                     <span className="material-symbols-outlined text-4xl text-blue-400">castle</span>
                 </div>
                 <div className="space-y-1">
-                    <h2 className="text-xl font-bold italic font-serif">El Nexo del DM</h2>
-                    <p className="text-slate-500 text-xs font-black uppercase tracking-widest px-8">Selecciona una mesa táctica o forja una nueva</p>
+                    <h2 className="text-xl font-bold italic font-serif">The DM's Nexus</h2>
+                    <p className="text-slate-500 text-xs font-black uppercase tracking-widest px-8">Select a tactical table or forge a new one</p>
                 </div>
             </div>
 
@@ -305,7 +377,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                             <div className="space-y-0.5">
                                 <h3 className="font-bold text-white leading-tight group-hover:text-blue-400 transition-colors uppercase tracking-tight">{p.name}</h3>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">Código Shared:</span>
+                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">Shared Code:</span>
                                     <span className="text-[10px] font-bold text-blue-400">#{p.code}</span>
                                 </div>
                             </div>
@@ -325,7 +397,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                 </div>
                 <input 
                     type="text" 
-                    placeholder="Nombre de la nueva campaña..."
+                    placeholder="New campaign name..."
                     value={partyName}
                     onChange={(e) => setPartyName(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500/50 transition-colors"
@@ -338,7 +410,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                     {isCreating ? 'Conjurando...' : (
                         <>
                             <span className="material-symbols-outlined text-sm">add</span>
-                            <span>Forjar Mesa</span>
+                            <span>Forge Table</span>
                         </>
                     )}
                 </button>
@@ -352,7 +424,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                   <div className="grid gap-6">
                     {members.length === 0 ? (
                         <div className="text-center py-20 animate-pulse text-slate-600 italic">
-                            Esperando a que los aventureros se unan...
+                            Waiting for adventurers to join...
                         </div>
                     ) : (
                         members.map(member => (
@@ -392,7 +464,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                                 {/* HP Bar */}
                                 <div className="space-y-1.5 mb-6 cursor-pointer" onClick={() => onViewCharacter(member)}>
                                     <div className="flex justify-between items-end">
-                                        <span className="text-[10px] text-slate-400 font-bold uppercase">Vida</span>
+                                        <span className="text-[10px] text-slate-400 font-bold uppercase">HP</span>
                                         <span className="text-sm font-black">{member.hp.current} / {member.hp.max}</span>
                                     </div>
                                     <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5 relative">
@@ -427,6 +499,15 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                 {activeTab === 'resources' && <CampaignResources partyId={party.id} />}
                 {activeTab === 'compendium' && <Compendium />}
                 {activeTab === 'monsters' && <MonsterBuilder playerLevels={members.map(m => m.level)} />}
+                                {activeTab === 'initiative' && (
+                                    <InitiativeTracker
+                                        partyMembers={members}
+                                        combatants={initiativeCombatants}
+                                        onCombatantsChange={setInitiativeCombatants}
+                                        onSyncParty={() => fetchMembers(party.id)}
+                                    />
+                                )}
+                {activeTab === 'critical' && <CriticalFumbleTable />}
             </Suspense>
           </div>
         )}
@@ -435,34 +516,48 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
       {/* Persistent Bottom Nav for DM */}
       {party && (
           <div className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6 pt-4 bg-gradient-to-t from-[#0f172a] via-[#0f172a] to-transparent">
-              <nav className="mx-auto max-w-sm bg-slate-900 border border-white/10 rounded-3xl p-2 flex items-center justify-between shadow-2xl backdrop-blur-xl">
+              <nav className="mx-auto max-w-sm bg-slate-900 border border-white/10 rounded-3xl p-2 grid grid-cols-6 gap-1 shadow-2xl backdrop-blur-xl">
                   <button 
                     onClick={() => setActiveTab('party')}
-                    className={`flex flex-col items-center gap-1 flex-1 py-1.5 rounded-2xl transition-all ${activeTab === 'party' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+                    className={`flex flex-col items-center gap-1 py-1.5 rounded-2xl transition-all ${activeTab === 'party' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
                   >
                       <span className="material-symbols-outlined text-[20px]">groups</span>
-                      <span className="text-[8px] font-black uppercase tracking-tighter">Banda</span>
+                      <span className="text-[7px] font-black uppercase tracking-tighter">Party</span>
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('initiative')}
+                    className={`flex flex-col items-center gap-1 py-1.5 rounded-2xl transition-all ${activeTab === 'initiative' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+                  >
+                      <span className="material-symbols-outlined text-[20px]">swords</span>
+                      <span className="text-[7px] font-black uppercase tracking-tighter">Init</span>
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('critical')}
+                    className={`flex flex-col items-center gap-1 py-1.5 rounded-2xl transition-all ${activeTab === 'critical' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+                  >
+                      <span className="material-symbols-outlined text-[20px]">casino</span>
+                      <span className="text-[7px] font-black uppercase tracking-tighter">Crit</span>
                   </button>
                   <button 
                     onClick={() => setActiveTab('resources')}
-                    className={`flex flex-col items-center gap-1 flex-1 py-1.5 rounded-2xl transition-all ${activeTab === 'resources' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+                    className={`flex flex-col items-center gap-1 py-1.5 rounded-2xl transition-all ${activeTab === 'resources' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
                   >
                       <span className="material-symbols-outlined text-[20px]">photo_library</span>
-                      <span className="text-[8px] font-black uppercase tracking-tighter">Atlas</span>
+                      <span className="text-[7px] font-black uppercase tracking-tighter">Atlas</span>
                   </button>
                   <button 
                     onClick={() => setActiveTab('compendium')}
-                    className={`flex flex-col items-center gap-1 flex-1 py-1.5 rounded-2xl transition-all ${activeTab === 'compendium' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+                    className={`flex flex-col items-center gap-1 py-1.5 rounded-2xl transition-all ${activeTab === 'compendium' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
                   >
                       <span className="material-symbols-outlined text-[20px]">menu_book</span>
-                      <span className="text-[8px] font-black uppercase tracking-tighter">Biblioteca</span>
+                      <span className="text-[7px] font-black uppercase tracking-tighter">Ref</span>
                   </button>
                   <button 
                     onClick={() => setActiveTab('monsters')}
-                    className={`flex flex-col items-center gap-1 flex-1 py-1.5 rounded-2xl transition-all ${activeTab === 'monsters' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+                    className={`flex flex-col items-center gap-1 py-1.5 rounded-2xl transition-all ${activeTab === 'monsters' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
                   >
                       <span className="material-symbols-outlined text-[20px]">skull</span>
-                      <span className="text-[8px] font-black uppercase tracking-tighter">Bestiario</span>
+                      <span className="text-[7px] font-black uppercase tracking-tighter">Mobs</span>
                   </button>
               </nav>
           </div>

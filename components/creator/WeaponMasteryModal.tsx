@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { WEAPONS_DB, MASTERY_DESCRIPTIONS } from '../../Data/items';
 import { WeaponData } from '../../types';
-import { useLanguage } from '../../hooks/useLanguage';
+import { UI } from '../../constants/ui';
 
 interface WeaponMasteryModalProps {
     currentSlot: number;
@@ -113,7 +113,7 @@ const WeaponMasteryModal: React.FC<WeaponMasteryModalProps> = ({ currentSlot, se
                 {availableWeapons.length === 0 && (
                     <div className="py-20 text-center opacity-50">
                         <span className="material-symbols-outlined text-5xl mb-2">search_off</span>
-                        <p className="text-sm font-medium">No se encontraron armas con maestría</p>
+                        <p className="text-sm font-medium">No weapons with mastery found</p>
                     </div>
                 )}
             </div>

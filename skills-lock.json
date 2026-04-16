@@ -1,0 +1,260 @@
+{
+  "version": 1,
+  "skills": {
+    "gsap-core": {
+      "source": "greensock/gsap-skills",
+      "sourceType": "github",
+      "computedHash": "b891c9ed42d9319685250231085ebe21538f2c844613b277b9dd2b3ff529a542"
+    },
+    "self-improving-agent": {
+      "source": "alirezarezvani/claude-skills/engineering-team/self-improving-agent",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "a11y-audit": {
+      "source": "alirezarezvani/claude-skills/engineering-team/a11y-audit",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "adversarial-reviewer": {
+      "source": "alirezarezvani/claude-skills/engineering-team/adversarial-reviewer",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "ai-security": {
+      "source": "alirezarezvani/claude-skills/engineering-team/ai-security",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "aws-solution-architect": {
+      "source": "alirezarezvani/claude-skills/engineering-team/aws-solution-architect",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "azure-cloud-architect": {
+      "source": "alirezarezvani/claude-skills/engineering-team/azure-cloud-architect",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "cloud-security": {
+      "source": "alirezarezvani/claude-skills/engineering-team/cloud-security",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "code-reviewer": {
+      "source": "alirezarezvani/claude-skills/engineering-team/code-reviewer",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "email-template-builder": {
+      "source": "alirezarezvani/claude-skills/engineering-team/email-template-builder",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "epic-design": {
+      "source": "alirezarezvani/claude-skills/engineering-team/epic-design",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "gcp-cloud-architect": {
+      "source": "alirezarezvani/claude-skills/engineering-team/gcp-cloud-architect",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "google-workspace-cli": {
+      "source": "alirezarezvani/claude-skills/engineering-team/google-workspace-cli",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "incident-commander": {
+      "source": "alirezarezvani/claude-skills/engineering-team/incident-commander",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "incident-response": {
+      "source": "alirezarezvani/claude-skills/engineering-team/incident-response",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "ms365-tenant-manager": {
+      "source": "alirezarezvani/claude-skills/engineering-team/ms365-tenant-manager",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "playwright-pro": {
+      "source": "alirezarezvani/claude-skills/engineering-team/playwright-pro",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "red-team": {
+      "source": "alirezarezvani/claude-skills/engineering-team/red-team",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "security-pen-testing": {
+      "source": "alirezarezvani/claude-skills/engineering-team/security-pen-testing",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-architect": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-architect",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-backend": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-backend",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-computer-vision": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-computer-vision",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-data-engineer": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-data-engineer",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-data-scientist": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-data-scientist",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-devops": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-devops",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-frontend": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-frontend",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-fullstack": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-fullstack",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-ml-engineer": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-ml-engineer",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-prompt-engineer": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-prompt-engineer",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-qa": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-qa",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-secops": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-secops",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "senior-security": {
+      "source": "alirezarezvani/claude-skills/engineering-team/senior-security",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "snowflake-development": {
+      "source": "alirezarezvani/claude-skills/engineering-team/snowflake-development",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "stripe-integration-expert": {
+      "source": "alirezarezvani/claude-skills/engineering-team/stripe-integration-expert",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "tdd-guide": {
+      "source": "alirezarezvani/claude-skills/engineering-team/tdd-guide",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "tech-stack-evaluator": {
+      "source": "alirezarezvani/claude-skills/engineering-team/tech-stack-evaluator",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "threat-detection": {
+      "source": "alirezarezvani/claude-skills/engineering-team/threat-detection",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "agile-product-owner": {
+      "source": "alirezarezvani/claude-skills/product-team/agile-product-owner",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "code-to-prd": {
+      "source": "alirezarezvani/claude-skills/product-team/code-to-prd",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "competitive-teardown": {
+      "source": "alirezarezvani/claude-skills/product-team/competitive-teardown",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "experiment-designer": {
+      "source": "alirezarezvani/claude-skills/product-team/experiment-designer",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "landing-page-generator": {
+      "source": "alirezarezvani/claude-skills/product-team/landing-page-generator",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "product-analytics": {
+      "source": "alirezarezvani/claude-skills/product-team/product-analytics",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "product-discovery": {
+      "source": "alirezarezvani/claude-skills/product-team/product-discovery",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "product-manager-toolkit": {
+      "source": "alirezarezvani/claude-skills/product-team/product-manager-toolkit",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "product-strategist": {
+      "source": "alirezarezvani/claude-skills/product-team/product-strategist",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "research-summarizer": {
+      "source": "alirezarezvani/claude-skills/product-team/research-summarizer",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "roadmap-communicator": {
+      "source": "alirezarezvani/claude-skills/product-team/roadmap-communicator",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "saas-scaffolder": {
+      "source": "alirezarezvani/claude-skills/product-team/saas-scaffolder",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "ui-design-system": {
+      "source": "alirezarezvani/claude-skills/product-team/ui-design-system",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    },
+    "ux-researcher-designer": {
+      "source": "alirezarezvani/claude-skills/product-team/ux-researcher-designer",
+      "sourceType": "github",
+      "computedHash": "manual-install"
+    }
+  }
+}

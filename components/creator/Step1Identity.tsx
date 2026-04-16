@@ -3,14 +3,16 @@ import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { SectionSeparator } from './Shared';
 import { HIT_DIE, CLASS_STAT_PRIORITIES, SUBCLASS_OPTIONS, CLASS_LIST, SPECIES_LIST } from '../../Data/characterOptions';
+import { useModalScrollLock } from '../../hooks/useModalScrollLock';
 import { CLASS_UI_MAP, SPECIES_UI_MAP, BACKGROUND_UI_MAP } from '../../constants';
 import { SPELL_DETAILS, SPELL_LIST_BY_CLASS } from '../../Data/spells';
 import { SCHOOL_THEMES } from '../../utils/sheetUtils';
-import { useLanguage } from '../../hooks/useLanguage';
+import { UI } from '../../constants/ui';
 import { useClasses } from '../../Data/classes';
 import { useSpecies } from '../../Data/species';
 import { useGameData } from '../../hooks/useGameData';
-import { CLASS_AVATARS, SPECIES_AVATARS } from '../../Data/avatars';
+import { CLASS_AVATARS, SPECIES_AVATARS, GENERIC_SPECIES_AVATAR } from '../../Data/avatars';
+import { SKILL_LIST, SKILL_ABILITY_MAP } from '../../Data/skills';
 
 interface Step1Props {
     name: string;
@@ -29,8 +31,11 @@ interface Step1Props {
     setSelectedSubspecies: (v: string) => void;
     selectedBackground: string;
     setSelectedBackground: (v: string) => void;
+    selectedFeat: string;
     bgSpells: string[];
     setBgSpells: (v: string[]) => void;
+    bgSkilledSkills: string[];
+    setBgSkilledSkills: (v: string[]) => void;
 }
 
 const DEFAULT_CHAR_IMAGE = "https://lh3.googleusercontent.com/aida-public/AB6AXuAn_LidL9u8S0A9NqU9kR8iS6X9k-y7Z1Q7I6n0z7C9E0w=s512";
@@ -40,9 +45,10 @@ const Step1Identity: React.FC<Step1Props> = ({
     selectedClass, setSelectedClass, selectedSubclass, setSelectedSubclass,
     selectedSpecies, setSelectedSpecies, selectedSubspecies, setSelectedSubspecies,
     selectedBackground, setSelectedBackground,
-    bgSpells, setBgSpells
+    selectedFeat,
+    bgSpells, setBgSpells,
+    bgSkilledSkills, setBgSkilledSkills
 }) => {
-    const { t, language } = useLanguage();
     const classes = useClasses();
     const speciesList = useSpecies();
     const { backgrounds } = useGameData();
@@ -55,6 +61,7 @@ const Step1Identity: React.FC<Step1Props> = ({
 
     const [showImageOptions, setShowImageOptions] = useState(false);
     const [showMagicModal, setShowMagicModal] = useState(false);
+    const [showSkilledModal, setShowSkilledModal] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Refs for scroll containers
@@ -64,31 +71,102 @@ const Step1Identity: React.FC<Step1Props> = ({
     const subspeciesScrollRef = useRef<HTMLDivElement>(null);
     const backgroundScrollRef = useRef<HTMLDivElement>(null);
 
-    // Detección de magia por trasfondo (PHB 2024 Magic Initiate)
-    const bgMagicConfig = useMemo(() => {
-        if (!backgroundData) return null;
-        const featName = backgroundData.feat;
-        const isMagicInitiate = featName.includes('Magic Initiate') || featName.includes('Iniciado en la Magia');
+    const { lockScroll, unlockScroll } = useModalScrollLock();
+
+    useEffect(() => {
+        if (showMagicModal) lockScroll();
+        else unlockScroll();
+    }, [showMagicModal, lockScroll, unlockScroll]);
+
+    useEffect(() => {
+        if (showSkilledModal) lockScroll();
+        else unlockScroll();
+    }, [showSkilledModal, lockScroll, unlockScroll]);
+
+    // Free cantrips from species/subspecies (level 0 innate spells)
+    const freeSpeciesCantrips = useMemo(() => {
+        const cantrips: string[] = [];
         
-        if (isMagicInitiate) {
+        // Base species innate spells (level 0)
+        if (speciesData?.innateSpells) {
+            speciesData.innateSpells
+                .filter((s: any) => s.level === 0)
+                .forEach((s: any) => cantrips.push(s.spell));
+        }
+        
+        // Subspecies innate spells (level 0)
+        if (selectedSubspecies) {
+            const subspecies = availableSubspecies.find((s: any) => s.name === selectedSubspecies);
+            if (subspecies?.innateSpells) {
+                subspecies.innateSpells
+                    .filter((s: any) => s.level === 0)
+                    .forEach((s: any) => cantrips.push(s.spell));
+            }
+        }
+        
+        return cantrips;
+    }, [speciesData, selectedSubspecies, availableSubspecies]);
+
+    // Background magic detection (PHB 2024 Magic Initiate)
+    const bgMagicConfig = useMemo(() => {
+        // Check background magic initiate
+        if (backgroundData) {
+            const featName = backgroundData.feat;
+            const isMagicInitiate = featName.includes('Magic Initiate') || featName.includes('Iniciado en la Magia');
+            
+            if (isMagicInitiate) {
+                let listType: 'Cleric' | 'Druid' | 'Wizard' = 'Wizard';
+                if (featName.includes('Cleric') || featName.includes('Clérigo')) listType = 'Cleric';
+                if (featName.includes('Druid') || featName.includes('Druida')) listType = 'Druid';
+                
+                return {
+                    type: listType,
+                    cantripsNeeded: 2,
+                    level1Needed: 1,
+                    sourceList: SPELL_LIST_BY_CLASS[listType] || [],
+                    source: 'background' as const
+                };
+            }
+        }
+        
+        // Check Human origin feat Magic Initiate
+        if (selectedSpecies === 'Human' && selectedFeat.includes('Magic Initiate')) {
             let listType: 'Cleric' | 'Druid' | 'Wizard' = 'Wizard';
-            if (featName.includes('Cleric') || featName.includes('Clérigo')) listType = 'Cleric';
-            if (featName.includes('Druid') || featName.includes('Druida')) listType = 'Druid';
+            if (selectedFeat.includes('Cleric') || selectedFeat.includes('Clérigo')) listType = 'Cleric';
+            if (selectedFeat.includes('Druid') || selectedFeat.includes('Druida')) listType = 'Druid';
             
             return {
                 type: listType,
                 cantripsNeeded: 2,
                 level1Needed: 1,
-                sourceList: SPELL_LIST_BY_CLASS[listType] || []
+                sourceList: SPELL_LIST_BY_CLASS[listType] || [],
+                source: 'human' as const
+            };
+        }
+        
+        return null;
+    }, [backgroundData, selectedSpecies, selectedFeat]);
+
+    // Background Skilled feat detection (PHB 2024)
+    const bgSkilledConfig = useMemo(() => {
+        if (!backgroundData) return null;
+        const featName = backgroundData.feat;
+        const isSkilled = featName === 'Skilled' || featName.includes('Skilled');
+        
+        if (isSkilled) {
+            return {
+                skillsNeeded: 3,
+                sourceList: SKILL_LIST
             };
         }
         return null;
     }, [backgroundData]);
 
-    // Limpiar hechizos si cambia el trasfondo y subespecie si cambia la especie
+    // Clear spells if background changes, subspecies if species changes, or human feat changes
     useEffect(() => {
         setBgSpells([]);
-    }, [selectedBackground, setBgSpells]);
+        setBgSkilledSkills([]);
+    }, [selectedBackground, selectedFeat, setBgSpells, setBgSkilledSkills]);
 
     useEffect(() => {
         if (selectedSpecies && availableSubspecies.length > 0) {
@@ -102,14 +180,16 @@ const Step1Identity: React.FC<Step1Props> = ({
 
     // Avatar suggestion logic
     useEffect(() => {
+        // Use generic species avatar as fallback if species not found
+        const speciesAvatar = SPECIES_AVATARS[selectedSpecies] || GENERIC_SPECIES_AVATAR;
         const avatars = [
             ...(CLASS_AVATARS[selectedClass]?.male || []),
             ...(CLASS_AVATARS[selectedClass]?.female || []),
-            ...(SPECIES_AVATARS[selectedSpecies]?.male || []),
-            ...(SPECIES_AVATARS[selectedSpecies]?.female || [])
+            ...(speciesAvatar.male || []),
+            ...(speciesAvatar.female || [])
         ];
         
-        // Solo sugerir si la imagen actual es la predeterminada "vacía"
+        // Only suggest if current image is the default "empty" one
         const isDefault = charImage === DEFAULT_CHAR_IMAGE;
         
         if (isDefault) {
@@ -122,6 +202,10 @@ const Step1Identity: React.FC<Step1Props> = ({
 
     const toggleBgSpell = (spellName: string, lvl: number) => {
         if (!bgMagicConfig) return;
+        
+        // Don't allow selecting spells that are free from species/subspecies
+        if (freeSpeciesCantrips.includes(spellName)) return;
+        
         const current = [...bgSpells];
         const isSelected = current.includes(spellName);
         
@@ -135,6 +219,20 @@ const Step1Identity: React.FC<Step1Props> = ({
                 setBgSpells([...current, spellName]);
             } else if (lvl === 1 && currentLvl1 < bgMagicConfig.level1Needed) {
                 setBgSpells([...current, spellName]);
+            }
+        }
+    };
+
+    const toggleBgSkill = (skillName: string) => {
+        if (!bgSkilledConfig) return;
+        const current = [...bgSkilledSkills];
+        const isSelected = current.includes(skillName);
+        
+        if (isSelected) {
+            setBgSkilledSkills(current.filter(s => s !== skillName));
+        } else {
+            if (current.length < bgSkilledConfig.skillsNeeded) {
+                setBgSkilledSkills([...current, skillName]);
             }
         }
     };
@@ -239,8 +337,8 @@ const Step1Identity: React.FC<Step1Props> = ({
                                 {[
                                     ...(CLASS_AVATARS[selectedClass]?.male || []),
                                     ...(CLASS_AVATARS[selectedClass]?.female || []),
-                                    ...(SPECIES_AVATARS[selectedSpecies]?.male || []),
-                                    ...(SPECIES_AVATARS[selectedSpecies]?.female || []),
+                                    ...((SPECIES_AVATARS[selectedSpecies] || GENERIC_SPECIES_AVATAR).male || []),
+                                    ...((SPECIES_AVATARS[selectedSpecies] || GENERIC_SPECIES_AVATAR).female || []),
                                     '/assets/avatars/fighter.png', '/assets/avatars/wizard.png', '/assets/avatars/cleric.png', '/assets/avatars/warlock.png'
                                 ]
                                     .filter((v, i, a) => v && a.indexOf(v) === i)
@@ -495,6 +593,37 @@ const Step1Identity: React.FC<Step1Props> = ({
                             </div>
                         )}
 
+                        {/* SKILLED FEAT CONFIGURATION */}
+                        {bgSkilledConfig && (
+                            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/5 space-y-3 animate-fadeIn">
+                                <button 
+                                    onClick={() => setShowSkilledModal(true)}
+                                    className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all group ${bgSkilledSkills.length === bgSkilledConfig.skillsNeeded ? 'bg-primary/5 border-primary/40' : 'bg-slate-50 dark:bg-black/20 border-slate-200 dark:border-white/5 hover:border-primary/50'}`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`size-10 rounded-xl flex items-center justify-center transition-colors ${bgSkilledSkills.length === bgSkilledConfig.skillsNeeded ? 'bg-primary text-white' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white'}`}>
+                                            <span className="material-symbols-outlined text-xl">style</span>
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="text-sm font-black text-slate-900 dark:text-white leading-tight">{t.config_skilled}</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.skilled}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`text-xs font-black px-2 py-1 rounded-lg ${bgSkilledSkills.length === bgSkilledConfig.skillsNeeded ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-200 dark:bg-white/10 text-slate-500'}`}>
+                                            {bgSkilledSkills.length} / {bgSkilledConfig.skillsNeeded}
+                                        </span>
+                                        <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">chevron_right</span>
+                                    </div>
+                                </button>
+                                {bgSkilledSkills.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 px-1">
+                                        {bgSkilledSkills.map(s => <span key={s} className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20">{s}</span>)}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/5 space-y-4">
                             <div className="flex flex-wrap gap-2 items-center">
                                 <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-md">
@@ -527,7 +656,9 @@ const Step1Identity: React.FC<Step1Props> = ({
                         <button onClick={() => setShowMagicModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
                         <div className="text-center">
                              <h3 className="text-sm font-black uppercase tracking-widest text-primary">{t.magic_initiate}</h3>
-                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{bgMagicConfig.type}</p>
+                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                {bgMagicConfig.source === 'human' ? 'Human Origin Feat' : bgMagicConfig.type}
+                             </p>
                         </div>
                         <div className="w-10"></div>
                     </div>
@@ -539,13 +670,19 @@ const Step1Identity: React.FC<Step1Props> = ({
                                 <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">{t.choose_cantrips}</h4>
                                 <span className={`text-xs font-black px-2 py-0.5 rounded-full ${bgSpells.filter(s => SPELL_DETAILS[s]?.level === 0).length === bgMagicConfig.cantripsNeeded ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'}`}>
                                     {bgSpells.filter(s => SPELL_DETAILS[s]?.level === 0).length} / {bgMagicConfig.cantripsNeeded}
+                                    {freeSpeciesCantrips.length > 0 && <span className="text-emerald-400 ml-1">(+{freeSpeciesCantrips.length} free)</span>}
                                 </span>
                             </div>
                             <div className="grid grid-cols-1 gap-2">
                                 {bgMagicConfig.sourceList.filter(s => SPELL_DETAILS[s]?.level === 0).map(name => {
                                     const isSel = bgSpells.includes(name);
+                                    const isFreeSpecies = freeSpeciesCantrips.includes(name);
                                     const spell = SPELL_DETAILS[name];
                                     const theme = SCHOOL_THEMES[spell.school] || { text: 'text-slate-400', bg: 'bg-slate-500/10', icon: 'auto_fix' };
+                                    
+                                    // Don't show spells that are free from species
+                                    if (isFreeSpecies) return null;
+                                    
                                     return (
                                         <button key={name} onClick={() => toggleBgSpell(name, 0)} className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${isSel ? 'bg-primary/10 border-primary shadow-lg scale-[1.02]' : 'bg-white dark:bg-surface-dark border-slate-200 dark:border-white/5 opacity-80 hover:opacity-100'}`}>
                                             <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${isSel ? 'bg-primary text-white shadow-inner' : theme.bg + ' ' + theme.text}`}>
@@ -594,6 +731,56 @@ const Step1Identity: React.FC<Step1Props> = ({
                         <button 
                             onClick={() => setShowMagicModal(false)}
                             className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 ${bgSpells.length === (bgMagicConfig.cantripsNeeded + bgMagicConfig.level1Needed) ? 'bg-primary text-background-dark shadow-primary/20' : 'bg-slate-200 dark:bg-white/5 text-slate-500 cursor-not-allowed'}`}
+                        >
+                            {t.confirm_selection}
+                        </button>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* SKILLED FEAT MODAL */}
+            {showSkilledModal && bgSkilledConfig && createPortal(
+                <div className="fixed inset-0 z-[110] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                    <div className="p-4 bg-white dark:bg-surface-dark border-b border-slate-200 dark:border-white/10 flex items-center justify-between shadow-md">
+                        <button onClick={() => setShowSkilledModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
+                        <div className="text-center">
+                             <h3 className="text-sm font-black uppercase tracking-widest text-primary">{t.skilled}</h3>
+                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.config_skilled}</p>
+                        </div>
+                        <div className="w-10"></div>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-4">
+                        <div className="flex justify-between items-baseline mb-4">
+                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">{t.choose_skill_desc || 'Choose 3 Skills'}</h4>
+                            <span className={`text-xs font-black px-2 py-0.5 rounded-full ${bgSkilledSkills.length === bgSkilledConfig.skillsNeeded ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'}`}>
+                                {bgSkilledSkills.length} / {bgSkilledConfig.skillsNeeded}
+                            </span>
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
+                            {bgSkilledConfig.sourceList.map(skillName => {
+                                const isSel = bgSkilledSkills.includes(skillName);
+                                const ability = SKILL_ABILITY_MAP[skillName] || 'INT';
+                                return (
+                                    <button key={skillName} onClick={() => toggleBgSkill(skillName)} className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${isSel ? 'bg-primary/10 border-primary shadow-lg scale-[1.02]' : 'bg-white dark:bg-surface-dark border-slate-200 dark:border-white/5 opacity-80 hover:opacity-100'}`}>
+                                        <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${isSel ? 'bg-primary text-white shadow-inner' : 'bg-slate-100 dark:bg-white/5 text-slate-500'}`}>
+                                            <span className="material-symbols-outlined text-lg">{isSel ? 'check' : 'psychology'}</span>
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className={`text-sm font-bold truncate ${isSel ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{skillName}</p>
+                                            <p className="text-[9px] font-black uppercase tracking-tighter text-slate-400 opacity-70">{ability}</p>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="p-4 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-slate-200 dark:border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+                        <button 
+                            onClick={() => setShowSkilledModal(false)}
+                            className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 ${bgSkilledSkills.length === bgSkilledConfig.skillsNeeded ? 'bg-primary text-background-dark shadow-primary/20' : 'bg-slate-200 dark:bg-white/5 text-slate-500 cursor-not-allowed'}`}
                         >
                             {t.confirm_selection}
                         </button>

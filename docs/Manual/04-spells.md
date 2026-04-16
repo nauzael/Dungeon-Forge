@@ -1,6 +1,6 @@
-# D&D 5e (2024) - Spells
+# D\&D 5e (2024) - Spells
 
----
+***
 
 ## Spells
 
@@ -17,105 +17,110 @@
 
 ### Cantrips
 
-| Nombre | Escuela | Listas de Hechizos | Tiempo de Lanzamiento | Alcance | Componentes | Duración |
-|--------|---------|-------------------|---------------------|---------|-------------|----------|
-| Acid Splash | Evocation | Artificer, Sorcerer, Wizard | Action | 60 feet | V, S | Instantaneous |
-| Blade Ward | Abjuration | Bard, Sorcerer, Warlock, Wizard | Action | Self | V, S | C, up to 1 minute |
-| Chill Touch | Necromancy | Sorcerer, Warlock, Wizard | Action | Touch | V, S | Instantaneous |
-| Dancing Lights | Illusion | Artificer, Bard, Sorcerer, Wizard | Action | 120 feet | V, S, M | C, up to 1 minute |
-| Druidcraft | Transmutation | Druid | Action | 30 feet | V, S | Instantaneous |
-| Eldritch Blast | Evocation | Warlock | Action | 120 feet | V, S | Instantaneous |
-| Elementalism | Transmutation | Artificer, Druid, Sorcerer, Wizard | Action | 30 feet | V, S | Instantaneous |
-| Fire Bolt | Evocation | Artificer, Sorcerer, Wizard | Action | 120 feet | V, S | Instantaneous |
-| Friends | Enchantment | Bard, Sorcerer, Warlock, Wizard | Action | 10 feet | S, M | C, up to 1 minute |
-| Guidance | Divination | Artificer, Cleric, Druid | Action | Touch | V, S | C, up to 1 minute |
-| Light | Evocation | Artificer, Bard, Cleric, Sorcerer, Wizard | Action | Touch | V, M | 1 hour |
-| Mage Hand | Conjuration | Artificer, Bard, Sorcerer, Warlock, Wizard | Action | 30 feet | V, S | 1 minute |
-| Mending | Transmutation | Bard, Cleric, Druid, Sorcerer, Wizard | 1 minute | Touch | V, S, M | Instantaneous |
-| Message | Transmutation | Artificer, Bard, Druid, Sorcerer, Wizard | Action | 120 feet | S, M | 1 round |
-| Mind Sliver | Enchantment | Sorcerer, Warlock, Wizard | Action | 60 feet | V | 1 round |
-| Minor Illusion | Illusion | Bard, Sorcerer, Warlock, Wizard | Action | 30 feet | S, M | 1 minute |
-| Poison Spray | Necromancy | Artificer, Druid, Sorcerer, Warlock, Wizard | Action | 30 feet | V, S | Instantaneous |
-| Prestidigitation | Transmutation | Artificer, Bard, Sorcerer, Warlock, Wizard | Action | 10 feet | V, S | Up to 1 hour |
-| Produce Flame | Conjuration | Druid | Bonus Action | Self | V, S | 10 minutes |
-| Ray of Frost | Evocation | Artificer, Sorcerer, Wizard | Action | 60 feet | V, S | Instantaneous |
-| Resistance | Abjuration | Artificer, Cleric, Druid | Action | Touch | V, S | C, up to 1 minute |
-| Sacred Flame | Evocation | Cleric | Action | 60 feet | V, S | Instantaneous |
-| Shillelagh | Transmutation | Druid | Bonus Action | Self | V, S, M | 1 minute |
-| Shocking Grasp | Evocation | Artificer, Sorcerer, Wizard | Action | Touch | V, S | Instantaneous |
-| Sorcerous Burst | Evocation | Sorcerer | Action | 120 feet | V, S | Instantaneous |
-| Spare the Dying | Necromancy | Artificer, Cleric, Druid | Action | 15 feet | V, S | Instantaneous |
-| Starry Wisp | Evocation | Bard, Druid | Action | 60 feet | V, S | Instantaneous |
-| Thaumaturgy | Transmutation | Cleric | Action | 30 feet | V | Up to 1 minute |
-| Thorn Whip | Transmutation | Artificer, Druid | Action | 30 feet | V, S, M | Instantaneous |
-| Thunderclap | Evocation | Artificer, Bard, Druid, Sorcerer, Warlock, Wizard | Action | Self | S | Instantaneous |
-| Toll the Dead | Necromancy | Cleric, Warlock, Wizard | Action | 60 feet | V, S | Instantaneous |
-| True Strike | Divination | Artificer, Bard, Sorcerer, Warlock, Wizard | Action | Self | S, M | Instantaneous |
-| Vicious Mockery | Enchantment | Bard | Action | 60 feet | V | Instantaneous |
-| Word of Radiance | Evocation | Cleric | Action | Self | V, M | Instantaneous |
+| Nombre           | Escuela       | Listas de Hechizos                                | Tiempo de Lanzamiento | Alcance  | Componentes | Duración          |
+| ---------------- | ------------- | ------------------------------------------------- | --------------------- | -------- | ----------- | ----------------- |
+| Acid Splash      | Evocation     | Artificer, Sorcerer, Wizard                       | Action                | 60 feet  | V, S        | Instantaneous     |
+| Blade Ward       | Abjuration    | Bard, Sorcerer, Warlock, Wizard                   | Action                | Self     | V, S        | C, up to 1 minute |
+| Chill Touch      | Necromancy    | Sorcerer, Warlock, Wizard                         | Action                | Touch    | V, S        | Instantaneous     |
+| Dancing Lights   | Illusion      | Artificer, Bard, Sorcerer, Wizard                 | Action                | 120 feet | V, S, M     | C, up to 1 minute |
+| Druidcraft       | Transmutation | Druid                                             | Action                | 30 feet  | V, S        | Instantaneous     |
+| Eldritch Blast   | Evocation     | Warlock                                           | Action                | 120 feet | V, S        | Instantaneous     |
+| Elementalism     | Transmutation | Artificer, Druid, Sorcerer, Wizard                | Action                | 30 feet  | V, S        | Instantaneous     |
+| Fire Bolt        | Evocation     | Artificer, Sorcerer, Wizard                       | Action                | 120 feet | V, S        | Instantaneous     |
+| Friends          | Enchantment   | Bard, Sorcerer, Warlock, Wizard                   | Action                | 10 feet  | S, M        | C, up to 1 minute |
+| Guidance         | Divination    | Artificer, Cleric, Druid                          | Action                | Touch    | V, S        | C, up to 1 minute |
+| Light            | Evocation     | Artificer, Bard, Cleric, Sorcerer, Wizard         | Action                | Touch    | V, M        | 1 hour            |
+| Mage Hand        | Conjuration   | Artificer, Bard, Sorcerer, Warlock, Wizard        | Action                | 30 feet  | V, S        | 1 minute          |
+| Mending          | Transmutation | Bard, Cleric, Druid, Sorcerer, Wizard             | 1 minute              | Touch    | V, S, M     | Instantaneous     |
+| Message          | Transmutation | Artificer, Bard, Druid, Sorcerer, Wizard          | Action                | 120 feet | S, M        | 1 round           |
+| Mind Sliver      | Enchantment   | Sorcerer, Warlock, Wizard                         | Action                | 60 feet  | V           | 1 round           |
+| Minor Illusion   | Illusion      | Bard, Sorcerer, Warlock, Wizard                   | Action                | 30 feet  | S, M        | 1 minute          |
+| Poison Spray     | Necromancy    | Artificer, Druid, Sorcerer, Warlock, Wizard       | Action                | 30 feet  | V, S        | Instantaneous     |
+| Prestidigitation | Transmutation | Artificer, Bard, Sorcerer, Warlock, Wizard        | Action                | 10 feet  | V, S        | Up to 1 hour      |
+| Produce Flame    | Conjuration   | Druid                                             | Bonus Action          | Self     | V, S        | 10 minutes        |
+| Ray of Frost     | Evocation     | Artificer, Sorcerer, Wizard                       | Action                | 60 feet  | V, S        | Instantaneous     |
+| Resistance       | Abjuration    | Artificer, Cleric, Druid                          | Action                | Touch    | V, S        | C, up to 1 minute |
+| Sacred Flame     | Evocation     | Cleric                                            | Action                | 60 feet  | V, S        | Instantaneous     |
+| Shillelagh       | Transmutation | Druid                                             | Bonus Action          | Self     | V, S, M     | 1 minute          |
+| Shocking Grasp   | Evocation     | Artificer, Sorcerer, Wizard                       | Action                | Touch    | V, S        | Instantaneous     |
+| Sorcerous Burst  | Evocation     | Sorcerer                                          | Action                | 120 feet | V, S        | Instantaneous     |
+| Spare the Dying  | Necromancy    | Artificer, Cleric, Druid                          | Action                | 15 feet  | V, S        | Instantaneous     |
+| Starry Wisp      | Evocation     | Bard, Druid                                       | Action                | 60 feet  | V, S        | Instantaneous     |
+| Thaumaturgy      | Transmutation | Cleric                                            | Action                | 30 feet  | V           | Up to 1 minute    |
+| Thorn Whip       | Transmutation | Artificer, Druid                                  | Action                | 30 feet  | V, S, M     | Instantaneous     |
+| Thunderclap      | Evocation     | Artificer, Bard, Druid, Sorcerer, Warlock, Wizard | Action                | Self     | S           | Instantaneous     |
+| Toll the Dead    | Necromancy    | Cleric, Warlock, Wizard                           | Action                | 60 feet  | V, S        | Instantaneous     |
+| True Strike      | Divination    | Artificer, Bard, Sorcerer, Warlock, Wizard        | Action                | Self     | S, M        | Instantaneous     |
+| Vicious Mockery  | Enchantment   | Bard                                              | Action                | 60 feet  | V           | Instantaneous     |
+| Word of Radiance | Evocation     | Cleric                                            | Action                | Self     | V, M        | Instantaneous     |
 
 ### Cantrip Descriptions
 
 ### Acid Splash
+
 *Evocation Cantrip (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You create an acidic bubble at a point within range, where it explodes in a 5-foot-radius Sphere. Each creature in that Sphere must succeed on a Dexterity saving throw or take 1d6 Acid damage.
 
 **Cantrip Upgrade.** The damage increases by 1d6 when you reach levels 5 (2d6), 11 (3d6), and 17 (4d6).
 
----
+***
 
 ### Blade Ward
+
 *Abjuration Cantrip (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 Whenever a creature makes an attack roll against you before the spell ends, the attacker subtracts 1d4 from the attack roll.
 
----
+***
 
 ### Chill Touch
+
 *Necromancy Cantrip (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 Channeling the chill of the grave, make a melee spell attack against a target within reach. On a hit, the target takes 1d10 Necrotic damage, and it can't regain Hit Points until the end of your next turn.
 
 **Cantrip Upgrade.** The damage increases by 1d10 when you reach levels 5 (2d10), 11 (3d10), and 17 (4d10).
 
----
+***
 
 ### Dancing Lights
+
 *Illusion Cantrip (Artificer, Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (a bit of phosphorus)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (a bit of phosphorus)\
 **Duration:** Concentration, up to 1 minute
 
 You create up to four torch-size lights within range, making them appear as torches, lanterns, or glowing orbs that hover for the duration. Alternatively, you combine the four lights into one glowing Medium form that is vaguely humanlike. Whichever form you choose, each light sheds Dim Light in a 10-foot radius.
 
 As a Bonus Action, you can move the lights up to 60 feet to a space within range. A light must be within 20 feet of another light created by this spell, and a light vanishes if it exceeds the spell's range.
 
----
+***
 
 ### Druidcraft
+
 *Transmutation Cantrip (Druid)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 Whispering to the spirits of nature, you create one of the following effects within range.
@@ -128,28 +133,30 @@ Whispering to the spirits of nature, you create one of the following effects wit
 
 **Fire Play.** You light or snuff out a candle, a torch, or a campfire.
 
----
+***
 
 ### Eldritch Blast
+
 *Evocation Cantrip (Warlock)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You hurl a beam of crackling energy. Make a ranged spell attack against one creature or object in range. On a hit, the target takes 1d10 Force damage.
 
 **Cantrip Upgrade.** The spell creates two beams at level 5, three beams at level 11, and four beams at level 17. You can direct the beams at the same target or at different ones. Make a separate attack roll for each beam.
 
----
+***
 
 ### Elementalism
+
 *Transmutation Cantrip (Artificer, Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You exert control over the elements, creating one of the following effects within range.
@@ -164,68 +171,73 @@ You exert control over the elements, creating one of the following effects withi
 
 **Sculpt Element.** You cause dirt, sand, fire, smoke, mist, or water that can fit in a 1-foot Cube to assume a crude shape (such as that of a creature) for 1 hour.
 
----
+***
 
 ### Fire Bolt
+
 *Evocation Cantrip (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You hurl a mote of fire at a creature or an object within range. Make a ranged spell attack against the target. On a hit, the target takes 1d10 Fire damage. A flammable object hit by this spell starts burning if it isn't being worn or carried.
 
 **Cantrip Upgrade.** The damage increases by 1d10 when you reach levels 5 (2d10), 11 (3d10), and 17 (4d10).
 
----
+***
 
 ### Friends
+
 *Enchantment Cantrip (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 10 feet  
-**Components:** S, M (some makeup)  
+**Casting Time:** Action\
+**Range:** 10 feet\
+**Components:** S, M (some makeup)\
 **Duration:** Concentration, up to 1 minute
 
 You magically emanate a sense of friendship toward one creature you can see within range. The target must succeed on a Wisdom saving throw or have the Charmed condition for the duration. The target succeeds automatically if it isn't a Humanoid, if you're fighting it, or if you have cast this spell on it within the past 24 hours.
 
 The spell ends early if the target takes damage or if you make an attack roll, deal damage, or force anyone to make a saving throw. When the spell ends, the target knows it was Charmed by you.
 
----
+***
 
 ### Guidance
+
 *Divination Cantrip (Artificer, Cleric, Druid)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You touch a willing creature and choose a skill. Until the spell ends, the creature adds 1d4 to any ability check using the chosen skill.
 
----
+***
 
 ### Light
+
 *Evocation Cantrip (Artificer, Bard, Cleric, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, M (a firefly or phosphorescent moss)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, M (a firefly or phosphorescent moss)\
 **Duration:** 1 hour
 
 You touch one Large or smaller object that isn't being worn or carried by someone else. Until the spell ends, the object sheds Bright Light in a 20-foot radius and Dim Light for an additional 20 feet. The light can be colored as you like.
 
 Covering the object with something opaque blocks the light. The spell ends if you cast it again.
 
----
+***
 
 ### Mage Hand
+
 *Conjuration Cantrip (Artificer, Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** 1 minute
 
 A spectral, floating hand appears at a point you choose within range. The hand lasts for the duration. The hand vanishes if it is ever more than 30 feet away from you or if you cast this spell again.
@@ -236,56 +248,60 @@ As a Magic action on your later turns, you can control the hand thus again. As p
 
 The hand can't attack, activate magic items, or carry more than 10 pounds.
 
----
+***
 
 ### Mending
+
 *Transmutation Cantrip (Bard, Cleric, Druid, Sorcerer, Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** Touch  
-**Components:** V, S, M (two lodestones)  
+**Casting Time:** 1 minute\
+**Range:** Touch\
+**Components:** V, S, M (two lodestones)\
 **Duration:** Instantaneous
 
 This spell repairs a single break or tear in an object you touch, such as a broken chain link, two halves of a broken key, a torn cloak, or a leaking wineskin. As long as the break or tear is no larger than 1 foot in any dimension, you mend it, leaving no trace of the former damage.
 
 This spell can physically repair a magic item, but it can't restore magic to such an object.
 
----
+***
 
 ### Message
+
 *Transmutation Cantrip (Artificer, Bard, Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** S, M (a copper wire)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** S, M (a copper wire)\
 **Duration:** 1 round
 
 You point toward a creature within range and whisper a message. The target (and only the target) hears the message and can reply in a whisper that only you can hear.
 
 You can cast this spell through solid objects if you are familiar with the target and know it is beyond the barrier. Magical silence; 1 foot of stone, metal, or wood; or a thin sheet of lead blocks the spell.
 
----
+***
 
 ### Mind Sliver
+
 *Enchantment Cantrip (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V\
 **Duration:** 1 round
 
 You try to temporarily sliver the mind of one creature you can see within range. The target must succeed on an Intelligence saving throw or take 1d6 Psychic damage and subtract 1d4 from the next saving throw it makes before the end of your next turn.
 
 **Cantrip Upgrade.** The damage increases by 1d6 when you reach levels 5 (2d6), 11 (3d6), and 17 (4d6).
 
----
+***
 
 ### Minor Illusion
+
 *Illusion Cantrip (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** S, M (a bit of fleece)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** S, M (a bit of fleece)\
 **Duration:** 1 minute
 
 You create a sound or an image of an object within range that lasts for the duration. See the descriptions below for the effects of each. The illusion ends if you cast this spell again.
@@ -296,28 +312,30 @@ If a creature takes a Study action to examine the sound or image, the creature c
 
 **Image.** If you create an image of an object—such as a chair, muddy footprints, or a small chest—it must be no larger than a 5-foot Cube. The image can't create sound, light, smell, or any other sensory effect. Physical interaction with the image reveals it to be an illusion, since things can pass through it.
 
----
+***
 
 ### Poison Spray
+
 *Necromancy Cantrip (Artificer, Druid, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You spray toxic mist at a creature within range. Make a ranged spell attack against the target. On a hit, the target takes 1d12 Poison damage.
 
 **Cantrip Upgrade.** The damage increases by 1d12 when you reach levels 5 (2d12), 11 (3d12), and 17 (4d12).
 
----
+***
 
 ### Prestidigitation
+
 *Transmutation Cantrip (Artificer, Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 10 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 10 feet\
+**Components:** V, S\
 **Duration:** Up to 1 hour
 
 You create a magical effect within range. Choose the effect from the options below. If you cast this spell multiple times, you can have up to three of its non-instantaneous effects active at a time.
@@ -334,14 +352,15 @@ You create a magical effect within range. Choose the effect from the options bel
 
 **Minor Creation.** You create a nonmagical trinket or an illusory image that can fit in your hand. It lasts until the end of your next turn. A trinket can deal no damage and has no monetary worth.
 
----
+***
 
 ### Produce Flame
+
 *Conjuration Cantrip (Druid)*
 
-**Casting Time:** Bonus Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Bonus Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** 10 minutes
 
 A flickering flame appears in your hand and remains there for the duration. While there, the flame emits no heat and ignites nothing, and it sheds Bright Light in a 20-foot radius and Dim Light for an additional 20 feet. The spell ends if you cast it again.
@@ -350,54 +369,58 @@ Until the spell ends, you can take a Magic action to hurl fire at a creature or 
 
 **Cantrip Upgrade.** The damage increases by 1d8 when you reach levels 5 (2d8), 11 (3d8), and 17 (4d8).
 
----
+***
 
 ### Ray of Frost
+
 *Evocation Cantrip (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 A frigid beam of blue-white light streaks toward a creature within range. Make a ranged spell attack against the target. On a hit, it takes 1d8 Cold damage, and its Speed is reduced by 10 feet until the start of your next turn.
 
 **Cantrip Upgrade.** The damage increases by 1d8 when you reach levels 5 (2d8), 11 (3d8), and 17 (4d8).
 
----
+***
 
 ### Resistance
+
 *Abjuration Cantrip (Artificer, Cleric, Druid)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You touch a willing creature and choose a damage type: Acid, Bludgeoning, Cold, Fire, Lightning, Necrotic, Piercing, Poison, Radiant, Slashing, or Thunder. When the creature takes damage of the chosen type before the spell ends, the creature reduces the total damage taken by 1d4. A creature can benefit from this spell only once per turn.
 
----
+***
 
 ### Sacred Flame
+
 *Evocation Cantrip (Cleric)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 Flame-like radiance descends on a creature that you can see within range. The target must succeed on a Dexterity saving throw or take 1d8 Radiant damage. The target gains no benefit from Half Cover or Three-Quarters Cover for this save.
 
 **Cantrip Upgrade.** The damage increases by 1d8 when you reach levels 5 (2d8), 11 (3d8), and 17 (4d8).
 
----
+***
 
 ### Shillelagh
+
 *Transmutation Cantrip (Druid)*
 
-**Casting Time:** Bonus Action  
-**Range:** Self  
-**Components:** V, S, M (mistletoe)  
+**Casting Time:** Bonus Action\
+**Range:** Self\
+**Components:** V, S, M (mistletoe)\
 **Duration:** 1 minute
 
 A Club or Quarterstaff you are holding is imbued with nature's power. For the duration, you can use your spellcasting ability instead of Strength for the attack and damage rolls of melee attacks using that weapon, and the weapon's damage die becomes a d8. If the attack deals damage, it can be Force damage or the weapon's normal damage type (your choice).
@@ -406,28 +429,30 @@ The spell ends early if you cast it again or if you let go of the weapon.
 
 **Cantrip Upgrade.** The damage die changes when you reach levels 5 (d10), 11 (d12), and 17 (2d6).
 
----
+***
 
 ### Shocking Grasp
+
 *Evocation Cantrip (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 Lightning springs from you to a creature that you try to touch. Make a melee spell attack against the target. On a hit, the target takes 1d8 Lightning damage, and it can't make Opportunity Attacks until the start of its next turn.
 
 **Cantrip Upgrade.** The damage increases by 1d8 when you reach levels 5 (2d8), 11 (3d8), and 17 (4d8).
 
----
+***
 
 ### Sorcerous Burst
+
 *Evocation Cantrip (Sorcerer)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You cast sorcerous energy at one creature or object within range. Make a ranged spell attack against the target. On a hit, the target takes 1d8 damage of a type you choose: Acid, Cold, Fire, Lightning, Poison, Psychic, or Thunder.
@@ -436,42 +461,45 @@ If you roll an 8 on a d8 for this spell, you can roll another d8, and add it to 
 
 **Cantrip Upgrade.** The damage increases by 1d8 when you reach levels 5 (2d8), 11 (3d8), and 17 (4d8).
 
----
+***
 
 ### Spare the Dying
+
 *Necromancy Cantrip (Artificer, Cleric, Druid)*
 
-**Casting Time:** Action  
-**Range:** 15 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 15 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 Choose a creature within range that has 0 Hit Points and isn't dead. The creature becomes Stable.
 
 **Cantrip Upgrade.** The range doubles when you reach levels 5 (30 feet), 11 (60 feet), and 17 (120 feet).
 
----
+***
 
 ### Starry Wisp
+
 *Evocation Cantrip (Bard, Druid)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You launch a mote of light at one creature or object within range. Make a ranged spell attack against the target. On a hit, the target takes 1d8 Radiant damage, and until the end of your next turn, it emits Dim Light in a 10-foot radius and can't benefit from the Invisible condition.
 
 **Cantrip Upgrade.** The damage increases by 1d8 when you reach levels 5 (2d8), 11 (3d8), and 17 (4d8).
 
----
+***
 
 ### Thaumaturgy
+
 *Transmutation Cantrip (Cleric)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V\
 **Duration:** Up to 1 minute
 
 You manifest a minor wonder within range. You create one of the effects below within range. If you cast this spell multiple times, you can have up to three of its 1-minute effects active at a time.
@@ -488,84 +516,90 @@ You manifest a minor wonder within range. You create one of the effects below wi
 
 **Tremors.** You cause harmless tremors in the ground for 1 minute.
 
----
+***
 
 ### Thorn Whip
+
 *Transmutation Cantrip (Artificer, Druid)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (the stem of a thorny plant)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (the stem of a thorny plant)\
 **Duration:** Instantaneous
 
 You create a vine-like whip covered in thorns that lashes out at your command toward a creature in range. Make a melee spell attack against the target. On a hit, the target takes 1d6 Piercing damage, and if it is Large or smaller, you can pull it up to 10 feet closer to you.
 
 **Cantrip Upgrade.** The damage increases by 1d6 when you reach levels 5 (2d6), 11 (3d6), and 17 (4d6).
 
----
+***
 
 ### Thunderclap
+
 *Evocation Cantrip (Artificer, Bard, Druid, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** S\
 **Duration:** Instantaneous
 
 Each creature in a 5-foot Emanation originating from you must succeed on a Constitution saving throw or take 1d6 Thunder damage. The spell's thunderous sound can be heard up to 100 feet away.
 
 **Cantrip Upgrade.** The damage increases by 1d6 when you reach levels 5 (2d6), 11 (3d6), and 17 (4d6).
 
----
+***
 
 ### Toll the Dead
+
 *Necromancy Cantrip (Cleric, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You point at one creature you can see within range, and the single chime of a dolorous bell is audible within 10 feet of the target. The target must succeed on a Wisdom saving throw or take 1d8 Necrotic damage. If the target is missing any of its Hit Points, it instead takes 1d12 Necrotic damage.
 
 **Cantrip Upgrade.** The damage increases by one die when you reach levels 5 (2d8 or 2d12), 11 (3d8 or 3d12), and 17 (4d8 or 4d12).
 
----
+***
 
 ### True Strike
+
 *Divination Cantrip (Artificer, Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** S, M (a weapon with which you have proficiency and that is worth 1+ CP)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** S, M (a weapon with which you have proficiency and that is worth 1+ CP)\
 **Duration:** Instantaneous
 
 Guided by a flash of magical insight, you make one attack with the weapon used in the spell's casting. The attack uses your spellcasting ability for the attack and damage rolls instead of using Strength or Dexterity. If the attack deals damage, it can be Radiant damage or the weapon's normal damage type (your choice).
 
 **Cantrip Upgrade.** Whether you deal Radiant damage or the weapon's normal damage type, the attack deals extra Radiant damage when you reach levels 5 (1d6), 11 (2d6), and 17 (3d6).
 
----
+***
 
 ### Vicious Mockery
+
 *Enchantment Cantrip (Bard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 You unleash a string of insults laced with subtle enchantments at one creature you can see or hear within range. The target must succeed on a Wisdom saving throw or take 1d6 Psychic damage and have Disadvantage on the next attack roll it makes before the end of its next turn.
 
 **Cantrip Upgrade.** The damage increases by 1d6 when you reach levels 5 (2d6), 11 (3d6), and 17 (4d6).
 
----
+***
 
 ### Word of Radiance
+
 *Evocation Cantrip (Cleric)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, M (a sunburst token)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, M (a sunburst token)\
 **Duration:** Instantaneous
 
 Burning radiance erupts from you in a 5-foot Emanation. Each creature of your choice that you can see in it must succeed on a Constitution saving throw or take 1d6 Radiant damage.
@@ -574,83 +608,84 @@ Burning radiance erupts from you in a 5-foot Emanation. Each creature of your ch
 
 ### 1st Level Spells
 
-| Nombre | Escuela | Listas de Hechizos | Tiempo de Lanzamiento | Alcance | Componentes | Duración |
-|--------|---------|-------------------|---------------------|---------|-------------|----------|
-| Alarm | Abjuration | Artificer, Ranger, Wizard | 1 minute or R | 30 feet | V, S, M | 8 hours |
-| Animal Friendship | Enchantment | Bard, Druid, Ranger | Action | 30 feet | V, S, M | 24 hours |
-| Armor of Agathys | Abjuration | Warlock | Bonus Action | Self | V, S, M | 1 hour |
-| Arms of Hadar | Conjuration | Warlock | Action | Self | V, S | Instantaneous |
-| Bane | Enchantment | Bard, Cleric, Warlock | Action | 30 feet | V, S, M | C, up to 1 minute |
-| Bless | Enchantment | Cleric, Paladin | Action | 30 feet | V, S, M(C) | C, up to 1 minute |
-| Burning Hands | Evocation | Sorcerer, Wizard | Action | Self | V, S | Instantaneous |
-| Charm Person | Enchantment | Bard, Druid, Sorcerer, Warlock, Wizard | Action | 30 feet | V, S | 1 hour |
-| Chromatic Orb | Evocation | Sorcerer, Wizard | Action | 90 feet | V, S, M(C) | Instantaneous |
-| Color Spray | Illusion | Bard, Sorcerer, Wizard | Action | Self | V, S, M | Instantaneous |
-| Command | Enchantment | Bard, Cleric, Paladin | Action | 60 feet | V | Instantaneous |
-| Compelled Duel | Enchantment | Paladin | Bonus Action | 30 feet | V | C, up to 1 minute |
-| Comprehend Languages | Divination | Bard, Sorcerer, Warlock, Wizard | Action or R | Self | V, S, M | 1 hour |
-| Create or Destroy Water | Transmutation | Cleric, Druid | Action | 30 feet | V, S, M | Instantaneous |
-| Cure Wounds | Abjuration | Artificer, Bard, Cleric, Druid, Paladin, Ranger | Action | Touch | V, S | Instantaneous |
-| Detect Evil and Good | Divination | Cleric, Paladin | Action | Self | V, S | C, up to 10 minutes |
-| Detect Magic | Divination | Artificer, Bard, Cleric, Druid, Paladin, Ranger, Sorcerer, Warlock, Wizard | Action or R | Self | V, S | C, up to 10 minutes |
-| Detect Poison and Disease | Divination | Cleric, Druid, Paladin, Ranger | Action or R | Self | V, S, M | C, up to 10 minutes |
-| Disguise Self | Illusion | Artificer, Bard, Sorcerer, Wizard | Action | Self | V, S | 1 hour |
-| Dissonant Whispers | Enchantment | Bard | Action | 60 feet | V | Instantaneous |
-| Divine Favor | Transmutation | Paladin | Bonus Action | Self | V, S | 1 minute |
-| Divine Smite | Evocation | Paladin | Bonus Action(*) | Self | V | Instantaneous |
-| Ensnaring Strike | Conjuration | Ranger | Bonus Action(*) | Self | V | C, up to 1 minute |
-| Entangle | Conjuration | Druid, Ranger | Action | 90 feet | V, S | C, up to 1 minute |
-| Expeditious Retreat | Transmutation | Artificer, Sorcerer, Warlock, Wizard | Bonus Action | Self | V, S | C up to 10 minutes |
-| Faerie Fire | Evocation | Artificer, Bard, Druid | Action | 60 feet | V | C, up to 1 minute |
-| False Life | Necromancy | Artificer, Sorcerer, Wizard | Action | Self | V, S, M | Instantaneous |
-| Feather Fall | Transmutation | Artificer, Bard, Sorcerer, Wizard | Reaction(*) | 60 feet | V, M | 1 minute |
-| Find Familiar | Conjuration | Wizard | 1 hour or R | 10 feet | V, S, M(C*) | Instantaneous |
-| Fog Cloud | Conjuration | Druid, Ranger, Sorcerer, Wizard | Action | 120 feet | V, S | C up to 1 hour |
-| Goodberry | Conjuration | Druid, Ranger | Action | Self | V, S, M | 24 hours |
-| Grease | Conjuration | Artificer, Sorcerer, Wizard | Action | 60 feet | V, S, M | 1 minute |
-| Guiding Bolt | Evocation | Cleric | Action | 120 feet | V, S | 1 round |
-| Hail of Thorns | Conjuration | Ranger | Bonus Action(*) | Self | V | Instantaneous |
-| Healing Word | Abjuration | Bard, Cleric, Druid | Bonus Action | 60 feet | V | Instantaneous |
-| Hellish Rebuke | Evocation | Warlock | Reaction(*) | 60 feet | V, S | Instantaneous |
-| Heroism | Enchantment | Bard, Paladin | Action | Touch | V, S | C, up to 1 minute |
-| Hex | Enchantment | Warlock | Bonus Action | 90 feet | V, S, M | C, up to 1 hour |
-| Hunter's Mark | Divination | Ranger | Bonus Action | 90 feet | V | C, up to 1 hour |
-| Ice Knife | Conjuration | Druid, Sorcerer, Wizard | Action | 60 feet | S, M | Instantaneous |
-| Identify | Divination | Artificer, Bard, Wizard | 1 minute or R | Touch | V, S, M(C) | Instantaneous |
-| Illusory Script | Illusion | Bard, Warlock, Wizard | 1 minute or R | Touch | S, M(C*) | 10 days |
-| Inflict Wounds | Necromancy | Cleric | Action | Touch | V, S | Instantaneous |
-| Jump | Transmutation | Artificer, Druid, Ranger, Sorcerer, Wizard | Bonus Action | Touch | V, S, M | 1 minute |
-| Longstrider | Transmutation | Artificer, Bard, Druid, Ranger, Wizard | Action | Touch | V, S, M | 1 hour |
-| Mage Armor | Abjuration | Sorcerer, Wizard | Action | Touch | V, S, M | 8 hours |
-| Magic Missile | Evocation | Sorcerer, Wizard | Action | 120 feet | V, S | Instantaneous |
-| Protection from Evil and Good | Abjuration | Cleric, Druid, Paladin, Warlock, Wizard | Action | Touch | V, S, M(C*) | C, up to 10 minutes |
-| Purify Food and Drink | Transmutation | Artificer, Cleric, Druid, Paladin | Action or R | 10 feet | V, S | Instantaneous |
-| Ray of Sickness | Necromancy | Sorcerer, Wizard | Action | 60 feet | V, S | Instantaneous |
-| Sanctuary | Abjuration | Artificer, Cleric | Bonus Action | 30 feet | V, S, M | 1 minute |
-| Searing Smite | Evocation | Paladin | Bonus Action(*) | Self | V | 1 minute |
-| Shield | Abjuration | Sorcerer, Wizard | Reaction | Self | V, S | 1 round |
-| Shield of Faith | Abjuration | Cleric, Paladin | Bonus Action | 60 feet | V, S, M | C, up to 10 minutes |
-| Silent Image | Illusion | Bard, Sorcerer, Wizard | Action | 60 feet | V, S, M | C, up to 10 minutes |
-| Sleep | Enchantment | Bard, Sorcerer, Wizard | Action | 60 feet | V, S, M | C, up to 1 minute |
-| Speak with Animals | Divination | Bard, Druid, Ranger, Warlock | Action or R | Self | V, S | 10 minutes |
-| Spellfire Flare | Evocation | Sorcerer, Wizard | Action | 60 feet | V, S | Instantaneous |
-| Tasha's Hideous Laughter | Enchantment | Bard, Warlock, Wizard | Action | 30 feet | V, S, M | C, up to 1 minute |
-| Tenser's Floating Disk | Conjuration | Wizard | Action or R | 30 feet | V, S, M | 1 hour |
-| Thunderous Smite | Evocation | Paladin | Bonus Action(*) | Self | V | Instantaneous |
-| Thunderwave | Evocation | Bard, Druid, Sorcerer, Wizard | Action | Self | V, S | Instantaneous |
-| Unseen Servant | Conjuration | Bard, Warlock, Wizard | Action or R | 60 feet | V, S, M | 1 hour |
-| Wardaway | Abjuration | Bard, Cleric, Paladin, Wizard | Action | 60 feet | V, S, M | Instantaneous |
-| Witch Bolt | Evocation | Sorcerer, Warlock, Wizard | Action | 60 feet | V, S, M | C, up to 1 minute |
-| Wrathful Smite | Necromancy | Paladin | Bonus Action(*) | Self | V | 1 minute |
+| Nombre                        | Escuela       | Listas de Hechizos                                                         | Tiempo de Lanzamiento | Alcance  | Componentes  | Duración            |
+| ----------------------------- | ------------- | -------------------------------------------------------------------------- | --------------------- | -------- | ------------ | ------------------- |
+| Alarm                         | Abjuration    | Artificer, Ranger, Wizard                                                  | 1 minute or R         | 30 feet  | V, S, M      | 8 hours             |
+| Animal Friendship             | Enchantment   | Bard, Druid, Ranger                                                        | Action                | 30 feet  | V, S, M      | 24 hours            |
+| Armor of Agathys              | Abjuration    | Warlock                                                                    | Bonus Action          | Self     | V, S, M      | 1 hour              |
+| Arms of Hadar                 | Conjuration   | Warlock                                                                    | Action                | Self     | V, S         | Instantaneous       |
+| Bane                          | Enchantment   | Bard, Cleric, Warlock                                                      | Action                | 30 feet  | V, S, M      | C, up to 1 minute   |
+| Bless                         | Enchantment   | Cleric, Paladin                                                            | Action                | 30 feet  | V, S, M(C)   | C, up to 1 minute   |
+| Burning Hands                 | Evocation     | Sorcerer, Wizard                                                           | Action                | Self     | V, S         | Instantaneous       |
+| Charm Person                  | Enchantment   | Bard, Druid, Sorcerer, Warlock, Wizard                                     | Action                | 30 feet  | V, S         | 1 hour              |
+| Chromatic Orb                 | Evocation     | Sorcerer, Wizard                                                           | Action                | 90 feet  | V, S, M(C)   | Instantaneous       |
+| Color Spray                   | Illusion      | Bard, Sorcerer, Wizard                                                     | Action                | Self     | V, S, M      | Instantaneous       |
+| Command                       | Enchantment   | Bard, Cleric, Paladin                                                      | Action                | 60 feet  | V            | Instantaneous       |
+| Compelled Duel                | Enchantment   | Paladin                                                                    | Bonus Action          | 30 feet  | V            | C, up to 1 minute   |
+| Comprehend Languages          | Divination    | Bard, Sorcerer, Warlock, Wizard                                            | Action or R           | Self     | V, S, M      | 1 hour              |
+| Create or Destroy Water       | Transmutation | Cleric, Druid                                                              | Action                | 30 feet  | V, S, M      | Instantaneous       |
+| Cure Wounds                   | Abjuration    | Artificer, Bard, Cleric, Druid, Paladin, Ranger                            | Action                | Touch    | V, S         | Instantaneous       |
+| Detect Evil and Good          | Divination    | Cleric, Paladin                                                            | Action                | Self     | V, S         | C, up to 10 minutes |
+| Detect Magic                  | Divination    | Artificer, Bard, Cleric, Druid, Paladin, Ranger, Sorcerer, Warlock, Wizard | Action or R           | Self     | V, S         | C, up to 10 minutes |
+| Detect Poison and Disease     | Divination    | Cleric, Druid, Paladin, Ranger                                             | Action or R           | Self     | V, S, M      | C, up to 10 minutes |
+| Disguise Self                 | Illusion      | Artificer, Bard, Sorcerer, Wizard                                          | Action                | Self     | V, S         | 1 hour              |
+| Dissonant Whispers            | Enchantment   | Bard                                                                       | Action                | 60 feet  | V            | Instantaneous       |
+| Divine Favor                  | Transmutation | Paladin                                                                    | Bonus Action          | Self     | V, S         | 1 minute            |
+| Divine Smite                  | Evocation     | Paladin                                                                    | Bonus Action(\*)      | Self     | V            | Instantaneous       |
+| Ensnaring Strike              | Conjuration   | Ranger                                                                     | Bonus Action(\*)      | Self     | V            | C, up to 1 minute   |
+| Entangle                      | Conjuration   | Druid, Ranger                                                              | Action                | 90 feet  | V, S         | C, up to 1 minute   |
+| Expeditious Retreat           | Transmutation | Artificer, Sorcerer, Warlock, Wizard                                       | Bonus Action          | Self     | V, S         | C up to 10 minutes  |
+| Faerie Fire                   | Evocation     | Artificer, Bard, Druid                                                     | Action                | 60 feet  | V            | C, up to 1 minute   |
+| False Life                    | Necromancy    | Artificer, Sorcerer, Wizard                                                | Action                | Self     | V, S, M      | Instantaneous       |
+| Feather Fall                  | Transmutation | Artificer, Bard, Sorcerer, Wizard                                          | Reaction(\*)          | 60 feet  | V, M         | 1 minute            |
+| Find Familiar                 | Conjuration   | Wizard                                                                     | 1 hour or R           | 10 feet  | V, S, M(C\*) | Instantaneous       |
+| Fog Cloud                     | Conjuration   | Druid, Ranger, Sorcerer, Wizard                                            | Action                | 120 feet | V, S         | C up to 1 hour      |
+| Goodberry                     | Conjuration   | Druid, Ranger                                                              | Action                | Self     | V, S, M      | 24 hours            |
+| Grease                        | Conjuration   | Artificer, Sorcerer, Wizard                                                | Action                | 60 feet  | V, S, M      | 1 minute            |
+| Guiding Bolt                  | Evocation     | Cleric                                                                     | Action                | 120 feet | V, S         | 1 round             |
+| Hail of Thorns                | Conjuration   | Ranger                                                                     | Bonus Action(\*)      | Self     | V            | Instantaneous       |
+| Healing Word                  | Abjuration    | Bard, Cleric, Druid                                                        | Bonus Action          | 60 feet  | V            | Instantaneous       |
+| Hellish Rebuke                | Evocation     | Warlock                                                                    | Reaction(\*)          | 60 feet  | V, S         | Instantaneous       |
+| Heroism                       | Enchantment   | Bard, Paladin                                                              | Action                | Touch    | V, S         | C, up to 1 minute   |
+| Hex                           | Enchantment   | Warlock                                                                    | Bonus Action          | 90 feet  | V, S, M      | C, up to 1 hour     |
+| Hunter's Mark                 | Divination    | Ranger                                                                     | Bonus Action          | 90 feet  | V            | C, up to 1 hour     |
+| Ice Knife                     | Conjuration   | Druid, Sorcerer, Wizard                                                    | Action                | 60 feet  | S, M         | Instantaneous       |
+| Identify                      | Divination    | Artificer, Bard, Wizard                                                    | 1 minute or R         | Touch    | V, S, M(C)   | Instantaneous       |
+| Illusory Script               | Illusion      | Bard, Warlock, Wizard                                                      | 1 minute or R         | Touch    | S, M(C\*)    | 10 days             |
+| Inflict Wounds                | Necromancy    | Cleric                                                                     | Action                | Touch    | V, S         | Instantaneous       |
+| Jump                          | Transmutation | Artificer, Druid, Ranger, Sorcerer, Wizard                                 | Bonus Action          | Touch    | V, S, M      | 1 minute            |
+| Longstrider                   | Transmutation | Artificer, Bard, Druid, Ranger, Wizard                                     | Action                | Touch    | V, S, M      | 1 hour              |
+| Mage Armor                    | Abjuration    | Sorcerer, Wizard                                                           | Action                | Touch    | V, S, M      | 8 hours             |
+| Magic Missile                 | Evocation     | Sorcerer, Wizard                                                           | Action                | 120 feet | V, S         | Instantaneous       |
+| Protection from Evil and Good | Abjuration    | Cleric, Druid, Paladin, Warlock, Wizard                                    | Action                | Touch    | V, S, M(C\*) | C, up to 10 minutes |
+| Purify Food and Drink         | Transmutation | Artificer, Cleric, Druid, Paladin                                          | Action or R           | 10 feet  | V, S         | Instantaneous       |
+| Ray of Sickness               | Necromancy    | Sorcerer, Wizard                                                           | Action                | 60 feet  | V, S         | Instantaneous       |
+| Sanctuary                     | Abjuration    | Artificer, Cleric                                                          | Bonus Action          | 30 feet  | V, S, M      | 1 minute            |
+| Searing Smite                 | Evocation     | Paladin                                                                    | Bonus Action(\*)      | Self     | V            | 1 minute            |
+| Shield                        | Abjuration    | Sorcerer, Wizard                                                           | Reaction              | Self     | V, S         | 1 round             |
+| Shield of Faith               | Abjuration    | Cleric, Paladin                                                            | Bonus Action          | 60 feet  | V, S, M      | C, up to 10 minutes |
+| Silent Image                  | Illusion      | Bard, Sorcerer, Wizard                                                     | Action                | 60 feet  | V, S, M      | C, up to 10 minutes |
+| Sleep                         | Enchantment   | Bard, Sorcerer, Wizard                                                     | Action                | 60 feet  | V, S, M      | C, up to 1 minute   |
+| Speak with Animals            | Divination    | Bard, Druid, Ranger, Warlock                                               | Action or R           | Self     | V, S         | 10 minutes          |
+| Spellfire Flare               | Evocation     | Sorcerer, Wizard                                                           | Action                | 60 feet  | V, S         | Instantaneous       |
+| Tasha's Hideous Laughter      | Enchantment   | Bard, Warlock, Wizard                                                      | Action                | 30 feet  | V, S, M      | C, up to 1 minute   |
+| Tenser's Floating Disk        | Conjuration   | Wizard                                                                     | Action or R           | 30 feet  | V, S, M      | 1 hour              |
+| Thunderous Smite              | Evocation     | Paladin                                                                    | Bonus Action(\*)      | Self     | V            | Instantaneous       |
+| Thunderwave                   | Evocation     | Bard, Druid, Sorcerer, Wizard                                              | Action                | Self     | V, S         | Instantaneous       |
+| Unseen Servant                | Conjuration   | Bard, Warlock, Wizard                                                      | Action or R           | 60 feet  | V, S, M      | 1 hour              |
+| Wardaway                      | Abjuration    | Bard, Cleric, Paladin, Wizard                                              | Action                | 60 feet  | V, S, M      | Instantaneous       |
+| Witch Bolt                    | Evocation     | Sorcerer, Warlock, Wizard                                                  | Action                | 60 feet  | V, S, M      | C, up to 1 minute   |
+| Wrathful Smite                | Necromancy    | Paladin                                                                    | Bonus Action(\*)      | Self     | V            | 1 minute            |
 
 ### 1st Level Spell Descriptions
 
 ### Alarm
+
 *Level 1 Abjuration (Artificer, Ranger, Wizard)*
 
-**Casting Time:** 1 minute or Ritual  
-**Range:** 30 feet  
-**Components:** V, S, M (a bell and silver wire)  
+**Casting Time:** 1 minute or Ritual\
+**Range:** 30 feet\
+**Components:** V, S, M (a bell and silver wire)\
 **Duration:** 8 hours
 
 You set an alarm against intrusion. Choose a door, a window, or an area within range that is no larger than a 20-foot Cube. Until the spell ends, an alarm alerts you whenever a creature touches or enters the warded area. When you cast the spell, you can designate creatures that won't set off the alarm. You also choose whether the alarm is audible or mental:
@@ -659,84 +694,90 @@ You set an alarm against intrusion. Choose a door, a window, or an area within r
 
 **Mental Alarm.** You are alerted by a mental ping if you are within 1 mile of the warded area. This ping awakens you if you're asleep.
 
----
+***
 
 ### Animal Friendship
+
 *Level 1 Enchantment (Bard, Druid, Ranger)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a morsel of food)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a morsel of food)\
 **Duration:** 24 hours
 
 Target a Beast that you can see within range. The target must succeed on a Wisdom saving throw or have the Charmed condition for the duration. If you or one of your allies deals damage to the target, the spells ends.
 
 **Using a Higher-Level Spell Slot.** You can target one additional Beast for each spell slot level above 1.
 
----
+***
 
 ### Armor of Agathys
+
 *Level 1 Abjuration (Warlock)*
 
-**Casting Time:** Bonus Action  
-**Range:** Self  
-**Components:** V, S, M (a shard of blue glass)  
+**Casting Time:** Bonus Action\
+**Range:** Self\
+**Components:** V, S, M (a shard of blue glass)\
 **Duration:** 1 Hour
 
 Protective magical frost surrounds you. You gain 5 Temporary Hit Points. If a creature hits you with a melee attack roll before the spell ends, the creature takes 5 Cold damage. The spell ends early if you have no Temporary Hit Points.
 
 **Using a Higher-Level Spell Slot.** The Temporary Hit Points and the Cold damage both increase by 5 for each spell slot level above 1.
 
----
+***
 
 ### Arms of Hadar
+
 *Level 1 Conjuration (Warlock)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 Invoking Hadar, you cause tendrils to erupt from yourself. Each creature in a 10-foot Emanation originating from you makes a Strength saving throw. On a failed save, a target takes 2d6 Necrotic damage and can't take Reactions until the start of its next turn. On a successful save, a target takes half as much damage only.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 1.
 
----
+***
 
 ### Bane
+
 *Level 1 Enchantment (Bard, Cleric, Warlock)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a drop of blood)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a drop of blood)\
 **Duration:** Concentration, up to 1 minute
 
 Up to three creatures of your choice that you can see within range must each make a Charisma saving throw. Whenever a target that fails this save makes an attack roll or a saving throw before the spell ends, the target must subtract 1d4 from the attack roll or save.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 1.
 
----
+***
 
 ### Bless
+
 *Level 1 Enchantment (Cleric, Paladin)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a Holy Symbol worth 5+ GP)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a Holy Symbol worth 5+ GP)\
 **Duration:** Concentration, up to 1 minute
 
 You bless up to three creatures within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target adds 1d4 to the attack roll or save.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 1.
 
----
+***
 
 ### Burning Hands
+
 *Level 1 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 A thin sheet of flames shoots forth from you. Each creature in a 15-foot Cone makes a Dexterity saving throw, taking 3d6 Fire damage on a failed save or half as much damage on a successful one.
@@ -745,28 +786,30 @@ Flammable objects in the Cone that aren't being worn or carried start burning.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 1.
 
----
+***
 
 ### Charm Person
+
 *Level 1 Enchantment (Bard, Druid, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** 1 hour
 
 One Humanoid you can see within range makes a Wisdom saving throw. It does so with Advantage if you or your allies are fighting it. On a failed save, the target has the Charmed condition until the spell ends or until you or your allies damage it. The Charmed creature is Friendly to you. When the spell ends, the target knows it was Charmed by you.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 1.
 
----
+***
 
 ### Chromatic Orb
+
 *Level 1 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (a diamond worth 50+ GP)  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (a diamond worth 50+ GP)\
 **Duration:** Instantaneous
 
 You hurl an orb of energy at a target within range. Choose Acid, Cold, Fire, Lightning, Poison, or Thunder for the type of orb you create, and then make a ranged spell attack against the target. On a hit, the target takes 3d8 damage of the chosen type.
@@ -775,26 +818,28 @@ If you roll the same number on two or more of the d8s, the orb leaps to a differ
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 1. The orb can leap a maximum number of times equal to the level of the slot expended, and a creature can be targeted only once by each casting of this spell.
 
----
+***
 
 ### Color Spray
+
 *Level 1 Illusion (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a pinch of colorful sand)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a pinch of colorful sand)\
 **Duration:** Instantaneous
 
 You launch a dazzling array of flashing, colorful light. Each creature in a 15-foot Cone originating from you must succeed on a Constitution saving throw or have the Blinded condition until the end of your next turn.
 
----
+***
 
 ### Command
+
 *Level 1 Enchantment (Bard, Cleric, Paladin)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 You speak a one-word command to a creature you can see within range. The target must succeed on a Wisdom saving throw or follow the command on its next turn. Choose the command from these options:
@@ -811,40 +856,43 @@ You speak a one-word command to a creature you can see within range. The target 
 
 **Using a Higher-Level Spell Slot.** You can affect one additional creature for each spell slot level above 1.
 
----
+***
 
 ### Compelled Duel
+
 *Level 1 Enchantment (Paladin)*
 
-**Casting Time:** Bonus Action  
-**Range:** 30 feet  
-**Components:** V  
+**Casting Time:** Bonus Action\
+**Range:** 30 feet\
+**Components:** V\
 **Duration:** Concentration, up to 1 minute
 
 You try to compel a creature into a duel. One creature that you can see within range makes a Wisdom saving throw. On a failed save, the target has Disadvantage on attack rolls against creatures other than you, and it can't willingly move to a space that is more than 30 feet away from you.
 
 The spell ends if you make an attack roll against a creature other than the target, if you cast a spell on an enemy other than the target, if an ally of yours damages the target, or if you end your turn more than 30 feet away from the target.
 
----
+***
 
 ### Comprehend Languages
+
 *Level 1 Divination (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action or Ritual  
-**Range:** Self  
-**Components:** V, S, M (a pinch of soot and salt)  
+**Casting Time:** Action or Ritual\
+**Range:** Self\
+**Components:** V, S, M (a pinch of soot and salt)\
 **Duration:** 1 hour
 
 For the duration, you understand the literal meaning of any language that you hear or see signed. You also understand any written language that you see, but you must be touching the surface on which the words are written. It takes about 1 minute to read one page of text. This spell doesn't decode symbols or secret messages.
 
----
+***
 
 ### Create or Destroy Water
+
 *Level 1 Transmutation (Cleric, Druid)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a mix of water and sand)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a mix of water and sand)\
 **Duration:** Instantaneous
 
 You do one of the following:
@@ -855,70 +903,75 @@ You do one of the following:
 
 **Using a Higher-Level Spell Slot.** You create or destroy 10 additional gallons of water, or the size of the Cube increases by 5 feet, for each spell slot level above 1.
 
----
+***
 
 ### Cure Wounds
+
 *Level 1 Abjuration (Artificer, Bard, Cleric, Druid, Paladin, Ranger)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 A creature you touch regains a number of Hit Points equal to 2d8 plus your spellcasting ability modifier.
 
 **Using a Higher-Level Spell Slot.** The healing increases by 2d8 for each spell slot level above 1.
 
----
+***
 
 ### Detect Evil and Good
+
 *Level 1 Divination (Cleric, Paladin)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 For the duration, you sense the location of any Aberration, Celestial, Elemental, Fey, Fiend, or Undead within 30 feet of yourself. You also sense whether the Hallow spell is active there and, if so, where.
 
 The spell is blocked by 1 foot of stone, dirt, or wood; 1 inch of metal; or a thin sheet of lead.
 
----
+***
 
 ### Detect Magic
+
 *Level 1 Divination (Artificer, Bard, Cleric, Druid, Paladin, Ranger, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action or Ritual  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action or Ritual\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 For the duration, you sense the presence of magical effects within 30 feet of yourself. If you sense such effects, you can take the Magic action to see a faint aura around any visible creature or object in the area that bears the magic, and if an effect was created by a spell, you learn the spell's school of magic.
 
 The spell is blocked by 1 foot of stone, dirt, or wood; 1 inch of metal; or a thin sheet of lead.
 
----
+***
 
 ### Detect Poison and Disease
+
 *Level 1 Divination (Cleric, Druid, Paladin, Ranger)*
 
-**Casting Time:** Action or Ritual  
-**Range:** Self  
-**Components:** V, S, M (a yew leaf)  
+**Casting Time:** Action or Ritual\
+**Range:** Self\
+**Components:** V, S, M (a yew leaf)\
 **Duration:** Concentration, up to 10 minutes
 
 For the duration, you sense the location of poisons, poisonous or venomous creatures, and magical contagions within 30 feet of yourself. You sense the kind of poison, creature, or contagion in each case.
 
 The spell is blocked by 1 foot of stone, dirt, or wood; 1 inch of metal; or a thin sheet of lead.
 
----
+***
 
 ### Disguise Self
+
 *Level 1 Illusion (Artificer, Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** 1 hour
 
 You make yourself - including your clothing, armor, weapons, and other belongings on your person - look different until the spell ends. You can seem 1 foot shorter or taller and can appear heavier or lighter. You must adopt a form that has the same basic arrangement of limbs as you have. Otherwise, the extent of the illusion is up to you.
@@ -927,54 +980,58 @@ The changes wrought by this spell fail to hold up to physical inspection. For ex
 
 To discern that you are disguised, a creature must take the Study action to inspect your appearance and succeed on an Intelligence (Investigation) check against your spell save DC.
 
----
+***
 
 ### Dissonant Whispers
+
 *Level 1 Enchantment (Bard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 One creature of your choice that you can see within range hears a discordant melody in its mind. The target makes a Wisdom saving throw. On a failed save, it takes 3d6 Psychic damage and must immediately use its Reaction, if available, to move as far away from you as it can, using the safest route. On a successful save, the target takes half as much damage only.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 1.
 
----
+***
 
 ### Divine Favor
+
 *Level 1 Transmutation (Paladin)*
 
-**Casting Time:** Bonus Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Bonus Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** 1 minute
 
 Until the spell ends, your attacks with weapons deal an extra 1d4 Radiant damage on a hit.
 
----
+***
 
 ### Divine Smite
+
 *Level 1 Evocation (Paladin)*
 
-**Casting Time:** Bonus Action, which you take immediately after hitting a target with a Melee weapon or an Unarmed Strike  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Bonus Action, which you take immediately after hitting a target with a Melee weapon or an Unarmed Strike\
+**Range:** Self\
+**Components:** V\
 **Duration:** Instantaneous
 
 The target takes an extra 2d8 Radiant damage from the attack. The damage increases by 1d8 if the target is a Fiend or an Undead.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 1.
 
----
+***
 
 ### Ensnaring Strike
+
 *Level 1 Conjuration (Ranger)*
 
-**Casting Time:** Bonus Action, which you take immediately after hitting a creature with a weapon  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Bonus Action, which you take immediately after hitting a creature with a weapon\
+**Range:** Self\
+**Components:** V\
 **Duration:** Concentration, up to 1 minute
 
 As you hit the target, grasping vines appear on it, and it makes a Strength saving throw. A Large or larger creature has Advantage on this save. On a failed save, the target has the Restrained condition until the spell ends. On a successful save, the vines shrivel away, and the spell ends.
@@ -983,80 +1040,86 @@ While Restrained, the target takes 1d6 Piercing damage at the start of each of i
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 1.
 
----
+***
 
 ### Entangle
+
 *Level 1 Conjuration (Druid, Ranger)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 Grasping plants sprout from the ground in a 20-foot square within range. For the duration, these plants turn the ground in the area into Difficult Terrain. They disappear when the spell ends.
 
 Each creature (other than you) in the area when you cast the spell must succeed on a Strength saving throw or have the Restrained condition until the spell ends. A Restrained creature can take an action to make a Strength (Athletics) check against your spell save DC. On a success, it frees itself from the grasping plants and is no longer Restrained by them.
 
----
+***
 
 ### Expeditious Retreat
+
 *Level 1 Transmutation (Artificer, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Bonus Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Bonus Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You take the Dash action, and until the spell ends, you can take that action again as a Bonus Action.
 
----
+***
 
 ### Faerie Fire
+
 *Level 1 Evocation (Artificer, Bard, Druid)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V\
 **Duration:** Concentration, up to 1 minute
 
 Objects in a 20-foot Cube within range are outlined in blue, green, or violet light (your choice). Each creature in the Cube is also outlined if it fails a Dexterity saving throw. For the duration, objects and affected creatures shed Dim Light in a 10-foot radius and can't benefit from the Invisible condition.
 
 Attack rolls against an affected creature or object have Advantage if the attacker can see it.
 
----
+***
 
 ### False Life
+
 *Level 1 Necromancy (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a drop of alcohol)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a drop of alcohol)\
 **Duration:** Instantaneous
 
 You gain 2d4 + 4 Temporary Hit Points.
 
 **Using a Higher-Level Spell Slot.** You gain 5 additional Temporary Hit Points for each spell slot level above 1.
 
----
+***
 
 ### Feather Fall
+
 *Level 1 Transmutation (Artificer, Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Reaction, which you take when you or a creature you can see within 60 feet of you falls  
-**Range:** 60 feet  
-**Components:** V, M (a small feather or piece of down)  
+**Casting Time:** Reaction, which you take when you or a creature you can see within 60 feet of you falls\
+**Range:** 60 feet\
+**Components:** V, M (a small feather or piece of down)\
 **Duration:** 1 minute
 
 Choose up to five falling creatures within range. A falling creature's rate of descent slows to 60 feet per round until the spell ends. If a creature lands before the spell ends, the creature takes no damage from the fall, and the spell ends for that creature.
 
----
+***
 
 ### Find Familiar
+
 *Level 1 Conjuration (Wizard)*
 
-**Casting Time:** 1 hour or Ritual  
-**Range:** 10 feet  
-**Components:** V, S, M (burning incense worth 10+ GP, which the spell consumes)  
+**Casting Time:** 1 hour or Ritual\
+**Range:** 10 feet\
+**Components:** V, S, M (burning incense worth 10+ GP, which the spell consumes)\
 **Duration:** Instantaneous
 
 You gain the service of a familiar, a spirit that takes an animal form you choose: Bat, Cat, Frog, Hawk, Lizard, Octopus, Owl, Rat, Raven, Spider, Weasel, or another Beast that has a Challenge Rating of 0. Appearing in an unoccupied space within range, the familiar has the statistics of the chosen form (see appendix B), though it is a Celestial, Fey, or Fiend (your choice) instead of a Beast. Your familiar acts independently of you, but it obeys your commands.
@@ -1071,126 +1134,135 @@ Finally, when you cast a spell with a range of touch, your familiar can deliver 
 
 **One Familiar Only.** You can't have more than one familiar at a time. If you cast this spell while you have a familiar, you instead cause it to adopt a new eligible form.
 
----
+***
 
 ### Fog Cloud
+
 *Level 1 Conjuration (Druid, Ranger, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 hour
 
 You create a 20-foot-radius Sphere of fog centered on a point within range. The Sphere is Heavily Obscured. It lasts for the duration or until a strong wind (such as one created by Gust of Wind) disperses it.
 
 **Using a Higher-Level Spell Slot.** The fog's radius increases by 20 feet for each spell slot level above 1.
 
----
+***
 
 ### Goodberry
+
 *Level 1 Conjuration (Druid, Ranger)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a sprig of mistletoe)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a sprig of mistletoe)\
 **Duration:** 24 hours
 
 Ten berries appear in your hand and are infused with magic for the duration. A creature can take a Bonus Action to eat one berry. Eating a berry restores 1 Hit Point, and the berry provides enough nourishment to sustain a creature for one day.
 
 Uneaten berries disappear when the spell ends.
 
----
+***
 
 ### Grease
+
 *Level 1 Conjuration (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a bit of pork rind or butter)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a bit of pork rind or butter)\
 **Duration:** 1 minute
 
 Nonflammable grease covers the ground in a 10-foot square centered on a point within range and turns it into Difficult Terrain for the duration.
 
 When the grease appears, each creature standing in its area must succeed on a Dexterity saving throw or have the Prone condition. A creature that enters the area or ends its turn there must also succeed on that save or fall Prone.
 
----
+***
 
 ### Guiding Bolt
+
 *Level 1 Evocation (Cleric)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** 1 round
 
 You hurl a bolt of light toward a creature within range. Make a ranged spell attack against the target. On a hit, it takes 4d6 Radiant damage, and the next attack roll made against it before the end of your next turn has Advantage.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 1.
 
----
+***
 
 ### Hail of Thorns
+
 *Level 1 Conjuration (Ranger)*
 
-**Casting Time:** Bonus Action, which you take immediately after hitting a creature with a Ranged weapon  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Bonus Action, which you take immediately after hitting a creature with a Ranged weapon\
+**Range:** Self\
+**Components:** V\
 **Duration:** Instantaneous
 
 As you hit the creature, this spell creates a rain of thorns that sprouts from your Ranged weapon or ammunition. The target of the attack and each creature within 5 feet of it make a Dexterity saving throw, taking 1d10 Piercing damage on a failed save or half as much damage on a successful one.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d10 for each spell slot level above 1.
 
----
+***
 
 ### Healing Word
+
 *Level 1 Abjuration (Bard, Cleric, Druid)*
 
-**Casting Time:** Bonus Action  
-**Range:** 60 feet  
-**Components:** V  
+**Casting Time:** Bonus Action\
+**Range:** 60 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 A creature of your choice that you can see within range regains Hit Points equal to 2d4 plus your spellcasting ability modifier.
 
 **Using a Higher-Level Spell Slot.** The healing increases by 2d4 for each spell slot level above 1.
 
----
+***
 
 ### Hellish Rebuke
+
 *Level 1 Evocation (Warlock)*
 
-**Casting Time:** Reaction, which you take in response to taking damage from a creature that you can see within 60 feet of yourself  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Reaction, which you take in response to taking damage from a creature that you can see within 60 feet of yourself\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 The creature that damaged you is momentarily surrounded by green flames. It makes a Dexterity saving throw, taking 2d10 Fire damage on a failed save or half as much damage on a successful one.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d10 for each spell slot level above 1.
 
----
+***
 
 ### Heroism
+
 *Level 1 Enchantment (Bard, Paladin)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 A willing creature you touch is imbued with bravery. Until the spell ends, the creature is immune to the Frightened condition and gains Temporary Hit Points equal to your spellcasting ability modifier at the start of each of its turns.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 1.
 
----
+***
 
 ### Hex
+
 *Level 1 Enchantment (Warlock)*
 
-**Casting Time:** Bonus Action  
-**Range:** 90 feet  
-**Components:** V, S, M (the petrified eye of a newt)  
+**Casting Time:** Bonus Action\
+**Range:** 90 feet\
+**Components:** V, S, M (the petrified eye of a newt)\
 **Duration:** Concentration, up to 1 hour
 
 You place a curse on a creature that you can see within range. Until the spell ends, you deal an extra 1d6 Necrotic damage to the target whenever you hit it with an attack roll. Also, choose one ability when you cast the spell. The target has Disadvantage on ability checks made with the chosen ability.
@@ -1199,14 +1271,15 @@ If the target drops to 0 Hit Points before this spell ends, you can take a Bonus
 
 **Using a Higher-Level Spell Slot.** Your Concentration can last longer with a spell slot of level 2 (up to 4 hours), 3–4 (up to 8 hours), or 5+ (24 hours).
 
----
+***
 
 ### Hunter's Mark
+
 *Level 1 Divination (Ranger)*
 
-**Casting Time:** Bonus Action  
-**Range:** 90 feet  
-**Components:** V  
+**Casting Time:** Bonus Action\
+**Range:** 90 feet\
+**Components:** V\
 **Duration:** Concentration, up to 1 hour
 
 You magically mark one creature you can see within range as your quarry. Until the spell ends, you deal an extra 1d6 Force damage to the target whenever you hit it with an attack roll. You also have Advantage on any Wisdom (Perception or Survival) check you make to find it.
@@ -1215,42 +1288,45 @@ If the target drops to 0 Hit Points before this spell ends, you can take a Bonus
 
 **Using a Higher-Level Spell Slot.** Your Concentration can last longer with a spell slot of level 3–4 (up to 8 hours) or 5+ (up to 24 hours).
 
----
+***
 
 ### Ice Knife
+
 *Level 1 Conjuration (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** S, M (a drop of water or a piece of ice)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** S, M (a drop of water or a piece of ice)\
 **Duration:** Instantaneous
 
 You create a shard of ice and fling it at one creature within range. Make a ranged spell attack against the target. On a hit, the target takes 1d10 Piercing damage. Hit or miss, the shard then explodes. The target and each creature within 5 feet of it must succeed on a Dexterity saving throw or take 2d6 Cold damage.
 
 **Using a Higher-Level Spell Slot.** The Cold damage increases by 1d6 for each spell slot level above 1.
 
----
+***
 
 ### Identify
+
 *Level 1 Divination (Artificer, Bard, Wizard)*
 
-**Casting Time:** 1 minute or Ritual  
-**Range:** Touch  
-**Components:** V, S, M (a pearl worth 100+ GP)  
+**Casting Time:** 1 minute or Ritual\
+**Range:** Touch\
+**Components:** V, S, M (a pearl worth 100+ GP)\
 **Duration:** Instantaneous
 
 You touch an object throughout the spell's casting. If the object is a magic item or some other magical object, you learn its properties and how to use them, whether it requires Attunement, and how many charges it has, if any. You learn whether any ongoing spells are affecting the item and what they are. If the item was created by a spell, you learn that spell's name.
 
 If you instead touch a creature throughout the casting, you learn which ongoing spells, if any, are currently affecting it.
 
----
+***
 
 ### Illusory Script
+
 *Level 1 Illusion (Bard, Warlock, Wizard)*
 
-**Casting Time:** 1 minute or Ritual  
-**Range:** Touch  
-**Components:** S, M (ink worth 10+ GP, which the spell consumes)  
+**Casting Time:** 1 minute or Ritual\
+**Range:** Touch\
+**Components:** S, M (ink worth 10+ GP, which the spell consumes)\
 **Duration:** 10 days
 
 You write on parchment, paper, or another suitable material and imbue it with an illusion that lasts for the duration. To you and any creatures you designate when you cast the spell, the writing appears normal, seems to be written in your hand, and conveys whatever meaning you intended when you wrote the text. To all others, the writing appears as if it were written in an unknown or magical script that is unintelligible. Alternatively, the illusion can alter the meaning, handwriting, and language of the text, though the language must be one you know.
@@ -1259,172 +1335,185 @@ If the spell is dispelled, the original script and the illusion both disappear.
 
 A creature that has Truesight can read the hidden message.
 
----
+***
 
 ### Inflict Wounds
+
 *Level 1 Necromancy (Cleric)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 A creature you touch makes a Constitution saving throw, taking 2d10 Necrotic damage on a failed save or half as much damage on a successful one.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d10 for each spell slot level above 1.
 
----
+***
 
 ### Jump
+
 *Level 1 Transmutation (Artificer, Druid, Ranger, Sorcerer, Wizard)*
 
-**Casting Time:** Bonus Action  
-**Range:** Touch  
-**Components:** V, S, M (a grasshopper's hind leg)  
+**Casting Time:** Bonus Action\
+**Range:** Touch\
+**Components:** V, S, M (a grasshopper's hind leg)\
 **Duration:** 1 minute
 
 You touch a willing creature. Once on each of its turns until the spell ends, that creature can jump up to 30 feet by spending 10 feet of movement.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 1.
 
----
+***
 
 ### Longstrider
+
 *Level 1 Transmutation (Artificer, Bard, Druid, Ranger, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a pinch of dirt)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a pinch of dirt)\
 **Duration:** 1 hour
 
 You touch a creature. The target's Speed increases by 10 feet until the spell ends.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 1.
 
----
+***
 
 ### Mage Armor
+
 *Level 1 Abjuration (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a piece of cured leather)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a piece of cured leather)\
 **Duration:** 8 hours
 
 You touch a willing creature who isn't wearing armor. Until the spell ends, the target's base AC becomes 13 plus its Dexterity modifier. The spell ends early if the target dons armor.
 
----
+***
 
 ### Magic Missile
+
 *Level 1 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You create three glowing darts of magical force. Each dart strikes a creature of your choice that you can see within range. A dart deals 1d4 + 1 Force damage to its target. The darts all strike simultaneously, and you can direct them to hit one creature or several.
 
 **Using a Higher-Level Spell Slot.** The spell creates one more dart for each spell slot level above 1.
 
----
+***
 
 ### Protection from Evil and Good
+
 *Level 1 Abjuration (Cleric, Druid, Paladin, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a flask of Holy Water worth 25+ GP, which the spell consumes)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a flask of Holy Water worth 25+ GP, which the spell consumes)\
 **Duration:** Concentration up to 10 minutes
 
 Until the spell ends, one willing creature you touch is protected against creatures that are Aberrations, Celestials, Elementals, Fey, Fiends, or Undead. The protection grants several benefits. Creatures of those types have Disadvantage on attack rolls against the target. The target also can't be possessed by or gain the Charmed or Frightened conditions from them. If the target is already possessed, Charmed, or Frightened by such a creature, the target has Advantage on any new saving throw against the relevant effect.
 
----
+***
 
 ### Purify Food and Drink
+
 *Level 1 Transmutation (Artificer, Cleric, Druid, Paladin)*
 
-**Casting Time:** Action or Ritual  
-**Range:** 10 feet  
-**Components:** V, S  
+**Casting Time:** Action or Ritual\
+**Range:** 10 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You remove poison and rot from nonmagical food and drink in a 5-foot-radius Sphere centered on a point within range.
 
----
+***
 
 ### Ray of Sickness
+
 *Level 1 Necromancy (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You shoot a greenish ray at a creature within range. Make a ranged spell attack against the target. On a hit, the target takes 2d8 Poison damage and has the Poisoned condition until the end of your next turn.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 1.
 
----
+***
 
 ### Sanctuary
+
 *Level 1 Abjuration (Artificer, Cleric)*
 
-**Casting Time:** Bonus Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a shard of glass from a mirror)  
+**Casting Time:** Bonus Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a shard of glass from a mirror)\
 **Duration:** 1 minute
 
 You ward a creature within range. Until the spell ends, any creature who targets the warded creature with an attack roll or a damaging spell must succeed on a Wisdom saving throw or either choose a new target or lose the attack or spell. This spell doesn't protect the warded creature from areas of effect.
 
 The spell ends if the warded creature makes an attack roll, casts a spell, or deals damage.
 
----
+***
 
 ### Searing Smite
+
 *Level 1 Evocation (Paladin)*
 
-**Casting Time:** Bonus Action, which you take immediately after hitting a target with a Melee weapon or an Unarmed Strike  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Bonus Action, which you take immediately after hitting a target with a Melee weapon or an Unarmed Strike\
+**Range:** Self\
+**Components:** V\
 **Duration:** 1 minute
 
 As you hit the target, it takes an extra 1d6 Fire damage from the attack. At the start of each of its turns until the spell ends, the target takes 1d6 Fire damage and then makes a Constitution saving throw. On a failed save, the spell continues. On a successful save, the spell ends.
 
 **Using a Higher-Level Spell Slot.** All the damage increases by 1d6 for each spell slot level above 1.
 
----
+***
 
 ### Shield
+
 *Level 1 Abjuration (Sorcerer, Wizard)*
 
-**Casting Time:** Reaction, which you take when you are hit by an attack roll or targeted by the Magic Missile spell  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Reaction, which you take when you are hit by an attack roll or targeted by the Magic Missile spell\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** 1 round
 
 An imperceptible barrier of magical force protects you. Until the start of your next turn, you have a +5 bonus to AC, including against the triggering attack, and you take no damage from Magic Missile.
 
----
+***
 
 ### Shield of Faith
+
 *Level 1 Abjuration (Cleric, Paladin)*
 
-**Casting Time:** Bonus Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a prayer scroll)  
+**Casting Time:** Bonus Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a prayer scroll)\
 **Duration:** Concentration, up to 10 minutes
 
 A shimmering field surrounds a creature of your choice within range, granting it a +2 bonus to AC for the duration.
 
----
+***
 
 ### Silent Image
+
 *Level 1 Illusion (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a bit of fleece)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a bit of fleece)\
 **Duration:** Concentration, up to 10 minutes
 
 You create the image of an object, a creature, or some other visible phenomenon that is no larger than a 15-foot Cube. The image appears at a spot within range and lasts for the duration. The image is purely visual; it isn't accompanied by sound, smell, or other sensory effects.
@@ -1433,56 +1522,60 @@ As a Magic action, you can cause the image to move to any spot within range. As 
 
 Physical interaction with the image reveals it to be an illusion, since things can pass through it. A creature that takes a Study action to examine the image can determine that it is an illusion with a successful Intelligence (Investigation) check against your spell save DC. If a creature discerns the illusion for what it is, the creature can see through the image.
 
----
+***
 
 ### Sleep
+
 *Level 1 Enchantment (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a pinch of sand or rose petals)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a pinch of sand or rose petals)\
 **Duration:** Concentration, up to 1 minute
 
 Each creature of your choice in a 5-foot-radius Sphere centered on a point within range must succeed on a Wisdom saving throw or have the Incapacitated condition until the end of its next turn, at which point it must repeat the save. If the target fails the second save, the target has the Unconscious condition for the duration. The spell ends on a target if it takes damage or someone within 5 feet of it takes an action to shake it out of the spell's effect.
 
 Creatures that don't sleep, such as elves, or that have Immunity to the Exhaustion condition automatically succeed on saves against this spell.
 
----
+***
 
 ### Speak with Animals
+
 *Level 1 Divination (Bard, Druid, Ranger, Warlock)*
 
-**Casting Time:** Action or Ritual  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action or Ritual\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** 10 minutes
 
 For the duration, you can comprehend and verbally communicate with Beasts, and you can use any of the Influence action's skill options with them.
 
 Most Beasts have little to say about topics that don't pertain to survival or companionship, but at minimum, a Beast can give you information about nearby locations and monsters, including whatever it has perceived within the past day.
 
----
+***
 
 ### Spellfire Flare
+
 *Level 1 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You unleash a blast of brilliant fire. Make a ranged spell attack against a target within range; a target gains no benefit from Half Cover or Three-Quarters Cover for this attack roll. On a hit, the target takes 2d10 Radiant damage.
 
 **Using a Higher-Level Spell Slot.** You create an additional blast for each spell slot level above 1. You can direct the blasts at the same target or at different ones. Make a separate attack roll for each blast.
 
----
+***
 
 ### Tasha's Hideous Laughter
+
 *Level 1 Enchantment (Bard, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a tart and a feather)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a tart and a feather)\
 **Duration:** Concentration, up to 1 minute
 
 One creature of your choice that you can see within range makes a Wisdom saving throw. On a failed save, it has the Prone and Incapacitated conditions for the duration. During that time, it laughs uncontrollably if it's capable of laughter, and it can't end the Prone condition on itself.
@@ -1491,14 +1584,15 @@ At the end of each of its turns and each time it takes damage, it makes another 
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level about 1.
 
----
+***
 
 ### Tenser's Floating Disk
+
 *Level 1 Conjuration (Wizard)*
 
-**Casting Time:** Action or Ritual  
-**Range:** 30 feet  
-**Components:** V, S, M (a drop of mercury)  
+**Casting Time:** Action or Ritual\
+**Range:** 30 feet\
+**Components:** V, S, M (a drop of mercury)\
 **Duration:** 1 hour
 
 This spell creates a circular, horizontal plane of force, 3 feet in diameter and 1 inch thick, that floats 3 feet above the ground in an unoccupied space of your choice that you can see within range. The disk remains for the duration and can hold up to 500 pounds. If more weight is placed on it, the spell ends, and everything on the disk falls to the ground.
@@ -1507,28 +1601,30 @@ The disk is immobile while you are within 20 feet of it. If you move more than 2
 
 If you move more than 100 feet from the disk (typically because it can't move around an obstacle to follow you), the spell ends.
 
----
+***
 
 ### Thunderous Smite
+
 *Level 1 Evocation (Paladin)*
 
-**Casting Time:** Bonus Action, which you take immediately after hitting a target with a Melee weapon or an Unarmed Strike  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Bonus Action, which you take immediately after hitting a target with a Melee weapon or an Unarmed Strike\
+**Range:** Self\
+**Components:** V\
 **Duration:** Instantaneous
 
 Your strike rings with thunder that is audible within 300 feet of you, and the target takes an extra 2d6 Thunder damage from the attack. Additionally, if the target is a creature, it must succeed on a Strength saving throw or be pushed 10 feet away from you and have the Prone condition.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 1.
 
----
+***
 
 ### Thunderwave
+
 *Level 1 Evocation (Bard, Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You unleash a wave of thunderous energy. Each creature in a 15-foot Cube originating from you makes a Constitution saving throw. On a failed save, a creature takes 2d8 Thunder damage and is pushed 10 feet away from you. On a successful save, a creature takes half as much damage only.
@@ -1537,14 +1633,15 @@ In addition, unsecured objects that are entirely within the Cube are pushed 10 f
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 1.
 
----
+***
 
 ### Unseen Servant
+
 *Level 1 Conjuration (Bard, Warlock, Wizard)*
 
-**Casting Time:** Action or Ritual  
-**Range:** 60 feet  
-**Components:** V, S, M (a bit of string and of wood)  
+**Casting Time:** Action or Ritual\
+**Range:** 60 feet\
+**Components:** V, S, M (a bit of string and of wood)\
 **Duration:** 1 hour
 
 This spell creates an Invisible, mindless, shapeless, Medium force that performs simple tasks at your command until the spell ends. The servant springs into existence in an unoccupied space on the ground within range. It has AC 10, 1 Hit Point, and a Strength of 2, and it can't attack. If it drops to 0 Hit Points, the spell ends.
@@ -1553,14 +1650,15 @@ Once on each of your turns as a Bonus Action, you can mentally command the serva
 
 If you command the servant to perform a task that would move it more than 60 feet away from you, the spell ends.
 
----
+***
 
 ### Wardaway
+
 *Level 1 Abjuration (Bard, Cleric, Paladin, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a miniature clay hand)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a miniature clay hand)\
 **Duration:** Instantaneous
 
 You hurl a disorienting magical force toward one creature within range. The target makes a Constitution saving throw; Constructs and Undead automatically succeed on this save.
@@ -1569,14 +1667,15 @@ On a failed save, the target takes 2d4 Force damage, its Speed is halved until t
 
 **Using a Higher-Level Spell Slot.** The damage increases by 2d4 for every spell slot level above 1.
 
----
+***
 
 ### Witch Bolt
+
 *Level 1 Evocation (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a twig struck by lightning)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a twig struck by lightning)\
 **Duration:** Concentration, up to 1 minute
 
 A beam of crackling energy lances toward a creature within range, forming a sustained arc of lightning between you and the target. Make a ranged spell attack against it. On a hit, the target takes 2d12 Lightning damage.
@@ -1587,14 +1686,15 @@ The spell ends if the target is ever outside the spell's range or if it has Tota
 
 **Using a Higher-Level Spell Slot.** The initial damage increases by 1d12 for each spell slot level above 1.
 
----
+***
 
 ### Wrathful Smite
+
 *Level 1 Necromancy (Paladin)*
 
-**Casting Time:** Bonus Action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Bonus Action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike\
+**Range:** Self\
+**Components:** V\
 **Duration:** 1 minute
 
 The target takes an extra 1d6 Necrotic damage from the attack, and it must succeed on a Wisdom saving throw or have the Frightened condition until the spell ends. At the end of each of its turns, the Frightened target repeats the save, ending the spell on itself on a success.
@@ -1603,94 +1703,96 @@ The target takes an extra 1d6 Necrotic damage from the attack, and it must succe
 
 ### 2nd Level Spells
 
-| Nombre | Escuela | Listas de Hechizos | Tiempo de Lanzamiento | Alcance | Componentes | Duración |
-|--------|---------|-------------------|---------------------|---------|-------------|----------|
-| Aid | Abjuration | Artificer, Bard, Cleric, Druid, Paladin, Ranger | Action | 30 feet | V, S, M | 8 hours |
-| Alter Self | Transmutation | Artificer, Sorcerer, Wizard | Action | Self | V, S | C, up to 1 hour |
-| Animal Messenger | Enchantment | Bard, Druid, Ranger | Action or R | 30 feet | V, S, M | 24 Hours |
-| Arcane Lock | Abjuration | Artificer, Wizard | Action | Touch | V, S, M(C*) | Until dispelled |
-| Arcane Vigor | Abjuration | Artificer, Sorcerer, Wizard | Bonus Action | Self | V, S | Instantaneous |
-| Augury | Divination | Cleric, Druid, Wizard | 1 minute or R | Self | V, S, M(C*) | Instantaneous |
-| Barkskin | Transmutation | Druid, Ranger | Bonus Action | Touch | V, S, M | 1 hour |
-| Beast Sense | Divination | Druid, Ranger | Action or R | Touch | S | C, up to 1 hour |
-| Blindness/Deafness | Transmutation | Bard, Cleric, Sorcerer, Wizard | Action | 120 feet | V | 1 minute |
-| Blur | Illusion | Artificer, Sorcerer, Wizard | Action | Self | V | C, up to 1 minute |
-| Calm Emotions | Enchantment | Bard, Cleric | Action | 60 feet | V, S | C, up to 1 minute |
-| Cloud Of Daggers | Conjuration | Bard, Sorcerer, Warlock, Wizard | Action | 60 feet | V, S, M(C) | C, up to 1 minute |
-| Continual Flame | Evocation | Artificer, Cleric, Druid, Wizard | Action | Touch | V, S, M(C*) | Until dispelled |
-| Cordon Of Arrows | Transmutation | Ranger | Action | Touch | V, S, M | 8 hours |
-| Crown Of Madness | Enchantment | Bard, Sorcerer, Warlock, Wizard | Action | 120 feet | V, S | C, up to 1 minute |
-| Darkness | Evocation | Sorcerer, Warlock, Wizard | Action | 60 feet | V, M | C, up to 10 minutes |
-| Darkvision | Transmutation | Artificer, Druid, Ranger, Sorcerer, Wizard | Action | Touch | V, S, M | 8 hours |
-| Death Armor | Necromancy | Sorcerer, Wizard | Action | Touch | V, S, M(C*) | 1 hour |
-| Deryan's Helpful Homunculi | Conjuration | Cleric, Wizard | Action or R | Self | V, S, M(C*) | 8 hours |
-| Detect Thoughts | Divination | Bard, Sorcerer, Wizard | Action | Self | V, S, M | C, up to 1 minute |
-| Dragon's Breath | Transmutation | Artificer, Sorcerer, Wizard | Bonus Action | Touch | V, S, M | C, up to 1 minute |
-| Elminster's Elusion | Abjuration | Wizard | Bonus Action | Self | V, S | C, up to 10 minutes |
-| Enhance Ability | Transmutation | Artificer, Bard, Cleric, Druid, Ranger, Sorcerer, Wizard | Action | Touch | V, S, M | C, up to 1 hour |
-| Enlarge/Reduce | Transmutation | Artificer, Bard, Druid, Sorcerer, Wizard | Action | 30 feet | V, S, M | C, up to 1 minute |
-| Enthrall | Enchantment | Bard, Warlock | Action | 60 feet | V, S | C, up to 1 minute |
-| Find Steed | Conjuration | Paladin | Action | 30 feet | V, S | Instantaneous |
-| Find Traps | Divination | Cleric, Druid, Ranger | Action | 120 feet | V, S | Instantaneous |
-| Flame Blade | Evocation | Druid, Sorcerer | Bonus Action | Self | V, S, M | C, up to 10 minutes |
-| Flaming Sphere | Conjuration | Druid, Sorcerer, Wizard | Action | 60 feet | V, S, M | C, up to 1 minute |
-| Gentle Repose | Necromancy | Cleric, Paladin, Wizard | Action or R | Touch | V, S, M(C) | 10 days |
-| Gust Of Wind | Evocation | Druid, Ranger, Sorcerer, Wizard | Action | Self | V, S, M | C, up to 1 minute |
-| Heat Metal | Transmutation | Artificer, Bard, Druid | Action | 60 feet | V, S, M | C, up to 1 minute |
-| Hold Person | Enchantment | Bard, Cleric, Druid, Sorcerer, Warlock, Wizard | Action | 60 feet | V, S, M | C, up to 1 minute |
-| Homunculus Servant | Conjuration | Artificer | 1 hour or Ritual | 30 feet | V, S, M | Until dispelled |
-| Invisibility | Illusion | Artificer, Bard, Sorcerer, Warlock, Wizard | Action | Touch | V, S, M | C, up to 1 hour |
-| Knock | Transmutation | Bard, Sorcerer, Wizard | Action | 60 feet | V | Instantaneous |
-| Lesser Restoration | Abjuration | Bard, Cleric, Druid, Paladin, Ranger | Action | Touch | V, S | Instantaneous |
-| Levitate | Transmutation | Artificer, Sorcerer, Wizard | Action | 60 feet | V, S, M | C, up to 10 minutes |
-| Locate Animals or Plants | Divination | Bard, Druid, Ranger | Action or R | Self | V, S, M | Instantaneous |
-| Locate Object | Divination | Bard, Cleric, Druid, Paladin, Ranger, Wizard | Action or R | Self | V, S, M | C, up to 1 hour |
-| Magic Mouth | Illusion | Bard, Wizard | 1 minute or R | 30 feet | V, S, M(C*) | Until dispelled |
-| Magic Weapon | Transmutation | Artificer, Paladin, Wizard | Bonus Action | Touch | V, S | C, up to 1 hour |
-| Melf's Acid Arrow | Evocation | Wizard | Action | 90 feet | V, S, M | C, up to 1 minute |
-| Mirror Image | Illusion | Bard, Sorcerer, Wizard | Action | Self | V, S | 1 minute |
-| Misty Step | Conjuration | Sorcerer, Warlock, Wizard | Bonus Action | Self | V | Instantaneous |
-| Moonbeam | Evocation | Druid | Action | 120 feet | V, S, M | C, up to 1 minute |
-| Nystul's Magic Aura | Illusion | Wizard | Action | Touch | V, S, M | 24 hours |
-| Pass Without Trace | Abjuration | Bard, Druid, Ranger | Action | Self | V, S, M | C, up to 1 hour |
-| Protection from Poison | Abjuration | Artificer, Cleric, Druid, Paladin, Ranger | Action | Touch | V, S | 1 hour |
-| Ray of Enfeeblement | Necromancy | Warlock, Wizard | Action | 60 feet | V, S | C, up to 1 minute |
-| Rope Trick | Transmutation | Wizard | Action | Touch | V, S, M | 1 hour |
-| Scorching Ray | Evocation | Sorcerer, Wizard | Action | 120 feet | V, S | Instantaneous |
-| See Invisibility | Divination | Bard, Sorcerer, Wizard | Action | Self | V, S, M | 1 hour |
-| Shadow Blade | Illusion | Bard, Sorcerer, Warlock, Wizard | Bonus Action | Self | V, S | C, up to 1 minute |
-| Shatter | Evocation | Bard, Sorcerer, Wizard | Action | 60 feet | V, S, M | Instantaneous |
-| Silence | Illusion | Bard, Cleric, Ranger | Action or R | 120 feet | V, S | C, up to 2 hours |
-| Spider Climb | Transmutation | Artificer, Sorcerer, Wizard | Action | Touch | V, S, M | 1 hour |
-| Spike Growth | Transmutation | Druid, Ranger | Action | 150 feet | V, S, M | C, up to 1 hour |
-| Spiritual Weapon | Conjuration | Cleric | Bonus Action | 60 feet | V, S | 1 minute |
-| Suggestion | Enchantment | Bard, Cleric, Sorcerer, Warlock, Wizard | Action | 60 feet | V, M | C, up to 8 hours |
-| Warding Bond | Abjuration | Cleric | Action | Touch | V, S, M | 1 hour |
-| Web | Conjuration | Artificer, Sorcerer, Wizard | Action | 60 feet | V, S, M | C, up to 1 hour |
-| Zone of Truth | Enchantment | Bard, Cleric, Paladin | Action | 60 feet | V, S | C, up to 10 minutes |
+| Nombre                     | Escuela       | Listas de Hechizos                                       | Tiempo de Lanzamiento | Alcance  | Componentes  | Duración            |
+| -------------------------- | ------------- | -------------------------------------------------------- | --------------------- | -------- | ------------ | ------------------- |
+| Aid                        | Abjuration    | Artificer, Bard, Cleric, Druid, Paladin, Ranger          | Action                | 30 feet  | V, S, M      | 8 hours             |
+| Alter Self                 | Transmutation | Artificer, Sorcerer, Wizard                              | Action                | Self     | V, S         | C, up to 1 hour     |
+| Animal Messenger           | Enchantment   | Bard, Druid, Ranger                                      | Action or R           | 30 feet  | V, S, M      | 24 Hours            |
+| Arcane Lock                | Abjuration    | Artificer, Wizard                                        | Action                | Touch    | V, S, M(C\*) | Until dispelled     |
+| Arcane Vigor               | Abjuration    | Artificer, Sorcerer, Wizard                              | Bonus Action          | Self     | V, S         | Instantaneous       |
+| Augury                     | Divination    | Cleric, Druid, Wizard                                    | 1 minute or R         | Self     | V, S, M(C\*) | Instantaneous       |
+| Barkskin                   | Transmutation | Druid, Ranger                                            | Bonus Action          | Touch    | V, S, M      | 1 hour              |
+| Beast Sense                | Divination    | Druid, Ranger                                            | Action or R           | Touch    | S            | C, up to 1 hour     |
+| Blindness/Deafness         | Transmutation | Bard, Cleric, Sorcerer, Wizard                           | Action                | 120 feet | V            | 1 minute            |
+| Blur                       | Illusion      | Artificer, Sorcerer, Wizard                              | Action                | Self     | V            | C, up to 1 minute   |
+| Calm Emotions              | Enchantment   | Bard, Cleric                                             | Action                | 60 feet  | V, S         | C, up to 1 minute   |
+| Cloud Of Daggers           | Conjuration   | Bard, Sorcerer, Warlock, Wizard                          | Action                | 60 feet  | V, S, M(C)   | C, up to 1 minute   |
+| Continual Flame            | Evocation     | Artificer, Cleric, Druid, Wizard                         | Action                | Touch    | V, S, M(C\*) | Until dispelled     |
+| Cordon Of Arrows           | Transmutation | Ranger                                                   | Action                | Touch    | V, S, M      | 8 hours             |
+| Crown Of Madness           | Enchantment   | Bard, Sorcerer, Warlock, Wizard                          | Action                | 120 feet | V, S         | C, up to 1 minute   |
+| Darkness                   | Evocation     | Sorcerer, Warlock, Wizard                                | Action                | 60 feet  | V, M         | C, up to 10 minutes |
+| Darkvision                 | Transmutation | Artificer, Druid, Ranger, Sorcerer, Wizard               | Action                | Touch    | V, S, M      | 8 hours             |
+| Death Armor                | Necromancy    | Sorcerer, Wizard                                         | Action                | Touch    | V, S, M(C\*) | 1 hour              |
+| Deryan's Helpful Homunculi | Conjuration   | Cleric, Wizard                                           | Action or R           | Self     | V, S, M(C\*) | 8 hours             |
+| Detect Thoughts            | Divination    | Bard, Sorcerer, Wizard                                   | Action                | Self     | V, S, M      | C, up to 1 minute   |
+| Dragon's Breath            | Transmutation | Artificer, Sorcerer, Wizard                              | Bonus Action          | Touch    | V, S, M      | C, up to 1 minute   |
+| Elminster's Elusion        | Abjuration    | Wizard                                                   | Bonus Action          | Self     | V, S         | C, up to 10 minutes |
+| Enhance Ability            | Transmutation | Artificer, Bard, Cleric, Druid, Ranger, Sorcerer, Wizard | Action                | Touch    | V, S, M      | C, up to 1 hour     |
+| Enlarge/Reduce             | Transmutation | Artificer, Bard, Druid, Sorcerer, Wizard                 | Action                | 30 feet  | V, S, M      | C, up to 1 minute   |
+| Enthrall                   | Enchantment   | Bard, Warlock                                            | Action                | 60 feet  | V, S         | C, up to 1 minute   |
+| Find Steed                 | Conjuration   | Paladin                                                  | Action                | 30 feet  | V, S         | Instantaneous       |
+| Find Traps                 | Divination    | Cleric, Druid, Ranger                                    | Action                | 120 feet | V, S         | Instantaneous       |
+| Flame Blade                | Evocation     | Druid, Sorcerer                                          | Bonus Action          | Self     | V, S, M      | C, up to 10 minutes |
+| Flaming Sphere             | Conjuration   | Druid, Sorcerer, Wizard                                  | Action                | 60 feet  | V, S, M      | C, up to 1 minute   |
+| Gentle Repose              | Necromancy    | Cleric, Paladin, Wizard                                  | Action or R           | Touch    | V, S, M(C)   | 10 days             |
+| Gust Of Wind               | Evocation     | Druid, Ranger, Sorcerer, Wizard                          | Action                | Self     | V, S, M      | C, up to 1 minute   |
+| Heat Metal                 | Transmutation | Artificer, Bard, Druid                                   | Action                | 60 feet  | V, S, M      | C, up to 1 minute   |
+| Hold Person                | Enchantment   | Bard, Cleric, Druid, Sorcerer, Warlock, Wizard           | Action                | 60 feet  | V, S, M      | C, up to 1 minute   |
+| Homunculus Servant         | Conjuration   | Artificer                                                | 1 hour or Ritual      | 30 feet  | V, S, M      | Until dispelled     |
+| Invisibility               | Illusion      | Artificer, Bard, Sorcerer, Warlock, Wizard               | Action                | Touch    | V, S, M      | C, up to 1 hour     |
+| Knock                      | Transmutation | Bard, Sorcerer, Wizard                                   | Action                | 60 feet  | V            | Instantaneous       |
+| Lesser Restoration         | Abjuration    | Bard, Cleric, Druid, Paladin, Ranger                     | Action                | Touch    | V, S         | Instantaneous       |
+| Levitate                   | Transmutation | Artificer, Sorcerer, Wizard                              | Action                | 60 feet  | V, S, M      | C, up to 10 minutes |
+| Locate Animals or Plants   | Divination    | Bard, Druid, Ranger                                      | Action or R           | Self     | V, S, M      | Instantaneous       |
+| Locate Object              | Divination    | Bard, Cleric, Druid, Paladin, Ranger, Wizard             | Action or R           | Self     | V, S, M      | C, up to 1 hour     |
+| Magic Mouth                | Illusion      | Bard, Wizard                                             | 1 minute or R         | 30 feet  | V, S, M(C\*) | Until dispelled     |
+| Magic Weapon               | Transmutation | Artificer, Paladin, Wizard                               | Bonus Action          | Touch    | V, S         | C, up to 1 hour     |
+| Melf's Acid Arrow          | Evocation     | Wizard                                                   | Action                | 90 feet  | V, S, M      | C, up to 1 minute   |
+| Mirror Image               | Illusion      | Bard, Sorcerer, Wizard                                   | Action                | Self     | V, S         | 1 minute            |
+| Misty Step                 | Conjuration   | Sorcerer, Warlock, Wizard                                | Bonus Action          | Self     | V            | Instantaneous       |
+| Moonbeam                   | Evocation     | Druid                                                    | Action                | 120 feet | V, S, M      | C, up to 1 minute   |
+| Nystul's Magic Aura        | Illusion      | Wizard                                                   | Action                | Touch    | V, S, M      | 24 hours            |
+| Pass Without Trace         | Abjuration    | Bard, Druid, Ranger                                      | Action                | Self     | V, S, M      | C, up to 1 hour     |
+| Protection from Poison     | Abjuration    | Artificer, Cleric, Druid, Paladin, Ranger                | Action                | Touch    | V, S         | 1 hour              |
+| Ray of Enfeeblement        | Necromancy    | Warlock, Wizard                                          | Action                | 60 feet  | V, S         | C, up to 1 minute   |
+| Rope Trick                 | Transmutation | Wizard                                                   | Action                | Touch    | V, S, M      | 1 hour              |
+| Scorching Ray              | Evocation     | Sorcerer, Wizard                                         | Action                | 120 feet | V, S         | Instantaneous       |
+| See Invisibility           | Divination    | Bard, Sorcerer, Wizard                                   | Action                | Self     | V, S, M      | 1 hour              |
+| Shadow Blade               | Illusion      | Bard, Sorcerer, Warlock, Wizard                          | Bonus Action          | Self     | V, S         | C, up to 1 minute   |
+| Shatter                    | Evocation     | Bard, Sorcerer, Wizard                                   | Action                | 60 feet  | V, S, M      | Instantaneous       |
+| Silence                    | Illusion      | Bard, Cleric, Ranger                                     | Action or R           | 120 feet | V, S         | C, up to 2 hours    |
+| Spider Climb               | Transmutation | Artificer, Sorcerer, Wizard                              | Action                | Touch    | V, S, M      | 1 hour              |
+| Spike Growth               | Transmutation | Druid, Ranger                                            | Action                | 150 feet | V, S, M      | C, up to 1 hour     |
+| Spiritual Weapon           | Conjuration   | Cleric                                                   | Bonus Action          | 60 feet  | V, S         | 1 minute            |
+| Suggestion                 | Enchantment   | Bard, Cleric, Sorcerer, Warlock, Wizard                  | Action                | 60 feet  | V, M         | C, up to 8 hours    |
+| Warding Bond               | Abjuration    | Cleric                                                   | Action                | Touch    | V, S, M      | 1 hour              |
+| Web                        | Conjuration   | Artificer, Sorcerer, Wizard                              | Action                | 60 feet  | V, S, M      | C, up to 1 hour     |
+| Zone of Truth              | Enchantment   | Bard, Cleric, Paladin                                    | Action                | 60 feet  | V, S         | C, up to 10 minutes |
 
 ### 2nd Level Spell Descriptions
 
 ### Aid
+
 *Level 2 Abjuration (Artificer, Bard, Cleric, Druid, Paladin, Ranger)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a strip of white cloth)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a strip of white cloth)\
 **Duration:** 8 hours
 
 Choose up to three creatures within range. Each target's Hit Point maximum and current Hit Points increase by 5 for the duration.
 
 **Using a Higher-Level Spell Slot.** Each target's Hit Points increase by 5 for each spell slot level above 2.
 
----
+***
 
 ### Alter Self
+
 *Level 2 Transmutation (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 hour
 
 You alter your physical form. Choose one of the following options. Its effects last for the duration, during which you can take a Magic action to replace the option you chose with a different one.
@@ -1701,14 +1803,15 @@ You alter your physical form. Choose one of the following options. Its effects l
 
 **Natural Weapons.** You grow claws (Slashing), fangs (Piercing), horns (Piercing), or hooves (Bludgeoning). When you use your Unarmed Strike to deal damage with that new growth, it deals 1d6 damage of the type in parentheses instead of dealing the normal damage for your Unarmed Strike, and you use your spellcasting ability modifier for the attack and damage rolls rather than using Strength.
 
----
+***
 
 ### Animal Messenger
+
 *Level 2 Enchantment (Bard, Druid, Ranger)*
 
-**Casting Time:** Action or Ritual  
-**Range:** 30 feet  
-**Components:** V, S, M (a morsel of food)  
+**Casting Time:** Action or Ritual\
+**Range:** 30 feet\
+**Components:** V, S, M (a morsel of food)\
 **Duration:** 24 Hours
 
 A Tiny Beast of your choice that you can see within range must succeed on a Charisma saving throw, or it attempts to deliver a message for you (if the target's Challenge Rating isn't 0, it automatically succeeds). You specify a location you have visited and a recipient who matches a general description, such as "a person dressed in the uniform of the town guard" or "a red-haired dwarf wearing a pointed hat." You also communicate a message of up to twenty-five words. The Beast travels for the duration toward the specified location, covering about 25 miles per 24 hours or 50 miles if the Beast can fly.
@@ -1717,131 +1820,139 @@ When the Beast arrives, it delivers your message to the creature that you descri
 
 **Using a Higher-Level Spell Slot.** The spell's duration increases by 48 hours for each spell slot level above 2.
 
----
+***
 
 ### Arcane Lock
+
 *Level 2 Abjuration (Artificer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (gold dust worth 25+ GP, which the spell consumes)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (gold dust worth 25+ GP, which the spell consumes)\
 **Duration:** Until dispelled
 
 You touch a closed door, window, gate, container, or hatch and magically lock it for the duration. This lock can't be unlocked by any nonmagical means. You and any creatures you designate when you cast the spell can open and close the object despite the lock. You can also set a password that, when spoken within 5 feet of the object, unlocks it for 1 minute.
 
----
+***
 
 ### Arcane Vigor
+
 *Level 2 Abjuration (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Bonus Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Bonus Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You tap into your life force to heal yourself. Roll one or two of your unexpended Hit Point Dice, and regain a number of Hit Points equal to the roll's total plus your spellcasting ability modifier. Those dice are then expended.
 
 **Using a Higher-Level Spell Slot.** The number of unexpended Hit Dice you can roll increases by one for each spell slot level above 2.
 
----
+***
 
 ### Augury
+
 *Level 2 Divination (Cleric, Druid, Wizard)*
 
-**Casting Time:** 1 minute or Ritual  
-**Range:** Self  
-**Components:** V, S, M (specially marked sticks, bones, cards, or other divinatory tokens worth 25+ GP)  
+**Casting Time:** 1 minute or Ritual\
+**Range:** Self\
+**Components:** V, S, M (specially marked sticks, bones, cards, or other divinatory tokens worth 25+ GP)\
 **Duration:** Instantaneous
 
 You receive an omen from an otherworldly entity about the results of a course of action that you plan to take within the next 30 minutes. The DM chooses the omen from the Omens table.
 
 **Omens**
 
-| Omen | For Results That Will Be... |
-|------|------------------------------|
-| Weal | Good |
-| Woe | Bad |
-| Weal and woe | Good and bad |
-| Indifference | Neither good nor bad |
+| Omen         | For Results That Will Be... |
+| ------------ | --------------------------- |
+| Weal         | Good                        |
+| Woe          | Bad                         |
+| Weal and woe | Good and bad                |
+| Indifference | Neither good nor bad        |
 
 The spell doesn't account for circumstances, such as other spells, that might change the results.
 
 If you cast the spell more than once before finishing a Long Rest, there is a cumulative 25 percent chance for each casting after the first that you get no answer.
 
----
+***
 
 ### Barkskin
+
 *Level 2 Transmutation (Druid, Ranger)*
 
-**Casting Time:** Bonus Action  
-**Range:** Touch  
-**Components:** V, S, M (a handful of bark)  
+**Casting Time:** Bonus Action\
+**Range:** Touch\
+**Components:** V, S, M (a handful of bark)\
 **Duration:** 1 hour
 
 You touch a willing creature. Until the spell ends, the target's skin assumes a bark-like appearance, and the target has an Armor Class of 17 if its AC is lower than that.
 
----
+***
 
 ### Beast Sense
+
 *Level 2 Divination (Druid, Ranger)*
 
-**Casting Time:** Action or Ritual  
-**Range:** Touch  
-**Components:** S  
+**Casting Time:** Action or Ritual\
+**Range:** Touch\
+**Components:** S\
 **Duration:** Concentration, up to 1 hour
 
 You touch a willing Beast. For the duration, you can perceive through the Beast's senses as well as your own. When perceiving through the Beast's senses, you benefit from any special senses it has.
 
----
+***
 
 ### Blindness/Deafness
+
 *Level 2 Transmutation (Bard, Cleric, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V\
 **Duration:** 1 minute
 
 One creature that you can see within range must succeed on a Constitution saving throw, or it has the Blinded or Deafened condition (your choice) for the duration. At the end of each of its turns, the target repeats the save, ending the spell on itself on a success.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 2.
 
----
+***
 
 ### Blur
+
 *Level 2 Illusion (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V\
 **Duration:** Concentration, up to 1 minute
 
 Your body becomes blurred. For the duration, any creature has Disadvantage on attack rolls against you. An attacker is immune to this effect if it perceives you with Blindsight or Truesight.
 
----
+***
 
 ### Calm Emotions
+
 *Level 2 Enchantment (Bard, Cleric)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 Each Humanoid in a 20-foot-radius Sphere centered on a point you choose within range must succeed on a Charisma saving throw or be affected by one of the following effects (choose for each creature):
 
 - The creature has Immunity to the Charmed and Frightened conditions until the spell ends. If the creature was already Charmed or Frightened, those conditions are suppressed for the duration.
-
 - The creature becomes Indifferent about creatures of your choice that it's Hostile toward. This indifference ends if the target takes damage or witnesses its allies taking damage. When the spell ends, the creature's attitude returns to normal.
 
----
+***
 
 ### Cloud of Daggers
+
 *Level 2 Conjuration (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a sliver of glass)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a sliver of glass)\
 **Duration:** Concentration, up to 1 minute
 
 You conjure spinning daggers in a 5-foot Cube centered on a point within range. Each creature in that area takes 4d4 Slashing damage. A creature also takes this damage if it enters the Cube or ends its turn there or if the Cube moves into its space. A creature takes this damage only once per turn.
@@ -1850,26 +1961,28 @@ On your later turns, you can take a Magic action to teleport the Cube up to 30 f
 
 **Using a Higher-Level Spell Slot.** The damage increases by 2d4 for each spell slot level above 2.
 
----
+***
 
 ### Continual Flame
+
 *Level 2 Evocation (Artificer, Cleric, Druid, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (ruby dust worth 50+ GP, which the spell consumes)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (ruby dust worth 50+ GP, which the spell consumes)\
 **Duration:** Until dispelled
 
 A flame springs from an object that you touch. The effect casts Bright Light in a 20-foot radius and Dim Light for an additional 20 feet. It looks like a regular flame, but it creates no heat and consumes no fuel. The flame can be covered or hidden but not smothered or quenched.
 
----
+***
 
 ### Cordon of Arrows
+
 *Level 2 Transmutation (Ranger)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (an ornamental braid)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (an ornamental braid)\
 **Duration:** 8 hours
 
 You touch up to four nonmagical Arrows or Bolts and plant them in the ground in your space. Until the spell ends, the ammunition can't be physically uprooted, and whenever a creature other than you enters a space within 30 feet of the ammunition for the first time on a turn or ends its turn there, one piece of ammunition flies up to strike it. The creature must succeed on a Dexterity saving throw or take 2d4 Piercing damage. The piece of ammunition is then destroyed. The spell ends when none of the ammunition remains planted in the ground.
@@ -1878,14 +1991,15 @@ When you cast this spell, you can designate any creatures you choose, and the sp
 
 **Using a Higher-Level Spell Slot.** The amount of ammunition that can be affected increases by two for each spell slot level above 2.
 
----
+***
 
 ### Crown of Madness
+
 *Level 2 Enchantment (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 One creature that you can see within range must succeed on a Wisdom saving throw or have the Charmed condition for the duration. The creature succeeds automatically if it isn't Humanoid.
@@ -1894,14 +2008,15 @@ A spectral crown appears on the Charmed target's head, and it must use its actio
 
 On your later turns, you must take the Magic action to maintain control of the target, or the spell ends.
 
----
+***
 
 ### Darkness
+
 *Level 2 Evocation (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, M (bat fur and a piece of coal)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, M (bat fur and a piece of coal)\
 **Duration:** Concentration, up to 10 minutes
 
 For the duration, magical Darkness spreads from a point within range and fills a 15-foot-radius Sphere. Darkvision can't see through it, and nonmagical light can't illuminate it.
@@ -1910,38 +2025,41 @@ Alternatively, you cast the spell on an object that isn't being worn or carried,
 
 If any of this spell's area overlaps with an area of Bright Light or Dim Light created by a spell of level 2 or lower, that other spell is dispelled.
 
----
+***
 
 ### Darkvision
+
 *Level 2 Transmutation (Artificer, Druid, Ranger, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a dried carrot)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a dried carrot)\
 **Duration:** 8 hours
 
 For the duration, a willing creature you touch has Darkvision with a range of 150 feet.
 
----
+***
 
 ### Death Armor
+
 *Level 2 Necromancy (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (an onyx worth 50+ GP, which the spell consumes)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (an onyx worth 50+ GP, which the spell consumes)\
 **Duration:** 1 hour
 
 For the duration, an inky aura surrounds one creature you touch. The target has Advantage on Death Saving Throws, and once per turn, when a creature within 5 feet of the target hits it with a melee attack roll, the attacker takes 2d4 Necrotic damage.
 
----
+***
 
 ### Detect Thoughts
+
 *Level 2 Divination (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (1 Copper Piece)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (1 Copper Piece)\
 **Duration:** Concentration, up to 1 minute
 
 You activate one of the effects below. Until the spell ends, you can activate either effect as a Magic action on your later turns.
@@ -1954,42 +2072,45 @@ The spell is blocked by 1 foot of stone, dirt, or wood; 1 inch of metal; or a th
 
 As a Magic action on your next turn, you can try to probe deeper into the target's mind. If you probe deeper, the target makes a Wisdom saving throw. On a failed save, you discern the target's reasoning, emotions, and something that looms large in its mind (such as a worry, love, or hate). On a successful save, the spell ends. Either way, the target knows that you are probing into its mind, and until you shift your attention away from the target's mind, the target can take an action on its turn to make an Intelligence (Arcana) check against your spell save DC, ending the spell on a success.
 
----
+***
 
 ### Dragon's Breath
+
 *Level 2 Transmutation (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Bonus Action  
-**Range:** Touch  
-**Components:** V, S, M (a hot pepper)  
+**Casting Time:** Bonus Action\
+**Range:** Touch\
+**Components:** V, S, M (a hot pepper)\
 **Duration:** Concentration, up to 1 minute
 
 You touch one willing creature, and choose Acid, Cold, Fire, Lightning, or Poison. Until the spell ends, the target can take a Magic action to exhale a 15-foot Cone. Each creature in that area makes a Dexterity saving throw, taking 3d6 damage of the chosen type on a failed save or half as much damage on a successful one.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 2.
 
----
+***
 
 ### Enhance Ability
+
 *Level 2 Transmutation (Artificer, Bard, Cleric, Druid, Ranger, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (fur or a feather)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (fur or a feather)\
 **Duration:** Concentration, up to 1 hour
 
 You touch a creature and choose Strength, Dexterity, Intelligence, Wisdom, or Charisma. For the duration, the target has Advantage on ability checks using the chosen ability.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 2. You can choose a different ability for each target.
 
----
+***
 
 ### Enlarge/Reduce
+
 *Level 2 Transmutation (Artificer, Bard, Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a pinch of powdered iron)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a pinch of powdered iron)\
 **Duration:** Concentration, up to 1 minute
 
 For the duration, the spell enlarges or reduces a creature or an object you can see within range (see the chosen effect below). A targeted object must be neither worn nor carried. If the target is an unwilling creature, it can make a Constitution saving throw. On a successful save, the spell has no effect.
@@ -2000,26 +2121,28 @@ Everything that a targeted creature is wearing and carrying changes size with it
 
 **Reduce.** The target's size decreases by one category—from Medium to Small, for example. The target also has Disadvantage on Strength checks and Strength saving throws. The target's attacks with its reduced weapons or Unarmed Strikes deal 1d4 less damage on a hit (this can't reduce the damage below 1).
 
----
+***
 
 ### Enthrall
+
 *Level 2 Enchantment (Bard, Warlock)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You weave a distracting string of words, causing creatures of your choice that you can see within range to make a Wisdom saving throw. Any creature you or your companions are fighting automatically succeeds on this save. On a failed save, a target has a −10 penalty to Wisdom (Perception) checks and Passive Perception until the spell ends.
 
----
+***
 
 ### Find Steed
+
 *Level 2 Conjuration (Paladin)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You summon an otherworldly being that appears as a loyal steed in an unoccupied space of your choice within range. This creature uses the **Otherworldly Steed** stat block. If you already have a steed from this spell, the steed is replaced by the new one.
@@ -2032,28 +2155,30 @@ The steed resembles a Large, rideable animal of your choice, such as a horse, a 
 
 **Using a Higher-Level Spell Slot.** Use the spell slot's level for the spell's level in the stat block.
 
----
+***
 
 ### Find Traps
+
 *Level 2 Divination (Cleric, Druid, Ranger)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You sense any trap within range that is within line of sight. A trap, for the purpose of this spell, includes any object or mechanism that was created to cause damage or other danger. Thus, the spell would sense the Alarm or Glyph of Warding spell or a mechanical pit trap, but it wouldn't reveal a natural weakness in the floor, an unstable ceiling, or a hidden sinkhole.
 
 This spell reveals that a trap is present but not its location. You do learn the general nature of the danger posed by a trap you sense.
 
----
+***
 
 ### Flame Blade
+
 *Level 2 Evocation (Druid, Sorcerer)*
 
-**Casting Time:** Bonus Action  
-**Range:** Self  
-**Components:** V, S, M (a sumac leaf)  
+**Casting Time:** Bonus Action\
+**Range:** Self\
+**Components:** V, S, M (a sumac leaf)\
 **Duration:** Concentration, up to 10 minutes
 
 You evoke a fiery blade in your free hand. The blade is similar in size and shape to a scimitar, and it lasts for the duration. If you let go of the blade, it disappears, but you can evoke it again as a Bonus Action.
@@ -2064,14 +2189,15 @@ The flaming blade sheds Bright Light in a 10-foot radius and Dim Light for an ad
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 2.
 
----
+***
 
 ### Flaming Sphere
+
 *Level 2 Conjuration (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a ball of wax)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a ball of wax)\
 **Duration:** Concentration, up to 1 minute
 
 You create a 5-foot-diameter sphere of fire in an unoccupied space on the ground within range. It lasts for the duration. Any creature that ends its turn within 5 feet of the sphere makes a Dexterity saving throw, taking 2d6 Fire damage on a failed save or half as much damage on a successful one.
@@ -2082,28 +2208,30 @@ When you move the sphere, you can direct it over barriers up to 5 feet tall and 
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 2.
 
----
+***
 
 ### Gentle Repose
+
 *Level 2 Necromancy (Cleric, Paladin, Wizard)*
 
-**Casting Time:** Action or Ritual  
-**Range:** Touch  
-**Components:** V, S, M (2 Copper Pieces, which the spell consumes)  
+**Casting Time:** Action or Ritual\
+**Range:** Touch\
+**Components:** V, S, M (2 Copper Pieces, which the spell consumes)\
 **Duration:** 10 days
 
 You touch a corpse or other remains. For the duration, the target is protected from decay and can't become Undead.
 
 The spell also effectively extends the time limit on raising the target from the dead, since days spent under the influence of this spell don't count against the time limit of spells such as Raise Dead.
 
----
+***
 
 ### Gust of Wind
+
 *Level 2 Evocation (Druid, Ranger, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a legume seed)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a legume seed)\
 **Duration:** Concentration, up to 1 minute
 
 A Line of strong wind 60 feet long and 10 feet wide blasts from you in a direction you choose for the duration. Each creature in the Line must succeed on a Strength saving throw or be pushed 15 feet away from you in a direction following the Line. A creature that ends its turn in the Line must make the same save.
@@ -2114,14 +2242,15 @@ The gust disperses gas or vapor, and it extinguishes candles and similar unprote
 
 As a Bonus Action on your later turns, you can change the direction in which the Line blasts from you.
 
----
+***
 
 ### Heat Metal
+
 *Level 2 Transmutation (Artificer, Bard, Druid)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a piece of iron and a flame)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a piece of iron and a flame)\
 **Duration:** Concentration, up to 1 minute
 
 Choose a manufactured metal object, such as a metal weapon or a suit of Heavy or Medium metal armor, that you can see within range. You cause the object to glow red-hot. Any creature in physical contact with the object takes 2d8 Fire damage when you cast the spell. Until the spell ends, you can take a Bonus Action on each of your later turns to deal this damage again if the object is within range.
@@ -2130,60 +2259,64 @@ If a creature is holding or wearing the object and takes the damage from it, the
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 2.
 
----
+***
 
 ### Hold Person
+
 *Level 2 Enchantment (Bard, Cleric, Druid, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a straight piece of iron)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a straight piece of iron)\
 **Duration:** Concentration, up to 1 minute
 
 Choose a Humanoid that you can see within range. The target must succeed on a Wisdom saving throw or have the Paralyzed condition for the duration. At the end of each of its turns, the target repeats the save, ending the spell on itself on a success.
 
 **Using a Higher-Level Spell Slot.** You can target one additional Humanoid for each spell slot level above 2.
 
----
+***
 
 ### Homunculus Servant
+
 *Level 2 Conjuration (Artificer)*
 
-**Casting Time:** 1 hour or Ritual  
-**Range:** 10 feet  
-**Components:** V, S, M (a gem worth 100+ GP)  
+**Casting Time:** 1 hour or Ritual\
+**Range:** 10 feet\
+**Components:** V, S, M (a gem worth 100+ GP)\
 **Duration:** Instantaneous
 
 You summon a special homunculus in an unoccupied space within range. This creature uses the Homunculus Servant stat block. If you already have a homunculus from this spell, the homunculus is replaced by the new one. You determine the homunculus's appearance, such as a mechanical-looking bird, winged vials, or miniature animate cauldrons.
 
-**Combat**  
+**Combat**\
 The homunculus is an ally to you and your allies. In combat, it shares your Initiative count, but it takes its turn immediately after yours. It obeys your commands (no action required by you). If you don't issue any, it takes the Dodge action and uses its movement to avoid danger.
 
-**Using a Higher-Level Spell Slot**  
+**Using a Higher-Level Spell Slot**\
 Use the spell slot's level for the spell's level in the stat block.
 
----
+***
 
 ### Invisibility
+
 *Level 2 Illusion (Artificer, Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (an eyelash in gum arabic)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (an eyelash in gum arabic)\
 **Duration:** Concentration, up to 1 hour
 
 A creature you touch has the Invisible condition until the spell ends. The spell ends early immediately after the target makes an attack roll, deals damage, or casts a spell.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 2.
 
----
+***
 
 ### Knock
+
 *Level 2 Transmutation (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 Choose an object that you can see within range. The object can be a door, a box, a chest, a set of manacles, a padlock, or another object that contains a mundane or magical means that prevents access.
@@ -2194,26 +2327,28 @@ If the target is held shut by Arcane Lock, that spell is suppressed for 10 minut
 
 When you cast the spell, a loud knock, audible up to 300 feet away, emanates from the target.
 
----
+***
 
 ### Lesser Restoration
+
 *Level 2 Abjuration (Artificer, Bard, Cleric, Druid, Paladin, Ranger)*
 
-**Casting Time:** Bonus Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Bonus Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You touch a creature and end one condition on it: Blinded, Deafened, Paralyzed, or Poisoned.
 
----
+***
 
 ### Levitate
+
 *Level 2 Transmutation (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a metal spring)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a metal spring)\
 **Duration:** Concentration, up to 10 minutes
 
 One creature or loose object of your choice that you can see within range rises vertically up to 20 feet and remains suspended there for the duration. The spell can levitate an object that weighs up to 500 pounds. An unwilling creature that succeeds on a Constitution saving throw is unaffected.
@@ -2222,26 +2357,28 @@ The target can move only by pushing or pulling against a fixed object or surface
 
 When the spell ends, the target floats gently to the ground if it is still aloft.
 
----
+***
 
 ### Locate Animals or Plants
+
 *Level 2 Divination (Bard, Druid, Ranger)*
 
-**Casting Time:** Action or Ritual  
-**Range:** Self  
-**Components:** V, S, M (fur from a bloodhound)  
+**Casting Time:** Action or Ritual\
+**Range:** Self\
+**Components:** V, S, M (fur from a bloodhound)\
 **Duration:** Instantaneous
 
 Describe or name a specific kind of Beast, Plant creature, or nonmagical plant. You learn the direction and distance to the closest creature or plant of that kind within 5 miles, if any are present.
 
----
+***
 
 ### Locate Object
+
 *Level 2 Divination (Bard, Cleric, Druid, Paladin, Ranger, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a forked twig)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a forked twig)\
 **Duration:** Concentration, up to 10 minutes
 
 Describe or name an object that is familiar to you. You sense the direction to the object's location if that object is within 1,000 feet of you. If the object is in motion, you know the direction of its movement.
@@ -2250,14 +2387,15 @@ The spell can locate a specific object known to you if you have seen it up close
 
 This spell can't locate an object if any thickness of lead blocks a direct path between you and the object.
 
----
+***
 
 ### Magic Mouth
+
 *Level 2 Illusion (Artificer, Bard, Wizard)*
 
-**Casting Time:** 1 minute or Ritual  
-**Range:** 30 feet  
-**Components:** V, S, M (jade dust worth 10+ GP, which the spell consumes)  
+**Casting Time:** 1 minute or Ritual\
+**Range:** 30 feet\
+**Components:** V, S, M (jade dust worth 10+ GP, which the spell consumes)\
 **Duration:** Until dispelled
 
 You implant a message within an object in range - a message that is uttered when a trigger condition is met. Choose an object that you can see and that isn't being worn or carried by another creature. Then speak the message, which must be 25 words or fewer, though it can be delivered over as long as 10 minutes. Finally, determine the circumstance that will trigger the spell to deliver your message.
@@ -2266,42 +2404,45 @@ When that trigger occurs, a magical mouth appears on the object and recites the 
 
 The trigger can be as general or as detailed as you like, though it must be based on visual or audible conditions that occur within 30 feet of the object. For example, you could instruct the mouth to speak when any creature moves within 30 feet of the object or when a silver bell rings within 30 feet of it.
 
----
+***
 
 ### Magic Weapon
+
 *Level 2 Transmutation (Artificer, Paladin, Ranger, Sorcerer, Wizard)*
 
-**Casting Time:** Bonus Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Bonus Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** 1 hour
 
 You touch a nonmagical weapon. Until the spell ends, that weapon becomes a magic weapon with a +1 bonus to attack rolls and damage rolls. The spell ends early if you cast it again.
 
 **Using a Higher-Level Spell Slot.** The bonus increases to +2 with a level 3-5 spell slot. The bonus increases to +3 with a level 6+ spell slot.
 
----
+***
 
 ### Melf's Acid Arrow
+
 *Level 2 Evocation (Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (powdered rhubarb leaf)  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (powdered rhubarb leaf)\
 **Duration:** Instantaneous
 
 A shimmering green arrow streaks toward a target within range and bursts in a spray of acid. Make a ranged spell attack against the target. On a hit, the target takes 4d4 Acid damage and 2d4 Acid damage at the end of its next turn. On a miss, the arrow splashes the target with acid for half as much of the initial damage only.
 
 **Using a Higher-Level Spell Slot.** The damage (both initial and later) increases by 1d4 for each spell slot level above 2.
 
----
+***
 
 ### Mirror Image
+
 *Level 2 Illusion (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** 1 minute
 
 Three illusory duplicates of yourself appear in your space. Until the spell ends, the duplicates move with you and mimic your actions, shifting position so it's impossible to track which image is real.
@@ -2310,26 +2451,28 @@ Each time a creature hits you with an attack roll during the spell's duration, r
 
 A creature is unaffected by this spell if it has the Blinded condition, Blindsight, or Truesight.
 
----
+***
 
 ### Misty Step
+
 *Level 2 Conjuration (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Bonus Action  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Bonus Action\
+**Range:** Self\
+**Components:** V\
 **Duration:** Instantaneous
 
 Briefly surrounded by silvery mist, you teleport up to 30 feet to an unoccupied space you can see.
 
----
+***
 
 ### Moonbeam
+
 *Level 2 Evocation (Druid)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (a moonseed leaf)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (a moonseed leaf)\
 **Duration:** Concentration, up to 1 minute
 
 A silvery beam of pale light shines down in a 5-foot-radius, 40-foot-high Cylinder centered on a point within range. Until the spell ends, Dim Light fills the Cylinder, and you can take a Magic action on later turns to move the Cylinder up to 60 feet.
@@ -2338,14 +2481,15 @@ When the Cylinder appears, each creature in it makes a Constitution saving throw
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d10 for each spell slot level above 2.
 
----
+***
 
 ### Nystul's Magic Aura
+
 *Level 2 Illusion (Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a small square of silk)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a small square of silk)\
 **Duration:** 24 hours
 
 With a touch, you place an illusion on a willing creature or an object that isn't being worn or carried. A creature gains the Mask effect below, and an object gains the False Aura effect below. The effect lasts for the duration. If you cast the spell on the same target every day for 30 days, the illusion lasts until dispelled.
@@ -2354,92 +2498,99 @@ With a touch, you place an illusion on a willing creature or an object that isn'
 
 **False Aura (Object).** You change the way the target appears to spells and magical effects that detect magical auras, such as Detect Magic. You can make a nonmagical object appear magical, make a magic item appear nonmagical, or change the object's aura so that it appears to belong to a school of magic you choose.
 
----
+***
 
 ### Pass Without Trace
+
 *Level 2 Abjuration (Druid, Ranger)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (ashes from burned mistletoe)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (ashes from burned mistletoe)\
 **Duration:** Concentration, up to 1 hour
 
 You radiate a concealing aura in a 30-foot Emanation for the duration. While in the aura, you and each creature you choose have a +10 bonus to Dexterity (Stealth) checks and leave no tracks.
 
----
+***
 
 ### Protection from Poison
+
 *Level 2 Abjuration (Artificer, Cleric, Druid, Paladin, Ranger)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** 1 hour
 
 You touch a creature and end the Poisoned condition on it. For the duration, the target has Advantage on saving throws to avoid or end the Poisoned condition, and it has Resistance to Poison damage.
 
----
+***
 
 ### Ray of Enfeeblement
+
 *Level 2 Necromancy (Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 A beam of enervating energy shoots from you toward a creature within range. The target must make a Constitution saving throw. On a successful save, the target has Disadvantage on the next attack roll it makes until the start of your next turn.
 
 On a failed save, the target has Disadvantage on Strength-based D20 Tests for the duration. During that time, it also subtracts 1d8 from all its damage rolls. The target repeats the save at the end of each of its turns, ending the spell on a success.
 
----
+***
 
 ### Rope Trick
+
 *Level 2 Transmutation (Artificer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a segment of rope)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a segment of rope)\
 **Duration:** 1 hour
 
 You touch a rope. One end of it hovers upward until the rope hangs perpendicular to the ground or the rope reaches a ceiling. At the rope's upper end, an Invisible 3-foot-by-5-foot portal opens to an extradimensional space that lasts until the spell ends. That space can be reached by climbing the rope, which can be pulled into or dropped out of it.
 
 The space can hold up to eight Medium or smaller creatures. Attacks, spells, and other effects can't pass into or out of the space, but creatures inside it can see through the portal. Anything inside the space drops out when the spell ends.
 
----
+***
 
 ### Scorching Ray
+
 *Level 2 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You hurl three fiery rays. You can hurl them at one target within range or at several. Make a ranged spell attack for each ray. On a hit, the target takes 2d6 Fire damage.
 
 **Using a Higher-Level Spell Slot.** You create one additional ray for each spell slot level above 2.
 
----
+***
 
 ### See Invisibility
+
 *Level 2 Divination (Artificer, Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a pinch of talc)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a pinch of talc)\
 **Duration:** 1 hour
 
 For the duration, you see creatures and objects that have the Invisible condition as if they were visible, and you can see into the Ethereal Plane. Creatures and objects there appear ghostly.
 
----
+***
 
 ### Shadow Blade
+
 *Level 2 Illusion (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Bonus Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Bonus Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You weave together threads of shadow to create a sword of solidified gloom in your hand. This magic sword lasts until the spell ends. It counts as a simple melee weapon with which you are proficient. It deals 2d8 psychic damage on a hit and has the finesse, light, and thrown properties (range 20/60). In addition, when you use the sword to attack a target that is in dim light or darkness, you make the attack roll with advantage.
@@ -2448,14 +2599,15 @@ If you drop the weapon or throw it, it dissipates at the end of the turn. Therea
 
 **Using a Higher-Level Spell Slot.** When you cast this spell using a 3rd- or 4th-level spell slot, the damage increases to 3d8. When you cast it using a 5th- or 6th-level spell slot, the damage increases to 4d8. When you cast it using a spell slot of 7th level or higher, the damage increases to 5d8.
 
----
+***
 
 ### Shatter
+
 *Level 2 Evocation (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a chip of mica)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a chip of mica)\
 **Duration:** Instantaneous
 
 A loud noise erupts from a point of your choice within range. Each creature in a 10-foot-radius Sphere centered there makes a Constitution saving throw, taking 3d8 Thunder damage on a failed save or half as much damage on a successful one. A Construct has Disadvantage on the save.
@@ -2464,54 +2616,58 @@ A nonmagical object that isn't being worn or carried also takes the damage if it
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 2.
 
----
+***
 
 ### Silence
+
 *Level 2 Illusion (Bard, Cleric, Ranger)*
 
-**Casting Time:** Action or Ritual  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action or Ritual\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 For the duration, no sound can be created within or pass through a 20-foot-radius Sphere centered on a point you choose within range. Any creature or object entirely inside the Sphere has Immunity to Thunder damage, and creatures have the Deafened condition while entirely inside it. Casting a spell that includes a Verbal component is impossible there.
 
----
+***
 
 ### Spider Climb
+
 *Level 2 Transmutation (Artificer, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a drop of bitumen and a spider)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a drop of bitumen and a spider)\
 **Duration:** Concentration, up to 1 hour
 
 Until the spell ends, one willing creature you touch gains the ability to move up, down, and across vertical surfaces and along ceilings, while leaving its hands free. The target also gains a Climb Speed equal to its Speed.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 2.
 
----
+***
 
 ### Spike Growth
+
 *Level 2 Transmutation (Druid, Ranger)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S, M (seven thorns)  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S, M (seven thorns)\
 **Duration:** Concentration, up to 10 minutes
 
 The ground in a 20-foot-radius Sphere centered on a point within range sprouts hard spikes and thorns. The area becomes Difficult Terrain for the duration. When a creature moves into or within the area, it takes 2d4 Piercing damage for every 5 feet it travels.
 
 The transformation of the ground is camouflaged to look natural. Any creature that can't see the area when the spell is cast must take a Search action and succeed on a Wisdom (Perception or Survival) check against your spell save DC to recognize the terrain as hazardous before entering it.
 
----
+***
 
 ### Spiritual Weapon
+
 *Level 2 Conjuration (Cleric)*
 
-**Casting Time:** Bonus Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Bonus Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You create a floating, spectral force that resembles a weapon of your choice and lasts for the duration. The force appears within range in a space of your choice, and you can immediately make one melee spell attack against one creature within 5 feet of the force. On a hit, the target takes Force damage equal to 1d8 plus your spellcasting ability modifier.
@@ -2520,28 +2676,30 @@ As a Bonus Action on your later turns, you can move the force up to 20 feet and 
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for every slot level above 2.
 
----
+***
 
 ### Suggestion
+
 *Level 2 Enchantment (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, M (a drop of honey)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, M (a drop of honey)\
 **Duration:** Concentration, up to 8 hours
 
 You suggest a course of activity—described in no more than 25 words—to one creature you can see within range that can hear and understand you. The suggestion must sound achievable and not involve anything that would obviously deal damage to the target or its allies. For example, you could say, "Fetch the key to the cult's treasure vault, and give the key to me." Or you could say, "Stop fighting, leave this library peacefully, and don't return."
 
 The target must succeed on a Wisdom saving throw or have the Charmed condition for the duration or until you or your allies deal damage to the target. The Charmed target pursues the suggestion to the best of its ability. The suggested activity can continue for the entire duration, but if the suggested activity can be completed in a shorter time, the spell ends for the target upon completing it.
 
----
+***
 
 ### Web
+
 *Level 2 Conjuration (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a bit of spiderweb)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a bit of spiderweb)\
 **Duration:** Concentration, up to 1 hour
 
 You conjure a mass of sticky webbing at a point within range. The webs fill a 20-foot Cube there for the duration. The webs are Difficult Terrain, and the area within them is Lightly Obscured.
@@ -2554,14 +2712,15 @@ A creature Restrained by the webs can take an action to make a Strength (Athleti
 
 The webs are flammable. Any 5-foot Cube of webs exposed to fire burns away in 1 round, dealing 2d4 Fire damage to any creature that starts its turn in the fire.
 
----
+***
 
 ### Zone of Truth
+
 *Level 2 Enchantment (Bard, Cleric, Paladin)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** 10 minutes
 
 You create a magical zone that guards against deception in a 15-foot-radius Sphere centered on a point within range. Until the spell ends, a creature that enters the spell's area for the first time on a turn or starts its turn there makes a Charisma saving throw. On a failed save, a creature can't speak a deliberate lie while in the radius. You know whether a creature succeeds or fails on this save.
@@ -2570,74 +2729,74 @@ An affected creature is aware of the spell and can avoid answering questions to 
 
 ### 3rd Level Spells
 
-| Name | School | Spell lists | Casting Time | Range | Components | Duration |
-|------|--------|-------------|--------------|-------|------------|----------|
-| Animate Dead | Necromancy | Cleric, Wizard | 1 minute | 10 feet | V, S, M | Instantaneous |
-| Aura of Vitality | Abjuration | Cleric, Druid, Paladin | Action | Self | V | C, up to 1 minute |
-| Beacon of Hope | Abjuration | Cleric | Action | 30 feet | V, S | C, up to 1 minute |
-| Bestow Curse | Necromancy | Bard, Cleric, Wizard | Action | Touch | V, S | C, up to 1 minute |
-| Blinding Smite | Evocation | Paladin | Bonus Action | Self | V | 1 minute |
-| Blink | Transmutation | Artificer, Sorcerer, Wizard | Action | Self | V, S | 1 minute |
-| Cacophonic Shield | Evocation | Bard, Sorcerer, Wizard | Action | Self | V, S | C, up to 10 minutes |
-| Call Lightning | Conjuration | Druid | Action | 120 feet | V, S | C, up to 10 minutes |
-| Clairvoyance | Divination | Bard, Cleric, Sorcerer, Wizard | 10 minutes | 1 mile | V, S, M(C) | C, up to 10 minutes |
-| Conjure Animals | Conjuration | Druid, Ranger | Action | 60 feet | V, S | C, up to 10 minutes |
-| Conjure Barrage | Conjuration | Ranger | Action | Self | V, S, M(C) | Instantaneous |
-| Conjure Constructs | Conjuration | Wizard | Action | 60 feet | V, S, M | C, up to 10 minutes |
-| Counterspell | Abjuration | Sorcerer, Warlock, Wizard | Reaction | 60 feet | S | Instantaneous |
-| Create Food and Water | Conjuration | Artificer, Cleric, Paladin | Action | 30 feet | V, S | Instantaneous |
-| Crusader's Mantle | Evocation | Paladin | Action | Self | V | C, up to 1 minute |
-| Daylight | Evocation | Cleric, Druid, Paladin, Ranger, Sorcerer | Action | 60 feet | V, S | 1 hour |
-| Dispel Magic | Abjuration | Artificer, Bard, Cleric, Druid, Paladin, Ranger, Sorcerer, Warlock, Wizard | Action | 120 feet | V, S | Instantaneous |
-| Elemental Weapon | Transmutation | Artificer, Druid, Paladin, Ranger | Action | Touch | V, S | C, up to 1 hour |
-| Fear | Illusion | Bard, Sorcerer, Warlock, Wizard | Action | Self | V, S, M | C, up to 1 minute |
-| Feign Death | Necromancy | Bard, Cleric, Druid, Wizard | Action or R | Touch | V, S, M | 1 hour |
-| Fireball | Evocation | Sorcerer, Wizard | Action | 150 feet | V, S, M | Instantaneous |
-| Fly | Transmutation | Artificer, Sorcerer, Warlock, Wizard | Action | Touch | V, S, M | C, up to 10 minutes |
-| Gaseous Form | Transmutation | Sorcerer, Warlock, Wizard | Action | Touch | V, S, M | C, up to 1 hour |
-| Glyph of Warding | Abjuration | Artificer, Bard, Cleric, Wizard | 1 hour | Touch | V, S, M(C*) | Until dispelled or triggered |
-| Haste | Transmutation | Artificer, Sorcerer, Wizard | Action | 30 feet | V, S, M | C, up to 1 minute |
-| Hunger of Hadar | Conjuration | Warlock | Action | 150 feet | V, S, M | C, up to 1 minute |
-| Hypnotic Pattern | Illusion | Bard, Sorcerer, Warlock, Wizard | Action | 120 feet | S, M | C, up to 1 minute |
-| Laeral's Silver Lance | Evocation | Cleric, Sorcerer, Wizard | Action | Self | V, S, M(C) | Instantaneous |
-| Leomund's Tiny Hut | Evocation | Bard, Wizard | 1 minute or R | Self | V, S, M | 8 hours |
-| Lightning Arrow | Transmutation | Ranger | Bonus Action(*) | Self | V, S | Instantaneous |
-| Lightning Bolt | Evocation | Sorcerer, Wizard | Action | Self | V, S, M | Instantaneous |
-| Magic Circle | Abjuration | Cleric, Paladin, Warlock, Wizard | 1 minute | 10 feet | V, S, M(C*) | 1 hour |
-| Major Image | Illusion | Bard, Sorcerer, Warlock, Wizard | Action | 120 feet | V, S, M | C, up to 10 minutes |
-| Mass Healing Word | Abjuration | Bard, Cleric | Bonus Action | 60 feet | V | Instantaneous |
-| Meld into Stone | Transmutation | Cleric, Druid, Ranger | Action or R | Touch | V, S | 8 hours |
-| Nondetection | Abjuration | Bard, Ranger, Wizard | Action | Touch | V, S, M(C*) | 8 hours |
-| Phantom Steed | Illusion | Wizard | 1 minute or R | 30 feet | V, S | 1 hour |
-| Plant Growth | Transmutation | Bard, Druid, Ranger | Action | 150 feet | V, S | Instantaneous |
-| Protection from Energy | Abjuration | Artificer, Cleric, Druid, Ranger, Sorcerer, Wizard | Action | Touch | V, S | C, up to 1 hour |
-| Remove Curse | Abjuration | Cleric, Paladin, Warlock, Wizard | Action | Touch | V, S | Instantaneous |
-| Revivify | Necromancy | Artificer, Cleric, Druid, Paladin, Ranger | Action | Touch | V, S, M(C*) | Instantaneous |
-| Sending | Divination | Bard, Cleric, Wizard | Action | Unlimited | V, S, M | Instantaneous |
-| Sleet Storm | Conjuration | Druid, Sorcerer, Wizard | Action | 150 feet | V, S, M | C, up to 1 minute |
-| Slow | Transmutation | Bard, Sorcerer, Wizard | Action | 120 feet | V, S, M | C, up to 1 minute |
-| Speak with Dead | Necromancy | Bard, Cleric, Wizard | Action | 10 feet | V, S, M | 10 minutes |
-| Speak with Plants | Transmutation | Bard, Druid, Ranger | Action | Self | V, S | 10 minutes |
-| Spirit Guardians | Conjuration | Cleric | Action | Self | V, S, M | C, up to 10 minutes |
-| Stinking Cloud | Conjuration | Bard, Sorcerer, Wizard | Action | 90 feet | V, S, M | C, up to 1 minute |
-| Summon Fey | Conjuration | Druid, Ranger, Warlock, Wizard | Action | 90 feet | V, S, M(C) | C, up to 1 hour |
-| Summon Undead | Necromancy | Warlock, Wizard | Action | 90 feet | V, S, M(C) | C, up to 1 hour |
-| Sylune's Viper | Conjuration | Druid, Wizard | Bonus Action | Self | V, S, M | 1 hour |
-| Tongues | Divination | Bard, Cleric, Sorcerer, Warlock, Wizard | Action | Touch | V, M | 1 hour |
-| Vampiric Touch | Necromancy | Sorcerer, Warlock, Wizard | Action | Self | V, S | C, up to 1 minute |
-| Water Breathing | Transmutation | Artificer, Druid, Ranger, Sorcerer, Wizard | Action or R | 30 feet | V, S, M | 24 hours |
-| Water Walk | Transmutation | Artificer, Cleric, Druid, Ranger, Sorcerer | Action or R | 30 feet | V, S, M | 1 hour |
-| Wind Wall | Evocation | Druid, Ranger | Action | 120 feet | V, S, M | C, up to 1 minute |
-
+| Name                   | School        | Spell lists                                                                | Casting Time     | Range     | Components   | Duration                     |
+| ---------------------- | ------------- | -------------------------------------------------------------------------- | ---------------- | --------- | ------------ | ---------------------------- |
+| Animate Dead           | Necromancy    | Cleric, Wizard                                                             | 1 minute         | 10 feet   | V, S, M      | Instantaneous                |
+| Aura of Vitality       | Abjuration    | Cleric, Druid, Paladin                                                     | Action           | Self      | V            | C, up to 1 minute            |
+| Beacon of Hope         | Abjuration    | Cleric                                                                     | Action           | 30 feet   | V, S         | C, up to 1 minute            |
+| Bestow Curse           | Necromancy    | Bard, Cleric, Wizard                                                       | Action           | Touch     | V, S         | C, up to 1 minute            |
+| Blinding Smite         | Evocation     | Paladin                                                                    | Bonus Action     | Self      | V            | 1 minute                     |
+| Blink                  | Transmutation | Artificer, Sorcerer, Wizard                                                | Action           | Self      | V, S         | 1 minute                     |
+| Cacophonic Shield      | Evocation     | Bard, Sorcerer, Wizard                                                     | Action           | Self      | V, S         | C, up to 10 minutes          |
+| Call Lightning         | Conjuration   | Druid                                                                      | Action           | 120 feet  | V, S         | C, up to 10 minutes          |
+| Clairvoyance           | Divination    | Bard, Cleric, Sorcerer, Wizard                                             | 10 minutes       | 1 mile    | V, S, M(C)   | C, up to 10 minutes          |
+| Conjure Animals        | Conjuration   | Druid, Ranger                                                              | Action           | 60 feet   | V, S         | C, up to 10 minutes          |
+| Conjure Barrage        | Conjuration   | Ranger                                                                     | Action           | Self      | V, S, M(C)   | Instantaneous                |
+| Conjure Constructs     | Conjuration   | Wizard                                                                     | Action           | 60 feet   | V, S, M      | C, up to 10 minutes          |
+| Counterspell           | Abjuration    | Sorcerer, Warlock, Wizard                                                  | Reaction         | 60 feet   | S            | Instantaneous                |
+| Create Food and Water  | Conjuration   | Artificer, Cleric, Paladin                                                 | Action           | 30 feet   | V, S         | Instantaneous                |
+| Crusader's Mantle      | Evocation     | Paladin                                                                    | Action           | Self      | V            | C, up to 1 minute            |
+| Daylight               | Evocation     | Cleric, Druid, Paladin, Ranger, Sorcerer                                   | Action           | 60 feet   | V, S         | 1 hour                       |
+| Dispel Magic           | Abjuration    | Artificer, Bard, Cleric, Druid, Paladin, Ranger, Sorcerer, Warlock, Wizard | Action           | 120 feet  | V, S         | Instantaneous                |
+| Elemental Weapon       | Transmutation | Artificer, Druid, Paladin, Ranger                                          | Action           | Touch     | V, S         | C, up to 1 hour              |
+| Fear                   | Illusion      | Bard, Sorcerer, Warlock, Wizard                                            | Action           | Self      | V, S, M      | C, up to 1 minute            |
+| Feign Death            | Necromancy    | Bard, Cleric, Druid, Wizard                                                | Action or R      | Touch     | V, S, M      | 1 hour                       |
+| Fireball               | Evocation     | Sorcerer, Wizard                                                           | Action           | 150 feet  | V, S, M      | Instantaneous                |
+| Fly                    | Transmutation | Artificer, Sorcerer, Warlock, Wizard                                       | Action           | Touch     | V, S, M      | C, up to 10 minutes          |
+| Gaseous Form           | Transmutation | Sorcerer, Warlock, Wizard                                                  | Action           | Touch     | V, S, M      | C, up to 1 hour              |
+| Glyph of Warding       | Abjuration    | Artificer, Bard, Cleric, Wizard                                            | 1 hour           | Touch     | V, S, M(C\*) | Until dispelled or triggered |
+| Haste                  | Transmutation | Artificer, Sorcerer, Wizard                                                | Action           | 30 feet   | V, S, M      | C, up to 1 minute            |
+| Hunger of Hadar        | Conjuration   | Warlock                                                                    | Action           | 150 feet  | V, S, M      | C, up to 1 minute            |
+| Hypnotic Pattern       | Illusion      | Bard, Sorcerer, Warlock, Wizard                                            | Action           | 120 feet  | S, M         | C, up to 1 minute            |
+| Laeral's Silver Lance  | Evocation     | Cleric, Sorcerer, Wizard                                                   | Action           | Self      | V, S, M(C)   | Instantaneous                |
+| Leomund's Tiny Hut     | Evocation     | Bard, Wizard                                                               | 1 minute or R    | Self      | V, S, M      | 8 hours                      |
+| Lightning Arrow        | Transmutation | Ranger                                                                     | Bonus Action(\*) | Self      | V, S         | Instantaneous                |
+| Lightning Bolt         | Evocation     | Sorcerer, Wizard                                                           | Action           | Self      | V, S, M      | Instantaneous                |
+| Magic Circle           | Abjuration    | Cleric, Paladin, Warlock, Wizard                                           | 1 minute         | 10 feet   | V, S, M(C\*) | 1 hour                       |
+| Major Image            | Illusion      | Bard, Sorcerer, Warlock, Wizard                                            | Action           | 120 feet  | V, S, M      | C, up to 10 minutes          |
+| Mass Healing Word      | Abjuration    | Bard, Cleric                                                               | Bonus Action     | 60 feet   | V            | Instantaneous                |
+| Meld into Stone        | Transmutation | Cleric, Druid, Ranger                                                      | Action or R      | Touch     | V, S         | 8 hours                      |
+| Nondetection           | Abjuration    | Bard, Ranger, Wizard                                                       | Action           | Touch     | V, S, M(C\*) | 8 hours                      |
+| Phantom Steed          | Illusion      | Wizard                                                                     | 1 minute or R    | 30 feet   | V, S         | 1 hour                       |
+| Plant Growth           | Transmutation | Bard, Druid, Ranger                                                        | Action           | 150 feet  | V, S         | Instantaneous                |
+| Protection from Energy | Abjuration    | Artificer, Cleric, Druid, Ranger, Sorcerer, Wizard                         | Action           | Touch     | V, S         | C, up to 1 hour              |
+| Remove Curse           | Abjuration    | Cleric, Paladin, Warlock, Wizard                                           | Action           | Touch     | V, S         | Instantaneous                |
+| Revivify               | Necromancy    | Artificer, Cleric, Druid, Paladin, Ranger                                  | Action           | Touch     | V, S, M(C\*) | Instantaneous                |
+| Sending                | Divination    | Bard, Cleric, Wizard                                                       | Action           | Unlimited | V, S, M      | Instantaneous                |
+| Sleet Storm            | Conjuration   | Druid, Sorcerer, Wizard                                                    | Action           | 150 feet  | V, S, M      | C, up to 1 minute            |
+| Slow                   | Transmutation | Bard, Sorcerer, Wizard                                                     | Action           | 120 feet  | V, S, M      | C, up to 1 minute            |
+| Speak with Dead        | Necromancy    | Bard, Cleric, Wizard                                                       | Action           | 10 feet   | V, S, M      | 10 minutes                   |
+| Speak with Plants      | Transmutation | Bard, Druid, Ranger                                                        | Action           | Self      | V, S         | 10 minutes                   |
+| Spirit Guardians       | Conjuration   | Cleric                                                                     | Action           | Self      | V, S, M      | C, up to 10 minutes          |
+| Stinking Cloud         | Conjuration   | Bard, Sorcerer, Wizard                                                     | Action           | 90 feet   | V, S, M      | C, up to 1 minute            |
+| Summon Fey             | Conjuration   | Druid, Ranger, Warlock, Wizard                                             | Action           | 90 feet   | V, S, M(C)   | C, up to 1 hour              |
+| Summon Undead          | Necromancy    | Warlock, Wizard                                                            | Action           | 90 feet   | V, S, M(C)   | C, up to 1 hour              |
+| Sylune's Viper         | Conjuration   | Druid, Wizard                                                              | Bonus Action     | Self      | V, S, M      | 1 hour                       |
+| Tongues                | Divination    | Bard, Cleric, Sorcerer, Warlock, Wizard                                    | Action           | Touch     | V, M         | 1 hour                       |
+| Vampiric Touch         | Necromancy    | Sorcerer, Warlock, Wizard                                                  | Action           | Self      | V, S         | C, up to 1 minute            |
+| Water Breathing        | Transmutation | Artificer, Druid, Ranger, Sorcerer, Wizard                                 | Action or R      | 30 feet   | V, S, M      | 24 hours                     |
+| Water Walk             | Transmutation | Artificer, Cleric, Druid, Ranger, Sorcerer                                 | Action or R      | 30 feet   | V, S, M      | 1 hour                       |
+| Wind Wall              | Evocation     | Druid, Ranger                                                              | Action           | 120 feet  | V, S, M      | C, up to 1 minute            |
 
 ### 3rd Level Spell Descriptions
 
 ### Animate Dead
+
 *Level 3 Necromancy (Cleric, Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** 10 Feet  
-**Components:** V, S, M (a drop of blood, a piece of flesh, and a pinch of bone dust)  
+**Casting Time:** 1 minute\
+**Range:** 10 Feet\
+**Components:** V, S, M (a drop of blood, a piece of flesh, and a pinch of bone dust)\
 **Duration:** Instantaneous
 
 Choose a pile of bones or a corpse of a Medium or Small Humanoid within range. The target becomes an Undead creature: a Skeleton if you chose bones or a Zombie if you chose a corpse (see appendix B for the stat blocks).
@@ -2648,38 +2807,41 @@ The creature is under your control for 24 hours, after which it stops obeying an
 
 **Using a Higher-Level Spell Slot.** You animate or reassert control over two additional Undead creatures for each spell slot level above 3. Each of the creatures must come from a different corpse or pile of bones.
 
----
+***
 
 ### Aura of Vitality
+
 *Level 3 Abjuration (Cleric, Druid, Paladin)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V\
 **Duration:** Concentration, up to 1 minute
 
 An aura radiates from you in a 30-foot Emanation for the duration. When you create the aura and at the start of each of your turns while it persists, you can restore 2d6 Hit Points to one creature in it.
 
----
+***
 
 ### Beacon of Hope
+
 *Level 3 Abjuration (Cleric)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 Choose any number of creatures within range. For the duration, each target has Advantage on Wisdom saving throws and Death Saving Throws and regains the maximum number of Hit Points possible from any healing.
 
----
+***
 
 ### Bestow Curse
+
 *Level 3 Necromancy (Bard, Cleric, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You touch a creature, which must succeed on a Wisdom saving throw or become cursed for the duration. Until the curse ends, the target suffers one of the following effects of your choice:
@@ -2691,42 +2853,45 @@ You touch a creature, which must succeed on a Wisdom saving throw or become curs
 
 **Using a Higher-Level Spell Slot.** If you cast this spell using a level 4 spell slot, you can maintain Concentration on it for up to 10 minutes. If you use a level 5+ spell slot, the spell doesn't require Concentration, and the duration becomes 8 hours (level 5-6 slot) or 24 hours (level 7-8 slot). If you use a level 9 spell slot, the spell lasts until dispelled.
 
----
+***
 
 ### Blinding Smite
+
 *Level 3 Evocation (Paladin)*
 
-**Casting Time:** Bonus Action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike  
-**Range:** Self  
-**Component:** V  
+**Casting Time:** Bonus Action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike\
+**Range:** Self\
+**Component:** V\
 **Duration:** 1 minute
 
 The target hit by the strike takes an extra 3d8 Radiant damage from the attack, and the target has the Blinded condition until the spell ends. At the end of each of its turns, the Blinded target makes a Constitution saving throw, ending the spell on itself on a success.
 
 **Using a Higher-Level Spell Slot.** The extra damage increases by 1d8 for each spell slot level above 3.
 
----
+***
 
 ### Blink
+
 *Level 3 Transmutation (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** 1 minute
 
 Roll 1d6 at the end of each of your turns for the duration. On a roll of 4-6, you vanish from your current plane of existence and appear in the Ethereal Plane (the spell ends instantly if you are already on that plane). While on the Ethereal Plane, you can perceive the plane you left, which is cast in shades of gray, but you can't see anything there more than 60 feet away. You can affect and be affected only by other creatures on the Ethereal Plane, and creatures on the other plane can't perceive you unless they have a special ability that lets them perceive things on the Ethereal Plane.
 
 You return to the other plane at the start of your next turn and when the spell ends if you are on the Ethereal Plane. You return to an unoccupied space of your choice that you can see within 10 feet of the space you left. If no unoccupied space is available within that range, you appear in the nearest unoccupied space.
 
----
+***
 
 ### Cacophonic Shield
+
 *Level 3 Evocation (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 Thunderous reverberations fill a 10-foot Emanation originating from you for the duration. Whenever the Emanation enters a creature's space and whenever a creature enters the Emanation or ends its turn there, the creature makes a Constitution saving throw. On a failed save, the creature takes 3d6 Thunder damage and has the Deafened condition until the start of your next turn. On a successful save, the creature takes half as much damage only. A creature makes this save only once per turn. When you cast this spell, you can designate creatures to be unaffected by it.
@@ -2735,14 +2900,15 @@ In addition, you have Resistance to Thunder damage, and ranged attack rolls agai
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 3.
 
----
+***
 
 ### Call Lightning
+
 *Level 3 Conjuration (Druid)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 A storm cloud appears at a point within range that you can see above yourself. It takes the shape of a Cylinder that is 10 feet tall with a 60-foot radius.
@@ -2755,14 +2921,15 @@ If you're outdoors in a storm when you cast this spell, the spell gives you cont
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d10 for each spell slot level above 3.
 
----
+***
 
 ### Clairvoyance
+
 *Level 3 Divination (Bard, Cleric, Sorcerer, Wizard)*
 
-**Casting Time:** 10 minutes  
-**Range:** 1 mile  
-**Components:** V, S, M (a focus worth 100+ GP, either a jeweled horn for hearing or a glass eye for seeing)  
+**Casting Time:** 10 minutes\
+**Range:** 1 mile\
+**Components:** V, S, M (a focus worth 100+ GP, either a jeweled horn for hearing or a glass eye for seeing)\
 **Duration:** Concentration, up to 10 minutes
 
 You create an Invisible sensor within range in a location familiar to you (a place you have visited or seen before) or in an obvious location that is unfamiliar to you (such as behind a door, around a corner, or in a grove of trees). The intangible, invulnerable sensor remains in place for the duration.
@@ -2771,14 +2938,15 @@ When you cast the spell, choose seeing or hearing. You can use the chosen sense 
 
 A creature that sees the sensor (such as a creature benefiting from See Invisibility or Truesight) sees a luminous orb about the size of your fist.
 
----
+***
 
 ### Conjure Animals
+
 *Level 3 Conjuration (Druid, Ranger)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You conjure nature spirits that appear as a Large pack of spectral, intangible animals in an unoccupied space you can see within range. The pack lasts for the duration, and you choose the spirits' animal form, such as wolves, serpents, or birds.
@@ -2789,29 +2957,31 @@ Whenever the pack moves within 10 feet of a creature you can see and whenever a 
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d10 for each spell slot level above 3.
 
----
+***
 
 ### Conjure Barrage
+
 *Level 3 Conjuration (Ranger)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a Melee or Ranged weapon worth at least 1 CP)  
-**Duration:** Instantaneous  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a Melee or Ranged weapon worth at least 1 CP)\
+**Duration:** Instantaneous
 
 You brandish the weapon used to cast the spell and conjure similar spectral weapons (or ammunition appropriate to the weapon) that launch forward and then disappear. Each creature of your choice that you can see in a 60-foot Cone makes a Dexterity saving throw, taking 5d8 Force damage on a failed save or half as much damage on a successful one.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 3.
 
----
+***
 
 ### Conjure Constructs
+
 *Level 3 Conjuration (Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a brass cog)  
-**Duration:** Concentration, up to 10 minutes  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a brass cog)\
+**Duration:** Concentration, up to 10 minutes
 
 You conjure a group of intangible, orderly spirits that appear as a Medium group of modrons or other Constructs in an unoccupied space you can see within range. The spirits last for the duration.
 
@@ -2825,51 +2995,55 @@ When you move on your turn, you can also move the spirits up to 30 feet to an un
 
 **Using a Higher-Level Spell Slot.** The damage and Temporary Hit Points both increase by 1d6 for each spell slot level above 3.
 
----
+***
 
 ### Counterspell
+
 *Level 3 Abjuration (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Reaction, which you take when you see a creature within 60 feet of yourself casting a spell with Verbal, Somatic, or Material components  
-**Range:** 60 feet  
-**Components:** S  
-**Duration:** Instantaneous  
+**Casting Time:** Reaction, which you take when you see a creature within 60 feet of yourself casting a spell with Verbal, Somatic, or Material components\
+**Range:** 60 feet\
+**Components:** S\
+**Duration:** Instantaneous
 
 You attempt to interrupt a creature in the process of casting a spell. The creature makes a Constitution saving throw. On a failed save, the spell dissipates with no effect, and the action, Bonus Action, or Reaction used to cast it is wasted. If that spell was cast with a spell slot, the slot isn't expended.
 
----
+***
 
 ### Create Food and Water
+
 *Level 3 Conjuration (Artificer, Cleric, Paladin)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
-**Duration:** Instantaneous  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
+**Duration:** Instantaneous
 
 You create 45 pounds of food and 30 gallons of fresh water on the ground or in containers within range - both useful in fending off the hazards of malnutrition and dehydration. The food is bland but nourishing and looks like a food of your choice, and the water is clean. The food spoils after 24 hours if uneaten.
 
----
+***
 
 ### Crusader's Mantle
+
 *Level 3 Evocation (Paladin)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V  
-**Duration:** Concentration, up to 1 minute  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V\
+**Duration:** Concentration, up to 1 minute
 
 You radiate a magical aura in a 30-foot Emanation. While in the aura, you and your allies each deal an extra 1d4 Radiant damage when hitting with a weapon or an Unarmed Strike.
 
----
+***
 
 ### Daylight
+
 *Level 3 Evocation (Cleric, Druid, Paladin, Ranger, Sorcerer)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
-**Duration:** 1 hour  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
+**Duration:** 1 hour
 
 For the duration, sunlight spreads from a point within range and fills a 60-foot-radius Sphere. The sunlight's area is Bright Light and sheds Dim Light for an additional 60 feet.
 
@@ -2877,57 +3051,61 @@ Alternatively, you cast the spell on an object that isn't being worn or carried,
 
 If any of this spell's area overlaps with an area of Darkness created by a spell of level 3 or lower, that other spell is dispelled.
 
----
+***
 
 ### Dispel Magic
+
 *Level 3 Abjuration (Artificer, Bard, Cleric, Druid, Paladin, Ranger, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
-**Duration:** Instantaneous  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
+**Duration:** Instantaneous
 
 Choose one creature, object, or magical effect within range. Any ongoing spell of level 3 or lower on the target ends. For each ongoing spell of level 4 or higher on the target, make an ability check using your spellcasting ability (DC 10 plus that spell's level). On a successful check, the spell ends.
 
 **Using a Higher-Level Spell Slot.** You automatically end a spell on the target if the spell's level is equal to or less than the level of the spell slot you use.
 
----
+***
 
 ### Elemental Weapon
+
 *Level 3 Transmutation (Artificer, Druid, Paladin, Ranger)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
-**Duration:** Concentration, up to 1 hour  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
+**Duration:** Concentration, up to 1 hour
 
 A nonmagical weapon you touch becomes a magic weapon. Choose one of the following damage types: Acid, Cold, Fire, Lightning, or Thunder. For the duration, the weapon has a +1 bonus to attack rolls and deals an extra 1d4 damage of the chosen type when it hits.
 
 **Using a Higher-Level Spell Slot.** If you use a level 5-6 spell slot, the bonus to attack rolls increases to +2, and the extra damage increases to 2d4. If you use a level 7+ spell slot, the bonus increases to +3, and the extra damage increases to 3d4.
 
----
+***
 
 ### Fear
+
 *Level 3 Illusion (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a white feather)  
-**Duration:** Concentration, up to 1 minute  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a white feather)\
+**Duration:** Concentration, up to 1 minute
 
 Each creature in a 30-foot Cone must succeed on a Wisdom saving throw or drop whatever it is holding and have the Frightened condition for the duration.
 
 A Frightened creature takes the Dash action and moves away from you by the safest route on each of its turns unless there is nowhere to move. If the creature ends its turn in a space where it doesn't have line of sight to you, the creature makes a Wisdom saving throw. On a successful save, the spell ends on that creature.
 
----
+***
 
 ### Feign Death
+
 *Level 3 Necromancy (Bard, Cleric, Druid, Wizard)*
 
-**Casting Time:** Action or Ritual  
-**Range:** Touch  
-**Components:** V, S, M (a pinch of graveyard dirt)  
-**Duration:** 1 hour  
+**Casting Time:** Action or Ritual\
+**Range:** Touch\
+**Components:** V, S, M (a pinch of graveyard dirt)\
+**Duration:** 1 hour
 
 You touch a willing creature and put it into a cataleptic state that is indistinguishable from death.
 
@@ -2935,14 +3113,15 @@ For the duration, the target appears dead to outward inspection and to spells us
 
 The target also has Resistance to all damage except Psychic damage, and it has Immunity to the Poisoned condition.
 
----
+***
 
 ### Fireball
+
 *Level 3 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S, M (a ball of bat guano and sulfur)  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S, M (a ball of bat guano and sulfur)\
 **Duration:** Instantaneous
 
 A bright streak flashes from you to a point you choose within range and then blossoms with a low roar into a fiery explosion. Each creature in a 20-foot-radius Sphere centered on that point makes a Dexterity saving throw, taking 8d6 Fire damage on a failed save or half as much damage on a successful one.
@@ -2951,28 +3130,30 @@ Flammable objects in the area that aren't being worn or carried start burning.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 3.
 
----
+***
 
 ### Fly
+
 *Level 3 Transmutation (Artificer, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a feather)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a feather)\
 **Duration:** Concentration, up to 10 minutes
 
 You touch a willing creature. For the duration, the target gains a Fly Speed of 60 feet and can hover. When the spell ends, the target falls if it is still aloft unless it can stop the fall.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 3.
 
----
+***
 
 ### Gaseous Form
+
 *Level 3 Transmutation (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a bit of gauze)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a bit of gauze)\
 **Duration:** Concentration, up to 1 hour
 
 A willing creature you touch shape-shifts, along with everything it's wearing and carrying, into a misty cloud for the duration. The spell ends on the target if it drops to 0 Hit Points or if it takes a Magic action to end the spell on itself.
@@ -2983,14 +3164,15 @@ The target can't talk or manipulate objects, and any objects it was carrying or 
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 3.
 
----
+***
 
 ### Glyph of Warding
+
 *Level 3 Abjuration (Artificer, Bard, Cleric, Wizard)*
 
-**Casting Time:** 1 hour  
-**Range:** Touch  
-**Components:** V, S, M (powdered diamond worth 200+ GP, which the spell consumes)  
+**Casting Time:** 1 hour\
+**Range:** Touch\
+**Components:** V, S, M (powdered diamond worth 200+ GP, which the spell consumes)\
 **Duration:** Until dispelled or triggered
 
 You inscribe a glyph that later unleashes a magical effect. You inscribe it either on a surface (such as a table or a section of floor) or within an object that can be closed (such as a book or chest) to conceal the glyph. The glyph can cover an area no larger than 10 feet in diameter. If the surface or object is moved more than 10 feet from where you cast this spell, the glyph is broken, and the spell ends without being triggered.
@@ -3011,28 +3193,30 @@ When the glyph is triggered, the stored spell takes effect. If the spell has a t
 
 **Using a Higher-Level Spell Slot.** The damage of an explosive rune increases by 1d8 for each spell slot level above 3. If you create a spell glyph, you can store any spell of up to the same level as the spell slot you use for the *Glyph of Warding.*
 
----
+***
 
 ### Haste
+
 *Level 3 Transmutation (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a shaving of licorice root)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a shaving of licorice root)\
 **Duration:** Concentration, up to 1 minute
 
 Choose a willing creature that you can see within range. Until the spell ends, the target's Speed is doubled, it gains a +2 bonus to Armor Class, it has Advantage on Dexterity saving throws, and it gains an additional action on each of its turns. That action can be used to take only the Attack (one attack only), Dash, Disengage, Hide, or Utilize action.
 
 When the spell ends, the target is Incapacitated and has a Speed of 0 until the end of its next turn, as a wave of lethargy washes over it.
 
----
+***
 
 ### Hunger of Hadar
+
 *Level 3 Conjuration (Warlock)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S, M (a pickled tentacle)  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S, M (a pickled tentacle)\
 **Duration:** Concentration, up to 1 minute
 
 You open a gateway to the Far Realm, a region infested with unspeakable horrors. A 20-foot-radius Sphere of Darkness appears, centered on a point with range and lasting for the duration. The Sphere is Difficult Terrain, and it is filled with strange whispers and slurping noises, which can be heard up to 30 feet away. No light, magical or otherwise, can illuminate the area, and creatures fully within it have the Blinded condition.
@@ -3041,42 +3225,45 @@ Any creature that starts its turn in the area takes 2d6 Cold damage. Any creatur
 
 **Using a Higher-Level Spell Slot.** The Cold or Acid damage (your choice) increases by 1d6 for each spell slot level above 3.
 
----
+***
 
 ### Hypnotic Pattern
+
 *Level 3 Illusion (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** S, M (a pinch of confetti)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** S, M (a pinch of confetti)\
 **Duration:** Concentration, up to 1 minute
 
 You create a twisting pattern of colors in a 30-foot Cube within range. The pattern appears for a moment and vanishes. Each creature in the area who can see the pattern must succeed on a Wisdom saving throw or have the Charmed condition for the duration. While Charmed, the creature has the Incapacitated condition and a Speed of 0.
 
 The spell ends for an affected creature if it takes any damage or if someone else uses an action to shake the creature out of its stupor.
 
----
+***
 
 ### Laeral's Silver Lance
+
 *Level 3 Evocation (Cleric, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a silver pin worth 250+ GP)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a silver pin worth 250+ GP)\
 **Duration:** Instantaneous
 
 Silver energy bursts out from you in a 120-foot-long, 5-foot-wide Line. Each creature of your choice in the Line makes a Strength saving throw. On a failed save, a creature takes 3d10 Force damage and has the Prone condition. On a successful save, a creature takes half as much damage only.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d10 for every spell slot level above 3.
 
----
+***
 
 ### Leomund's Tiny Hut
+
 *Level 3 Evocation (Bard, Wizard)*
 
-**Casting Time:** 1 minute or Ritual  
-**Range:** Self  
-**Components:** V, S, M (a crystal bead)  
+**Casting Time:** 1 minute or Ritual\
+**Range:** Self\
+**Components:** V, S, M (a crystal bead)\
 **Duration:** 8 hours
 
 A 10-foot Emanation springs into existence around you and remains stationary for the duration. The spell fails when you cast it if the Emanation isn't big enough to fully encapsulate all creatures in its area.
@@ -3087,14 +3274,15 @@ The atmosphere inside the Emanation is comfortable and dry, regardless of the we
 
 The spell ends early if you leave the Emanation or if you cast it again.
 
----
+***
 
 ### Lightning Arrow
+
 *Level 3 Transmutation (Ranger)*
 
-**Casting Time:** Bonus Action, which you take immediately after hitting or missing a target with a ranged attack using a weapon  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Bonus Action, which you take immediately after hitting or missing a target with a ranged attack using a weapon\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 As your attack hits or misses the target, the weapon or ammunition you're using transforms into a lightning bolt. Instead of taking any damage or other effects from the attack, the target takes 4d8 Lightning damage on a hit or half as much damage on a miss. Each creature within 10 feet of the target then makes a Dexterity saving throw, taking 2d8 Lightning damage on a failed save or half as much damage on a successful one.
@@ -3103,28 +3291,30 @@ The weapon or ammunition then returns to its normal form.
 
 **Using a Higher-Level Spell Slot.** The damage for both effects of the spell increases by 1d8 for each spell slot level above 3.
 
----
+***
 
 ### Lightning Bolt
+
 *Level 3 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a bit of fur and a crystal rod)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a bit of fur and a crystal rod)\
 **Duration:** Instantaneous
 
 A stroke of lightning forming a 100-foot-long, 5-foot-wide Line blasts out from you in a direction you choose. Each creature in the Line makes a Dexterity saving throw, taking 8d6 Lightning damage on a failed save or half as much damage on a successful one.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 3.
 
----
+***
 
 ### Magic Circle
+
 *Level 3 Abjuration (Cleric, Paladin, Warlock, Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** 10 feet  
-**Components:** V, S, M (salt and powdered silver worth 100+ GP, which the spell consumes)  
+**Casting Time:** 1 minute\
+**Range:** 10 feet\
+**Components:** V, S, M (salt and powdered silver worth 100+ GP, which the spell consumes)\
 **Duration:** 1 hour
 
 You create a 10-foot-radius, 20-foot-tall Cylinder of magical energy centered on a point on the ground that you can see within range. Glowing runes appear wherever the Cylinder intersects with the floor or other surface.
@@ -3139,14 +3329,15 @@ Each time you cast this spell, you can cause its magic to operate in the reverse
 
 **Using a Higher-Level Spell Slot.** The duration increases by 1 hour for each spell slot level above 3.
 
----
+***
 
 ### Major Image
+
 *Level 3 Illusion (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (a bit of fleece)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (a bit of fleece)\
 **Duration:** Concentration, up to 10 minutes
 
 You create the image of an object, a creature, or some other visible phenomenon that is no larger than a 20-foot Cube. The image appears at a spot that you can see within range and lasts for the duration. It seems real, including sounds, smells, and temperature appropriate to the thing depicted, but it can't deal damage or cause conditions.
@@ -3157,28 +3348,30 @@ Physical interaction with the image reveals it to be an illusion, for things can
 
 **Using a Higher-Level Spell Slot.** The spell lasts until dispelled, without requiring Concentration, if cast with a level 4+ spell slot.
 
----
+***
 
 ### Mass Healing Word
+
 *Level 3 Abjuration (Bard, Cleric)*
 
-**Casting Time:** Bonus Action  
-**Range:** 60 feet  
-**Components:** V  
+**Casting Time:** Bonus Action\
+**Range:** 60 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 Up to six creatures of your choice that you can see within range regain Hit Points equal to 2d4 plus your spellcasting ability modifier.
 
 **Using a Higher-Level Spell Slot.** The healing increases by 1d4 for each spell slot level above 3.
 
----
+***
 
 ### Meld into Stone
+
 *Level 3 Transmutation (Cleric, Druid, Ranger)*
 
-**Casting Time:** Action or Ritual  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action or Ritual\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** 8 hours
 
 You step into a stone object or surface large enough to fully contain your body, merging yourself and your equipment with the stone for the duration. You must touch the stone to do so. Nothing of your presence remains visible or otherwise detectable by nonmagical senses.
@@ -3187,40 +3380,43 @@ While merged with the stone, you can't see what occurs outside it, and any Wisdo
 
 Minor physical damage to the stone doesn't harm you, but its partial destruction or a change in its shape (to the extent that you no longer fit within it) expels you and deals 6d6 Force damage to you. The stone's complete destruction (or transmutation into a different substance) expels you and deals 50 Force damage to you. If expelled, you move into an unoccupied space closest to where you first entered and have the Prone condition.
 
----
+***
 
 ### Nondetection
+
 *Level 3 Abjuration (Bard, Ranger, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a pinch of diamond dust worth 25+ GP, which the spell consumes)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a pinch of diamond dust worth 25+ GP, which the spell consumes)\
 **Duration:** 8 hours
 
 For the duration, you hide a target that you touch from Divination spells. The target can be a willing creature, or it can be a place or an object no larger than 10 feet in any dimension. The target can't be targeted by any Divination spell or perceived through magical scrying sensors.
 
----
+***
 
 ### Phantom Steed
+
 *Level 3 Illusion (Wizard)*
 
-**Casting Time:** 1 minute or Ritual  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** 1 minute or Ritual\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** 1 hour
 
 A Large, quasi-real, horselike creature appears on the ground in an unoccupied space of your choice within range. You decide the creature's appearance, and it is equipped with a saddle, bit, and bridle. Any of the equipment created by the spell vanishes in a puff of smoke if it is carried more than 10 feet away from the steed.
 
 For the duration, you or a creature you choose can ride the steed. The steed uses the Riding Horse stat block (see appendix B), except it has a Speed of 100 feet and can travel 13 miles in an hour. When the spell ends, the steed gradually fades, giving the rider 1 minute to dismount. The spell ends early if the steed takes any damage.
 
----
+***
 
 ### Plant Growth
+
 *Level 3 Transmutation (Bard, Druid, Ranger)*
 
-**Casting Time:** Action (Overgrowth) or 8 hours (Enrichment)  
-**Range:** 150 feet  
-**Components:** V, S  
+**Casting Time:** Action (Overgrowth) or 8 hours (Enrichment)\
+**Range:** 150 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 This spell channels vitality into plants. The casting time you use determines whether the spell has the Overgrowth or the Enrichment effect below.
@@ -3229,51 +3425,55 @@ This spell channels vitality into plants. The casting time you use determines wh
 
 **Enrichment.** All plants in a half-mile radius centered on a point within range become enriched for 365 days. The plants yield twice the normal amount of food when harvested. They can benefit from only one Plant Growth per year.
 
----
+***
 
 ### Protection from Energy
+
 *Level 3 Abjuration (Artificer, Cleric, Druid, Ranger, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 hour
 
 For the duration, the willing creature you touch has Resistance to one damage type of your choice: Acid, Cold, Fire, Lightning, or Thunder.
 
----
+***
 
 ### Remove Curse
+
 *Level 3 Abjuration (Cleric, Paladin, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 At your touch, all curses affecting one creature or object end. If the object is a cursed magic item, its curse remains, but the spell breaks its owner's Attunement to the object so it can be removed or discarded.
 
----
+***
 
 ### Revivify
+
 *Level 3 Necromancy (Artificer, Cleric, Druid, Paladin, Ranger)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a diamond worth 300+ GP, which the spell consumes)  
-**Duration:** Instantaneous  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a diamond worth 300+ GP, which the spell consumes)\
+**Duration:** Instantaneous
 
 You touch a creature that has died within the last minute. That creature revives with 1 Hit Point. This spell can't revive a creature that has died of old age, nor does it restore any missing body parts.
 
----
+***
 
 ### Sending
+
 *Level 3 Divination (Bard, Cleric, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Unlimited  
-**Components:** V, S, M (a copper wire)  
-**Duration:** Instantaneous  
+**Casting Time:** Action\
+**Range:** Unlimited\
+**Components:** V, S, M (a copper wire)\
+**Duration:** Instantaneous
 
 You send a short message of 25 words or fewer to a creature you have met or a creature described to you by someone who has met it. The target hears the message in its mind, recognizes you as the sender if it knows you, and can answer in a like manner immediately. The spell enables targets to understand the meaning of your message.
 
@@ -3281,29 +3481,31 @@ You can send the message across any distance and even to other planes of existen
 
 Upon receiving your message, a creature can block your ability to reach it again with this spell for 8 hours. If you try to send another message during that time, you learn that you are blocked, and the spell fails.
 
----
+***
 
 ### Sleet Storm
+
 *Level 3 Conjuration (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S, M (a miniature umbrella)  
-**Duration:** Concentration, up to 1 minute  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S, M (a miniature umbrella)\
+**Duration:** Concentration, up to 1 minute
 
 Until the spell ends, sleet falls in a 40-foot-tall, 20-foot-radius Cylinder centered on a point you choose within range. The area is Heavily Obscured, and exposed flames in the area are doused.
 
 Ground in the Cylinder is Difficult Terrain. When a creature enters the Cylinder for the first time on a turn or starts its turn there, it must succeed on a Dexterity saving throw or have the Prone condition and lose Concentration.
 
----
+***
 
 ### Slow
+
 *Level 3 Transmutation (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (a drop of molasses)  
-**Duration:** Concentration, up to 1 minute  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (a drop of molasses)\
+**Duration:** Concentration, up to 1 minute
 
 You alter time around up to six creatures of your choice in a 40-foot Cube within range. Each target must succeed on a Wisdom saving throw or be affected by this spell for the duration.
 
@@ -3311,29 +3513,31 @@ An affected target's Speed is halved, it takes a -2 penalty to AC and Dexterity 
 
 An affected target repeats the save at the end of each of its turns, ending the spell on itself on a success.
 
----
+***
 
 ### Speak with Dead
+
 *Level 3 Necromancy (Bard, Cleric, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 10 feet  
-**Components:** V, S, M (burning incense)  
-**Duration:** 10 minutes  
+**Casting Time:** Action\
+**Range:** 10 feet\
+**Components:** V, S, M (burning incense)\
+**Duration:** 10 minutes
 
 You grant the semblance of life to a corpse of your choice within range, allowing it to answer questions you pose. The corpse must have a mouth, and this spell fails if the deceased creature was Undead when it died. The spell also fails if the corpse was the target of this spell within the past 10 days.
 
 Until the spell ends, you can ask the corpse up to five questions. The corpse knows only what it knew in life, including the languages it knew. Answers are usually brief, cryptic, or repetitive, and the corpse is under no compulsion to offer a truthful answer if you are antagonistic toward it or it recognizes you as an enemy. This spell doesn't return the creature's soul to its body, only its animating spirit. Thus, the corpse can't learn new information, doesn't comprehend anything that has happened since it died, and can't speculate about future events.
 
----
+***
 
 ### Speak with Plants
+
 *Level 3 Transmutation (Bard, Druid, Ranger)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
-**Duration:** 10 minutes  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
+**Duration:** 10 minutes
 
 You imbue plants in an immobile 30-foot Emanation with limited sentience and animation, giving them the ability to communicate with you and follow your simple commands. You can question plants about events in the spell's area within the past day, gaining information about creatures that have passed, weather, and other circumstances.
 
@@ -3343,15 +3547,16 @@ The spell doesn't enable plants to uproot themselves and move about, but they ca
 
 If a Plant creature is in the area, you can communicate with it as if you shared a common language.
 
----
+***
 
 ### Spirit Guardians
+
 *Level 3 Conjuration (Cleric)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a prayer scroll)  
-**Duration:** Concentration, up to 10 minutes  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a prayer scroll)\
+**Duration:** Concentration, up to 10 minutes
 
 Protective spirits flit around you in a 15-foot Emanation for the duration. If you are good or neutral, their spectral form appears angelic or fey (your choice). If you are evil, they appear fiendish.
 
@@ -3359,29 +3564,31 @@ When you cast this spell, you can designate creatures to be unaffected by it. An
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 3.
 
----
+***
 
 ### Stinking Cloud
+
 *Level 3 Conjuration (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (a rotten egg)  
-**Duration:** Concentration, up to 1 minute  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (a rotten egg)\
+**Duration:** Concentration, up to 1 minute
 
 You create a 20-foot-radius Sphere of yellow, nauseating gas centered on a point within range. The cloud is Heavily Obscured. The cloud lingers in the air for the duration or until a strong wind (such as the one created by Gust of Wind) disperses it.
 
 Each creature that starts its turn in the Sphere must succeed on a Constitution saving throw or have the Poisoned condition until the end of the current turn. While Poisoned in this way, the creature can't take an action or a Bonus Action.
 
----
+***
 
 ### Summon Fey
+
 *Level 3 Conjuration (Druid, Ranger, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (a gilded flower worth 300+ GP)  
-**Duration:** Concentration, up to 1 hour  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (a gilded flower worth 300+ GP)\
+**Duration:** Concentration, up to 1 hour
 
 You call forth a Fey spirit. It manifests in an unoccupied space that you can see within range and uses the **Fey Spirit** stat block. When you cast the spell, choose a mood: Fuming, Mirthful, or Tricksy. The creature resembles a Fey creature of your choice marked by the chosen mood, which determines certain details in its stat block. The creature disappears when it drops to 0 Hit Points or when the spell ends.
 
@@ -3390,6 +3597,7 @@ The creature is an ally to you and your allies. In combat, the creature shares y
 **Using a Higher-Level Spell Slot.** Use the spell slot's level for the spell's level in the stat block.
 
 **Fey Spirit** - *Small Fey, Neutral*
+
 - **Armor Class:** 12 + the spell's level
 - **Hit Points:** 30 + 10 for each spell level above 3
 - **Speed:** 30 ft., Fly 30 ft.
@@ -3398,24 +3606,27 @@ The creature is an ally to you and your allies. In combat, the creature shares y
 - **Languages:** Sylvan, understands the languages you know
 
 **Actions:**
+
 - **Multiattack.** The spirit makes a number of Fey Blade attacks equal to half this spell's level (round down).
 - **Fey Blade.** Melee Attack Roll: Bonus equals your spell attack modifier, reach 5 ft. Hit: 2d6 + 3 + the spell's level Force damage.
 
 **Bonus Actions:**
+
 - **Fey Step.** The spirit magically teleports up to 30 feet to an unoccupied space it can see. Then one of the following effects occurs, based on the spirit's chosen mood:
   - **Fuming.** The spirit has Advantage on the next attack roll it makes before the end of this turn.
   - **Mirthful.** Wisdom Saving Throw: DC equals your spell save DC, one creature the spirit can see within 10 feet of itself. Failure: The target is Charmed by you and the spirit for 1 minute or until the target takes any damage.
   - **Tricksy.** The spirit fills a 10-foot Cube within 5 feet of it with magical Darkness, which lasts until the end of its next turn.
 
----
+***
 
 ### Summon Undead
+
 *Level 3 Necromancy (Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (a gilded skull worth 300+ GP)  
-**Duration:** Concentration, up to 1 hour  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (a gilded skull worth 300+ GP)\
+**Duration:** Concentration, up to 1 hour
 
 You call forth an Undead spirit. It manifests in an unoccupied space that you can see within range and uses the **Undead Spirit** stat block. When you cast the spell, choose the creature's form: Ghostly, Putrid, or Skeletal. The spirit resembles an Undead creature with the chosen form, which determines certain details in its stat block. The creature disappears when it drops to 0 Hit Points or when the spell ends.
 
@@ -3424,6 +3635,7 @@ The creature is an ally to you and your allies. In combat, the creature shares y
 **Using a Higher-Level Spell Slot.** Use the spell slot's level for the spell's level in the stat block.
 
 **Undead Spirit** - *Medium Undead, Neutral*
+
 - **Armor Class:** 11 + the spell's level
 - **Hit Points:** 30 (Ghostly and Putrid only) or 20 (Skeletal only) + 10 for each spell level above 3
 - **Speed:** 30 ft.; Fly 40 ft. (hover; Ghostly only)
@@ -3432,23 +3644,26 @@ The creature is an ally to you and your allies. In combat, the creature shares y
 - **Languages:** Understands the languages you know
 
 **Traits:**
+
 - **Festering Aura (Putrid Only).** Constitution Saving Throw: DC equals your spell save DC, any creature (other than you) that starts its turn within a 5-foot Emanation originating from the spirit. Failure: The creature has the Poisoned condition until the start of its next turn.
 - **Incorporeal Passage (Ghostly Only).** The spirit can move through other creatures and objects as if they were Difficult Terrain. If it ends its turn inside an object, it is shunted to the nearest unoccupied space and takes 1d10 Force damage for every 5 feet traveled.
 
 **Actions:**
+
 - **Multiattack.** The spirit makes a number of attacks equal to half this spell's level (round down).
 - **Deathly Touch (Ghostly Only).** Melee Attack Roll: Bonus equals your spell attack modifier, reach 5 ft. Hit: 1d8 + 3 + the spell's level Necrotic damage, and the target has the Frightened condition until the end of its next turn.
 - **Grave Bolt (Skeletal Only).** Ranged Attack Roll: Bonus equals your spell attack modifier, range 150 ft. Hit: 2d4 + 3 + the spell's level Necrotic damage.
 - **Rotting Claw (Putrid Only).** Melee Attack Roll: Bonus equals your spell attack modifier, reach 5 ft. Hit: 1d6 + 3 + the spell's level Slashing damage. If the target has the Poisoned condition, it has the Paralyzed condition until the end of its next turn.
 
----
+***
 
 ### Sylune's Viper
+
 *Level 3 Conjuration (Druid, Wizard)*
 
-**Casting Time:** Bonus Action  
-**Range:** Self  
-**Components:** V, S, M (a snake fang)  
+**Casting Time:** Bonus Action\
+**Range:** Self\
+**Components:** V, S, M (a snake fang)\
 **Duration:** 1 hour
 
 A shimmering, spectral snake encircles your body for the duration. You gain 15 Temporary Hit Points; the spell ends early if you have no Temporary Hit Points left.
@@ -3461,26 +3676,28 @@ While the spell is active, you gain the following benefits:
 
 **Using a Higher-Level Spell Slot.** For each spell slot level above 3, the number of Temporary Hit Points you gain from this spell increases by 5, and the damage of Venomous Bite increases by 1d6.
 
----
+***
 
 ### Tongues
+
 *Level 3 Divination (Bard, Cleric, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, M (a miniature ziggurat)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, M (a miniature ziggurat)\
 **Duration:** 1 hour
 
 This spell grants the creature you touch the ability to understand any spoken or signed language that it hears or sees. Moreover, when the target communicates by speaking or signing, any creature that knows at least one language can understand it if that creature can hear the speech or see the signing.
 
----
+***
 
 ### Vampiric Touch
+
 *Level 3 Necromancy (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 The touch of your shadow-wreathed hand can siphon life force from others to heal your wounds. Make a melee spell attack against one creature within reach. On a hit, the target takes 3d6 Necrotic damage, and you regain Hit Points equal to half the amount of Necrotic damage dealt.
@@ -3489,40 +3706,43 @@ Until the spell ends, you can make the attack again on each of your turns as a M
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 3.
 
----
+***
 
 ### Water Breathing
+
 *Level 3 Transmutation (Artificer, Druid, Ranger, Sorcerer, Wizard)*
 
-**Casting Time:** Action or Ritual  
-**Range:** 30 feet  
-**Components:** V, S, M (a short reed)  
+**Casting Time:** Action or Ritual\
+**Range:** 30 feet\
+**Components:** V, S, M (a short reed)\
 **Duration:** 24 hours
 
 This spell grants up to ten willing creatures of your choice within range the ability to breathe underwater until the spell ends. Affected creatures also retain their normal mode of respiration.
 
----
+***
 
 ### Water Walk
+
 *Level 3 Transmutation (Artificer, Cleric, Druid, Ranger, Sorcerer)*
 
-**Casting Time:** Action or Ritual  
-**Range:** 30 feet  
-**Components:** V, S, M (a piece of cork)  
+**Casting Time:** Action or Ritual\
+**Range:** 30 feet\
+**Components:** V, S, M (a piece of cork)\
 **Duration:** 1 hour
 
 This spell grants the ability to move across any liquid surface - such as water, acid, mud, snow, quicksand, or lava - as if it were harmless solid ground (creatures crossing molten lava can still take damage from the heat). Up to ten willing creatures of your choice within range gain this ability for the duration.
 
 An affected target must take a Bonus Action to pass from the liquid's surface into the liquid itself and vice versa, but if the target falls into the liquid, the target passes through the surface into the liquid below.
 
----
+***
 
 ### Wind Wall
+
 *Level 3 Evocation (Druid, Ranger)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (a fan and a feather)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (a fan and a feather)\
 **Duration:** Concentration, up to 1 minute
 
 A wall of strong wind rises from the ground at a point you choose within range. You can make the wall up to 50 feet long, 15 feet high, and 1 foot thick. You can shape the wall in any way you choose so long as it makes one continuous path along the ground. The wall lasts for the duration.
@@ -3531,103 +3751,105 @@ When the wall appears, each creature in its area makes a Strength saving throw, 
 
 The strong wind keeps fog, smoke, and other gases at bay. Small or smaller flying creatures or objects can't pass through the wall. Loose, lightweight materials brought into the wall fly upward. Arrows, bolts, and other ordinary projectiles launched at targets behind the wall are deflected upward and miss automatically. Boulders hurled by Giants or siege engines, and similar projectiles, are unaffected. Creatures in gaseous form can't pass through it.
 
-
 ### 4th Level Spells
 
-| Name | School | Spell lists | Casting Time | Range | Components | Duration |
-|------|--------|-------------|--------------|-------|------------|----------|
-| Arcane Eye | Divination | Artificer, Wizard | Action | 30 feet | V, S, M | C, up to 1 hour |
-| Aura of Life | Abjuration | Cleric, Paladin | Action | Self | V | C, up to 10 minutes |
-| Aura of Purity | Abjuration | Cleric, Paladin | Action | Self | V | C, up to 10 minutes |
-| Backlash | Abjuration | Bard, Sorcerer, Warlock, Wizard | Reaction | 60 feet | V | Instantaneous |
-| Banishment | Abjuration | Cleric, Paladin, Sorcerer, Warlock, Wizard | Action | 30 feet | V, S, M | C, up to 1 minute |
-| Blight | Necromancy | Druid, Sorcerer, Warlock, Wizard | Action | 30 feet | V, S | Instantaneous |
-| Charm Monster | Enchantment | Bard, Druid, Sorcerer, Warlock, Wizard | Action | 30 feet | V, S | 1 hour |
-| Compulsion | Enchantment | Bard | Action | 30 feet | V, S | C, up to 1 minute |
-| Confusion | Enchantment | Bard, Druid, Sorcerer, Wizard | Action | 90 feet | V, S, M | C, up to 1 minute |
-| Conjure Minor Elementals | Conjuration | Druid, Wizard | Action | Self | V, S | C, up to 10 minutes |
-| Conjure Woodland Beings | Conjuration | Druid, Ranger | Action | Self | V, S | C, up to 10 minutes |
-| Control Water | Transmutation | Cleric, Druid, Wizard | Action | 300 feet | V, S, M | C, up to 10 minutes |
-| Death Ward | Abjuration | Cleric, Paladin | Action | Touch | V, S | 8 hours |
-| Dimension Door | Conjuration | Bard, Sorcerer, Warlock, Wizard | Action | 500 feet | V | Instantaneous |
-| Divination | Divination | Cleric, Druid, Wizard | Action or R | Self | V, S, M(C*) | Instantaneous |
-| Dominate Beast | Enchantment | Druid, Ranger, Sorcerer | Action | 60 feet | V, S | C, up to 1 minute |
-| Doomtide | Conjuration | Bard, Cleric, Warlock | Action | 120 feet | V, S, M | C, up to 1 minute |
-| Evard's Black Tentacles | Conjuration | Wizard | Action | 90 feet | V, S, M | C, up to 1 minute |
-| Fabricate | Transmutation | Artificer, Wizard | 10 minutes | 120 feet | V, S | Instantaneous |
-| Fire Shield | Evocation | Druid, Sorcerer, Wizard | Action | Self | V, S, M | 10 minutes |
-| Fount of Moonlight | Evocation | Bard, Druid | Action | Self | V, S | C, up to 10 minutes |
-| Freedom of Movement | Abjuration | Artificer, Bard, Cleric, Druid, Ranger | Action | Touch | V, S, M | 1 hour |
-| Giant Insect | Conjuration | Druid | Action | 60 feet | V, S | C, up to 10 minutes |
-| Grasping Vine | Conjuration | Druid, Ranger | Bonus Action | 60 feet | V, S | C, up to 1 minute |
-| Greater Invisibility | Illusion | Bard, Sorcerer, Wizard | Action | Touch | V, S | C, up to 1 hour |
-| Guardian of Faith | Conjuration | Cleric | Action | 30 feet | V | 8 hours |
-| Hallucinatory Terrain | Illusion | Bard, Druid, Warlock, Wizard | 10 minutes | 300 feet | V, S, M | 24 hours |
-| Ice Storm | Evocation | Druid, Sorcerer, Wizard | Action | 300 feet | V, S, M | Instantaneous |
-| Leomund's Secret Chest | Conjuration | Artificer, Wizard | Action | Touch | V, S, M(C) | Until dispelled |
-| Locate Creature | Divination | Bard, Cleric, Druid, Paladin, Ranger, Wizard | Action | Self | V, S, M | C, up to 1 hour |
-| Mordenkainen's Faithful Hound | Conjuration | Wizard | Action | 30 feet | V, S, M | 8 hours |
-| Mordenkainen's Private Sanctum | Abjuration | Artificer, Wizard | 10 minutes | 120 feet | V, S, M | 24 hours |
-| Otiluke's Resilient Sphere | Abjuration | Artificer, Wizard | Action | 30 feet | V, S, M | C, up to 1 minute |
-| Phantasmal Killer | Illusion | Bard, Wizard | Action | 120 feet | V, S | C, up to 1 minute |
-| Polymorph | Transmutation | Bard, Druid, Sorcerer, Wizard | Action | 60 feet | V, S, M | C, up to 1 hour |
-| Spellfire Storm | Evocation | Sorcerer, Wizard | Action | 60 feet | V, S | C, up to 1 minute |
-| Staggering Smite | Enchantment | Paladin | Bonus Action(*) | Self | V | Instantaneous |
-| Stone Shape | Transmutation | Artificer, Cleric, Druid, Wizard | Action | Touch | V, S, M | Instantaneous |
-| Stoneskin | Transmutation | Artificer, Druid, Ranger, Sorcerer, Wizard | Action | Touch | V, S, M(C*) | C, up to 1 hour |
-| Summon Aberration | Conjuration | Warlock, Wizard | Action | 90 feet | V, S, M(C) | C, up to 1 hour |
-| Summon Construct | Conjuration | Artificer, Wizard | Action | 90 feet | V, S, M(C) | C, up to 1 hour |
-| Summon Elemental | Conjuration | Druid, Ranger, Wizard | Action | 90 feet | V, S, M(C) | C, up to 1 hour |
-| Vitriolic Sphere | Evocation | Sorcerer, Wizard | Action | 150 feet | V, S, M | Instantaneous |
-| Wall of Fire | Evocation | Druid, Sorcerer, Wizard | Action | 120 feet | V, S, M | C, up to 1 minute |
-
+| Name                           | School        | Spell lists                                  | Casting Time     | Range    | Components   | Duration            |
+| ------------------------------ | ------------- | -------------------------------------------- | ---------------- | -------- | ------------ | ------------------- |
+| Arcane Eye                     | Divination    | Artificer, Wizard                            | Action           | 30 feet  | V, S, M      | C, up to 1 hour     |
+| Aura of Life                   | Abjuration    | Cleric, Paladin                              | Action           | Self     | V            | C, up to 10 minutes |
+| Aura of Purity                 | Abjuration    | Cleric, Paladin                              | Action           | Self     | V            | C, up to 10 minutes |
+| Backlash                       | Abjuration    | Bard, Sorcerer, Warlock, Wizard              | Reaction         | 60 feet  | V            | Instantaneous       |
+| Banishment                     | Abjuration    | Cleric, Paladin, Sorcerer, Warlock, Wizard   | Action           | 30 feet  | V, S, M      | C, up to 1 minute   |
+| Blight                         | Necromancy    | Druid, Sorcerer, Warlock, Wizard             | Action           | 30 feet  | V, S         | Instantaneous       |
+| Charm Monster                  | Enchantment   | Bard, Druid, Sorcerer, Warlock, Wizard       | Action           | 30 feet  | V, S         | 1 hour              |
+| Compulsion                     | Enchantment   | Bard                                         | Action           | 30 feet  | V, S         | C, up to 1 minute   |
+| Confusion                      | Enchantment   | Bard, Druid, Sorcerer, Wizard                | Action           | 90 feet  | V, S, M      | C, up to 1 minute   |
+| Conjure Minor Elementals       | Conjuration   | Druid, Wizard                                | Action           | Self     | V, S         | C, up to 10 minutes |
+| Conjure Woodland Beings        | Conjuration   | Druid, Ranger                                | Action           | Self     | V, S         | C, up to 10 minutes |
+| Control Water                  | Transmutation | Cleric, Druid, Wizard                        | Action           | 300 feet | V, S, M      | C, up to 10 minutes |
+| Death Ward                     | Abjuration    | Cleric, Paladin                              | Action           | Touch    | V, S         | 8 hours             |
+| Dimension Door                 | Conjuration   | Bard, Sorcerer, Warlock, Wizard              | Action           | 500 feet | V            | Instantaneous       |
+| Divination                     | Divination    | Cleric, Druid, Wizard                        | Action or R      | Self     | V, S, M(C\*) | Instantaneous       |
+| Dominate Beast                 | Enchantment   | Druid, Ranger, Sorcerer                      | Action           | 60 feet  | V, S         | C, up to 1 minute   |
+| Doomtide                       | Conjuration   | Bard, Cleric, Warlock                        | Action           | 120 feet | V, S, M      | C, up to 1 minute   |
+| Evard's Black Tentacles        | Conjuration   | Wizard                                       | Action           | 90 feet  | V, S, M      | C, up to 1 minute   |
+| Fabricate                      | Transmutation | Artificer, Wizard                            | 10 minutes       | 120 feet | V, S         | Instantaneous       |
+| Fire Shield                    | Evocation     | Druid, Sorcerer, Wizard                      | Action           | Self     | V, S, M      | 10 minutes          |
+| Fount of Moonlight             | Evocation     | Bard, Druid                                  | Action           | Self     | V, S         | C, up to 10 minutes |
+| Freedom of Movement            | Abjuration    | Artificer, Bard, Cleric, Druid, Ranger       | Action           | Touch    | V, S, M      | 1 hour              |
+| Giant Insect                   | Conjuration   | Druid                                        | Action           | 60 feet  | V, S         | C, up to 10 minutes |
+| Grasping Vine                  | Conjuration   | Druid, Ranger                                | Bonus Action     | 60 feet  | V, S         | C, up to 1 minute   |
+| Greater Invisibility           | Illusion      | Bard, Sorcerer, Wizard                       | Action           | Touch    | V, S         | C, up to 1 hour     |
+| Guardian of Faith              | Conjuration   | Cleric                                       | Action           | 30 feet  | V            | 8 hours             |
+| Hallucinatory Terrain          | Illusion      | Bard, Druid, Warlock, Wizard                 | 10 minutes       | 300 feet | V, S, M      | 24 hours            |
+| Ice Storm                      | Evocation     | Druid, Sorcerer, Wizard                      | Action           | 300 feet | V, S, M      | Instantaneous       |
+| Leomund's Secret Chest         | Conjuration   | Artificer, Wizard                            | Action           | Touch    | V, S, M(C)   | Until dispelled     |
+| Locate Creature                | Divination    | Bard, Cleric, Druid, Paladin, Ranger, Wizard | Action           | Self     | V, S, M      | C, up to 1 hour     |
+| Mordenkainen's Faithful Hound  | Conjuration   | Wizard                                       | Action           | 30 feet  | V, S, M      | 8 hours             |
+| Mordenkainen's Private Sanctum | Abjuration    | Artificer, Wizard                            | 10 minutes       | 120 feet | V, S, M      | 24 hours            |
+| Otiluke's Resilient Sphere     | Abjuration    | Artificer, Wizard                            | Action           | 30 feet  | V, S, M      | C, up to 1 minute   |
+| Phantasmal Killer              | Illusion      | Bard, Wizard                                 | Action           | 120 feet | V, S         | C, up to 1 minute   |
+| Polymorph                      | Transmutation | Bard, Druid, Sorcerer, Wizard                | Action           | 60 feet  | V, S, M      | C, up to 1 hour     |
+| Spellfire Storm                | Evocation     | Sorcerer, Wizard                             | Action           | 60 feet  | V, S         | C, up to 1 minute   |
+| Staggering Smite               | Enchantment   | Paladin                                      | Bonus Action(\*) | Self     | V            | Instantaneous       |
+| Stone Shape                    | Transmutation | Artificer, Cleric, Druid, Wizard             | Action           | Touch    | V, S, M      | Instantaneous       |
+| Stoneskin                      | Transmutation | Artificer, Druid, Ranger, Sorcerer, Wizard   | Action           | Touch    | V, S, M(C\*) | C, up to 1 hour     |
+| Summon Aberration              | Conjuration   | Warlock, Wizard                              | Action           | 90 feet  | V, S, M(C)   | C, up to 1 hour     |
+| Summon Construct               | Conjuration   | Artificer, Wizard                            | Action           | 90 feet  | V, S, M(C)   | C, up to 1 hour     |
+| Summon Elemental               | Conjuration   | Druid, Ranger, Wizard                        | Action           | 90 feet  | V, S, M(C)   | C, up to 1 hour     |
+| Vitriolic Sphere               | Evocation     | Sorcerer, Wizard                             | Action           | 150 feet | V, S, M      | Instantaneous       |
+| Wall of Fire                   | Evocation     | Druid, Sorcerer, Wizard                      | Action           | 120 feet | V, S, M      | C, up to 1 minute   |
 
 ### 4th Level Spell Descriptions
 
 ### Arcane Eye
+
 *Level 4 Divination (Artificer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a bit of bat fur)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a bit of bat fur)\
 **Duration:** Concentration, up to 1 hour
 
 You create an Invisible, invulnerable eye within range that hovers for the duration. You mentally receive visual information from the eye, which can see in every direction. It also has Darkvision with a range of 30 feet.
 
 As a Bonus Action, you can move the eye up to 30 feet in any direction. A solid barrier blocks the eye's movement, but the eye can pass through an opening as small as 1 inch in diameter.
 
----
+***
 
 ### Aura of Life
+
 *Level 4 Abjuration (Cleric, Paladin)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V\
 **Duration:** Concentration, up to 10 minutes
 
 An aura radiates from you in a 30-foot Emanation for the duration. While in the aura, you and your allies have Resistance to Necrotic damage, and your Hit Point maximums can't be reduced. If an ally with 0 Hit Points starts its turn in the aura, that ally regains 1 Hit Point.
 
----
+***
 
 ### Aura of Purity
+
 *Level 4 Abjuration (Cleric, Paladin)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V\
 **Duration:** Concentration, up to 10 minutes
 
 An aura radiates from you in a 30-foot Emanation for the duration. While in the aura, you and your allies have Resistance to Poison damage and Advantage on saving throws to avoid or end effects that include the Blinded, Charmed, Deafened, Frightened, Paralyzed, Poisoned, or Stunned condition.
 
----
+***
 
 ### Backlash
+
 *Level 4 Abjuration (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Reaction, which you take in response to taking damage  
-**Range:** 60 feet  
-**Components:** V  
+**Casting Time:** Reaction, which you take in response to taking damage\
+**Range:** 60 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 You ward yourself against destructive energy, reducing the damage taken by 4d6 plus your spellcasting ability modifier.
@@ -3636,14 +3858,15 @@ If the triggering damage was from a creature within range, you can force the cre
 
 **Using a Higher-Level Spell Slot.** The damage reduction and Force damage from this spell both increase by 1d6 for every spell slot level above 4.
 
----
+***
 
 ### Banishment
+
 *Level 4 Abjuration (Cleric, Paladin, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a pentacle)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a pentacle)\
 **Duration:** Concentration, up to 1 minute
 
 One creature that you can see within range must succeed on a Charisma saving throw or be transported to a harmless demiplane for the duration. While there, the target has the Incapacitated condition. When the spell ends, the target reappears in the space it left or in the nearest unoccupied space if that space is occupied.
@@ -3652,14 +3875,15 @@ If the target is an Aberration, a Celestial, an Elemental, a Fey, or a Fiend, th
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 4.
 
----
+***
 
 ### Blight
+
 *Level 4 Necromancy (Druid, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 A creature that you can see within range makes a Constitution saving throw, taking 8d8 Necrotic damage on a failed save or half as much damage on a successful one. A Plant creature automatically fails the save.
@@ -3668,65 +3892,69 @@ Alternatively, target a nonmagical plant that isn't a creature, such as a tree o
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 4.
 
----
+***
 
 ### Charm Monster
+
 *Level 4 Enchantment (Bard, Druid, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** 1 hour
 
 One creature you can see within range makes a Wisdom saving throw. It does so with Advantage if you or your allies are fighting it. On a failed save, the target has the Charmed condition until the spell ends or until you or your allies damage it. The Charmed creature is Friendly to you. When the spell ends, the target knows it was Charmed by you.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 4.
 
----
+***
 
 ### Compulsion
+
 *Level 4 Enchantment (Bard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 Each creature of your choice that you can see within range must succeed on a Wisdom saving throw or have the Charmed condition until the spell ends.
 
 For the duration, you can take a Bonus Action to designate a direction that is horizontal to you. Each Charmed target must use as much of its movement as possible to move in that direction on its next turn, taking the safest route. After moving in this way, a target repeats the save, ending the spell on itself on a success.
 
----
+***
 
 ### Confusion
+
 *Level 4 Enchantment (Bard, Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (three nut shells)  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (three nut shells)\
 **Duration:** Concentration, up to 1 minute
 
 Each creature in a 10-foot-radius Sphere centered on a point you choose within range must succeed on a Wisdom saving throw, or that target can't take Bonus Actions or Reactions and must roll 1d10 at the start of each of its turns to determine its behavior for that turn, consulting the table below.
 
-| 1d10 | Behavior for the Turn |
-|------|----------------------|
-| 1 | The target doesn't take an action, and it uses all its movement to move. Roll 1d4 for the direction: 1, north; 2, east; 3, south; or 4, west. |
-| 2-6 | The target doesn't move or take actions. |
-| 7-8 | The target doesn't move, and it takes the Attack action to make one melee attack against a random creature within reach. If none are within reach, the target takes no action. |
-| 9-10 | The target chooses its behavior. |
+| 1d10 | Behavior for the Turn                                                                                                                                                          |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | The target doesn't take an action, and it uses all its movement to move. Roll 1d4 for the direction: 1, north; 2, east; 3, south; or 4, west.                                  |
+| 2-6  | The target doesn't move or take actions.                                                                                                                                       |
+| 7-8  | The target doesn't move, and it takes the Attack action to make one melee attack against a random creature within reach. If none are within reach, the target takes no action. |
+| 9-10 | The target chooses its behavior.                                                                                                                                               |
 
 At the end of each of its turns, an affected target repeats the save, ending the spell on itself on a success.
 
 **Using a Higher-Level Spell Slot.** The Sphere's radius increases by 5 feet for each spell slot level above 4.
 
----
+***
 
 ### Conjure Minor Elementals
+
 *Level 4 Conjuration (Druid, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You conjure spirits from the Elemental Planes that flit around you in a 15-foot Emanation for the duration. Until the spell ends, any attack you make deals an extra 2d8 damage when you hit a creature in the Emanation. This damage is Acid, Cold, Fire, or Lightning (your choice when you make the attack).
@@ -3735,14 +3963,15 @@ In addition, the ground in the Emanation is Difficult Terrain for your enemies.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 4.
 
----
+***
 
 ### Conjure Woodland Beings
+
 *Level 4 Conjuration (Druid, Ranger)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You conjure nature spirits that flit around you in a 10-foot Emanation for the duration. Whenever the Emanation enters the space of a creature you can see and whenever a creature you can see enters the Emanation or ends its turn there, you can force that creature to make a Wisdom saving throw. The creature takes 5d8 Force damage on a failed save or half as much damage on a successful one. A creature makes this save only once per turn.
@@ -3751,14 +3980,15 @@ In addition, you can take the Disengage action as a Bonus Action for the spell's
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 4.
 
----
+***
 
 ### Control Water
+
 *Level 4 Transmutation (Cleric, Druid, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 300 feet  
-**Components:** V, S, M (a mixture of water and dust)  
+**Casting Time:** Action\
+**Range:** 300 feet\
+**Components:** V, S, M (a mixture of water and dust)\
 **Duration:** Concentration, up to 10 minutes
 
 Until the spell ends, you control any water inside an area you choose that is a Cube up to 100 feet on a side, using one of the following effects. As a Magic action on your later turns, you can repeat the same effect or choose a different one.
@@ -3773,28 +4003,30 @@ The water level remains elevated until the spell ends or you choose a different 
 
 **Whirlpool.** You cause a whirlpool to form in the center of the area, which must be at least 50 feet square and 25 feet deep. The whirlpool lasts until you choose a different effect or the spell ends. The whirlpool is 5 feet wide at the base, up to 50 feet wide at the top, and 25 feet tall. Any creature in the water and within 25 feet of the whirlpool is pulled 10 feet toward it. When a creature enters the whirlpool for the first time on a turn or ends its turn there, it makes a Strength saving throw. On a failed save, the creature takes 2d8 Bludgeoning damage. On a successful save, the creature takes half as much damage. A creature can swim away from the whirlpool only if it first takes an action to pull away and succeeds on a Strength (Athletics) check against your spell save DC.
 
----
+***
 
 ### Death Ward
+
 *Level 4 Abjuration (Cleric, Paladin)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** 8 hours
 
 You touch a creature and grant it a measure of protection from death. The first time the target would drop to 0 Hit Points before the spell ends, the target instead drops to 1 Hit Point, and the spell ends.
 
 If the spell is still in effect when the target is subjected to an effect that would kill it instantly without dealing damage, that effect is negated against the target, and the spell ends.
 
----
+***
 
 ### Dimension Door
+
 *Level 4 Conjuration (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 500 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 500 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 You teleport to a location within range. You arrive at exactly the spot desired. It can be a place you can see, one you can visualize, or one you can describe by stating distance and direction, such as "200 feet straight downward" or "300 feet upward to the northwest at a 45-degree angle."
@@ -3803,28 +4035,30 @@ You can also teleport one willing creature. The creature must be within 5 feet o
 
 If you, the other creature, or both would arrive in a space occupied by a creature or completely filled by one or more objects, you and any creature traveling with you each take 4d6 Force damage, and the teleportation fails.
 
----
+***
 
 ### Divination
+
 *Level 4 Divination (Cleric, Druid, Wizard)*
 
-**Casting Time:** Action or Ritual  
-**Range:** Self  
-**Components:** V, S, M (incense worth 25+ GP, which the spell consumes)  
+**Casting Time:** Action or Ritual\
+**Range:** Self\
+**Components:** V, S, M (incense worth 25+ GP, which the spell consumes)\
 **Duration:** Instantaneous
 
 This spell puts you in contact with a god or a god's servants. You ask one question about a specific goal, event, or activity to occur within 7 days. The DM offers a truthful reply, which might be a short phrase or cryptic rhyme. The spell doesn't account for circumstances that might change the answer, such as the casting of other spells.
 
 If you cast the spell more than once before finishing a Long Rest, there is a cumulative 25 percent chance for each casting after the first that you get no answer.
 
----
+***
 
 ### Dominate Beast
+
 *Level 4 Enchantment (Druid, Ranger, Sorcerer)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 One Beast you can see within range must succeed on a Wisdom saving throw or have the Charmed condition for the duration. The target has Advantage on the save if you or your allies are fighting it. Whenever the target takes damage, it repeats the save, ending the spell on itself on a success.
@@ -3835,14 +4069,15 @@ You can command the target to take a Reaction but must take your own Reaction to
 
 **Using a Higher-Level Spell Slot.** Your Concentration can last longer with a spell slot of level 5 (up to 10 minutes), 6 (up to 1 hour), or 7+ (up to 8 hours).
 
----
+***
 
 ### Doomtide
+
 *Level 4 Conjuration (Bard, Cleric, Warlock)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (soot and a dried eel)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (soot and a dried eel)\
 **Duration:** Concentration, up to 1 minute
 
 You create a 20-foot-radius Sphere of inky fog within range. The fog is magical Darkness and lasts for the duration or until a strong wind (such as the one created by the Gust of Wind spell) disperses it, ending the spell.
@@ -3855,14 +4090,15 @@ The Sphere moves 10 feet away from you at the start of each of your turns.
 
 When the spell is cast, each secondary caster must expend a level 3+ spell slot; otherwise, the spell fails.
 
----
+***
 
 ### Evard's Black Tentacles
+
 *Level 4 Conjuration (Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (a tentacle)  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (a tentacle)\
 **Duration:** Concentration, up to 1 minute
 
 Squirming, ebony tentacles fill a 20-foot square on ground that you can see within range. For the duration, these tentacles turn the ground in that area into Difficult Terrain.
@@ -3871,14 +4107,15 @@ Each creature in that area makes a Strength saving throw. On a failed save, it t
 
 A Restrained creature can take an action to make a Strength (Athletics) check against your spell save DC, ending the condition on itself on a success.
 
----
+***
 
 ### Fabricate
+
 *Level 4 Transmutation (Artificer, Wizard)*
 
-**Casting Time:** 10 minutes  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** 10 minutes\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You convert raw materials into products of the same material. For example, you can fabricate a wooden bridge from a clump of trees, a rope from a patch of hemp, or clothes from flax or wool.
@@ -3887,14 +4124,15 @@ Choose raw materials that you can see within range. You can fabricate a Large or
 
 Creatures and magic items can't be created by this spell. You also can't use it to create items that require a high degree of skill - such as weapons and armor - unless you have proficiency with the type of Artisan's Tools used to craft such objects.
 
----
+***
 
 ### Fire Shield
+
 *Level 4 Evocation (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a bit of phosphorus or a firefly)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a bit of phosphorus or a firefly)\
 **Duration:** 10 minutes
 
 Wispy flames wreathe your body for the duration, shedding Bright Light in a 10-foot radius and Dim Light for an additional 10 feet.
@@ -3903,14 +4141,15 @@ The flames provide you with a warm shield or a chill shield, as you choose. The 
 
 In addition, whenever a creature within 5 feet of you hits you with a melee attack roll, the shield erupts with flame. The attacker takes 2d8 Fire damage from a warm shield or 2d8 Cold damage from a chill shield.
 
----
+***
 
 ### Fount of Moonlight
+
 *Level 4 Evocation (Bard, Druid)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 A cool light wreathes your body for the duration, emitting Bright Light in a 20-foot radius and Dim Light for an additional 20 feet.
@@ -3919,14 +4158,15 @@ Until the spell ends, you have Resistance to Radiant damage, and your melee atta
 
 In addition, immediately after you take damage from a creature you can see within 60 feet of yourself, you can take a Reaction to force the creature to make a Constitution saving throw. On a failed save, the creature has the Blinded condition until the end of your next turn.
 
----
+***
 
 ### Freedom of Movement
+
 *Level 4 Abjuration (Artificer, Bard, Cleric, Druid, Ranger)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a leather strap)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a leather strap)\
 **Duration:** 1 hour
 
 You touch a willing creature. For the duration, the target's movement is unaffected by Difficult Terrain, and spells and other magical effects can neither reduce the target's Speed nor cause the target to have the Paralyzed or Restrained conditions. The target also has a Swim Speed equal to its Speed.
@@ -3935,14 +4175,15 @@ In addition, the target can spend 5 feet of movement to automatically escape fro
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 4.
 
----
+***
 
 ### Giant Insect
+
 *Level 4 Conjuration (Druid)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You summon a giant centipede, spider, or wasp (chosen when you cast the spell). It manifests in an unoccupied space you can see within range and uses the **Giant Insect** stat block. The form you choose determines certain details in its stat block. The creature disappears when it drops to 0 Hit Points or when the spell ends.
@@ -3951,14 +4192,15 @@ The creature is an ally to you and your allies. In combat, the creature shares y
 
 **Using a Higher-Level Spell Slot.** Use the spell slot's level for the spell's level in the stat block.
 
----
+***
 
 ### Grasping Vine
+
 *Level 4 Conjuration (Druid, Ranger)*
 
-**Casting Time:** Bonus Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Bonus Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You conjure a vine that sprouts from a surface in an unoccupied space that you can see within range. The vine lasts for the duration.
@@ -3969,54 +4211,58 @@ As a Bonus Action on your later turns, you can repeat the attack against a creat
 
 **Using a Higher-Level Spell Slot.** The number of creatures the vine can grapple increases by one for each spell slot level above 4.
 
----
+***
 
 ### Greater Invisibility
+
 *Level 4 Illusion (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 A creature you touch has the Invisible condition until the spell ends.
 
----
+***
 
 ### Guardian of Faith
+
 *Level 4 Conjuration (Cleric)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V\
 **Duration:** 8 hours
 
 A Large spectral guardian appears and hovers for the duration in an unoccupied space that you can see within range. The guardian occupies that space and is invulnerable, and it appears in a form appropriate for your deity or pantheon.
 
 Any enemy that moves to a space within 10 feet of the guardian for the first time on a turn or starts its turn there makes a Dexterity saving throw, taking 20 Radiant damage on a failed save or half as much damage on a successful one. The guardian vanishes when it has dealt a total of 60 damage.
 
----
+***
 
 ### Hallucinatory Terrain
+
 *Level 4 Illusion (Bard, Druid, Warlock, Wizard)*
 
-**Casting Time:** 10 minutes  
-**Range:** 300 feet  
-**Components:** V, S, M (a mushroom)  
+**Casting Time:** 10 minutes\
+**Range:** 300 feet\
+**Components:** V, S, M (a mushroom)\
 **Duration:** 24 hours
 
 You make natural terrain in a 150-foot Cube in range look, sound, and smell like another sort of natural terrain. Thus, open fields or a road can be made to resemble a swamp, hill, crevasse, or some other difficult or impassable terrain. A pond can be made to seem like a grassy meadow, a precipice like a gentle slope, or a rock-strewn gully like a wide and smooth road. Manufactured structures, equipment, and creatures within the area aren't changed.
 
 The tactile characteristics of the terrain are unchanged, so creatures entering the area are likely to notice the illusion. If the difference isn't obvious by touch, a creature examining the illusion can take the Study action to make an Intelligence (Investigation) check against your spell save DC to disbelieve it. If a creature discerns that the terrain is illusory, the creature sees a vague image superimposed on the real terrain.
 
----
+***
 
 ### Ice Storm
+
 *Level 4 Evocation (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 300 feet  
-**Components:** V, S, M (a mitten)  
+**Casting Time:** Action\
+**Range:** 300 feet\
+**Components:** V, S, M (a mitten)\
 **Duration:** Instantaneous
 
 Hail falls in a 20-foot-radius, 40-foot-high Cylinder centered on a point within range. Each creature in the Cylinder makes a Dexterity saving throw. A creature takes 2d10 Bludgeoning damage and 4d6 Cold damage on a failed save or half as much damage on a successful one.
@@ -4025,14 +4271,15 @@ Hailstones turn ground in the Cylinder into Difficult Terrain until the end of y
 
 **Using a Higher-Level Spell Slot.** The Bludgeoning damage increases by 1d10 for each spell slot level above 4.
 
----
+***
 
 ### Leomund's Secret Chest
+
 *Level 4 Conjuration (Artificer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a chest, 3 feet by 2 feet by 2 feet, constructed from rare materials worth 5,000+ GP, and a Tiny replica of the chest made from the same materials worth 50+ GP)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a chest, 3 feet by 2 feet by 2 feet, constructed from rare materials worth 5,000+ GP, and a Tiny replica of the chest made from the same materials worth 50+ GP)\
 **Duration:** Until dispelled
 
 You hide a chest and all its contents on the Ethereal Plane. You must touch the chest and the miniature replica that serve as Material components for the spell. The chest can contain up to 12 cubic feet of nonliving material (3 feet by 2 feet by 2 feet).
@@ -4041,14 +4288,15 @@ While the chest remains on the Ethereal Plane, you can take a Magic action and t
 
 After 60 days, there is a cumulative 5 percent chance at the end of each day that the spell ends. The spell also ends if you cast this spell again or if the Tiny replica chest is destroyed. If the spell ends and the larger chest is on the Ethereal Plane, the chest remains there for you or someone else to find.
 
----
+***
 
 ### Locate Creature
+
 *Level 4 Divination (Bard, Cleric, Druid, Paladin, Ranger, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (fur from a bloodhound)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (fur from a bloodhound)\
 **Duration:** Concentration, up to 1 hour
 
 Describe or name a creature that is familiar to you. You sense the direction to the creature's location if that creature is within 1,000 feet of you. If the creature is moving, you know the direction of its movement.
@@ -4057,14 +4305,15 @@ The spell can locate a specific creature known to you or the nearest creature of
 
 This spell can't locate a creature if any thickness of lead blocks a direct path between you and the creature.
 
----
+***
 
 ### Mordenkainen's Faithful Hound
+
 *Level 4 Conjuration (Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a silver whistle)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a silver whistle)\
 **Duration:** 8 hours
 
 You conjure a phantom watchdog in an unoccupied space that you can see within range. The hound remains for the duration or until the two of you are more than 300 feet apart from each other.
@@ -4075,14 +4324,15 @@ At the start of each of your turns, the hound attempts to bite one enemy within 
 
 On your later turns, you can take a Magic action to move the hound up to 30 feet.
 
----
+***
 
 ### Mordenkainen's Private Sanctum
+
 *Level 4 Abjuration (Artificer, Wizard)*
 
-**Casting Time:** 10 minutes  
-**Range:** 120 feet  
-**Components:** V, S, M (a thin sheet of lead)  
+**Casting Time:** 10 minutes\
+**Range:** 120 feet\
+**Components:** V, S, M (a thin sheet of lead)\
 **Duration:** 24 hours
 
 You make an area within range magically secure. The area is a Cube that can be as small as 5 feet to as large as 100 feet on each side. The spell lasts for the duration.
@@ -4100,14 +4350,15 @@ Casting this spell on the same spot every day for 365 days makes the spell last 
 
 **Using a Higher-Level Spell Slot.** You can increase the size of the Cube by 100 feet for each spell slot level above 4.
 
----
+***
 
 ### Otiluke's Resilient Sphere
+
 *Level 4 Abjuration (Artificer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a glass sphere)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a glass sphere)\
 **Duration:** Concentration, up to 1 minute
 
 A shimmering sphere encloses a Large or smaller creature or object within range. An unwilling creature must succeed on a Dexterity saving throw or be enclosed for the duration.
@@ -4118,14 +4369,15 @@ The sphere is weightless and just large enough to contain the creature or object
 
 A Disintegrate spell targeting the globe destroys it without harming anything inside.
 
----
+***
 
 ### Phantasmal Killer
+
 *Level 4 Illusion (Bard, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You tap into the nightmares of a creature you can see within range and create an illusion of its deepest fears, visible only to that creature. The target makes a Wisdom saving throw. On a failed save, the target takes 4d10 Psychic damage and has Disadvantage on ability checks and attack rolls for the duration. On a successful save, the target takes half as much damage, and the spell ends.
@@ -4134,14 +4386,15 @@ For the duration, the target makes a Wisdom saving throw at the end of each of i
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d10 for each spell slot level above 4.
 
----
+***
 
 ### Polymorph
+
 *Level 4 Transmutation (Bard, Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a caterpillar cocoon)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a caterpillar cocoon)\
 **Duration:** Concentration, up to 1 hour
 
 You attempt to transform a creature that you can see within range into a Beast. The target must succeed on a Wisdom saving throw or shape-shift into a Beast form for the duration. That form can be any Beast you choose that has a Challenge Rating equal to or less than the target's (or the target's level if it doesn't have a Challenge Rating). The target's game statistics are replaced by the stat block of the chosen Beast, but the target retains its alignment, personality, creature type, Hit Points, and Hit Point Dice.
@@ -4152,14 +4405,15 @@ The target is limited in the actions it can perform by the anatomy of its new fo
 
 The target's gear melds into the new form. The creature can't use or otherwise benefit from any of that equipment.
 
----
+***
 
 ### Spellfire Storm
+
 *Level 4 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You conjure a pillar of spellfire in a 20-foot-radius, 20-foot-high Cylinder centered on a point within range. The area of the Cylinder is Bright Light, and each creature in it when it appears makes a Constitution saving throw, taking 4d10 Radiant damage on a failed save or half as much damage on a successful one. A creature also makes this save when it enters the spell's area for the first time on a turn or ends its turn there. A creature makes this save only once per turn.
@@ -4172,52 +4426,56 @@ When you cast this spell, you can designate creatures to be unaffected by it.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d10 for every spell slot level above 4.
 
----
+***
 
 ### Staggering Smite
+
 *Level 4 Enchantment (Paladin)*
 
-**Casting Time:** Bonus Action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Bonus Action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike\
+**Range:** Self\
+**Components:** V\
 **Duration:** Instantaneous
 
 The target takes an extra 4d6 Psychic damage from the attack, and the target must succeed on a Wisdom saving throw or have the Stunned condition until the end of your next turn.
 
 **Using a Higher-Level Spell Slot.** The extra damage increases by 1d6 for each spell slot level above 4.
 
----
+***
 
 ### Stone Shape
+
 *Level 4 Transmutation (Artificer, Cleric, Druid, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (soft clay)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (soft clay)\
 **Duration:** Instantaneous
 
 You touch a stone object of Medium size or smaller or a section of stone no more than 5 feet in any dimension and form it into any shape you like. For example, you could shape a large rock into a weapon, statue, or coffer, or you could make a small passage through a wall that is 5 feet thick. You could also shape a stone door or its frame to seal the door shut. The object you create can have up to two hinges and a latch, but finer mechanical detail isn't possible.
 
----
+***
 
 ### Stoneskin
+
 *Level 4 Transmutation (Artificer, Druid, Ranger, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (diamond dust worth 100+ GP, which the spell consumes)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (diamond dust worth 100+ GP, which the spell consumes)\
 **Duration:** Concentration, up to 1 hour
 
 Until the spell ends, one willing creature you touch has Resistance to Bludgeoning, Piercing, and Slashing damage.
 
----
+***
 
 ### Summon Aberration
+
 *Level 4 Conjuration (Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (a pickled tentacle and an eyeball in a platinum-inlaid vial worth 400+ GP)  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (a pickled tentacle and an eyeball in a platinum-inlaid vial worth 400+ GP)\
 **Duration:** Concentration, up to 1 hour
 
 You call forth an aberrant spirit. It manifests in an unoccupied space that you can see within range and uses the Aberrant Spirit stat block. When you cast the spell, choose Beholderkin, Mind Flayer, or Slaad. The creature resembles an Aberration of that kind, which determines certain details in its stat block. The creature disappears when it drops to 0 Hit Points or when the spell ends.
@@ -4226,14 +4484,15 @@ The creature is an ally to you and your allies. In combat, it shares your Initia
 
 **Using a Higher-Level Spell Slot.** Use the spell slot's level for the spell's level in the stat block.
 
----
+***
 
 ### Summon Construct
+
 *Level 4 Conjuration (Artificer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (a lockbox worth 400+ GP)  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (a lockbox worth 400+ GP)\
 **Duration:** Concentration, up to 1 hour
 
 You call forth the spirit of a Construct. It manifests in an unoccupied space that you can see within range and uses the Construct Spirit stat block. When you cast the spell, choose a material: Clay, Metal, or Stone. The creature resembles an animate statue (you determine the appearance) made of the chosen material, which determines certain details in its stat block. The creature disappears when it drops to 0 Hit Points or when the spell ends.
@@ -4242,14 +4501,15 @@ The creature is an ally to you and your allies. In combat, the creature shares y
 
 **Using a Higher-Level Spell Slot.** Use the spell slot's level for the spell's level in the stat block.
 
----
+***
 
 ### Summon Elemental
+
 *Level 4 Conjuration (Druid, Ranger, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (air, a pebble, ash, and water inside a gold-inlaid vial worth 400+ GP)  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (air, a pebble, ash, and water inside a gold-inlaid vial worth 400+ GP)\
 **Duration:** Concentration, up to 1 hour
 
 You call forth an Elemental spirit. It manifests in an unoccupied space that you can see within range and uses the Elemental Spirit stat block. When you cast the spell, choose an element: Air, Earth, Fire, or Water. The creature resembles a bipedal form wreathed in the chosen element, which determines certain details in its stat block. The creature disappears when it drops to 0 Hit Points or when the spell ends.
@@ -4258,28 +4518,30 @@ The creature is an ally to you and your allies. In combat, the creature shares y
 
 **Using a Higher-Level Spell Slot.** Use the spell slot's level for the spell's level in the stat block.
 
----
+***
 
 ### Vitriolic Sphere
+
 *Level 4 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S, M (a drop of bile)  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S, M (a drop of bile)\
 **Duration:** Instantaneous
 
 You point at a location within range, and a glowing, 1-foot-diameter ball of acid streaks there and explodes in a 20-foot-radius Sphere. Each creature in that area makes a Dexterity saving throw. On a failed save, a creature takes 10d4 Acid damage and another 5d4 Acid damage at the end of its next turn. On a successful save, a creature takes half the initial damage only.
 
 **Using a Higher-Level Spell Slot.** The initial damage increases by 2d4 for each spell slot level above 4.
 
----
+***
 
 ### Wall of Fire
+
 *Level 4 Evocation (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (a piece of charcoal)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (a piece of charcoal)\
 **Duration:** Concentration, up to 1 minute
 
 You create a wall of fire on a solid surface within range. You can make the wall up to 60 feet long, 20 feet high, and 1 foot thick, or a ringed wall up to 20 feet in diameter, 20 feet high, and 1 foot thick. The wall is opaque and lasts for the duration.
@@ -4290,71 +4552,70 @@ One side of the wall, selected by you when you cast this spell, deals 5d8 Fire d
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 4.
 
-
 ### 5th Level Spells
 
-| Name | School | Spell lists | Casting Time | Range | Components | Duration |
-|------|--------|-------------|--------------|-------|------------|----------|
-| Alustriel's Mooncloak | Abjuration | Bard, Druid, Ranger, Wizard | Action | Self | V, S, M(C) | C, up to 1 minute |
-| Animate Objects | Transmutation | Artificer, Bard, Sorcerer, Wizard | Action | 120 feet | V, S | C, up to 1 minute |
-| Antilife Shell | Abjuration | Druid | Action | Self | V, S | C up to 1 hour |
-| Awaken | Transmutation | Bard, Druid | 8 Hours | Touch | V, S, M(C*) | Instantaneous |
-| Banishing Smite | Conjuration | Paladin | Bonus Action | Self | V | C, up to 1 minute |
-| Bigby's Hand | Evocation | Artificer, Sorcerer, Wizard | Action | 120 feet | V, S, M | C, up to 1 minute |
-| Circle of Power | Abjuration | Artificer, Cleric, Paladin, Wizard | Action | Self | V | C, up to 10 minutes |
-| Cloudkill | Conjuration | Sorcerer, Wizard | Action | 120 feet | V, S | C, up to 10 minutes |
-| Commune | Divination | Cleric | 1 minute or R | Self | V, S, M | 1 minute |
-| Commune with Nature | Divination | Druid, Ranger | 1 minute or R | Self | V, S | Instantaneous |
-| Cone of Cold | Evocation | Druid, Sorcerer, Wizard | Action | Self | V, S, M | Instantaneous |
-| Conjure Elemental | Conjuration | Druid, Wizard | Action | 60 feet | V, S | C, up to 10 minutes |
-| Conjure Volley | Conjuration | Ranger | Action | 150 feet | V, S, M(C) | Instantaneous |
-| Contact Other Plane | Divination | Warlock, Wizard | 1 minute or R | Self | V | 1 minute |
-| Contagion | Necromancy | Cleric, Druid | Action | Touch | V, S | 7 days |
-| Creation | Illusion | Artificer, Sorcerer, Wizard | 1 minute | 30 feet | V, S, M | Special |
-| Destructive Wave | Evocation | Paladin | Action | Self | V | Instantaneous |
-| Dispel Evil and Good | Abjuration | Cleric, Paladin | Action | Self | V, S, M | C, up to 1 minute |
-| Dominate Person | Enchantment | Bard, Sorcerer, Wizard | Action | 60 feet | V, S | C, up to 1 minute |
-| Dream | Illusion | Bard, Warlock, Wizard | 1 minute | Special | V, S, M | 8 hours |
-| Flame Strike | Evocation | Cleric | Action | 60 feet | V, S, M | Instantaneous |
-| Geas | Enchantment | Bard, Cleric, Druid, Paladin, Wizard | 1 minute | 60 feet | V | 30 days |
-| Greater Restoration | Abjuration | Artificer, Bard, Cleric, Druid, Paladin, Ranger | Action | Touch | V, S, M(C*) | Instantaneous |
-| Hallow | Abjuration | Cleric | 24 hours | Touch | V, S, M(C*) | Until dispelled |
-| Hold Monster | Enchantment | Bard, Sorcerer, Warlock, Wizard | Action | 90 feet | V, S, M | C, up to 1 minute |
-| Insect Plague | Conjuration | Cleric, Druid, Sorcerer | Action | 300 feet | V, S, M | C, up to 10 minutes |
-| Jallarzi's Storm of Radiance | Evocation | Warlock, Wizard | Action | 120 feet | V, S, M | C, up to 1 minute |
-| Legend Lore | Divination | Bard, Cleric, Wizard | 10 minutes | Self | V, S, M(C*) | Instantaneous |
-| Mass Cure Wounds | Abjuration | Bard, Cleric, Druid | Action | 60 feet | V, S | Instantaneous |
-| Mislead | Illusion | Bard, Warlock, Wizard | Action | Self | S | C, up to 1 hour |
-| Modify Memory | Enchantment | Bard, Wizard | Action | 30 feet | V, S | C, up to 1 minute |
-| Passwall | Transmutation | Wizard | Action | 30 feet | V, S, M | 1 hour |
-| Planar Binding | Abjuration | Bard, Cleric, Druid, Warlock, Wizard | 1 hour | 60 feet | V, S, M(C*) | 24 hours |
-| Raise Dead | Necromancy | Bard, Cleric, Paladin | 1 hour | Touch | V, S, M(C*) | Instantaneous |
-| Rary's Telepathic Bond | Divination | Bard, Wizard | Action or R | 30 feet | V, S, M | 1 hour |
-| Reincarnate | Necromancy | Druid | 1 hour | Touch | V, S, M(C*) | Instantaneous |
-| Scrying | Divination | Bard, Cleric, Druid, Warlock, Wizard | 10 minutes | Self | V, S, M | C, up to 10 minutes |
-| Seeming | Illusion | Bard, Sorcerer, Wizard | Action | 30 feet | V, S | 8 hours |
-| Songal's Elemental Suffusion | Transmutation | Druid, Sorcerer, Wizard | Action | Self | V, S, M(C) | C, up to 1 minute |
-| Steel Wind Strike | Conjuration | Ranger, Wizard | Action | 30 feet | S, M | Instantaneous |
-| Summon Celestial | Conjuration | Cleric, Paladin | Action | 90 feet | V, S, M(C) | C, up to 1 hour |
-| Summon Dragon | Conjuration | Wizard | Action | 60 feet | V, S, M(C) | C, up to 1 hour |
-| Swift Quiver | Transmutation | Ranger | Bonus Action | Self | V, S, M | C, up to 1 minute |
-| Synaptic Static | Enchantment | Bard, Sorcerer, Warlock, Wizard | Action | 120 feet | V, S | Instantaneous |
-| Telekinesis | Transmutation | Sorcerer, Wizard | Action | 60 feet | V, S | C, up to 10 minutes |
-| Teleportation Circle | Conjuration | Bard, Sorcerer, Warlock, Wizard | 1 minute | 10 feet | V, M (C*) | 1 round |
-| Tree Stride | Conjuration | Druid, Ranger | Action | Self | V, S | C, up to 1 minute |
-| Wall of Force | Evocation | Wizard | Action | 120 feet | V, S, M | C, up to 10 minutes |
-| Wall of Stone | Evocation | Artificer, Druid, Sorcerer, Wizard | Action | 120 feet | V, S, M | C, up to 10 minutes |
-| Yolande's Regal Presence | Enchantment | Bard, Wizard | Action | Self | V, S, M | C, up to 1 minute |
-
+| Name                         | School        | Spell lists                                     | Casting Time  | Range    | Components   | Duration            |
+| ---------------------------- | ------------- | ----------------------------------------------- | ------------- | -------- | ------------ | ------------------- |
+| Alustriel's Mooncloak        | Abjuration    | Bard, Druid, Ranger, Wizard                     | Action        | Self     | V, S, M(C)   | C, up to 1 minute   |
+| Animate Objects              | Transmutation | Artificer, Bard, Sorcerer, Wizard               | Action        | 120 feet | V, S         | C, up to 1 minute   |
+| Antilife Shell               | Abjuration    | Druid                                           | Action        | Self     | V, S         | C up to 1 hour      |
+| Awaken                       | Transmutation | Bard, Druid                                     | 8 Hours       | Touch    | V, S, M(C\*) | Instantaneous       |
+| Banishing Smite              | Conjuration   | Paladin                                         | Bonus Action  | Self     | V            | C, up to 1 minute   |
+| Bigby's Hand                 | Evocation     | Artificer, Sorcerer, Wizard                     | Action        | 120 feet | V, S, M      | C, up to 1 minute   |
+| Circle of Power              | Abjuration    | Artificer, Cleric, Paladin, Wizard              | Action        | Self     | V            | C, up to 10 minutes |
+| Cloudkill                    | Conjuration   | Sorcerer, Wizard                                | Action        | 120 feet | V, S         | C, up to 10 minutes |
+| Commune                      | Divination    | Cleric                                          | 1 minute or R | Self     | V, S, M      | 1 minute            |
+| Commune with Nature          | Divination    | Druid, Ranger                                   | 1 minute or R | Self     | V, S         | Instantaneous       |
+| Cone of Cold                 | Evocation     | Druid, Sorcerer, Wizard                         | Action        | Self     | V, S, M      | Instantaneous       |
+| Conjure Elemental            | Conjuration   | Druid, Wizard                                   | Action        | 60 feet  | V, S         | C, up to 10 minutes |
+| Conjure Volley               | Conjuration   | Ranger                                          | Action        | 150 feet | V, S, M(C)   | Instantaneous       |
+| Contact Other Plane          | Divination    | Warlock, Wizard                                 | 1 minute or R | Self     | V            | 1 minute            |
+| Contagion                    | Necromancy    | Cleric, Druid                                   | Action        | Touch    | V, S         | 7 days              |
+| Creation                     | Illusion      | Artificer, Sorcerer, Wizard                     | 1 minute      | 30 feet  | V, S, M      | Special             |
+| Destructive Wave             | Evocation     | Paladin                                         | Action        | Self     | V            | Instantaneous       |
+| Dispel Evil and Good         | Abjuration    | Cleric, Paladin                                 | Action        | Self     | V, S, M      | C, up to 1 minute   |
+| Dominate Person              | Enchantment   | Bard, Sorcerer, Wizard                          | Action        | 60 feet  | V, S         | C, up to 1 minute   |
+| Dream                        | Illusion      | Bard, Warlock, Wizard                           | 1 minute      | Special  | V, S, M      | 8 hours             |
+| Flame Strike                 | Evocation     | Cleric                                          | Action        | 60 feet  | V, S, M      | Instantaneous       |
+| Geas                         | Enchantment   | Bard, Cleric, Druid, Paladin, Wizard            | 1 minute      | 60 feet  | V            | 30 days             |
+| Greater Restoration          | Abjuration    | Artificer, Bard, Cleric, Druid, Paladin, Ranger | Action        | Touch    | V, S, M(C\*) | Instantaneous       |
+| Hallow                       | Abjuration    | Cleric                                          | 24 hours      | Touch    | V, S, M(C\*) | Until dispelled     |
+| Hold Monster                 | Enchantment   | Bard, Sorcerer, Warlock, Wizard                 | Action        | 90 feet  | V, S, M      | C, up to 1 minute   |
+| Insect Plague                | Conjuration   | Cleric, Druid, Sorcerer                         | Action        | 300 feet | V, S, M      | C, up to 10 minutes |
+| Jallarzi's Storm of Radiance | Evocation     | Warlock, Wizard                                 | Action        | 120 feet | V, S, M      | C, up to 1 minute   |
+| Legend Lore                  | Divination    | Bard, Cleric, Wizard                            | 10 minutes    | Self     | V, S, M(C\*) | Instantaneous       |
+| Mass Cure Wounds             | Abjuration    | Bard, Cleric, Druid                             | Action        | 60 feet  | V, S         | Instantaneous       |
+| Mislead                      | Illusion      | Bard, Warlock, Wizard                           | Action        | Self     | S            | C, up to 1 hour     |
+| Modify Memory                | Enchantment   | Bard, Wizard                                    | Action        | 30 feet  | V, S         | C, up to 1 minute   |
+| Passwall                     | Transmutation | Wizard                                          | Action        | 30 feet  | V, S, M      | 1 hour              |
+| Planar Binding               | Abjuration    | Bard, Cleric, Druid, Warlock, Wizard            | 1 hour        | 60 feet  | V, S, M(C\*) | 24 hours            |
+| Raise Dead                   | Necromancy    | Bard, Cleric, Paladin                           | 1 hour        | Touch    | V, S, M(C\*) | Instantaneous       |
+| Rary's Telepathic Bond       | Divination    | Bard, Wizard                                    | Action or R   | 30 feet  | V, S, M      | 1 hour              |
+| Reincarnate                  | Necromancy    | Druid                                           | 1 hour        | Touch    | V, S, M(C\*) | Instantaneous       |
+| Scrying                      | Divination    | Bard, Cleric, Druid, Warlock, Wizard            | 10 minutes    | Self     | V, S, M      | C, up to 10 minutes |
+| Seeming                      | Illusion      | Bard, Sorcerer, Wizard                          | Action        | 30 feet  | V, S         | 8 hours             |
+| Songal's Elemental Suffusion | Transmutation | Druid, Sorcerer, Wizard                         | Action        | Self     | V, S, M(C)   | C, up to 1 minute   |
+| Steel Wind Strike            | Conjuration   | Ranger, Wizard                                  | Action        | 30 feet  | S, M         | Instantaneous       |
+| Summon Celestial             | Conjuration   | Cleric, Paladin                                 | Action        | 90 feet  | V, S, M(C)   | C, up to 1 hour     |
+| Summon Dragon                | Conjuration   | Wizard                                          | Action        | 60 feet  | V, S, M(C)   | C, up to 1 hour     |
+| Swift Quiver                 | Transmutation | Ranger                                          | Bonus Action  | Self     | V, S, M      | C, up to 1 minute   |
+| Synaptic Static              | Enchantment   | Bard, Sorcerer, Warlock, Wizard                 | Action        | 120 feet | V, S         | Instantaneous       |
+| Telekinesis                  | Transmutation | Sorcerer, Wizard                                | Action        | 60 feet  | V, S         | C, up to 10 minutes |
+| Teleportation Circle         | Conjuration   | Bard, Sorcerer, Warlock, Wizard                 | 1 minute      | 10 feet  | V, M (C\*)   | 1 round             |
+| Tree Stride                  | Conjuration   | Druid, Ranger                                   | Action        | Self     | V, S         | C, up to 1 minute   |
+| Wall of Force                | Evocation     | Wizard                                          | Action        | 120 feet | V, S, M      | C, up to 10 minutes |
+| Wall of Stone                | Evocation     | Artificer, Druid, Sorcerer, Wizard              | Action        | 120 feet | V, S, M      | C, up to 10 minutes |
+| Yolande's Regal Presence     | Enchantment   | Bard, Wizard                                    | Action        | Self     | V, S, M      | C, up to 1 minute   |
 
 ### 5th Level Spell Descriptions
 
 ### Animate Objects
+
 *Level 5 Transmutation (Artificer, Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 Objects animate at your command. Choose a number of nonmagical objects within range that aren't being worn or carried, aren't fixed to a surface, and aren't Gargantuan. The maximum number of objects is equal to your spellcasting ability modifier; for this number, a Medium or smaller target counts as one object, a Large target counts as two, and a Huge target counts as three.
@@ -4365,54 +4626,58 @@ Until the spell ends, you can take a Bonus Action to mentally command any creatu
 
 **Using a Higher-Level Spell Slot.** The creature's Slam damage increases by 1d4 (Medium or smaller), 1d6 (Large), or 1d12 (Huge) for each spell slot level above 5.
 
----
+***
 
 ### Antilife Shell
+
 *Level 5 Abjuration (Druid)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 hour
 
 An aura extends from you in a 10-foot Emanation for the duration. The aura prevents creatures other than Constructs and Undead from passing or reaching through it. An affected creature can cast spells or make attacks with Ranged or Reach weapons through the barrier.
 
 If you move so that an affected creature is forced to pass through the barrier, the spell ends.
 
----
+***
 
 ### Awaken
+
 *Level 5 Transmutation (Bard, Druid)*
 
-**Casting Time:** 8 hours  
-**Range:** Touch  
-**Components:** V, S, M (an agate worth 1,000+ GP, which the spell consumes)  
+**Casting Time:** 8 hours\
+**Range:** Touch\
+**Components:** V, S, M (an agate worth 1,000+ GP, which the spell consumes)\
 **Duration:** Instantaneous
 
 You spend the casting time tracing magical pathways within a precious gemstone, and then touch the target. The target must be either a Beast or Plant creature with an Intelligence of 3 or less or a natural plant that isn't a creature. The target gains an Intelligence of 10 and the ability to speak one language you know. If the target is a natural plant, it becomes a Plant creature and gains the ability to move its limbs, roots, vines, creepers, and so forth, and it gains senses similar to a human's. The DM chooses statistics appropriate for the awakened Plant, such as the statistics for the Awakened Shrub or Awakened Tree in the Monster Manual.
 
 The awakened target has the Charmed condition for 30 days or until you or your allies deal damage to it. When that condition ends, the awakened creature chooses its attitude toward you.
 
----
+***
 
 ### Banishing Smite
+
 *Level 5 Conjuration (Paladin)*
 
-**Casting Time:** Bonus Action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Bonus Action, which you take immediately after hitting a creature with a Melee weapon or an Unarmed Strike\
+**Range:** Self\
+**Components:** V\
 **Duration:** Concentration, up to 1 minute
 
 The target hit by the attack roll takes an extra 5d10 Force damage from the attack. If the attack reduces the target to 50 Hit Points or fewer, the target must succeed on a Charisma saving throw or be transported to a harmless demiplane for the duration. While there, the target has the Incapacitated condition. When the spell ends, the target reappears in the space it left or in the nearest unoccupied space if that space is occupied.
 
----
+***
 
 ### Bigby's Hand
+
 *Level 5 Evocation (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (an eggshell and a glove)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (an eggshell and a glove)\
 **Duration:** Concentration, up to 1 minute
 
 You create a Large hand of shimmering magical energy in an unoccupied space that you can see within range. The hand lasts for the duration, and it moves at your command, mimicking the movements of your own hand.
@@ -4431,26 +4696,28 @@ When you cast the spell and as a Bonus Action on your later turns, you can move 
 
 **Using a Higher-Level Spell Slot.** The damage of the Clenched Fist increases by 2d8 and the damage of the Grasping Hand increases by 2d6 for each spell slot level above 5.
 
----
+***
 
 ### Circle Of Power
+
 *Level 5 Abjuration (Artificer, Cleric, Paladin, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V\
 **Duration:** Concentration, up to 10 minutes
 
 An aura radiates from you in a 30-foot Emanation for the duration. While in the aura, you and your allies have Advantage on saving throws against spells and other magical effects. When an affected creature makes a saving throw against a spell or magical effect that allows a save to take only half damage, it takes no damage if it succeeds on the save.
 
----
+***
 
 ### Cloudkill
+
 *Level 5 Conjuration (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You create a 20-foot-radius Sphere of yellow-green fog centered on a point within range. The fog lasts for the duration or until strong wind (such as the one created by Gust of Wind) disperses it, ending the spell. Its area is Heavily Obscured.
@@ -4461,14 +4728,15 @@ The Sphere moves 10 feet away from you at the start of each of your turns.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 5.
 
----
+***
 
 ### Commune
+
 *Level 5 Divination (Cleric)*
 
-**Casting Time:** 1 minute or Ritual  
-**Range:** Self  
-**Components:** V, S, M (incense)  
+**Casting Time:** 1 minute or Ritual\
+**Range:** Self\
+**Components:** V, S, M (incense)\
 **Duration:** 1 minute
 
 You contact a deity or a divine proxy and ask up to three questions that can be answered with yes or no. You must ask your questions before the spell ends. You receive a correct answer for each question.
@@ -4477,50 +4745,53 @@ Divine beings aren't necessarily omniscient, so you might receive "unclear" as a
 
 If you cast the spell more than once before finishing a Long Rest, there is a cumulative 25 percent chance for each casting after the first that you get no answer.
 
----
+***
 
 ### Commune With Nature
+
 *Level 5 Divination (Druid, Ranger)*
 
-**Casting Time:** 1 minute or Ritual  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** 1 minute or Ritual\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You commune with nature spirits and gain knowledge of the surrounding area. In the outdoors, the spell gives you knowledge of the area within 3 miles of you. In caves and other natural underground settings, the radius is limited to 300 feet. The spell doesn't function where nature has been replaced by construction, such as in castles and settlements.
 
 Choose three of the following facts; you learn those facts as they pertain to the spell's area:
 
--   Locations of settlements
--   Locations of portals to other planes of existence
--   Location of one Challenge Rating 10+ creature (DM's choice) that is a Celestial, an Elemental, a Fey, a Fiend, or an Undead
--   The most prevalent kind of plant, mineral, or Beast (you choose which to learn)
--   Locations of bodies of water
+- Locations of settlements
+- Locations of portals to other planes of existence
+- Location of one Challenge Rating 10+ creature (DM's choice) that is a Celestial, an Elemental, a Fey, a Fiend, or an Undead
+- The most prevalent kind of plant, mineral, or Beast (you choose which to learn)
+- Locations of bodies of water
 
 For example, you could determine the location of a powerful monster in the area, the locations of bodies of water, and the locations of any towns.
 
----
+***
 
 ### Cone of Cold
+
 *Level 5 Evocation (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a small crystal or glass cone)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a small crystal or glass cone)\
 **Duration:** Instantaneous
 
 You unleash a blast of cold air. Each creature in a 60-foot Cone originating from you makes a Constitution saving throw, taking 8d8 Cold damage on a failed save or half as much damage on a successful one. A creature killed by this spell becomes a frozen statue until it thaws.
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 5.
 
----
+***
 
 ### Conjure Elemental
+
 *Level 5 Conjuration (Druid, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You conjure a Large, intangible spirit from the Elemental Planes that appears in an unoccupied space within range. Choose the spirit's element, which determines its damage type: air (Lightning), earth (Thunder), fire (Fire), or water (Cold). The spirit lasts for the duration.
@@ -4529,40 +4800,43 @@ Whenever a creature you can see enters the spirit's space or starts its turn wit
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d8 for each spell slot level above 5.
 
----
+***
 
 ### Conjure Volley
+
 *Level 5 Conjuration (Ranger)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S, M (a Melee or Ranged weapon worth at least 1 CP)  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S, M (a Melee or Ranged weapon worth at least 1 CP)\
 **Duration:** Instantaneous
 
 You brandish the weapon used to cast the spell and choose a point within range. Hundreds of similar spectral weapons (or ammunition appropriate to the weapon) fall in a volley and then disappear. Each creature of your choice that you can see in a 40-foot-radius, 20-foot-high Cylinder centered on that point makes a Dexterity saving throw. A creature takes 8d8 Force damage on a failed save or half as much damage on a successful one.
 
----
+***
 
 ### Contact Other Plane
+
 *Level 5 Divination (Warlock, Wizard)*
 
-**Casting Time:** 1 minute or Ritual  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** 1 minute or Ritual\
+**Range:** Self\
+**Components:** V\
 **Duration:** 1 minute
 
 You mentally contact a demigod, the spirit of a long-dead sage, or some other knowledgeable entity from another plane. Contacting this otherworldly intelligence can break your mind. When you cast this spell, make a DC 15 Intelligence saving throw. On a successful save, you can ask the entity up to five questions. You must ask your questions before the spell ends. The DM answers each question with one word, such as "yes," "no," "maybe," "never," "irrelevant," or "unclear" (if the entity doesn't know the answer to the question). If a one-word answer would be misleading, the DM might instead offer a short phrase as an answer.
 
 On a failed save, you take 6d6 Psychic damage and have the Incapacitated condition until you finish a Long Rest. A Greater Restoration spell cast on you ends this effect.
 
----
+***
 
 ### Contagion
+
 *Level 5 Necromancy (Cleric, Druid)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** 7 days
 
 Your touch inflicts a magical contagion. The target must succeed on a Constitution saving throw or take 11d8 Necrotic damage and have the Poisoned condition. Also, choose one ability when you cast the spell. While Poisoned, the target has Disadvantage on saving throws made with the chosen ability.
@@ -4571,14 +4845,15 @@ The target must repeat the saving throw at the end of each of its turns until it
 
 Whenever the Poisoned target receives an effect that would end the Poisoned condition, the target must succeed on a Constitution saving throw, or the Poisoned condition doesn't end on it.
 
----
+***
 
 ### Creation
+
 *Level 5 Illusion (Artificer, Sorcerer, Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** 30 feet  
-**Components:** V, S, M (a paintbrush)  
+**Casting Time:** 1 minute\
+**Range:** 30 feet\
+**Components:** V, S, M (a paintbrush)\
 **Duration:** Special
 
 You pull wisps of shadow material from the Shadowfell to create an object within range. It is either an object of vegetable matter (soft goods, rope, wood, and the like) or mineral matter (stone, crystal, metal, and the like). The object must be no larger than a 5-foot Cube, and the object must be of a form and material that you have seen.
@@ -4586,6 +4861,7 @@ You pull wisps of shadow material from the Shadowfell to create an object within
 The spell's duration depends on the object's material, as shown in the Materials table. If the object is composed of multiple materials, use the shortest duration. Using any object created by this spell as another spell's Material component causes the other spell to fail.
 
 **Materials Table:**
+
 - Vegetable matter: 24 hours
 - Stone or crystal: 12 hours
 - Precious metals: 1 hour
@@ -4594,26 +4870,28 @@ The spell's duration depends on the object's material, as shown in the Materials
 
 **Using a Higher-Level Spell Slot.** The Cube increases by 5 feet for each spell slot level above 5.
 
----
+***
 
 ### Destructive Wave
+
 *Level 5 Evocation (Paladin)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V\
 **Duration:** Instantaneous
 
 Destructive energy ripples outward from you in a 30-foot Emanation. Each creature you choose in the Emanation makes a Constitution saving throw. On a failed save, a target takes 5d6 Thunder damage and 5d6 Radiant or Necrotic damage (your choice) and has the Prone condition. On a successful save, a target takes half as much damage only.
 
----
+***
 
 ### Dispel Evil and Good
+
 *Level 5 Abjuration (Cleric, Paladin)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (powdered silver and iron)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (powdered silver and iron)\
 **Duration:** Concentration, up to 1 minute
 
 For the duration, Celestials, Elementals, Fey, Fiends, and Undead have Disadvantage on attack rolls against you. You can end the spell early by using either of the following special functions.
@@ -4622,14 +4900,15 @@ For the duration, Celestials, Elementals, Fey, Fiends, and Undead have Disadvant
 
 **Dismissal.** As a Magic action, you target one creature you can see within 5 feet of you that has one of the creature types above. The target must succeed on a Charisma saving throw or be sent back to its home plane if it isn't there already. If they aren't on their home plane, Undead are sent to the Shadowfell, and Fey are sent to the Feywild.
 
----
+***
 
 ### Dominate Person
+
 *Level 5 Enchantment (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 One Humanoid you can see within range must succeed on a Wisdom saving throw or have the Charmed condition for the duration. The target has Advantage on the save if you or your allies are fighting it. Whenever the target takes damage, it repeats the save, ending the spell on itself on a success.
@@ -4640,14 +4919,15 @@ You can command the target to take a Reaction but must take your own Reaction to
 
 **Using a Higher-Level Spell Slot.** Your Concentration can last longer with a spell slot of level 6 (up to 10 minutes), 7 (up to 1 hour), or 8+ (up to 8 hours).
 
----
+***
 
 ### Dream
+
 *Level 5 Illusion (Bard, Warlock, Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** Special  
-**Components:** V, S, M (a handful of sand)  
+**Casting Time:** 1 minute\
+**Range:** Special\
+**Components:** V, S, M (a handful of sand)\
 **Duration:** 8 hours
 
 You target a creature you know on the same plane of existence. You or a willing creature you touch enters a trance state to act as a dream messenger. While in the trance, the messenger is Incapacitated and has a Speed of 0.
@@ -4658,29 +4938,31 @@ If the target is awake when you cast the spell, the messenger knows it and can e
 
 You can make the messenger terrifying to the target. If you do so, the messenger can deliver a message of no more than ten words, and then the target makes a Wisdom saving throw. On a failed save, the target gains no benefit from its rest, and it takes 3d6 Psychic damage when it wakes up.
 
----
+***
 
 ### Flame Strike
+
 *Level 5 Evocation (Cleric)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a pinch of sulfur)  
-**Duration:** Instantaneous  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a pinch of sulfur)\
+**Duration:** Instantaneous
 
 A vertical column of brilliant fire roars down from above. Each creature in a 10-foot-radius, 40-foot-high Cylinder centered on a point within range makes a Dexterity saving throw, taking 5d6 Fire damage and 5d6 Radiant damage on a failed save or half as much damage on a successful one.
 
 **Using a Higher-Level Spell Slot.** The Fire damage and the Radiant damage increase by 1d6 for each spell slot level above 5.
 
----
+***
 
 ### Geas
+
 *Level 5 Enchantment (Bard, Cleric, Druid, Paladin, Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** 60 feet  
-**Components:** V  
-**Duration:** 30 days  
+**Casting Time:** 1 minute\
+**Range:** 60 feet\
+**Components:** V\
+**Duration:** 30 days
 
 You give a verbal command to a creature that you can see within range, ordering it to carry out some service or refrain from an action or a course of activity as you decide. The target must succeed on a Wisdom saving throw or have the Charmed condition for the duration. The target automatically succeeds if it can't understand your command.
 
@@ -4692,15 +4974,16 @@ A Remove Curse, Greater Restoration, or Wish spell ends this spell.
 
 **Using a Higher-Level Spell Slot.** If you use a level 7 or 8 spell slot, the duration is 365 days. If you use a level 9 spell slot, the spell lasts until it is ended by one of the spells mentioned above.
 
----
+***
 
 ### Greater Restoration
+
 *Level 5 Abjuration (Artificer, Bard, Cleric, Druid, Paladin, Ranger)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (diamond dust worth 100+ GP, which the spell consumes)  
-**Duration:** Instantaneous  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (diamond dust worth 100+ GP, which the spell consumes)\
+**Duration:** Instantaneous
 
 You touch a creature and magically remove one of the following effects from it:
 
@@ -4710,15 +4993,16 @@ You touch a creature and magically remove one of the following effects from it:
 - Any reduction to one of the target's ability scores
 - Any reduction to the target's Hit Point maximum
 
----
+***
 
 ### Hallow
+
 *Level 5 Abjuration (Cleric)*
 
-**Casting Time:** 24 hours  
-**Range:** Touch  
-**Components:** V, S, M (incense worth 1,000+ GP, which the spell consumes)  
-**Duration:** Until dispelled  
+**Casting Time:** 24 hours\
+**Range:** Touch\
+**Components:** V, S, M (incense worth 1,000+ GP, which the spell consumes)\
+**Duration:** Until dispelled
 
 You touch a point and infuse an area around it with holy or unholy power. The area can have a radius up to 60 feet, and the spell fails if the radius includes an area already under the effect of *Hallow*. The affected area has the following effects.
 
@@ -4737,29 +5021,31 @@ You touch a point and infuse an area around it with holy or unholy power. The ar
 - **Tongues.** Creatures of any types you choose can communicate with any other creature in the area even if they don't share a common language.
 - **Vulnerability.** Creatures of any types you choose have Vulnerability to one damage type of your choice while in the area.
 
----
+***
 
 ### Hold Monster
+
 *Level 5 Enchantment (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (a straight piece of iron)  
-**Duration:** Concentration, up to 1 minute  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (a straight piece of iron)\
+**Duration:** Concentration, up to 1 minute
 
 Choose a creature that you can see within range. The target must succeed on a Wisdom saving throw or have the Paralyzed condition for the duration. At the end of each of its turns, the target repeats the save, ending the spell on itself on a success.
 
 **Using a Higher-Level Spell Slot.** You can target one additional creature for each spell slot level above 5.
 
----
+***
 
 ### Insect Plague
+
 *Level 5 Conjuration (Cleric, Druid, Sorcerer)*
 
-**Casting Time:** Action  
-**Range:** 300 feet  
-**Components:** V, S, M (a locust)  
-**Duration:** Concentration, up to 10 minutes  
+**Casting Time:** Action\
+**Range:** 300 feet\
+**Components:** V, S, M (a locust)\
+**Duration:** Concentration, up to 10 minutes
 
 Swarming locusts fill a 20-foot-radius Sphere centered on a point you choose within range. The Sphere remains for the duration, and its area is Lightly Obscured and Difficult Terrain.
 
@@ -4767,15 +5053,16 @@ When the swarm appears, each creature in it makes a Constitution saving throw, t
 
 **Using a Higher-Level Spell Slot.** The damage increases by 1d10 for each spell slot level above 5.
 
----
+***
 
 ### Jallarzi's Storm of Radiance
+
 *Level 5 Evocation (Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (a pinch of phosphorus)  
-**Duration:** Concentration, up to 1 minute  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (a pinch of phosphorus)\
+**Duration:** Concentration, up to 1 minute
 
 You unleash a storm of flashing light and raging thunder in a 10-foot-radius, 40-foot-high Cylinder centered on a point you can see within range. While in this area, creatures have the Blinded and Deafened conditions, and they can't cast spells with a Verbal component.
 
@@ -4783,15 +5070,16 @@ When the storm appears, each creature in it makes a Constitution saving throw, t
 
 **Using a Higher-Level Spell Slot.** The Radiant and Thunder damage increase by 1d10 for each spell slot level above 5.
 
----
+***
 
 ### Legend Lore
+
 *Level 5 Divination (Bard, Cleric, Wizard)*
 
-**Casting Time:** 10 minutes  
-**Range:** Self  
-**Components:** V, S, M (incense worth 250+ GP, which the spell consumes, and four ivory strips worth 50+ GP each)  
-**Duration:** Instantaneous  
+**Casting Time:** 10 minutes\
+**Range:** Self\
+**Components:** V, S, M (incense worth 250+ GP, which the spell consumes, and four ivory strips worth 50+ GP each)\
+**Duration:** Instantaneous
 
 Name or describe a famous person, place, or object. The spell brings to your mind a brief summary of the significant lore about that famous thing, as described by the DM.
 
@@ -4799,29 +5087,31 @@ The lore might consist of important details, amusing revelations, or even secret
 
 If the famous thing you chose isn't actually famous, you hear sad musical notes played on a trombone, and the spell fails.
 
----
+***
 
 ### Mass Cure Wounds
+
 *Level 5 Abjuration (Bard, Cleric, Druid)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
-**Duration:** Instantaneous  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
+**Duration:** Instantaneous
 
 A wave of healing energy washes out from a point you can see within range. Choose up to six creatures in a 30-foot-radius Sphere centered on that point. Each target regains Hit Points equal to 5d8 plus your spellcasting ability modifier.
 
 **Using a Higher-Level Spell Slot.** The healing increases by 1d8 for each spell slot level above 5.
 
----
+***
 
 ### Mislead
+
 *Level 5 Illusion (Bard, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** S  
-**Duration:** Concentration, up to 1 hour  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** S\
+**Duration:** Concentration, up to 1 hour
 
 You gain the Invisible condition at the same time that an illusory double of you appears where you are standing. The double lasts for the duration, but the invisibility ends immediately after you make an attack roll, deal damage, or cast a spell.
 
@@ -4829,14 +5119,15 @@ As a Magic action, you can move the illusory double up to twice your Speed and m
 
 You can see through its eyes and hear through its ears as if you were located where it is.
 
----
+***
 
 ### Modify Memory
+
 *Level 5 Enchantment (Bard, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You attempt to reshape another creature's memories. One creature that you can see within range makes a Wisdom saving throw. If you are fighting the creature, it has Advantage on the save. On a failed save, the target has the Charmed condition for the duration. While Charmed in this way, the target also has the Incapacitated condition and is unaware of its surroundings, though it can hear you. If it takes any damage or is targeted by another spell, this spell ends, and no memories are modified.
@@ -4851,28 +5142,30 @@ A Remove Curse or Greater Restoration spell cast on the target restores the crea
 
 **Using a Higher-Level Spell Slot.** You can alter the target's memories of an event that took place up to 7 days ago (level 6 spell slot), 30 days ago (level 7 spell slot), 365 days ago (level 8 spell slot), or any time in the creature's past (level 9 spell slot).
 
----
+***
 
 ### Passwall
+
 *Level 5 Transmutation (Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a pinch of sesame seeds)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a pinch of sesame seeds)\
 **Duration:** 1 hour
 
 A passage appears at a point that you can see on a wooden, plaster, or stone surface (such as a wall, ceiling, or floor) within range and lasts for the duration. You choose the opening's dimensions: up to 5 feet wide, 8 feet tall, and 20 feet deep. The passage creates no instability in a structure surrounding it.
 
 When the opening disappears, any creatures or objects still in the passage created by the spell are safely ejected to an unoccupied space nearest to the surface on which you cast the spell.
 
----
+***
 
 ### Planar Binding
+
 *Level 5 Abjuration (Bard, Cleric, Druid, Warlock, Wizard)*
 
-**Casting Time:** 1 hour  
-**Range:** 60 feet  
-**Components:** V, S, M (a jewel worth 1,000+ GP, which the spell consumes)  
+**Casting Time:** 1 hour\
+**Range:** 60 feet\
+**Components:** V, S, M (a jewel worth 1,000+ GP, which the spell consumes)\
 **Duration:** 24 hours
 
 You attempt to bind a Celestial, an Elemental, a Fey, or a Fiend to your service. The creature must be within range for the entire casting of the spell. (Typically, the creature is first summoned into the center of the inverted version of the Magic Circle spell to trap it while this spell is cast.) At the completion of the casting, the target must succeed on a Charisma saving throw or be bound to serve you for the duration. If the creature was summoned or created by another spell, that spell's duration is extended to match the duration of this spell.
@@ -4881,14 +5174,15 @@ A bound creature must follow your commands to the best of its ability. You might
 
 **Using a Higher-Level Spell Slot.** The duration increases with a spell slot of level 6 (10 days), 7 (30 days), 8 (180 days), and 9 (366 days).
 
----
+***
 
 ### Raise Dead
+
 *Level 5 Necromancy (Bard, Cleric, Paladin)*
 
-**Casting Time:** 1 hour  
-**Range:** Touch  
-**Components:** V, S, M (a diamond worth 500+ GP, which the spell consumes)  
+**Casting Time:** 1 hour\
+**Range:** Touch\
+**Components:** V, S, M (a diamond worth 500+ GP, which the spell consumes)\
 **Duration:** Instantaneous
 
 With a touch, you revive a dead creature if it has been dead no longer than 10 days and it wasn't Undead when it died.
@@ -4899,70 +5193,73 @@ This spell closes all mortal wounds, but it doesn't restore missing body parts. 
 
 Coming back from the dead is an ordeal. The target takes a -4 penalty to D20 Tests. Every time the target finishes a Long Rest, the penalty is reduced by 1 until it becomes 0.
 
----
+***
 
 ### Rary's Telepathic Bond
+
 *Level 5 Divination (Bard, Wizard)*
 
-**Casting Time:** Action or Ritual  
-**Range:** 30 feet  
-**Components:** V, S, M (two eggs)  
+**Casting Time:** Action or Ritual\
+**Range:** 30 feet\
+**Components:** V, S, M (two eggs)\
 **Duration:** 1 hour
 
 You forge a telepathic link among up to eight willing creatures of your choice within range, psychically linking each creature to all the others for the duration. Creatures that can't communicate in any languages aren't affected by this spell.
 
 Until the spell ends, the targets can communicate telepathically through the bond whether or not they share a language. The communication is possible over any distance, though it can't extend to other planes of existence.
 
----
+***
 
 ### Reincarnate
+
 *Level 5 Necromancy (Druid)*
 
-**Casting Time:** 1 hour  
-**Range:** Touch  
-**Components:** V, S, M (rare oils worth 1,000+ GP, which the spell consumes)  
+**Casting Time:** 1 hour\
+**Range:** Touch\
+**Components:** V, S, M (rare oils worth 1,000+ GP, which the spell consumes)\
 **Duration:** Instantaneous
 
 You touch a dead Humanoid or a piece of one. If the creature has been dead no longer than 10 days, the spell forms a new body for it and calls the soul to enter that body. Roll 1d10 and consult the table below to determine the body's species, or the DM chooses another playable species.
 
-| 1d10 | Species |
-|------|---------|
-| 1 | Aasimar |
-| 2 | Dragonborn |
-| 3 | Dwarf |
-| 4 | Elf |
-| 5 | Gnome |
-| 6 | Goliath |
-| 7 | Halfling |
-| 8 | Human |
-| 9 | Orc |
-| 10 | Tiefling |
+| 1d10 | Species    |
+| ---- | ---------- |
+| 1    | Aasimar    |
+| 2    | Dragonborn |
+| 3    | Dwarf      |
+| 4    | Elf        |
+| 5    | Gnome      |
+| 6    | Goliath    |
+| 7    | Halfling   |
+| 8    | Human      |
+| 9    | Orc        |
+| 10   | Tiefling   |
 
 The reincarnated creature makes any choices that a species' description offers, and the creature recalls its former life. It retains the capabilities it had in its original form, except it loses the traits of its previous species and gains the traits of its new one.
 
----
+***
 
 ### Scrying
+
 *Level 5 Divination (Bard, Cleric, Druid, Warlock, Wizard)*
 
-**Casting Time:** 10 minutes  
-**Range:** Self  
-**Components:** V, S, M (a focus worth 1,000+ GP, such as a crystal ball, mirror, or water-filled font)  
+**Casting Time:** 10 minutes\
+**Range:** Self\
+**Components:** V, S, M (a focus worth 1,000+ GP, such as a crystal ball, mirror, or water-filled font)\
 **Duration:** Concentration, up to 10 minutes
 
 You can see and hear a creature you choose that is on the same plane of existence as you. The target makes a Wisdom saving throw, which is modified (see the tables below) by how well you know the target and the sort of physical connection you have to it. The target doesn't know what it is making the save against, only that it feels uneasy.
 
-Your Knowledge of the Target Is... | Save Modifier
---- | ---
-Secondhand (heard of the target) | +5
-Firsthand (met the target) | +0
-Extensive (know the target well) | -5
+| Your Knowledge of the Target Is... | Save Modifier |
+| ---------------------------------- | ------------- |
+| Secondhand (heard of the target)   | +5            |
+| Firsthand (met the target)         | +0            |
+| Extensive (know the target well)   | -5            |
 
-You Have the Target's... | Save Modifier
---- | ---
-Picture or other likeness | -2
-Garment or other possession | -4
-Body part, lock of hair, or bit of nail | -10
+| You Have the Target's...                | Save Modifier |
+| --------------------------------------- | ------------- |
+| Picture or other likeness               | -2            |
+| Garment or other possession             | -4            |
+| Body part, lock of hair, or bit of nail | -10           |
 
 On a successful save, the target isn't affected, and you can't use this spell on it again for 24 hours.
 
@@ -4970,14 +5267,15 @@ On a failed save, the spell creates an Invisible, intangible sensor within 10 fe
 
 Instead of targeting a creature, you can target a location you have seen. When you do so, the sensor appears at that location and doesn't move.
 
----
+***
 
 ### Seeming
+
 *Level 5 Illusion (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S\
 **Duration:** 8 hours
 
 You give an illusory appearance to each creature of your choice that you can see within range. An unwilling target can make a Charisma saving throw, and if it succeeds, it is unaffected by this spell.
@@ -4988,14 +5286,15 @@ The changes wrought by this spell fail to hold up to physical inspection. For ex
 
 A creature that takes the Study action to examine a target can make an Intelligence (Investigation) check against your spell save DC. If it succeeds, it becomes aware that the target is disguised.
 
----
+***
 
 ### Songal's Elemental Suffusion
+
 *Level 5 Transmutation (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a pearl worth 100+ GP)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a pearl worth 100+ GP)\
 **Duration:** Concentration, up to 1 minute
 
 You imbue yourself with the elemental power of genies. You gain the following benefits until the spell ends:
@@ -5010,28 +5309,30 @@ You imbue yourself with the elemental power of genies. You gain the following be
 
 When the spell is cast, each secondary caster must expend a level 2+ spell slot; otherwise, the spell fails.
 
----
+***
 
 ### Steel Wind Strike
+
 *Level 5 Conjuration (Ranger, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** S, M (a Melee weapon worth 1+ SP)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** S, M (a Melee weapon worth 1+ SP)\
 **Duration:** Instantaneous
 
 You flourish the weapon used in the casting and then vanish to strike like the wind. Choose up to five creatures you can see within range. Make a melee spell attack against each target. On a hit, a target takes 6d10 Force damage.
 
 You then teleport to an unoccupied space you can see within 5 feet of one of the targets.
 
----
+***
 
 ### Summon Celestial
+
 *Level 5 Conjuration (Cleric, Paladin)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (a reliquary worth 500+ GP)  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (a reliquary worth 500+ GP)\
 **Duration:** Concentration, up to 1 hour
 
 You call forth a Celestial spirit. It manifests in an angelic form in an unoccupied space that you can see within range and uses the **Celestial Spirit** stat block. When you cast the spell, choose Avenger or Defender. Your choice determines certain details in its stat block. The creature disappears when it drops to 0 Hit Points or when the spell ends.
@@ -5040,14 +5341,15 @@ The creature is an ally to you and your allies. In combat, the creature shares y
 
 **Using a Higher-Level Spell Slot.** Use the spell slot's level for the spell's level in the stat block.
 
----
+***
 
 ### Summon Dragon
+
 *Level 5 Conjuration (Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (an object with the image of a dragon engraved on it worth 500+ GP)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (an object with the image of a dragon engraved on it worth 500+ GP)\
 **Duration:** Concentration, up to 1 hour
 
 You call forth a Dragon spirit. It manifests in an unoccupied space that you can see within range and uses the **Draconic Spirit** stat block. The creature disappears when it drops to 0 Hit Points or when the spell ends.
@@ -5056,40 +5358,43 @@ The creature is an ally to you and your allies. In combat, the creature shares y
 
 **Using a Higher-Level Spell Slot.** Use the spell slot's level for the spell's level in the stat block.
 
----
+***
 
 ### Swift Quiver
+
 *Level 5 Transmutation (Ranger)*
 
-**Casting Time:** Bonus Action  
-**Range:** Self  
-**Components:** V, S, M (a Quiver worth 1+ GP)  
+**Casting Time:** Bonus Action\
+**Range:** Self\
+**Components:** V, S, M (a Quiver worth 1+ GP)\
 **Duration:** Concentration, up to 1 minute
 
 When you cast the spell and as a Bonus Action until it ends, you can make two attacks with a weapon that fires Arrows or Bolts, such as a Longbow or a Light Crossbow. The spell magically creates the ammunition needed for each attack. Each Arrow or Bolt created by the spell deals damage like a nonmagical piece of ammunition of its kind and disintegrates immediately after it hits or misses.
 
----
+***
 
 ### Synaptic Static
+
 *Level 5 Enchantment (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You cause psychic energy to erupt at a point within range. Each creature in a 20-foot-radius Sphere centered on that point makes an Intelligence saving throw, taking 8d6 Psychic damage on a failed save or half as much damage on a successful one.
 
 On a failed save, a target also has muddled thoughts for 1 minute. During that time, it subtracts 1d6 from all its attack rolls and ability checks, as well as any Constitution saving throws to maintain Concentration. The target makes an Intelligence saving throw at the end of each of its turns, ending the effect on itself on a success.
 
----
+***
 
 ### Telekinesis
+
 *Level 5 Transmutation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You gain the ability to move or manipulate creatures or objects by thought. When you cast the spell and as a Magic action on your later turns before the spell ends, you can exert your will on one creature or object that you can see within range, causing the appropriate effect below. You can affect the same target round after round or choose a new one at any time. If you switch targets, the prior target is no longer affected by the spell.
@@ -5102,14 +5407,15 @@ If the object is worn or carried by a creature, that creature must succeed on a 
 
 You can exert fine control on objects with your telekinetic grip, such as manipulating a simple tool, opening a door or a container, stowing or retrieving an item from an open container, or pouring the contents from a vial.
 
----
+***
 
 ### Teleportation Circle
+
 *Level 5 Conjuration (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** 10 feet  
-**Components:** V, M (rare inks worth 50+ GP, which the spell consumes)  
+**Casting Time:** 1 minute\
+**Range:** 10 feet\
+**Components:** V, M (rare inks worth 50+ GP, which the spell consumes)\
 **Duration:** 1 round
 
 As you cast the spell, you draw a 5-foot-radius circle on the ground inscribed with sigils that link your location to a permanent teleportation circle of your choice whose sigil sequence you know and that is on the same plane of existence as you. A shimmering portal opens within the circle you drew and remains open until the end of your next turn. Any creature that enters the portal instantly appears within 5 feet of the destination circle or in the nearest unoccupied space if that space is occupied.
@@ -5120,42 +5426,45 @@ When you first gain the ability to cast this spell, you learn the sigil sequence
 
 You can create a permanent teleportation circle by casting this spell in the same location every day for 365 days.
 
----
+***
 
 ### Tree Stride
+
 *Level 5 Conjuration (Druid, Ranger)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You gain the ability to enter a tree and move from inside it to inside another tree of the same kind within 500 feet. Both trees must be living and at least the same size as you. You must use 5 feet of movement to enter a tree. You instantly know the location of all other trees of the same kind within 500 feet and, as part of the move used to enter the tree, you can either pass into one of those trees or step out of the tree you're in. You appear in a spot of your choice within 5 feet of the destination tree, using another 5 feet of movement. If you have no movement left, you appear within 5 feet of the tree you entered.
 
 You can use this transportation ability only once on each of your turns. You must end each turn outside a tree.
 
----
+***
 
 ### Wall of Force
+
 *Level 5 Evocation (Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (a shard of glass)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (a shard of glass)\
 **Duration:** Concentration, up to 10 minutes
 
 An Invisible wall of force springs into existence at a point you choose within range. The wall appears in any orientation you choose, as a horizontal or vertical barrier or at an angle. It can be free floating or resting on a solid surface. You can form it into a hemispherical dome or a globe with a radius of up to 10 feet, or you can shape a flat surface made up of ten 10-foot-by-10-foot panels. Each panel must be contiguous with another panel. In any form, the wall is 1/4 inch thick and lasts for the duration. If the wall cuts through a creature's space when it appears, the creature is pushed to one side of the wall (you choose which side).
 
 Nothing can physically pass through the wall. It is immune to all damage and can't be dispelled by Dispel Magic. A Disintegrate spell destroys the wall instantly, however. The wall also extends into the Ethereal Plane and blocks ethereal travel through the wall.
 
----
+***
 
 ### Wall of Stone
+
 *Level 5 Evocation (Artificer, Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (a cube of granite)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (a cube of granite)\
 **Duration:** Concentration, up to 10 minutes
 
 A nonmagical wall of solid stone springs into existence at a point you choose within range. The wall is 6 inches thick and is composed of ten 10-foot-by-10-foot panels. Each panel must be contiguous with another panel. Alternatively, you can create 10-foot-by-20-foot panels that are only 3 inches thick.
@@ -5170,69 +5479,69 @@ The wall is an object made of stone that can be damaged and thus breached. Each 
 
 If you maintain your Concentration on this spell for its full duration, the wall becomes permanent and can't be dispelled. Otherwise, the wall disappears when the spell ends.
 
----
+***
 
 ### Yolande's Regal Presence
+
 *Level 5 Enchantment (Bard, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a miniature tiara)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a miniature tiara)\
 **Duration:** Concentration, up to 1 minute
 
 You surround yourself with unearthly majesty in a 10-foot Emanation. Whenever the Emanation enters the space of a creature you can see and whenever a creature you can see enters the Emanation or ends its turn there, you can force that creature to make a Wisdom saving throw. On a failed save, the target takes 4d6 Psychic damage and has the Prone condition, and you can push it up to 10 feet away. On a successful save, the target takes half as much damage only. A creature makes this save only once per turn.
 
-
 ### 6th Level Spells
 
-| Name | School | Spell lists | Casting Time | Range | Components | Duration |
-|------|--------|-------------|--------------|-------|------------|----------|
-| Arcane Gate | Conjuration | Sorcerer, Warlock, Wizard | Action | 500 feet | V, S | C, up to 10 minutes |
-| Blade Barrier | Evocation | Cleric | Action | 90 feet | V, S | C, up to 10 minutes |
-| Chain Lightning | Evocation | Sorcerer, Wizard | Action | 150 feet | V, S, M | Instantaneous |
-| Circle of Death | Necromancy | Sorcerer, Warlock, Wizard | Action | 150 feet | V, S, M(C) | Instantaneous |
-| Conjure Fey | Conjuration | Druid | Action | 60 feet | V, S | C, up to 10 minutes |
-| Contingency | Abjuration | Wizard | 10 minutes | Self | V, S, M(C) | 10 days |
-| Create Undead | Necromancy | Cleric, Warlock, Wizard | 1 minute | 10 feet | V, S, M(C) | Instantaneous |
-| Dirge | Enchantment | Bard, Cleric | Action | Self | V | C, up to 1 minute |
-| Disintegrate | Transmutation | Sorcerer, Wizard | Action | 60 feet | V, S, M | Instantaneous |
-| Drawmij's Instant Summons | Conjuration | Wizard | 1 minute or R | Touch | V, S, M(C) | Until dispelled |
-| Elminster's Effulgent Spheres | Evocation | Druid, Sorcerer, Wizard | Action | Self | V, S, M(C) | 1 hour |
-| Eyebite | Necromancy | Bard, Sorcerer, Warlock, Wizard | Action | Self | V, S | C, up to 1 minute |
-| Find the Path | Divination | Bard, Cleric, Druid | 1 minute | Self | V, S, M(C*) | C, up to 1 day |
-| Flesh to Stone | Transmutation | Druid, Sorcerer, Wizard | Action | 60 feet | V, S, M | C, up to 1 minute |
-| Forbiddance | Abjuration | Cleric | 10 minutes or R | Touch | V, S, M(C) | 1 day |
-| Globe of Invulnerability | Abjuration | Sorcerer, Wizard | Action | Self | V, S, M | C, up to 1 minute |
-| Guards and Wards | Abjuration | Bard, Wizard | 1 hour | Touch | V, S, M | 24 hours |
-| Harm | Necromancy | Cleric | Action | 60 feet | V, S | Instantaneous |
-| Heal | Abjuration | Cleric, Druid | Action | 60 feet | V, S | Instantaneous |
-| Heroes' Feast | Conjuration | Bard, Cleric, Druid | 10 minutes | Self | V, S, M(C*) | Instantaneous |
-| Magic Jar | Necromancy | Wizard | 1 minute | Self | V, S, M(C) | Until dispelled |
-| Mass Suggestion | Enchantment | Bard, Sorcerer, Wizard | Action | 60 feet | V, M | 24 hours |
-| Move Earth | Transmutation | Druid, Sorcerer, Wizard | Action | 120 feet | V, S, M | C, up to 2 hours |
-| Otiluke's Freezing Sphere | Evocation | Sorcerer, Wizard | Action | 300 feet | V, S, M | Instantaneous |
-| Otto's Irresistible Dance | Enchantment | Bard, Wizard | Action | 30 feet | V | C, up to 1 minute |
-| Planar Ally | Conjuration | Cleric | 10 minutes | 60 feet | V, S | Instantaneous |
-| Programmed Illusion | Illusion | Bard, Wizard | Action | 120 feet | V, S, M | Until dispelled |
-| Summon Fiend | Conjuration | Warlock, Wizard | Action | 90 feet | V, S, M(C) | C, up to 1 hour |
-| Sunbeam | Evocation | Cleric, Druid, Sorcerer, Wizard | Action | Self | V, S, M | C, up to 1 minute |
-| Tasha's Bubbling Cauldron | Conjuration | Warlock, Wizard | Action | 5 feet | V, S, M | 10 minutes |
-| Transport via Plants | Conjuration | Druid | Action | 10 feet | V, S | 1 minute |
-| True Seeing | Divination | Bard, Cleric, Sorcerer, Warlock, Wizard | Action | Touch | V, S, M(C*) | 1 hour |
-| Wall of Ice | Evocation | Wizard | Action | 120 feet | V, S, M | C, up to 10 minutes |
-| Wall of Thorns | Conjuration | Druid | Action | 120 feet | V, S, M | C, up to 10 minutes |
-| Wind Walk | Transmutation | Druid | 1 minute | 30 feet | V, S, M | 8 hours |
-| Word of Recall | Conjuration | Cleric | Action | 5 feet | V | Instantaneous |
-
+| Name                          | School        | Spell lists                             | Casting Time    | Range    | Components   | Duration            |
+| ----------------------------- | ------------- | --------------------------------------- | --------------- | -------- | ------------ | ------------------- |
+| Arcane Gate                   | Conjuration   | Sorcerer, Warlock, Wizard               | Action          | 500 feet | V, S         | C, up to 10 minutes |
+| Blade Barrier                 | Evocation     | Cleric                                  | Action          | 90 feet  | V, S         | C, up to 10 minutes |
+| Chain Lightning               | Evocation     | Sorcerer, Wizard                        | Action          | 150 feet | V, S, M      | Instantaneous       |
+| Circle of Death               | Necromancy    | Sorcerer, Warlock, Wizard               | Action          | 150 feet | V, S, M(C)   | Instantaneous       |
+| Conjure Fey                   | Conjuration   | Druid                                   | Action          | 60 feet  | V, S         | C, up to 10 minutes |
+| Contingency                   | Abjuration    | Wizard                                  | 10 minutes      | Self     | V, S, M(C)   | 10 days             |
+| Create Undead                 | Necromancy    | Cleric, Warlock, Wizard                 | 1 minute        | 10 feet  | V, S, M(C)   | Instantaneous       |
+| Dirge                         | Enchantment   | Bard, Cleric                            | Action          | Self     | V            | C, up to 1 minute   |
+| Disintegrate                  | Transmutation | Sorcerer, Wizard                        | Action          | 60 feet  | V, S, M      | Instantaneous       |
+| Drawmij's Instant Summons     | Conjuration   | Wizard                                  | 1 minute or R   | Touch    | V, S, M(C)   | Until dispelled     |
+| Elminster's Effulgent Spheres | Evocation     | Druid, Sorcerer, Wizard                 | Action          | Self     | V, S, M(C)   | 1 hour              |
+| Eyebite                       | Necromancy    | Bard, Sorcerer, Warlock, Wizard         | Action          | Self     | V, S         | C, up to 1 minute   |
+| Find the Path                 | Divination    | Bard, Cleric, Druid                     | 1 minute        | Self     | V, S, M(C\*) | C, up to 1 day      |
+| Flesh to Stone                | Transmutation | Druid, Sorcerer, Wizard                 | Action          | 60 feet  | V, S, M      | C, up to 1 minute   |
+| Forbiddance                   | Abjuration    | Cleric                                  | 10 minutes or R | Touch    | V, S, M(C)   | 1 day               |
+| Globe of Invulnerability      | Abjuration    | Sorcerer, Wizard                        | Action          | Self     | V, S, M      | C, up to 1 minute   |
+| Guards and Wards              | Abjuration    | Bard, Wizard                            | 1 hour          | Touch    | V, S, M      | 24 hours            |
+| Harm                          | Necromancy    | Cleric                                  | Action          | 60 feet  | V, S         | Instantaneous       |
+| Heal                          | Abjuration    | Cleric, Druid                           | Action          | 60 feet  | V, S         | Instantaneous       |
+| Heroes' Feast                 | Conjuration   | Bard, Cleric, Druid                     | 10 minutes      | Self     | V, S, M(C\*) | Instantaneous       |
+| Magic Jar                     | Necromancy    | Wizard                                  | 1 minute        | Self     | V, S, M(C)   | Until dispelled     |
+| Mass Suggestion               | Enchantment   | Bard, Sorcerer, Wizard                  | Action          | 60 feet  | V, M         | 24 hours            |
+| Move Earth                    | Transmutation | Druid, Sorcerer, Wizard                 | Action          | 120 feet | V, S, M      | C, up to 2 hours    |
+| Otiluke's Freezing Sphere     | Evocation     | Sorcerer, Wizard                        | Action          | 300 feet | V, S, M      | Instantaneous       |
+| Otto's Irresistible Dance     | Enchantment   | Bard, Wizard                            | Action          | 30 feet  | V            | C, up to 1 minute   |
+| Planar Ally                   | Conjuration   | Cleric                                  | 10 minutes      | 60 feet  | V, S         | Instantaneous       |
+| Programmed Illusion           | Illusion      | Bard, Wizard                            | Action          | 120 feet | V, S, M      | Until dispelled     |
+| Summon Fiend                  | Conjuration   | Warlock, Wizard                         | Action          | 90 feet  | V, S, M(C)   | C, up to 1 hour     |
+| Sunbeam                       | Evocation     | Cleric, Druid, Sorcerer, Wizard         | Action          | Self     | V, S, M      | C, up to 1 minute   |
+| Tasha's Bubbling Cauldron     | Conjuration   | Warlock, Wizard                         | Action          | 5 feet   | V, S, M      | 10 minutes          |
+| Transport via Plants          | Conjuration   | Druid                                   | Action          | 10 feet  | V, S         | 1 minute            |
+| True Seeing                   | Divination    | Bard, Cleric, Sorcerer, Warlock, Wizard | Action          | Touch    | V, S, M(C\*) | 1 hour              |
+| Wall of Ice                   | Evocation     | Wizard                                  | Action          | 120 feet | V, S, M      | C, up to 10 minutes |
+| Wall of Thorns                | Conjuration   | Druid                                   | Action          | 120 feet | V, S, M      | C, up to 10 minutes |
+| Wind Walk                     | Transmutation | Druid                                   | 1 minute        | 30 feet  | V, S, M      | 8 hours             |
+| Word of Recall                | Conjuration   | Cleric                                  | Action          | 5 feet   | V            | Instantaneous       |
 
 ### 6th Level Spell Descriptions
 
 ### Arcane Gate
+
 *Level 6 Conjuration (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 500 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 500 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You create linked teleportation portals. Choose two Large, unoccupied spaces on the ground that you can see, one space within range and the other one within 10 feet of you. A circular portal opens in each of those spaces and remains for the duration.
@@ -5242,11 +5551,12 @@ The portals are two-dimensional glowing rings filled with mist that blocks sight
 A portal is open on only one side (you choose which). Anything entering the open side of a portal exits from the open side of the other portal as if the two were adjacent to each other. As a Bonus Action, you can change the facing of the open sides.
 
 ### Blade Barrier
+
 *Level 6 Evocation (Cleric)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You create a wall of whirling blades made of magical energy. The wall appears within range and lasts for the duration. You make a straight wall up to 100 feet long, 20 feet high, and 5 feet thick, or a ringed wall up to 60 feet in diameter, 20 feet high, and 5 feet thick. The wall provides Three-Quarters Cover, and its space is Difficult Terrain.
@@ -5254,11 +5564,12 @@ You create a wall of whirling blades made of magical energy. The wall appears wi
 Any creature in the wall's space makes a Dexterity saving throw, taking 6d10 Force damage on a failed save or half as much damage on a successful one. A creature also makes that save if it enters the wall's space or ends it turn there. A creature makes that save only once per turn.
 
 ### Chain Lightning
+
 *Level 6 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S, M (three silver pins)  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S, M (three silver pins)\
 **Duration:** Instantaneous
 
 You launch a lightning bolt toward a target you can see within range. Three bolts then leap from that target to as many as three other targets of your choice, each of which must be within 30 feet of the first target. A target can be a creature or an object and can be targeted by only one of the bolts.
@@ -5268,11 +5579,12 @@ Each target makes a Dexterity saving throw, taking 10d8 Lightning damage on a fa
 **Using a Higher-Level Spell Slot.** One additional bolt leaps from the first target to another target for each spell slot level above 6.
 
 ### Circle of Death
+
 *Level 6 Necromancy (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S, M (the powder of a crushed black pearl worth 500+ GP)  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S, M (the powder of a crushed black pearl worth 500+ GP)\
 **Duration:** Instantaneous
 
 Negative energy ripples out in a 60-foot-radius Sphere from a point you choose within range. Each creature in that area makes a Constitution saving throw, taking 8d8 Necrotic damage on a failed save or half as much damage on a successful one.
@@ -5280,11 +5592,12 @@ Negative energy ripples out in a 60-foot-radius Sphere from a point you choose w
 **Using a Higher-Level Spell Slot.** The damage increases by 2d8 for each spell slot level above 6.
 
 ### Conjure Fey
+
 *Level 6 Conjuration (Druid)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You conjure a Medium spirit from the Feywild in an unoccupied space you can see within range. The spirit lasts for the duration, and it looks like a Fey creature of your choice. When the spirit appears, you can make one melee spell attack against a creature within 5 feet of it. On a hit, the target takes Psychic damage equal to 3d12 plus your spellcasting ability modifier, and the target has the Frightened condition until the start of your next turn, with both you and the spirit as the source of the fear.
@@ -5294,11 +5607,12 @@ As a Bonus Action on your later turns, you can teleport the spirit to an unoccup
 **Using a Higher-Level Spell Slot.** The damage increases by 1d12 for each spell slot level above 6.
 
 ### Contingency
+
 *Level 6 Abjuration (Wizard)*
 
-**Casting Time:** 10 minutes  
-**Range:** Self  
-**Components:** V, S, M (a gem-encrusted statuette of yourself worth 1,500+ GP)  
+**Casting Time:** 10 minutes\
+**Range:** Self\
+**Components:** V, S, M (a gem-encrusted statuette of yourself worth 1,500+ GP)\
 **Duration:** 10 days
 
 Choose a spell of level 5 or lower that you can cast, that has a casting time of an action, and that can target you. You cast that spell—called the contingent spell—as part of casting Contingency, expending spell slots for both, but the contingent spell doesn't come into effect. Instead, it takes effect when a certain trigger occurs. You describe that trigger when you cast the two spells. For example, a Contingency cast with Water Breathing might stipulate that Water Breathing comes into effect when you are engulfed in water or a similar liquid.
@@ -5308,11 +5622,12 @@ The contingent spell takes effect immediately after the trigger occurs for the f
 The contingent spell takes effect only on you, even if it can normally target others. You can use only one Contingency spell at a time. If you cast this spell again, the effect of another Contingency spell on you ends. Also, Contingency ends on you if its material component is ever not on your person.
 
 ### Create Undead
+
 *Level 6 Necromancy (Cleric, Warlock, Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** 10 feet  
-**Components:** V, S, M (one 150+ GP black onyx stone for each corpse)  
+**Casting Time:** 1 minute\
+**Range:** 10 feet\
+**Components:** V, S, M (one 150+ GP black onyx stone for each corpse)\
 **Duration:** Instantaneous
 
 You can cast this spell only at night. Choose up to three corpses of Medium or Small Humanoids within range. Each one becomes a Ghoul under your control (see the Monster Manual for its stat block).
@@ -5324,11 +5639,12 @@ The creature is under your control for 24 hours, after which it stops obeying an
 **Using a Higher-Level Spell Slot.** If you use a level 7 spell slot, you can animate or reassert control over four Ghouls. If you use a level 8 spell slot, you can animate or reassert control over five Ghouls or two Ghasts or Wights. If you use a level 9 spell slot, you can animate or reassert control over six Ghouls, three Ghasts or Wights, or two Mummies. See the Monster Manual for these stat blocks.
 
 ### Dirge
+
 *Level 6 Enchantment (Bard, Cleric)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V\
 **Duration:** Concentration, up to 1 minute
 
 Deathly power fills a 60-foot Emanation originating from you for the duration.
@@ -5342,11 +5658,12 @@ A creature that fails its save against the spell's effect also gains 1 Exhaustio
 When the spell is cast, each secondary caster must expend a level 4+ spell slot; otherwise, the spell fails.
 
 ### Disintegrate
+
 *Level 6 Transmutation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a lodestone and dust)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a lodestone and dust)\
 **Duration:** Instantaneous
 
 You launch a green ray at a target you can see within range. The target can be a creature, a nonmagical object, or a creation of magical force, such as the wall created by Wall of Force.
@@ -5358,11 +5675,12 @@ This spell automatically disintegrates a Large or smaller nonmagical object or a
 **Using a Higher-Level Spell Slot.** The damage increases by 3d6 for each spell slot level above 6.
 
 ### Drawmij's Instant Summons
+
 *Level 6 Conjuration (Wizard)*
 
-**Casting Time:** 1 minute or Ritual  
-**Range:** Touch  
-**Components:** V, S, M (a sapphire worth 1,000+ GP)  
+**Casting Time:** 1 minute or Ritual\
+**Range:** Touch\
+**Components:** V, S, M (a sapphire worth 1,000+ GP)\
 **Duration:** Until dispelled
 
 You touch the sapphire used in the casting and an object weighing 10 pounds or less whose longest dimension is 6 feet or less. The spell leaves an Invisible mark on that object and invisibly inscribes the object's name on the sapphire. Each time you cast this spell, you must use a different sapphire.
@@ -5372,11 +5690,12 @@ Thereafter, you can take a Magic action to speak the object's name and crush the
 If another creature is holding or carrying the object, crushing the sapphire doesn't transport it, but instead you learn who that creature is and where that creature is currently located.
 
 ### Elminster's Effulgent Spheres
+
 *Level 6 Evocation (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (an opal worth 1,000 GP+)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (an opal worth 1,000 GP+)\
 **Duration:** 1 hour
 
 Six chromatic spheres orbit you for the duration.
@@ -5392,11 +5711,12 @@ The spell ends early if you have no more spheres remaining.
 **Using a Higher-Level Spell Slot.** The number of spheres increases by 1 for every spell slot level above 6.
 
 ### Eyebite
+
 *Level 6 Necromancy (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 For the duration, your eyes become an inky void. One creature of your choice within 60 feet of you that you can see must succeed on a Wisdom saving throw or be affected by one of the following effects of your choice for the duration.
@@ -5410,11 +5730,12 @@ On each of your turns until the spell ends, you can take a Magic action to targe
 **Sickened.** The target has the Poisoned condition.
 
 ### Find the Path
+
 *Level 6 Divination (Bard, Cleric, Druid)*
 
-**Casting Time:** 1 minute  
-**Range:** Self  
-**Components:** V, S, M (a set of divination tools - such as cards or runes - worth 100+ GP)  
+**Casting Time:** 1 minute\
+**Range:** Self\
+**Components:** V, S, M (a set of divination tools - such as cards or runes - worth 100+ GP)\
 **Duration:** Concentration, up to 1 day
 
 You magically sense the most direct physical route to a location you name. You must be familiar with the location, and the spell fails if you name a destination on another plane of existence, a moving destination (such as a mobile fortress), or an unspecific destination (such as "a green dragon's lair").
@@ -5422,11 +5743,12 @@ You magically sense the most direct physical route to a location you name. You m
 For the duration, as long as you are on the same plane of existence as the destination, you know how far it is and in what direction it lies. Whenever you face a choice of paths along the way there, you know which path is the most direct.
 
 ### Flesh to Stone
+
 *Level 6 Transmutation (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M (a cockatrice feather)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M (a cockatrice feather)\
 **Duration:** Concentration, up to 1 minute
 
 You attempt to turn one creature that you can see within range into stone. The target makes a Constitution saving throw. On a failed save, it has the Restrained condition for the duration. On a successful save, its Speed is 0 until the start of your next turn. Constructs automatically succeed on the save.
@@ -5436,11 +5758,12 @@ A Restrained target makes another Constitution saving throw at the end of each o
 If you maintain your Concentration on this spell for the entire possible duration, the target is Petrified until the condition is ended by Greater Restoration or similar magic.
 
 ### Forbiddance
+
 *Level 6 Abjuration (Cleric)*
 
-**Casting Time:** 10 minutes or Ritual  
-**Range:** Touch  
-**Components:** V, S, M (ruby dust worth 1,000+ GP)  
+**Casting Time:** 10 minutes or Ritual\
+**Range:** Touch\
+**Components:** V, S, M (ruby dust worth 1,000+ GP)\
 **Duration:** 1 day
 
 You create a ward against magical travel that protects up to 40,000 square feet of floor space to a height of 30 feet above the floor. For the duration, creatures can't teleport into the area or use portals, such as those created by the Gate spell, to enter the area. The spell proofs the area against planar travel, and therefore prevents creatures from accessing the area by way of the Astral Plane, the Ethereal Plane, the Feywild, the Shadowfell, or the Plane Shift spell.
@@ -5452,11 +5775,12 @@ You can designate a password when you cast the spell. A creature that speaks the
 The spell's area can't overlap with the area of another Forbiddance spell. If you cast Forbiddance every day for 30 days in the same location, the spell lasts until it is dispelled, and the Material components are consumed on the last casting.
 
 ### Globe of Invulnerability
+
 *Level 6 Abjuration (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a glass bead)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a glass bead)\
 **Duration:** Concentration, up to 1 minute
 
 An immobile, shimmering barrier appears in a 10-foot Emanation around you and remains for the duration.
@@ -5466,11 +5790,12 @@ Any spell of level 5 or lower cast from outside the barrier can't affect anythin
 **Using a Higher-Level Spell Slot.** The barrier blocks spells of 1 level higher for each spell slot level above 6.
 
 ### Guards and Wards
+
 *Level 6 Abjuration (Bard, Wizard)*
 
-**Casting Time:** 1 hour  
-**Range:** Touch  
-**Components:** V, S, M (a silver rod worth 10+ GP)  
+**Casting Time:** 1 hour\
+**Range:** Touch\
+**Components:** V, S, M (a silver rod worth 10+ GP)\
 **Duration:** 24 hours
 
 You create a ward that protects up to 2,500 square feet of floor space. The warded area can be up to 20 feet tall, and you shape it as one 50-foot square, one hundred 5-foot squares that are contiguous, or twenty-five 10-foot squares that are contiguous.
@@ -5494,21 +5819,23 @@ The spell creates the effects below within the warded area. Dispel Magic has no 
 - Suggestion in one 5-foot square; any creature that enters that square receives the suggestion mentally
 
 ### Harm
+
 *Level 6 Necromancy (Cleric)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You unleash virulent magic on a creature you can see within range. The target makes a Constitution saving throw. On a failed save, it takes 14d6 Necrotic damage, and its Hit Point maximum is reduced by an amount equal to the Necrotic damage it took. On a successful save, it takes half as much damage only. This spell can't reduce a target's Hit Point maximum below 1.
 
 ### Heal
+
 *Level 6 Abjuration (Cleric, Druid)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 Choose a creature that you can see within range. Positive energy washes through the target, restoring 70 Hit Points. This spell also ends the Blinded, Deafened, and Poisoned conditions on the target.
@@ -5516,11 +5843,12 @@ Choose a creature that you can see within range. Positive energy washes through 
 **Using a Higher-Level Spell Slot.** The healing increases by 10 for each spell slot level above 6.
 
 ### Heroes' Feast
+
 *Level 6 Conjuration (Bard, Cleric, Druid)*
 
-**Casting Time:** 10 minutes  
-**Range:** Self  
-**Components:** V, S, M (a gem-encrusted bowl worth 1,000+ GP, which the spell consumes)  
+**Casting Time:** 10 minutes\
+**Range:** Self\
+**Components:** V, S, M (a gem-encrusted bowl worth 1,000+ GP, which the spell consumes)\
 **Duration:** Instantaneous
 
 You conjure a feast that appears on a surface in an unoccupied 10-foot Cube next to you. The feast takes 1 hour to consume and disappears at the end of that time, and the beneficial effects don't set in until this hour is over. Up to twelve creatures can partake of the feast.
@@ -5528,11 +5856,12 @@ You conjure a feast that appears on a surface in an unoccupied 10-foot Cube next
 A creature that partakes gains several benefits, which last for 24 hours. The creature has Resistance to Poison damage, and it has Immunity to the Frightened and Poisoned conditions. Its Hit Point maximum also increases by 2d10, and it gains the same number of Hit Points.
 
 ### Magic Jar
+
 *Level 6 Necromancy (Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** Self  
-**Components:** V, S, M (a gem, crystal, or reliquary worth 500+ GP)  
+**Casting Time:** 1 minute\
+**Range:** Self\
+**Components:** V, S, M (a gem, crystal, or reliquary worth 500+ GP)\
 **Duration:** Until dispelled
 
 Your body falls into a catatonic state as your soul leaves it and enters the container you used for the spell's Material component. While your soul inhabits the container, you are aware of your surroundings as if you were in the container's space. You can't move or take Reactions. The only action you can take is to project your soul up to 100 feet out of the container, either returning to your living body (and ending the spell) or attempting to possess a Humanoid's body.
@@ -5550,11 +5879,12 @@ If the container is destroyed or the spell ends, your soul returns to your body.
 When the spell ends, the container is destroyed.
 
 ### Mass Suggestion
+
 *Level 6 Enchantment (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, M (a snake's tongue)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, M (a snake's tongue)\
 **Duration:** 24 hours
 
 You suggest a course of activity—described in no more than 25 words—to twelve or fewer creatures you can see within range that can hear and understand you. The suggestion must sound achievable and not involve anything that would obviously deal damage to any of the targets or their allies. For example, you could say, "Walk to the village down that road, and help the villagers there harvest crops until sunset." Or you could say, "Now is not the time for violence. Drop your weapons, and dance! Stop in an hour."
@@ -5564,11 +5894,12 @@ Each target must succeed on a Wisdom saving throw or have the Charmed condition 
 **Using a Higher-Level Spell Slot.** The duration is longer with a spell slot of level 7 (10 days), 8 (30 days), or 9 (366 days).
 
 ### Move Earth
+
 *Level 6 Transmutation (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (a miniature shovel)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (a miniature shovel)\
 **Duration:** Concentration, up to 2 hours
 
 Choose an area of terrain no larger than 40 feet on a side within range. You can reshape dirt, sand, or clay in the area in any manner you choose for the duration. You can raise or lower the area's elevation, create or fill in a trench, erect or flatten a wall, or form a pillar. The extent of any such changes can't exceed half the area's largest dimension. For example, if you affect a 40-foot square, you can create a pillar up to 20 feet high, raise or lower the square's elevation by up to 20 feet, dig a trench up to 20 feet deep, and so on. It takes 10 minutes for these changes to complete. Because the terrain's transformation occurs slowly, creatures in the area can't usually be trapped or injured by the ground's movement.
@@ -5580,11 +5911,12 @@ This spell can't manipulate natural stone or stone construction. Rocks and struc
 Similarly, this spell doesn't directly affect plant growth. The moved earth carries any plants along with it.
 
 ### Otiluke's Freezing Sphere
+
 *Level 6 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 300 feet  
-**Components:** V, S, M (a miniature crystal sphere)  
+**Casting Time:** Action\
+**Range:** 300 feet\
+**Components:** V, S, M (a miniature crystal sphere)\
 **Duration:** Instantaneous
 
 A frigid globe streaks from you to a point of your choice within range, where it explodes in a 60-foot-radius Sphere. Each creature in that area makes a Constitution saving throw, taking 10d6 Cold damage on failed save or half as much damage on a successful one.
@@ -5596,11 +5928,12 @@ You can refrain from firing the globe after completing the spell's casting. If y
 **Using a Higher-Level Spell Slot.** The damage increases by 1d6 for each spell slot level above 6.
 
 ### Otto's Irresistible Dance
+
 *Level 6 Enchantment (Bard, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V\
 **Duration:** Concentration, up to 1 minute
 
 One creature that you can see within range must make a Wisdom saving throw. On a successful save, the target dances comically until the end of its next turn, during which it must spend all its movement to dance in place.
@@ -5608,11 +5941,12 @@ One creature that you can see within range must make a Wisdom saving throw. On a
 On a failed save, the target has the Charmed condition for the duration. While Charmed, the target dances comically, must use all its movement to dance in place, and has Disadvantage on Dexterity saving throws and attack rolls, and other creatures have Advantage on attack rolls against it. On each of its turns, the target can take an action to collect itself and repeat the save, ending the spell on itself on a success.
 
 ### Planar Ally
+
 *Level 6 Conjuration (Cleric)*
 
-**Casting Time:** 10 minutes  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** 10 minutes\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You beseech an otherworldly entity for aid. The being must be known to you: a god, a demon prince, or some other being of cosmic power. That entity sends a Celestial, an Elemental, or a Fiend loyal to it to aid you, making the creature appear in an unoccupied space within range. If you know a specific creature's name, you can speak that name when you cast this spell to request that creature, though you might get a different creature anyway (DM's choice).
@@ -5626,11 +5960,12 @@ A task that can be measured in minutes requires a payment worth 100 GP per minut
 After the creature completes the task, or when the agreed-upon duration of service expires, the creature returns to its home plane after reporting back to you if possible. If you are unable to agree on a price for the creature's service, the creature immediately returns to its home plane.
 
 ### Programmed Illusion
+
 *Level 6 Illusion (Bard, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (jade dust worth 25+ GP)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (jade dust worth 25+ GP)\
 **Duration:** Until dispelled
 
 You create an illusion of an object, a creature, or some other visible phenomenon within range that activates when a specific trigger occurs. The illusion is imperceptible until then. It must be no larger than a 30-foot Cube, and you decide when you cast the spell how the illusion behaves and what sounds it makes. This scripted performance can last up to 5 minutes.
@@ -5642,11 +5977,12 @@ The trigger can be as general or as detailed as you like, though it must be base
 Physical interaction with the image reveals it to be illusory, since things can pass through it. A creature that takes the Study action to examine the image can determine that it is an illusion with a successful Intelligence (Investigation) check against your spell save DC. If a creature discerns the illusion for what it is, the creature can see through the image, and any noise it makes sounds hollow to the creature.
 
 ### Summon Fiend
+
 *Level 6 Conjuration (Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (a bloody vial worth 600+ GP)  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (a bloody vial worth 600+ GP)\
 **Duration:** Concentration, up to 1 hour
 
 You call forth a fiendish spirit. It manifests in an unoccupied space that you can see within range and uses the Fiendish Spirit stat block. When you cast the spell, choose Demon, Devil, or Yugoloth. The creature resembles a Fiend of the chosen type, which determines certain details in its stat block. The creature disappears when it drops to 0 Hit Points or when the spell ends.
@@ -5656,11 +5992,12 @@ The creature is an ally to you and your allies. In combat, the creature shares y
 **Using a Higher-Level Spell Slot.** Use the spell slot's level for the spell's level in the stat block.
 
 ### Sunbeam
+
 *Level 6 Evocation (Cleric, Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a magnifying glass)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a magnifying glass)\
 **Duration:** Concentration, up to 1 minute
 
 You launch a sunbeam in a 5-foot-wide, 60-foot-long Line. Each creature in the Line makes a Constitution saving throw. On a failed save, a creature takes 6d8 Radiant damage and has the Blinded condition until the start of your next turn. On a successful save, it takes half as much damage only.
@@ -5670,11 +6007,12 @@ Until the spell ends, you can take a Magic action to create a new Line of radian
 For the duration, a mote of brilliant radiance shines above you. It sheds Bright Light in a 30-foot radius and Dim Light for an additional 30 feet. This light is sunlight.
 
 ### Tasha's Bubbling Cauldron
+
 *Level 6 Conjuration (Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 5 feet  
-**Components:** V, S, M (a gilded ladle worth 500+ GP)  
+**Casting Time:** Action\
+**Range:** 5 feet\
+**Components:** V, S, M (a gilded ladle worth 500+ GP)\
 **Duration:** 10 minutes
 
 You conjure a claw-footed cauldron filled with bubbling liquid. The cauldron appears in an unoccupied space on the ground within 5 feet of you and lasts for the duration. The cauldron can't be moved and disappears when the spell ends, along with the bubbling liquid inside it.
@@ -5684,31 +6022,34 @@ The liquid in the cauldron duplicates the properties of a Common or an Uncommon 
 Potions obtained from the cauldron that aren't consumed disappear when you cast this spell again.
 
 ### Transport via Plants
+
 *Level 6 Conjuration (Druid)*
 
-**Casting Time:** Action  
-**Range:** 10 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 10 feet\
+**Components:** V, S\
 **Duration:** 1 minute
 
 This spell creates a magical link between a Large or larger inanimate plant within range and another plant, at any distance, on the same plane of existence. You must have seen or touched the destination plant at least once before. For the duration, any creature can step into the target plant and exit from the destination plant by using 5 feet of movement.
 
 ### True Seeing
+
 *Level 6 Divination (Bard, Cleric, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (mushroom powder worth 25+ GP, which the spell consumes)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (mushroom powder worth 25+ GP, which the spell consumes)\
 **Duration:** 1 hour
 
 For the duration, the willing creature you touch has Truesight with a range of 120 feet.
 
 ### Wall of Ice
+
 *Level 6 Evocation (Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (a piece of quartz)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (a piece of quartz)\
 **Duration:** Concentration, up to 10 minutes
 
 You create a wall of ice on a solid surface within range. You can form it into a hemispherical dome or a globe with a radius of up to 10 feet, or you can shape a flat surface made up of ten 10-foot-square panels. Each panel must be contiguous with another panel. In any form, the wall is 1 foot thick and lasts for the duration.
@@ -5722,11 +6063,12 @@ A creature moving through the sheet of frigid air for the first time on a turn m
 **Using a Higher-Level Spell Slot.** The damage the wall deals when it appears increases by 2d6 and the damage from passing through the sheet of frigid air increases by 1d6 for each spell slot level above 6.
 
 ### Wall of Thorns
+
 *Level 6 Conjuration (Druid)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S, M (a handful of thorns)  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S, M (a handful of thorns)\
 **Duration:** Concentration, up to 10 minutes
 
 You create a wall of tangled brush bristling with needle-sharp thorns. The wall appears within range on a solid surface and lasts for the duration. You choose to make the wall up to 60 feet long, 10 feet high, and 5 feet thick or a circle that has a 20-foot diameter and is up to 20 feet high and 5 feet thick. The wall blocks line of sight.
@@ -5738,11 +6080,12 @@ A creature can move through the wall, albeit slowly and painfully. For every 1 f
 **Using a Higher-Level Spell Slot.** Both types of damage increase by 1d8 for each spell slot level above 6.
 
 ### Wind Walk
+
 *Level 6 Transmutation (Druid)*
 
-**Casting Time:** 1 minute  
-**Range:** 30 feet  
-**Components:** V, S, M (a candle)  
+**Casting Time:** 1 minute\
+**Range:** 30 feet\
+**Components:** V, S, M (a candle)\
 **Duration:** 8 hours
 
 You and up to ten willing creatures of your choice within range assume gaseous forms for the duration, appearing as wisps of cloud. While in this cloud form, a target has a Fly Speed of 300 feet and can hover; it has Immunity to the Prone condition; and it has Resistance to Bludgeoning, Piercing, and Slashing damage. The only actions a target can take in this form are the Dash action or a Magic action to begin reverting to its normal form. Reverting takes 1 minute, during which the target has the Stunned condition. Until the spell ends, the target can revert to cloud form, which also requires a Magic action followed by a 1-minute transformation.
@@ -5750,45 +6093,44 @@ You and up to ten willing creatures of your choice within range assume gaseous f
 If a target is in cloud form and flying when the effect ends, the target descends 60 feet per round for 1 minute until it lands, which it does safely. If it can't land after 1 minute, it falls the remaining distance.
 
 ### Word of Recall
+
 *Level 6 Conjuration (Cleric)*
 
-**Casting Time:** Action  
-**Range:** 5 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 5 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 You and up to five willing creatures within 5 feet of you instantly teleport to a previously designated sanctuary. You and any creatures that teleport with you appear in the nearest unoccupied space to the spot you designated when you prepared your sanctuary (see below). If you cast this spell without first preparing a sanctuary, the spell has no effect.
 
 You must designate a location, such as a temple, as a sanctuary by casting this spell there.
 
-
 ### 7th Level Spells
 
-| Name | School | Spell lists | Casting Time | Range | Components | Duration |
-|------|--------|-------------|--------------|-------|------------|----------|
-| Conjure Celestial | Conjuration | Cleric | Action | 90 feet | V, S | C, up to 10 minutes |
-| Delayed Blast Fireball | Evocation | Sorcerer, Wizard | Action | 150 feet | V, S, M | C, up to 1 minute |
-| Divine Word | Evocation | Cleric | Bonus Action | 30 feet | V | Instantaneous |
-| Etherealness | Conjuration | Bard, Cleric, Sorcerer, Warlock, Wizard | Action | Self | V, S | Up to 8 hours |
-| Finger of Death | Necromancy | Sorcerer, Warlock, Wizard | Action | 60 feet | V, S | Instantaneous |
-| Fire Storm | Evocation | Cleric, Druid, Sorcerer | Action | 150 feet | V, S | Instantaneous |
-| Forcecage | Evocation | Bard, Warlock, Wizard | Action | 100 feet | V, S, M(C*) | C, up to 1 hour |
-| Mirage Arcane | Illusion | Bard, Druid, Wizard | 10 minutes | Sight | V, S | 10 days |
-| Mordenkainen's Magnificent Mansion | Conjuration | Bard, Wizard | 1 minute | 300 feet | V, S, M | 24 hours |
-| Mordenkainen's Sword | Evocation | Bard, Wizard | Action | 90 feet | V, S, M(C) | C, up to 1 minute |
-| Plane Shift | Conjuration | Cleric, Druid, Sorcerer, Warlock, Wizard | Action | Touch | V, S, M(C) | Instantaneous |
-| Power Word Fortify | Enchantment | Bard, Cleric | Action | 60 feet | V | Instantaneous |
-| Prismatic Spray | Evocation | Bard, Sorcerer, Wizard | Action | Self | V, S | Instantaneous |
-| Project Image | Illusion | Bard, Wizard | Action | 500 miles | V, S, M | C, up to 1 day |
-| Regenerate | Transmutation | Bard, Cleric, Druid | 1 minute | Touch | V, S, M | 1 hour |
-| Resurrection | Necromancy | Bard, Cleric | 1 hour | Touch | V, S, M(C*) | Instantaneous |
-| Reverse Gravity | Transmutation | Druid, Sorcerer, Wizard | Action | 100 feet | V, S, M | C, up to 1 minute |
-| Sequester | Transmutation | Wizard | Action | Touch | V, S, M(C*) | Until dispelled |
-| Simbul's Synostodweomer | Transmutation | Sorcerer, Wizard | Action | Touch | V, S | 1 hour |
-| Simulacrum | Illusion | Wizard | 12 hours | Touch | V, S, M(C*) | Until dispelled |
-| Symbol | Abjuration | Bard, Cleric, Druid, Wizard | 1 minute | Touch | V, S, M(C*) | Until dispelled or triggered |
-| Teleport | Conjuration | Bard, Sorcerer, Wizard | Action | 10 feet | V | Instantaneous |
-
+| Name                               | School        | Spell lists                              | Casting Time | Range     | Components   | Duration                     |
+| ---------------------------------- | ------------- | ---------------------------------------- | ------------ | --------- | ------------ | ---------------------------- |
+| Conjure Celestial                  | Conjuration   | Cleric                                   | Action       | 90 feet   | V, S         | C, up to 10 minutes          |
+| Delayed Blast Fireball             | Evocation     | Sorcerer, Wizard                         | Action       | 150 feet  | V, S, M      | C, up to 1 minute            |
+| Divine Word                        | Evocation     | Cleric                                   | Bonus Action | 30 feet   | V            | Instantaneous                |
+| Etherealness                       | Conjuration   | Bard, Cleric, Sorcerer, Warlock, Wizard  | Action       | Self      | V, S         | Up to 8 hours                |
+| Finger of Death                    | Necromancy    | Sorcerer, Warlock, Wizard                | Action       | 60 feet   | V, S         | Instantaneous                |
+| Fire Storm                         | Evocation     | Cleric, Druid, Sorcerer                  | Action       | 150 feet  | V, S         | Instantaneous                |
+| Forcecage                          | Evocation     | Bard, Warlock, Wizard                    | Action       | 100 feet  | V, S, M(C\*) | C, up to 1 hour              |
+| Mirage Arcane                      | Illusion      | Bard, Druid, Wizard                      | 10 minutes   | Sight     | V, S         | 10 days                      |
+| Mordenkainen's Magnificent Mansion | Conjuration   | Bard, Wizard                             | 1 minute     | 300 feet  | V, S, M      | 24 hours                     |
+| Mordenkainen's Sword               | Evocation     | Bard, Wizard                             | Action       | 90 feet   | V, S, M(C)   | C, up to 1 minute            |
+| Plane Shift                        | Conjuration   | Cleric, Druid, Sorcerer, Warlock, Wizard | Action       | Touch     | V, S, M(C)   | Instantaneous                |
+| Power Word Fortify                 | Enchantment   | Bard, Cleric                             | Action       | 60 feet   | V            | Instantaneous                |
+| Prismatic Spray                    | Evocation     | Bard, Sorcerer, Wizard                   | Action       | Self      | V, S         | Instantaneous                |
+| Project Image                      | Illusion      | Bard, Wizard                             | Action       | 500 miles | V, S, M      | C, up to 1 day               |
+| Regenerate                         | Transmutation | Bard, Cleric, Druid                      | 1 minute     | Touch     | V, S, M      | 1 hour                       |
+| Resurrection                       | Necromancy    | Bard, Cleric                             | 1 hour       | Touch     | V, S, M(C\*) | Instantaneous                |
+| Reverse Gravity                    | Transmutation | Druid, Sorcerer, Wizard                  | Action       | 100 feet  | V, S, M      | C, up to 1 minute            |
+| Sequester                          | Transmutation | Wizard                                   | Action       | Touch     | V, S, M(C\*) | Until dispelled              |
+| Simbul's Synostodweomer            | Transmutation | Sorcerer, Wizard                         | Action       | Touch     | V, S         | 1 hour                       |
+| Simulacrum                         | Illusion      | Wizard                                   | 12 hours     | Touch     | V, S, M(C\*) | Until dispelled              |
+| Symbol                             | Abjuration    | Bard, Cleric, Druid, Wizard              | 1 minute     | Touch     | V, S, M(C\*) | Until dispelled or triggered |
+| Teleport                           | Conjuration   | Bard, Sorcerer, Wizard                   | Action       | 10 feet   | V            | Instantaneous                |
 
 ### 7th Level Spell Descriptions
 
@@ -5796,9 +6138,9 @@ You must designate a location, such as a temple, as a sanctuary by casting this 
 
 *Level 7 Conjuration (Cleric)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You conjure a spirit from the Upper Planes, which manifests as a pillar of light in a 10-foot-radius, 40-foot-high Cylinder centered on a point within range. For each creature you can see in the Cylinder, choose which of these lights shines on it:
@@ -5817,9 +6159,9 @@ Whenever the Cylinder moves into the space of a creature you can see and wheneve
 
 *Level 7 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S, M (a ball of bat guano and sulfur)  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S, M (a ball of bat guano and sulfur)\
 **Duration:** Concentration, up to 1 minute
 
 A beam of yellow light flashes from you, then condenses at a chosen point within range as a glowing bead for the duration. When the spell ends, the bead explodes, and each creature in a 20-foot-radius Sphere centered on that point makes a Dexterity saving throw. A creature takes Fire damage equal to the total accumulated damage on a failed save or half as much damage on a successful one.
@@ -5836,29 +6178,29 @@ When the bead explodes, flammable objects in the explosion that aren't being wor
 
 *Level 7 Evocation (Cleric)*
 
-**Casting Time:** Bonus Action  
-**Range:** 30 feet  
-**Components:** V  
+**Casting Time:** Bonus Action\
+**Range:** 30 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 You utter a word imbued with power from the Upper Planes. Each creature of your choice in range makes a Charisma saving throw. On a failed save, a target that has 50 Hit Points or fewer suffers an effect based on its current Hit Points, as shown in the Divine Word Effects table. Regardless of its Hit Points, a Celestial, an Elemental, a Fey, or a Fiend target that fails its save is forced back to its plane of origin (if it isn't there already) and can't return to the current plane for 24 hours by any means short of a Wish spell.
 
 ##### Divine Word Effects
 
-| Hit Points | Effect |
-|------------|--------|
-| 0-20 | The target dies. |
-| 21-30 | The target has the Blinded, Deafened, and Stunned conditions for 1 hour. |
-| 31-40 | The target has the Blinded and Deafened conditions for 10 minutes. |
-| 41-50 | The target has the Deafened condition for 1 minute. |
+| Hit Points | Effect                                                                   |
+| ---------- | ------------------------------------------------------------------------ |
+| 0-20       | The target dies.                                                         |
+| 21-30      | The target has the Blinded, Deafened, and Stunned conditions for 1 hour. |
+| 31-40      | The target has the Blinded and Deafened conditions for 10 minutes.       |
+| 41-50      | The target has the Deafened condition for 1 minute.                      |
 
 ### Etherealness
 
 *Level 7 Conjuration (Bard, Cleric, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Up to 8 hours
 
 You step into the border regions of the Ethereal Plane, where it overlaps with your current plane. You remain in the Border Ethereal for the duration. During this time, you can move in any direction. If you move up or down, every foot of movement costs an extra foot. You can perceive the plane you left, which looks gray, and you can't see anything there more than 60 feet away.
@@ -5875,9 +6217,9 @@ This spell ends instantly if you cast it while you are on the Ethereal Plane or 
 
 *Level 7 Necromancy (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 You unleash negative energy toward a creature you can see within range. The target makes a Constitution saving throw, taking 7d8 + 30 Necrotic damage on a failed save or half as much damage on a successful one.
@@ -5888,9 +6230,9 @@ A Humanoid killed by this spell rises at the start of your next turn as a Zombie
 
 *Level 7 Evocation (Cleric, Druid, Sorcerer)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 A storm of fire appears within range. The area of the storm consists of up to ten 10-foot Cubes, which you arrange as you like. Each Cube must be contiguous with at least one other Cube. Each creature in the area makes a Dexterity saving throw, taking 7d10 Fire damage on a failed save or half as much damage on a successful one.
@@ -5901,9 +6243,9 @@ Flammable objects in the area that aren't being worn or carried start burning.
 
 *Level 7 Evocation (Bard, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 100 feet  
-**Components:** V, S, M (ruby dust worth 1,500+ GP, which the spell consumes)  
+**Casting Time:** Action\
+**Range:** 100 feet\
+**Components:** V, S, M (ruby dust worth 1,500+ GP, which the spell consumes)\
 **Duration:** Concentration, up to 1 hour
 
 An immobile, Invisible, Cube-shaped prison composed of magical force springs into existence around an area you choose within range. The prison can be a cage or a solid box, as you choose.
@@ -5920,9 +6262,9 @@ This spell can't be dispelled by Dispel Magic.
 
 *Level 7 Illusion (Bard, Druid, Wizard)*
 
-**Casting Time:** 10 minutes  
-**Range:** Sight  
-**Components:** V, S  
+**Casting Time:** 10 minutes\
+**Range:** Sight\
+**Components:** V, S\
 **Duration:** 10 days
 
 You make terrain in an area up to 1 mile square look, sound, smell, and even feel like some other sort of terrain. Open fields or a road could be made to resemble a swamp, hill, crevasse, or some other rough or impassable terrain. A pond can be made to seem like a grassy meadow, a precipice like a gentle slope, or a rock-strewn gully like a wide and smooth road.
@@ -5937,9 +6279,9 @@ Creatures with Truesight can see through the illusion to the terrain's true form
 
 *Level 7 Conjuration (Bard, Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** 300 feet  
-**Components:** V, S, M (a miniature door worth 15+ GP)  
+**Casting Time:** 1 minute\
+**Range:** 300 feet\
+**Components:** V, S, M (a miniature door worth 15+ GP)\
 **Duration:** 24 hours
 
 You conjure a shimmering door in range that lasts for the duration. The door leads to an extradimensional dwelling and is 5 feet wide and 10 feet tall. You and any creature you designate when you cast the spell can enter the extradimensional dwelling as long as the door remains open. You can open or close it (no action required) if you are within 30 feet of it. While closed, the door is imperceptible.
@@ -5956,9 +6298,9 @@ When the spell ends, any creatures or objects left inside the extradimensional s
 
 *Level 7 Evocation (Bard, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 90 feet  
-**Components:** V, S, M (a miniature sword worth 250+ GP)  
+**Casting Time:** Action\
+**Range:** 90 feet\
+**Components:** V, S, M (a miniature sword worth 250+ GP)\
 **Duration:** Concentration, up to 1 minute
 
 You create a spectral sword that hovers within range. It lasts for the duration.
@@ -5971,9 +6313,9 @@ On your later turns, you can take a Bonus Action to move the sword up to 30 feet
 
 *Level 7 Conjuration (Cleric, Druid, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (a forked, metal rod worth 250+ GP and attuned to a plane of existence)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (a forked, metal rod worth 250+ GP and attuned to a plane of existence)\
 **Duration:** Instantaneous
 
 You and up to eight willing creatures who link hands in a circle are transported to a different plane of existence. You can specify a target destination in general terms, such as the City of Brass on the Elemental Plane of Fire or the palace of Dispater on the second level of the Nine Hells, and you appear in or near that destination, as determined by the DM.
@@ -5984,9 +6326,9 @@ Alternatively, if you know the sigil sequence of a teleportation circle on anoth
 
 *Level 7 Enchantment (Bard, Cleric)*
 
-**Casting Time:** Action  
-**Range:** 60 foot  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 60 foot\
+**Components:** V\
 **Duration:** Instantaneous
 
 You fortify up to six creatures you can see within range. The spell bestows 120 Temporary Hit Points, which you divide among the spell's recipients.
@@ -5995,33 +6337,33 @@ You fortify up to six creatures you can see within range. The spell bestows 120 
 
 *Level 7 Evocation (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 Eight rays of light flash from you in a 60-foot Cone. Each creature in the Cone makes a Dexterity saving throw. For each target, roll 1d8 to determine which color ray affects it, consulting the Prismatic Rays table.
 
 ##### Prismatic Rays
 
-| 1d8 | Ray |
-|-----|-----|
-| 1 | **Red.** *Failed Save*: 12d6 Fire damage. *Successful Save*: Half as much damage. |
-| 2 | **Orange.** *Failed Save*: 12d6 Acid damage. *Successful Save*: Half as much damage. |
-| 3 | **Yellow.** *Failed Save*: 12d6 Lightning damage. *Successful Save*: Half as much damage. |
-| 4 | **Green.** *Failed Save*: 12d6 Poison damage. *Successful Save*: Half as much damage. |
-| 5 | **Blue.** *Failed Save*: 12d6 Cold damage. *Successful Save*: Half as much damage. |
-| 6 | **Indigo.** *Failed Save*: The target has the Restrained condition and makes a Constitution saving throw at the end of each of its turns. If it successfully saves three times, the condition ends. If it fails three times, it has the Petrified condition until it is freed by an effect like the Greater Restoration spell. The successes and failures needn't be consecutive; keep track of both until the target collects three of a kind. |
-| 7 | **Violet.** *Failed Save*: The target has the Blinded condition and makes a Wisdom saving throw at the start of your next turn. On a successful save, the condition ends. On a failed save, the condition ends, and the creature teleports to another plane of existence (DM's choice). |
-| 8 | **Special.** The target is struck by two rays. Roll twice, rerolling any 8. |
+| 1d8 | Ray                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Red.** *Failed Save*: 12d6 Fire damage. *Successful Save*: Half as much damage.                                                                                                                                                                                                                                                                                                                                                               |
+| 2   | **Orange.** *Failed Save*: 12d6 Acid damage. *Successful Save*: Half as much damage.                                                                                                                                                                                                                                                                                                                                                            |
+| 3   | **Yellow.** *Failed Save*: 12d6 Lightning damage. *Successful Save*: Half as much damage.                                                                                                                                                                                                                                                                                                                                                       |
+| 4   | **Green.** *Failed Save*: 12d6 Poison damage. *Successful Save*: Half as much damage.                                                                                                                                                                                                                                                                                                                                                           |
+| 5   | **Blue.** *Failed Save*: 12d6 Cold damage. *Successful Save*: Half as much damage.                                                                                                                                                                                                                                                                                                                                                              |
+| 6   | **Indigo.** *Failed Save*: The target has the Restrained condition and makes a Constitution saving throw at the end of each of its turns. If it successfully saves three times, the condition ends. If it fails three times, it has the Petrified condition until it is freed by an effect like the Greater Restoration spell. The successes and failures needn't be consecutive; keep track of both until the target collects three of a kind. |
+| 7   | **Violet.** *Failed Save*: The target has the Blinded condition and makes a Wisdom saving throw at the start of your next turn. On a successful save, the condition ends. On a failed save, the condition ends, and the creature teleports to another plane of existence (DM's choice).                                                                                                                                                         |
+| 8   | **Special.** The target is struck by two rays. Roll twice, rerolling any 8.                                                                                                                                                                                                                                                                                                                                                                     |
 
 ### Project Image
 
 *Level 7 Illusion (Bard, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 500 miles  
-**Components:** V, S, M (a statuette of yourself worth 5+ GP)  
+**Casting Time:** Action\
+**Range:** 500 miles\
+**Components:** V, S, M (a statuette of yourself worth 5+ GP)\
 **Duration:** Concentration, up to 1 day
 
 You create an illusory copy of yourself that lasts for the duration. The copy can appear at any location within range that you have seen before, regardless of intervening obstacles. The illusion looks and sounds like you, but it is intangible. If the illusion takes any damage, it disappears, and the spell ends.
@@ -6034,9 +6376,9 @@ Physical interaction with the image reveals it to be illusory, since things can 
 
 *Level 7 Transmutation (Bard, Cleric, Druid)*
 
-**Casting Time:** 1 minute  
-**Range:** Touch  
-**Components:** V, S, M (a prayer wheel)  
+**Casting Time:** 1 minute\
+**Range:** Touch\
+**Components:** V, S, M (a prayer wheel)\
 **Duration:** 1 hour
 
 A creature you touch regains 4d8 + 15 Hit Points. For the duration, the target regains 1 Hit Point at the start of each of its turns, and any severed body parts regrow after 2 minutes.
@@ -6045,9 +6387,9 @@ A creature you touch regains 4d8 + 15 Hit Points. For the duration, the target r
 
 *Level 7 Necromancy (Bard, Cleric)*
 
-**Casting Time:** 1 hour  
-**Range:** Touch  
-**Components:** V, S, M (a diamond worth 1,000+ GP, which the spell consumes)  
+**Casting Time:** 1 hour\
+**Range:** Touch\
+**Components:** V, S, M (a diamond worth 1,000+ GP, which the spell consumes)\
 **Duration:** Instantaneous
 
 With a touch, you revive a dead creature that has been dead for no more than a century, didn't die of old age, and wasn't Undead when it died.
@@ -6062,9 +6404,9 @@ Casting this spell to revive a creature that has been dead for 365 days or longe
 
 *Level 7 Transmutation (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 100 feet  
-**Components:** V, S, M (a lodestone and iron filings)  
+**Casting Time:** Action\
+**Range:** 100 feet\
+**Components:** V, S, M (a lodestone and iron filings)\
 **Duration:** Concentration, up to 1 minute
 
 This spell reverses gravity in a 50-foot-radius, 100-foot high Cylinder centered on a point within range. All creatures and objects in that area that aren't anchored to the ground fall upward and reach the top of the Cylinder. A creature can make a Dexterity saving throw to grab a fixed object it can reach, thus avoiding the fall upward.
@@ -6075,9 +6417,9 @@ If a ceiling or an anchored object is encountered in this upward fall, creatures
 
 *Level 7 Transmutation (Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S, M (gem dust worth 5,000+ GP, which the spell consumes)  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S, M (gem dust worth 5,000+ GP, which the spell consumes)\
 **Duration:** Until dispelled
 
 With a touch, you magically sequester an object or a willing creature. For the duration, the target has the Invisible condition and can't be targeted by Divination spells, detected by magic, or viewed remotely with magic.
@@ -6090,9 +6432,9 @@ You can set a condition for the spell to end early. The condition can be anythin
 
 *Level 7 Transmutation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** 1 hour
 
 You imbue one creature you touch with magical healing energy for the duration. Whenever the target casts a spell using a spell slot, the target can immediately roll a number of unexpended Hit Point Dice equal to the spell slot's level and regain Hit Points equal to the roll's total plus your spellcasting ability modifier; those dice are then expended.
@@ -6101,9 +6443,9 @@ You imbue one creature you touch with magical healing energy for the duration. W
 
 *Level 7 Illusion (Wizard)*
 
-**Casting Time:** 12 hours  
-**Range:** Touch  
-**Components:** V, S, M (powdered ruby worth 1,500+ GP, which the spell consumes)  
+**Casting Time:** 12 hours\
+**Range:** Touch\
+**Components:** V, S, M (powdered ruby worth 1,500+ GP, which the spell consumes)\
 **Duration:** Until dispelled
 
 You create a simulacrum of one Beast or Humanoid that is within 10 feet of you for the entire casting of the spell. You finish the casting by touching both the creature and a pile of ice or snow that is the same size as that creature, and the pile turns into the simulacrum, which is a creature. It uses the game statistics of the original creature at the time of casting, except it is a Construct, its Hit Point maximum is half as much, and it can't cast this spell.
@@ -6118,9 +6460,9 @@ The simulacrum lasts until it drops to 0 Hit Points, at which point it reverts t
 
 *Level 7 Abjuration (Bard, Cleric, Druid, Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** Touch  
-**Components:** V, S, M (powdered diamond worth 1,000+ GP, which the spell consumes)  
+**Casting Time:** 1 minute\
+**Range:** Touch\
+**Components:** V, S, M (powdered diamond worth 1,000+ GP, which the spell consumes)\
 **Duration:** Until dispelled or triggered
 
 You inscribe a harmful glyph either on a surface (such as a section of floor or wall) or within an object that can be closed (such as a book or chest). The glyph can cover an area no larger than 10 feet in diameter. If you choose an object, it must remain in place; if it is moved more than 10 feet from where you cast this spell, the glyph is broken, and the spell ends without being triggered.
@@ -6151,9 +6493,9 @@ Once triggered, the glyph glows, filling a 60-foot-radius Sphere with Dim Light 
 
 *Level 7 Conjuration (Bard, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 10 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 10 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 This spell instantly transports you and up to eight willing creatures that you can see within range, or a single object that you can see within range, to a destination you select. If you target an object, it must be Large or smaller, and it can't be held or carried by an unwilling creature.
@@ -6162,14 +6504,14 @@ The destination you choose must be known to you, and it must be on the same plan
 
 ##### Teleportation Outcome
 
-| Familiarity | Mishap | Similar Area | Off Target | On Target |
-|-------------|--------|--------------|------------|-----------|
-| Permanent circle | - | - | - | 01-00 |
-| Linked object | - | - | - | 01-00 |
-| Very familiar | 01-05 | 06-13 | 14-24 | 25-00 |
-| Seen casually | 01-33 | 34-43 | 44-53 | 54-00 |
-| Viewed once or described | 01-43 | 44-53 | 54-73 | 74-00 |
-| False destination | 01-50 | 51-00 | - | - |
+| Familiarity              | Mishap | Similar Area | Off Target | On Target |
+| ------------------------ | ------ | ------------ | ---------- | --------- |
+| Permanent circle         | -      | -            | -          | 01-00     |
+| Linked object            | -      | -            | -          | 01-00     |
+| Very familiar            | 01-05  | 06-13        | 14-24      | 25-00     |
+| Seen casually            | 01-33  | 34-43        | 44-53      | 54-00     |
+| Viewed once or described | 01-43  | 44-53        | 54-73      | 74-00     |
+| False destination        | 01-50  | 51-00        | -          | -         |
 
 **Familiarity.** Here are the meanings of the terms in the table's Familiarity column:
 
@@ -6188,40 +6530,39 @@ The destination you choose must be known to you, and it must be on the same plan
 
 **On Target.** You and your group (or the target object) appear where you intended.
 
-
 ### 8th Level Spells
 
-| Name | School | Spell lists | Casting Time | Range | Components | Duration |
-|------|--------|-------------|--------------|-------|------------|----------|
-| Animal Shapes | Transmutation | Druid | Action | 30 Feet | V, S | 24 Hours |
-| Antimagic Field | Abjuration | Cleric, Wizard | Action | Self | V, S, M | C, up to 1 hour |
-| Antipathy/Sympathy | Enchantment | Bard, Druid, Wizard | 1 hour | 60 feet | V, S, M | 10 days |
-| Befuddlement | Enchantment | Bard, Druid, Warlock, Wizard | Action | 150 feet | V, S, M | Instantaneous |
-| Clone | Necromancy | Wizard | 1 hour | Touch | V, S, M(C*) | Instantaneous |
-| Control Weather | Transmutation | Cleric, Druid, Wizard | 10 minutes | Self | V, S, M | C, up to 8 hours |
-| Demiplane | Conjuration | Sorcerer, Warlock, Wizard | Action | 60 feet | S | 1 hour |
-| Dominate Monster | Enchantment | Bard, Sorcerer, Warlock, Wizard | Action | 60 feet | V, S | C, up to 1 hour |
-| Earthquake | Transmutation | Cleric, Druid, Sorcerer | Action | 500 feet | V, S, M | C, up to 1 minute |
-| Glibness | Enchantment | Bard, Warlock | Action | Self | V | 1 hour |
-| Holy Aura | Abjuration | Cleric | Action | Self | V, S, M(C) | C, up to 1 minute |
-| Holy Star of Mystra | Evocation | Cleric, Wizard | Bonus Action | Self | V, S | C, up to 1 minute |
-| Incendiary Cloud | Conjuration | Druid, Sorcerer, Wizard | Action | 150 feet | V, S | C, up to 1 minute |
-| Maze | Conjuration | Wizard | Action | 60 feet | V, S | C, up to 10 minutes |
-| Mind Blank | Abjuration | Bard, Wizard | Action | Touch | V, S | 24 hours |
-| Power Word Stun | Enchantment | Bard, Sorcerer, Warlock, Wizard | Action | 60 feet | V | Instantaneous |
-| Sunburst | Evocation | Cleric, Druid, Sorcerer, Wizard | Action | 150 feet | V, S, M | Instantaneous |
-| Telepathy | Divination | Wizard | Action | Unlimited | V, S, M | 24 hours |
-| Tsunami | Conjuration | Druid | 1 minute | 1 mile | V, S | C, up to 6 rounds |
-
+| Name                | School        | Spell lists                     | Casting Time | Range     | Components   | Duration            |
+| ------------------- | ------------- | ------------------------------- | ------------ | --------- | ------------ | ------------------- |
+| Animal Shapes       | Transmutation | Druid                           | Action       | 30 Feet   | V, S         | 24 Hours            |
+| Antimagic Field     | Abjuration    | Cleric, Wizard                  | Action       | Self      | V, S, M      | C, up to 1 hour     |
+| Antipathy/Sympathy  | Enchantment   | Bard, Druid, Wizard             | 1 hour       | 60 feet   | V, S, M      | 10 days             |
+| Befuddlement        | Enchantment   | Bard, Druid, Warlock, Wizard    | Action       | 150 feet  | V, S, M      | Instantaneous       |
+| Clone               | Necromancy    | Wizard                          | 1 hour       | Touch     | V, S, M(C\*) | Instantaneous       |
+| Control Weather     | Transmutation | Cleric, Druid, Wizard           | 10 minutes   | Self      | V, S, M      | C, up to 8 hours    |
+| Demiplane           | Conjuration   | Sorcerer, Warlock, Wizard       | Action       | 60 feet   | S            | 1 hour              |
+| Dominate Monster    | Enchantment   | Bard, Sorcerer, Warlock, Wizard | Action       | 60 feet   | V, S         | C, up to 1 hour     |
+| Earthquake          | Transmutation | Cleric, Druid, Sorcerer         | Action       | 500 feet  | V, S, M      | C, up to 1 minute   |
+| Glibness            | Enchantment   | Bard, Warlock                   | Action       | Self      | V            | 1 hour              |
+| Holy Aura           | Abjuration    | Cleric                          | Action       | Self      | V, S, M(C)   | C, up to 1 minute   |
+| Holy Star of Mystra | Evocation     | Cleric, Wizard                  | Bonus Action | Self      | V, S         | C, up to 1 minute   |
+| Incendiary Cloud    | Conjuration   | Druid, Sorcerer, Wizard         | Action       | 150 feet  | V, S         | C, up to 1 minute   |
+| Maze                | Conjuration   | Wizard                          | Action       | 60 feet   | V, S         | C, up to 10 minutes |
+| Mind Blank          | Abjuration    | Bard, Wizard                    | Action       | Touch     | V, S         | 24 hours            |
+| Power Word Stun     | Enchantment   | Bard, Sorcerer, Warlock, Wizard | Action       | 60 feet   | V            | Instantaneous       |
+| Sunburst            | Evocation     | Cleric, Druid, Sorcerer, Wizard | Action       | 150 feet  | V, S, M      | Instantaneous       |
+| Telepathy           | Divination    | Wizard                          | Action       | Unlimited | V, S, M      | 24 hours            |
+| Tsunami             | Conjuration   | Druid                           | 1 minute     | 1 mile    | V, S         | C, up to 6 rounds   |
 
 ### 8th Level Spell Descriptions
 
 ### Animal Shapes
+
 *Level 8 Transmutation (Druid)*
 
-**Casting Time:** Action  
-**Range:** 30 Feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 30 Feet\
+**Components:** V, S\
 **Duration:** 24 hours
 
 Choose any number of willing creatures that you can see within range. Each target shape-shifts into a Large or smaller Beast of your choice that has a Challenge Rating of 4 or lower. You can choose a different form for each target. On later turns, you can take a Magic action to transform the targets again.
@@ -6230,14 +6571,15 @@ A target's game statistics are replaced by the chosen Beast's statistics, but th
 
 The target gains a number of Temporary Hit Points equal to the Hit Points of the first form into which it shape-shifts. These Temporary Hit Points vanish if any remain when the spell ends. The transformation lasts for the duration or until the target ends it as a Bonus Action.
 
----
+***
 
 ### Antimagic Field
+
 *Level 8 Abjuration (Cleric, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (iron filings)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (iron filings)\
 **Duration:** Concentration, up to 1 hour
 
 An aura of antimagic surrounds you in 10-foot Emanation. No one can cast spells, take Magic actions, or create other magical effects inside the aura, and those things can't target or otherwise affect anything inside it. Magical properties of magic items don't work inside the aura or on anything inside it.
@@ -6248,14 +6590,15 @@ Ongoing spells, except those cast by an Artifact or a deity, are suppressed in t
 
 [Dispel Magic](/spell:dispel-magic) has no effect on the aura, and the auras created by different Antimagic Field spells don't nullify each other.
 
----
+***
 
 ### Antipathy/Sympathy
+
 *Level 8 Enchantment (Bard, Druid, Wizard)*
 
-**Casting Time:** 1 Hour  
-**Range:** 60 Feet  
-**Components:** V, S, M (a mix of vinegar and honey)  
+**Casting Time:** 1 Hour\
+**Range:** 60 Feet\
+**Components:** V, S, M (a mix of vinegar and honey)\
 **Duration:** 10 Days
 
 As you cast the spell, choose whether it creates antipathy or sympathy, and target one creature or object that is Huge or smaller. Then specify a kind of creature, such as red dragons, goblins, or vampires. A creature of the chosen kind makes a Wisdom saving throw when it comes within 120 feet of the target. Your choice of antipathy or sympathy determines what happens to a creature when it fails that save:
@@ -6266,14 +6609,15 @@ As you cast the spell, choose whether it creates antipathy or sympathy, and targ
 
 **Ending the Effect.** If the Frightened or Charmed creature ends its turn more than 120 feet away from the target, the creature makes a Wisdom saving throw. On a successful save, the creature is no longer affected by the target. A creature that successfully saves against this effect is immune to it for 1 minute, after which it can be affected again.
 
----
+***
 
 ### Befuddlement
+
 *Level 8 Enchantment (Bard, Druid, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S, M (a key ring with no keys)  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S, M (a key ring with no keys)\
 **Duration:** Instantaneous
 
 You blast the mind of a creature that you can see within range. The target makes an Intelligence saving throw.
@@ -6282,28 +6626,30 @@ On a failed save, the target takes 10d12 Psychic damage and can't cast spells or
 
 On a successful save, the target takes half as much damage only.
 
----
+***
 
 ### Clone
+
 *Level 8 Necromancy (Wizard)*
 
-**Casting Time:** 1 hour  
-**Range:** Touch  
-**Components:** V, S, M (a diamond worth 1,000+ GP, which the spell consumes, and a sealable vessel worth 2,000+ GP that is large enough to hold the creature being cloned)  
+**Casting Time:** 1 hour\
+**Range:** Touch\
+**Components:** V, S, M (a diamond worth 1,000+ GP, which the spell consumes, and a sealable vessel worth 2,000+ GP that is large enough to hold the creature being cloned)\
 **Duration:** Instantaneous
 
 You touch a creature or at least 1 cubic inch of its flesh. An inert duplicate of that creature forms inside the vessel used in the spell's casting and finishes growing after 120 days; you choose whether the finished clone is the same age as the creature or younger. The clone remains inert and endures indefinitely while its vessel remains undisturbed.
 
 If the original creature dies after the clone finishes forming, the creature's soul transfers to the clone if the soul is free and willing to return. The clone is physically identical to the original and has the same personality, memories, and abilities, but none of the original's equipment. The creature's original remains, if any, become inert and can't be revived, since the creature's soul is elsewhere.
 
----
+***
 
 ### Control Weather
+
 *Level 8 Transmutation (Cleric, Druid, Wizard)*
 
-**Casting Time:** 10 minutes  
-**Range:** Self  
-**Components:** V, S, M (burning incense)  
+**Casting Time:** 10 minutes\
+**Range:** Self\
+**Components:** V, S, M (burning incense)\
 **Duration:** Concentration, up to 8 hours
 
 You take control of the weather within 5 miles of you for the duration. You must be outdoors to cast this spell, and it ends early if you go indoors.
@@ -6314,43 +6660,44 @@ When you change the weather conditions, find a current condition on the followin
 
 ##### Precipitation
 
-| Stage | Condition |
-|-------|-----------|
-| 1 | Clear |
-| 2 | Light clouds |
-| 3 | Overcast or ground fog |
-| 4 | Rain, hail, or snow |
-| 5 | Torrential rain, driving hail, or blizzard |
+| Stage | Condition                                  |
+| ----- | ------------------------------------------ |
+| 1     | Clear                                      |
+| 2     | Light clouds                               |
+| 3     | Overcast or ground fog                     |
+| 4     | Rain, hail, or snow                        |
+| 5     | Torrential rain, driving hail, or blizzard |
 
 ##### Temperature
 
 | Stage | Condition |
-|-------|-----------|
-| 1 | Heat wave |
-| 2 | Hot |
-| 3 | Warm |
-| 4 | Cool |
-| 5 | Cold |
-| 6 | Freezing |
+| ----- | --------- |
+| 1     | Heat wave |
+| 2     | Hot       |
+| 3     | Warm      |
+| 4     | Cool      |
+| 5     | Cold      |
+| 6     | Freezing  |
 
 ##### Wind
 
-| Stage | Condition |
-|-------|-----------|
-| 1 | Calm |
-| 2 | Moderate wind |
-| 3 | Strong wind |
-| 4 | Gale |
-| 5 | Storm |
+| Stage | Condition     |
+| ----- | ------------- |
+| 1     | Calm          |
+| 2     | Moderate wind |
+| 3     | Strong wind   |
+| 4     | Gale          |
+| 5     | Storm         |
 
----
+***
 
 ### Demiplane
+
 *Level 8 Conjuration (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** S\
 **Duration:** 1 hour
 
 You create a shadowy Medium door on a flat solid surface that you can see within range. This door can be opened and closed, and it leads to a demiplane that is an empty room 30 feet in each dimension, made of wood or stone (your choice).
@@ -6359,14 +6706,15 @@ When the spell ends, the door vanishes, and any objects inside the demiplane rem
 
 Each time you cast this spell, you can create a new demiplane or connect the shadowy door to a demiplane you created with a previous casting of this spell. Additionally, if you know the nature and contents of a demiplane created by a casting of this spell by another creature, you can connect the shadowy door to that demiplane instead.
 
----
+***
 
 ### Dominate Monster
+
 *Level 8 Enchantment (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 hour
 
 One creature you can see within range must succeed on a Wisdom saving throw or have the Charmed condition for the duration. The target has Advantage on the save if you or your allies are fighting it. Whenever the target takes damage, it repeats the save, ending the spell on itself on a success.
@@ -6377,14 +6725,15 @@ You can command the target to take a Reaction but must take your own Reaction to
 
 **Using a Higher-Level Spell Slot.** Your Concentration can last longer with a level 9 spell slot (up to 8 hours).
 
----
+***
 
 ### Earthquake
+
 *Level 8 Transmutation (Cleric, Druid, Sorcerer)*
 
-**Casting Time:** Action  
-**Range:** 500 feet  
-**Components:** V, S, M (a fractured rock)  
+**Casting Time:** Action\
+**Range:** 500 feet\
+**Components:** V, S, M (a fractured rock)\
 **Duration:** Concentration, up to 1 minute
 
 Choose a point on the ground that you can see within range. For the duration, an intense tremor rips through the ground in a 100-foot-radius circle centered on that point. The ground there is Difficult Terrain.
@@ -6399,38 +6748,41 @@ You can also cause the effects below.
 
 A creature within a distance from a collapsing structure equal to half the structure's height makes a Dexterity saving throw. On a failed save, the creature takes 12d6 Bludgeoning damage, has the Prone condition, and is buried in the rubble, requiring a DC 20 Strength (Athletics) check as an action to escape. On a successful save, the creature takes half as much damage only.
 
----
+***
 
 ### Glibness
+
 *Level 8 Enchantment (Bard, Warlock)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V\
 **Duration:** 1 hour
 
 Until the spell ends, when you make a Charisma check, you can replace the number you roll with a 15. Additionally, no matter what you say, magic that would determine if you are telling the truth indicates that you are being truthful.
 
----
+***
 
 ### Holy Aura
+
 *Level 8 Abjuration (Cleric)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a reliquary worth 1,000+ GP)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a reliquary worth 1,000+ GP)\
 **Duration:** Concentration, up to 1 minute
 
 For the duration, you emit an aura in a 30-foot Emanation. While in the aura, creatures of your choice have Advantage on all saving throws, and other creatures have Disadvantage on attack rolls against them. In addition, when a Fiend or an Undead hits an affected creature with a melee attack roll, the attacker must succeed on a Constitution saving throw or have the Blinded condition until the end of its next turn.
 
----
+***
 
 ### Holy Star of Mystra
+
 *Level 8 Evocation (Cleric, Wizard)*
 
-**Casting Time:** Bonus Action  
-**Range:** Self  
-**Components:** V, S  
+**Casting Time:** Bonus Action\
+**Range:** Self\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You create a glowing mote of energy that hovers above you for the duration. The mote sheds Bright Light in a 5-foot radius and Dim Light for an additional 5 feet.
@@ -6439,14 +6791,15 @@ When you cast this spell and as a Bonus Action on later turns, you can unleash a
 
 In addition, while the mote is present, you have Three-Quarters Cover, and if you succeed on a saving throw against a spell of level 7 or lower that targeted only you and didn't create an area of effect, you can take a Reaction to deflect that spell back at the spell's caster; the caster makes a saving throw against that spell using that caster's own spell save DC.
 
----
+***
 
 ### Incendiary Cloud
+
 *Level 8 Conjuration (Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 A swirling cloud of embers and smoke fills a 20-foot-radius Sphere centered on a point within range. The cloud's area is Heavily Obscured. It lasts for the duration or until a strong wind (like that created by [Gust of Wind](/spell:gust-of-wind)) disperses it.
@@ -6455,14 +6808,15 @@ When the cloud appears, each creature in it makes a Dexterity saving throw, taki
 
 The cloud moves 10 feet away from you in a direction you choose at the start of each of your turns.
 
----
+***
 
 ### Maze
+
 *Level 8 Conjuration (Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 10 minutes
 
 You banish a creature that you can see within range into a labyrinthine demiplane. The target remains there for the duration or until it escapes the maze.
@@ -6471,40 +6825,43 @@ The target can take a Study action to try to escape. When it does so, it makes a
 
 When the spell ends, the target reappears in the space it left or, if that space is occupied, in the nearest unoccupied space.
 
----
+***
 
 ### Mind Blank
+
 *Level 8 Abjuration (Bard, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Touch  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** Touch\
+**Components:** V, S\
 **Duration:** 24 hours
 
 Until the spell ends, one willing creature you touch has Immunity to Psychic damage and the Charmed condition. The target is also unaffected by anything that would sense its emotions or alignment, read its thoughts, or magically detect its location, and no spell - not even [Wish](/spell:wish) - can gather information about the target, observe it remotely, or control its mind.
 
----
+***
 
 ### Power Word Stun
+
 *Level 8 Enchantment (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 You overwhelm the mind of one creature you can see within range. If the target has 150 Hit Points or fewer, it has the Stunned condition. Otherwise, its Speed is 0 until the start of your next turn.
 
 The Stunned target makes a Constitution saving throw at the end of each of its turns, ending the condition on itself on a success.
 
----
+***
 
 ### Sunburst
+
 *Level 8 Evocation (Cleric, Druid, Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 150 feet  
-**Components:** V, S, M (a piece of sunstone)  
+**Casting Time:** Action\
+**Range:** 150 feet\
+**Components:** V, S, M (a piece of sunstone)\
 **Duration:** Instantaneous
 
 Brilliant sunlight flashes in a 60-foot-radius Sphere centered on a point you choose within range. Each creature in the Sphere makes a Constitution saving throw. On a failed save, a creature takes 12d6 Radiant damage and has the Blinded condition for 1 minute. On a successful save, it takes half as much damage only.
@@ -6513,28 +6870,30 @@ A creature Blinded by this spell makes another Constitution saving throw at the 
 
 This spell dispels Darkness in its area that was created by any spell.
 
----
+***
 
 ### Telepathy
+
 *Level 8 Divination (Wizard)*
 
-**Casting Time:** Action  
-**Range:** Unlimited  
-**Components:** V, S, M (a pair of linked silver rings)  
+**Casting Time:** Action\
+**Range:** Unlimited\
+**Components:** V, S, M (a pair of linked silver rings)\
 **Duration:** 24 hours
 
 You create a telepathic link between yourself and a willing creature with which you are familiar. The creature can be anywhere on the same plane of existence as you. The spell ends if you or the target are no longer on the same plane.
 
 Until the spell ends, you and the target can instantly share words, images, sounds, and other sensory messages with each other through the link, and the target recognizes you as the creature it is communicating with. The spell enables a creature to understand the meaning of your words and any sensory messages you send to it.
 
----
+***
 
 ### Tsunami
+
 *Level 8 Conjuration (Druid)*
 
-**Casting Time:** 1 minute  
-**Range:** 1 mile  
-**Components:** V, S  
+**Casting Time:** 1 minute\
+**Range:** 1 mile\
+**Components:** V, S\
 **Duration:** Concentration, up to 6 rounds
 
 A wall of water springs into existence at a point you choose within range. You can make the wall up to 300 feet long, 300 feet high, and 50 feet thick. The wall lasts for the duration.
@@ -6547,33 +6906,34 @@ A creature caught in the wall can move by swimming. Because of the wave's force,
 
 ### 9th Level Spells
 
-| Name | School | Spell lists | Casting Time | Range | Components | Duration |
-|------|--------|-------------|--------------|-------|------------|----------|
-| Astral Projection | Necromancy | Cleric, Warlock, Wizard | 1 hour | 10 feet | V, S, M (C*) | Until dispelled |
-| Blade of Disaster | Conjuration | Sorcerer, Warlock, Wizard | Bonus Action | 60 feet | V, S | C, up to 1 minute |
-| Foresight | Divination | Bard, Druid, Warlock, Wizard | 1 minute | Touch | V, S, M | 8 hours |
-| Gate | Conjuration | Cleric, Sorcerer, Warlock, Wizard | Action | 60 feet | V, S, M(C) | C, up to 1 minute |
-| Imprisonment | Abjuration | Warlock, Wizard | 1 minute | 30 feet | V, S, M(C) | Until dispelled |
-| Mass Heal | Abjuration | Cleric | Action | 60 feet | V, S | Instantaneous |
-| Meteor Swarm | Evocation | Sorcerer, Wizard | Action | 1 mile | V, S | Instantaneous |
-| Power Word Heal | Enchantment | Bard, Cleric | Action | 60 feet | V | Instantaneous |
-| Power Word Kill | Enchantment | Bard, Sorcerer, Warlock, Wizard | Action | 60 feet | V | Instantaneous |
-| Prismatic Wall | Abjuration | Bard, Wizard | Action | 60 feet | V, S | 10 minutes |
-| Shapechange | Transmutation | Druid, Wizard | Action | Self | V, S, M(C) | C, up to 1 hour |
-| Storm of Vengeance | Conjuration | Druid | Action | 1 mile | V, S | C, up to 1 minute |
-| Time Stop | Transmutation | Sorcerer, Wizard | Action | Self | V | Instantaneous |
-| True Polymorph | Transmutation | Bard, Warlock, Wizard | Action | 30 feet | V, S, M | C, up to 1 hour |
-| True Resurrection | Necromancy | Cleric, Druid | 1 hour | Touch | V, S, M(C*) | Instantaneous |
-| Weird | Illusion | Warlock, Wizard | Action | 120 feet | V, S | C, up to 1 minute |
+| Name               | School        | Spell lists                       | Casting Time | Range    | Components    | Duration          |
+| ------------------ | ------------- | --------------------------------- | ------------ | -------- | ------------- | ----------------- |
+| Astral Projection  | Necromancy    | Cleric, Warlock, Wizard           | 1 hour       | 10 feet  | V, S, M (C\*) | Until dispelled   |
+| Blade of Disaster  | Conjuration   | Sorcerer, Warlock, Wizard         | Bonus Action | 60 feet  | V, S          | C, up to 1 minute |
+| Foresight          | Divination    | Bard, Druid, Warlock, Wizard      | 1 minute     | Touch    | V, S, M       | 8 hours           |
+| Gate               | Conjuration   | Cleric, Sorcerer, Warlock, Wizard | Action       | 60 feet  | V, S, M(C)    | C, up to 1 minute |
+| Imprisonment       | Abjuration    | Warlock, Wizard                   | 1 minute     | 30 feet  | V, S, M(C)    | Until dispelled   |
+| Mass Heal          | Abjuration    | Cleric                            | Action       | 60 feet  | V, S          | Instantaneous     |
+| Meteor Swarm       | Evocation     | Sorcerer, Wizard                  | Action       | 1 mile   | V, S          | Instantaneous     |
+| Power Word Heal    | Enchantment   | Bard, Cleric                      | Action       | 60 feet  | V             | Instantaneous     |
+| Power Word Kill    | Enchantment   | Bard, Sorcerer, Warlock, Wizard   | Action       | 60 feet  | V             | Instantaneous     |
+| Prismatic Wall     | Abjuration    | Bard, Wizard                      | Action       | 60 feet  | V, S          | 10 minutes        |
+| Shapechange        | Transmutation | Druid, Wizard                     | Action       | Self     | V, S, M(C)    | C, up to 1 hour   |
+| Storm of Vengeance | Conjuration   | Druid                             | Action       | 1 mile   | V, S          | C, up to 1 minute |
+| Time Stop          | Transmutation | Sorcerer, Wizard                  | Action       | Self     | V             | Instantaneous     |
+| True Polymorph     | Transmutation | Bard, Warlock, Wizard             | Action       | 30 feet  | V, S, M       | C, up to 1 hour   |
+| True Resurrection  | Necromancy    | Cleric, Druid                     | 1 hour       | Touch    | V, S, M(C\*)  | Instantaneous     |
+| Weird              | Illusion      | Warlock, Wizard                   | Action       | 120 feet | V, S          | C, up to 1 minute |
 
 ### 9th Level Spell Descriptions
 
 ### Astral Projection
+
 *Level 9 Necromancy (Cleric, Warlock, Wizard)*
 
-**Casting Time:** 1 hour  
-**Range:** 10 feet  
-**Components:** V, S, M (for each of the spell's targets, one jacinth worth 1,000+ GP and one silver bar worth 100+ GP, all of which the spell consumes)  
+**Casting Time:** 1 hour\
+**Range:** 10 feet\
+**Components:** V, S, M (for each of the spell's targets, one jacinth worth 1,000+ GP and one silver bar worth 100+ GP, all of which the spell consumes)\
 **Duration:** Until dispelled
 
 You and up to eight willing creatures within range project your astral bodies into the Astral Plane (the spell ends instantly if you are already on that plane). Each target's body is left behind in a state of suspended animation; it has the Unconscious condition, doesn't need food or air, and doesn't age.
@@ -6587,11 +6947,12 @@ Any damage or other effects that apply to an astral form have no effect on the t
 When the spell ends for a target who isn't dead, the target reappears in its body and exits the state of suspended animation.
 
 ### Blade of Disaster
+
 *Level 9 Conjuration (Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Bonus Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Bonus Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You create a 3-foot-long blade-shaped planar rift that lasts for the duration. The rift appears within range in a space of your choice, and you can immediately make up to two melee spell attacks, each one against a creature or object within 5 feet of the rift. On a hit, the target takes 10d6 Force damage. This attack scores a Critical Hit if the number on the d20 is 18 or higher.
@@ -6601,21 +6962,23 @@ As a Bonus Action on your later turns, you can move the rift up to 60 feet and r
 The blade can harmlessly pass through any barrier, including ones created by spells like Wall of Force.
 
 ### Foresight
+
 *Level 9 Divination (Bard, Druid, Warlock, Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** Touch  
-**Components:** V, S, M (a hummingbird feather)  
+**Casting Time:** 1 minute\
+**Range:** Touch\
+**Components:** V, S, M (a hummingbird feather)\
 **Duration:** 8 hours
 
 You touch a willing creature and bestow a limited ability to see into the immediate future. For the duration, the target has Advantage on D20 Tests, and other creatures have Disadvantage on attack rolls against it. The spell ends early if you cast it again.
 
 ### Gate
+
 *Level 9 Conjuration (Cleric, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S, M(a diamond worth 5,000+ GP)  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S, M(a diamond worth 5,000+ GP)\
 **Duration:** Concentration, up to 1 minute
 
 You conjure a portal linking an unoccupied space you can see within range to a precise location on a different plane of existence. The portal is a circular opening, which you can make 5 to 20 feet in diameter. You can orient the portal in any direction you choose. The portal lasts for the duration, and the portal's destination is visible through it.
@@ -6627,11 +6990,12 @@ Deities and other planar rulers can prevent portals created by this spell from o
 When you cast this spell, you can speak the name of a specific creature (a pseudonym, title, or nickname doesn't work). If that creature is on a plane other than the one you are on, the portal opens next to the named creature and transports it to the nearest unoccupied space on your side of the portal. You gain no special power over the creature, and it is free to act as the DM deems appropriate. It might leave, attack you, or help you.
 
 ### Imprisonment
+
 *Level 9 Abjuration (Warlock, Wizard)*
 
-**Casting Time:** 1 minute  
-**Range:** 30 feet  
-**Components:** V, S, M(a statuette of the target worth 5,000+ GP)  
+**Casting Time:** 1 minute\
+**Range:** 30 feet\
+**Components:** V, S, M(a statuette of the target worth 5,000+ GP)\
 **Duration:** Until dispelled
 
 You create a magical restraint to hold a creature that you can see within range. The target must make a Wisdom saving throw. On a successful save, the target is unaffected, and it is immune to this spell for the next 24 hours. On a failed save, the target is imprisoned. While imprisoned, the target doesn't need to breathe, eat, or drink, and it doesn't age. Divination spells can't locate or perceive the imprisoned target, and the target can't teleport.
@@ -6653,21 +7017,23 @@ Until the spell ends, the target is also affected by one of the following effect
 A Dispel Magic spell can end the spell only if it is cast with a level 9 spell slot, targeting either the prison or the component used to create it.
 
 ### Mass Heal
+
 *Level 9 Abjuration (Cleric)*
 
-**Casting Time:** 1 Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** 1 Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 A flood of healing energy flows from you into creatures around you. You restore up to 700 Hit Points, divided as you choose among any number of creatures that you can see within range. Creatures healed by this spell also have the Blinded, Deafened, and Poisoned conditions removed from them.
 
 ### Meteor Swarm
+
 *Level 9 Evocation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 1 mile  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 1 mile\
+**Components:** V, S\
 **Duration:** Instantaneous
 
 Blazing orbs of fire plummet to the ground at four different points you can see within range. Each creature in a 40-foot-radius Sphere centered on each of those points makes a Dexterity saving throw. A creature takes 20d6 Fire damage and 20d6 Bludgeoning damage on a failed save or half as much damage on a successful one. A creature in the area of more than one fiery Sphere is affected only once.
@@ -6675,31 +7041,34 @@ Blazing orbs of fire plummet to the ground at four different points you can see 
 A nonmagical object that isn't being worn or carried also takes the damage if it's in the spell's area, and the object starts burning if it's flammable.
 
 ### Power Word Heal
+
 *Level 9 Enchantment (Bard, Cleric)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 A wave of healing energy washes over one creature you can see within range. The target regains all its Hit Points. If the creature has the Charmed, Frightened, Paralyzed, Poisoned, or Stunned condition, the condition ends. If the creature has the Prone condition, it can use its Reaction to stand up.
 
 ### Power Word Kill
+
 *Level 9 Enchantment (Bard, Sorcerer, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V\
 **Duration:** Instantaneous
 
 You compel one creature you can see within range to die. If the target has 100 Hit Points or fewer, it dies. Otherwise, it takes 12d12 Psychic damage.
 
 ### Prismatic Wall
+
 *Level 9 Abjuration (Bard, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 60 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 60 feet\
+**Components:** V, S\
 **Duration:** 10 minutes
 
 A shimmering, multicolored plane of light forms a vertical opaque wall—up to 90 feet long, 30 feet high, and 1 inch thick - centered on a point within range. Alternatively, you shape the wall into a globe up to 30 feet in diameter centered on a point within range. The wall lasts for the duration. If you position the wall in a space occupied by a creature, the spell ends instantly without effect.
@@ -6712,22 +7081,23 @@ The wall, which has AC 10, can be destroyed one layer at a time, in order from r
 
 ##### Prismatic Layers
 
-| Order | Effects |
-|-------|---------|
-| 1 | **Red.** *Failed Save:* 12d6 Fire damage. *Successful Save:* Half as much damage. *Additional Effects:* Nonmagical ranged attacks can't pass through this layer, which is destroyed if it takes at least 25 Cold damage. |
-| 2 | **Orange.** *Failed Save:* 12d6 Acid damage. *Successful Save:* Half as much damage. *Additional Effects:* Magical ranged attacks can't pass through this layer, which is destroyed by a strong wind (such as the one created by Gust of Wind). |
-| 3 | **Yellow.** *Failed Save:* 12d6 Lightning damage. *Successful Save:* Half as much damage. *Additional Effects:* The layer is destroyed if it takes at least 60 Force damage. |
-| 4 | **Green.** *Failed Save:* 12d6 Poison damage. *Successful Save:* Half as much damage. *Additional Effects:* A Passwall spell, or another spell of equal or greater level that can open a portal on a solid surface, destroys this layer. |
-| 5 | **Blue.** *Failed Save:* 12d6 Cold damage. *Successful Save:* Half as much damage. *Additional Effects:* The layer is destroyed if it takes at least 25 Fire damage. |
-| 6 | **Indigo.** *Failed Save:* The target has the Restrained condition and makes a Constitution saving throw at the end of each of its turns. If it successfully saves three times, the condition ends. If it fails three times, it has the Petrified condition until it is freed by an effect like the Greater Restoration spell. The successes and failures needn't be consecutive; keep track of both until the target collects three of a kind. *Additional Effects:* Spells can't be cast through this layer, which is destroyed by Bright Light shed by the Daylight spell. |
-| 7 | **Violet.** *Failed Save:* The target has the Blinded condition and makes a Wisdom saving throw at the start of your next turn. On a successful save, the condition ends. On a failed save, the condition ends, and the creature teleports to another plane of existence (DM's choice). *Additional Effects:* This layer is destroyed by Dispel Magic. |
+| Order | Effects                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | **Red.** *Failed Save:* 12d6 Fire damage. *Successful Save:* Half as much damage. *Additional Effects:* Nonmagical ranged attacks can't pass through this layer, which is destroyed if it takes at least 25 Cold damage.                                                                                                                                                                                                                                                                                                                                                      |
+| 2     | **Orange.** *Failed Save:* 12d6 Acid damage. *Successful Save:* Half as much damage. *Additional Effects:* Magical ranged attacks can't pass through this layer, which is destroyed by a strong wind (such as the one created by Gust of Wind).                                                                                                                                                                                                                                                                                                                               |
+| 3     | **Yellow.** *Failed Save:* 12d6 Lightning damage. *Successful Save:* Half as much damage. *Additional Effects:* The layer is destroyed if it takes at least 60 Force damage.                                                                                                                                                                                                                                                                                                                                                                                                  |
+| 4     | **Green.** *Failed Save:* 12d6 Poison damage. *Successful Save:* Half as much damage. *Additional Effects:* A Passwall spell, or another spell of equal or greater level that can open a portal on a solid surface, destroys this layer.                                                                                                                                                                                                                                                                                                                                      |
+| 5     | **Blue.** *Failed Save:* 12d6 Cold damage. *Successful Save:* Half as much damage. *Additional Effects:* The layer is destroyed if it takes at least 25 Fire damage.                                                                                                                                                                                                                                                                                                                                                                                                          |
+| 6     | **Indigo.** *Failed Save:* The target has the Restrained condition and makes a Constitution saving throw at the end of each of its turns. If it successfully saves three times, the condition ends. If it fails three times, it has the Petrified condition until it is freed by an effect like the Greater Restoration spell. The successes and failures needn't be consecutive; keep track of both until the target collects three of a kind. *Additional Effects:* Spells can't be cast through this layer, which is destroyed by Bright Light shed by the Daylight spell. |
+| 7     | **Violet.** *Failed Save:* The target has the Blinded condition and makes a Wisdom saving throw at the start of your next turn. On a successful save, the condition ends. On a failed save, the condition ends, and the creature teleports to another plane of existence (DM's choice). *Additional Effects:* This layer is destroyed by Dispel Magic.                                                                                                                                                                                                                        |
 
 ### Shapechange
+
 *Level 9 Transmutation (Druid, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V, S, M (a jade circlet worth 1,500+ GP)  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V, S, M (a jade circlet worth 1,500+ GP)\
 **Duration:** Concentration, up to 1 hour
 
 You shape-shift into another creature for the duration or until you take a Magic action to shape-shift into a different eligible form. The new form must be of a creature that has a Challenge Rating no higher than your level or Challenge Rating. You must have seen the sort of creature before, and it can't be a Construct or an Undead.
@@ -6739,11 +7109,12 @@ Your game statistics are replaced by the stat block of the chosen form, but you 
 Upon shape-shifting, you determine whether your equipment drops to the ground or changes in size and shape to fit the new form while you're in it.
 
 ### Storm of Vengeance
+
 *Level 9 Conjuration (Druid)*
 
-**Casting Time:** Action  
-**Range:** 1 mile  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 1 mile\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 A churning storm cloud forms for the duration, centered on a point within range and spreading to a radius of 300 feet. Each creature under the cloud when it appears must succeed on a Constitution saving throw or take 2d6 Thunder damage and have the Deafened condition for the duration.
@@ -6759,11 +7130,12 @@ At the start of each of your later turns, the storm produces different effects, 
 **Turns 5-10.** Gusts and freezing rain assail the area under the cloud. Each creature there takes 1d6 Cold damage. Until the spell ends, the area is Difficult Terrain and Heavily Obscured, ranged attacks with weapons are impossible there, and strong wind blows through the area.
 
 ### Time Stop
+
 *Level 9 Transmutation (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V\
 **Duration:** Instantaneous
 
 You briefly stop the flow of time for everyone but yourself. No time passes for other creatures, while you take 1d4 + 1 turns in a row, during which you can use actions and move as normal.
@@ -6771,11 +7143,12 @@ You briefly stop the flow of time for everyone but yourself. No time passes for 
 This spell ends if one of the actions you use during this period, or any effects that you create during it, affects a creature other than you or an object being worn or carried by someone other than you. In addition, the spell ends if you move to a place more than 1,000 feet from the location where you cast it.
 
 ### True Polymorph
+
 *Level 9 Transmutation (Bard, Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 30 feet  
-**Components:** V, S, M (a drop of mercury, a dollop of gum arabic, and a wisp of smoke)  
+**Casting Time:** Action\
+**Range:** 30 feet\
+**Components:** V, S, M (a drop of mercury, a dollop of gum arabic, and a wisp of smoke)\
 **Duration:** Concentration, up to 1 hour
 
 Choose one creature or nonmagical object that you can see within range. The creature shape-shifts into a different creature or a nonmagical object, or the object shape-shifts into a creature (the object must be neither worn nor carried). The transformation lasts for the duration or until the target dies or is destroyed, but if you maintain Concentration on this spell for the full duration, the spell lasts until dispelled.
@@ -6797,11 +7170,12 @@ If the spell lasts more than an hour, you no longer control the creature. It mig
 **Creature into Object.** If you turn a creature into an object, it transforms along with whatever it is wearing and carrying into that form, as long as the object's size is no larger than the creature's size. The creature's statistics become those of the object, and the creature has no memory of time spent in this form after the spell ends and it returns to normal.
 
 ### True Resurrection
+
 *Level 9 Necromancy (Cleric, Druid)*
 
-**Casting Time:** 1 hour  
-**Range:** Touch  
-**Components:** V, S, M (diamonds worth 25,000+ GP, which the spell consumes)  
+**Casting Time:** 1 hour\
+**Range:** Touch\
+**Components:** V, S, M (diamonds worth 25,000+ GP, which the spell consumes)\
 **Duration:** Instantaneous
 
 You touch a creature that has been dead for no longer than 200 years and that died for any reason except old age. The creature is revived with all its Hit Points.
@@ -6811,11 +7185,12 @@ This spell closes all wounds, neutralizes any poison, cures all magical contagio
 The spell can provide a new body if the original no longer exists, in which case you must speak the creature's name. The creature then appears in an unoccupied space you choose within 10 feet of you.
 
 ### Weird
+
 *Level 9 Illusion (Warlock, Wizard)*
 
-**Casting Time:** Action  
-**Range:** 120 feet  
-**Components:** V, S  
+**Casting Time:** Action\
+**Range:** 120 feet\
+**Components:** V, S\
 **Duration:** Concentration, up to 1 minute
 
 You try to create illusory terrors in others' minds. Each creature of your choice in a 30-foot-radius Sphere centered on a point within range makes a Wisdom saving throw. On a failed save, a target takes 10d10 Psychic damage and has the Frightened condition for the duration. On a successful save, a target takes half as much damage only.
@@ -6823,11 +7198,12 @@ You try to create illusory terrors in others' minds. Each creature of your choic
 A Frightened target makes a Wisdom saving throw at the end of each of its turns. On a failed save, it takes 5d10 Psychic damage. On a successful save, the spell ends on that target.
 
 ### Wish
+
 *Level 9 Conjuration (Sorcerer, Wizard)*
 
-**Casting Time:** Action  
-**Range:** Self  
-**Components:** V  
+**Casting Time:** Action\
+**Range:** Self\
+**Components:** V\
 **Duration:** Instantaneous
 
 Wish is the mightiest spell a mortal can cast. By simply speaking aloud, you can alter reality itself.
@@ -6846,9 +7222,9 @@ Alternatively, you can create one of the following effects of your choice:
 
 The stress of casting Wish to produce any effect other than duplicating another spell weakens you. After enduring that stress, each time you cast a spell until you finish a Long Rest, you take 1d10 Necrotic damage per level of that spell. This damage can't be reduced or prevented in any way. In addition, your Strength score becomes 3 for 2d4 days. For each of those days that you spend resting and doing nothing more than light activity, your remaining recovery time decreases by 2 days. Finally, there is a 33 percent chance that you are unable to cast Wish ever again if you suffer this stress.
 
----
+***
 
-*Source: http://dnd2024.wikidot.com*
+*Source:* *<http://dnd2024.wikidot.com>*
 
----
+***
 
