@@ -14,6 +14,7 @@ import ASIFeatStep from './steps/ASIFeatStep';
 import SummaryStep from './steps/SummaryStep';
 import FightingStyleStep from './steps/FightingStyleStep';
 import SchoolSavantStep from './steps/SchoolSavantStep';
+import DeftExplorerStep from './steps/DeftExplorerStep';
 
 interface LevelUpWizardProps {
     character: Character;
@@ -63,6 +64,9 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
     );
     const needsAdditionalFightingStyle = character.class === 'Fighter' && !hasFightingStyle && nextLevel === 7;
 
+    // Deft Explorer: Ranger Level 2
+    const needsDeftExplorer = character.class === 'Ranger' && nextLevel === 2 && !character.feats?.includes('Deft Explorer');
+
     const SAVANT_SUBCLASSES: Record<string, { school: string; featureName: string }> = {
         'Abjurer': { school: 'abjuration', featureName: 'Abjuration Savant' },
         'Diviner': { school: 'divination', featureName: 'Divination Savant' },
@@ -84,6 +88,8 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
     const [druidicWarriorCantrips, setDruidicWarriorCantrips] = useState<string[]>(character.druidicWarriorCantrips || []);
     const [additionalFightingStyle, setAdditionalFightingStyle] = useState('');
     const [savantSpells, setSavantSpells] = useState<string[]>([]);
+    const [deftExplorerSkill, setDeftExplorerSkill] = useState('');
+    const [deftExplorerLanguages, setDeftExplorerLanguages] = useState<string[]>([]);
     
     const effectiveSubclass = character.subclass || subclass;
     const isSavantClass = character.class === 'Wizard' && effectiveSubclass && hasSavants(effectiveSubclass);
@@ -115,6 +121,7 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
     if (skillsNeeded > 0) activeSteps.push('skills');
     if (needsFightingStyle) activeSteps.push('fightingStyle');
     if (needsAdditionalFightingStyle) activeSteps.push('additionalFightingStyle');
+    if (needsDeftExplorer) activeSteps.push('deftExplorer');
     if (character.class !== 'Barbarian' && character.class !== 'Fighter' && character.class !== 'Monk' && character.class !== 'Rogue') {
         activeSteps.push('spells');
     }
@@ -140,6 +147,8 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
                 return fightingStyle !== '';
             case 'additionalFightingStyle':
                 return additionalFightingStyle !== '';
+            case 'deftExplorer':
+                return deftExplorerSkill !== '' && deftExplorerLanguages.length === 2;
             case 'savant':
                 return savantSpells.length === savantSpellCount;
             case 'spells':
@@ -266,6 +275,25 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
             if (!updatedChar.feats.includes(additionalFightingStyle)) {
                 updatedChar.feats = [...updatedChar.feats, additionalFightingStyle];
             }
+        }
+
+        // DEFT EXPLORER (Ranger level 2)
+        if (needsDeftExplorer && deftExplorerSkill && deftExplorerLanguages.length === 2) {
+            // Add Deft Explorer feat
+            if (!updatedChar.feats) updatedChar.feats = [];
+            if (!updatedChar.feats.includes('Deft Explorer')) {
+                updatedChar.feats = [...updatedChar.feats, 'Deft Explorer'];
+            }
+            
+            // Add expertise to the selected skill
+            if (!updatedChar.expertise) updatedChar.expertise = [];
+            if (!updatedChar.expertise.includes(deftExplorerSkill)) {
+                updatedChar.expertise = [...updatedChar.expertise, deftExplorerSkill];
+            }
+            
+            // Add the two selected languages
+            if (!updatedChar.languages) updatedChar.languages = [];
+            updatedChar.languages = [...new Set([...updatedChar.languages, ...deftExplorerLanguages])];
         }
 
         // ========== CLASS-SPECIFIC PROGRESSION ==========
@@ -534,6 +562,16 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
                         isAdditionalStyle
                     />
                 );
+            case 'deftExplorer':
+                return (
+                    <DeftExplorerStep
+                        character={character}
+                        selectedExpertiseSkill={deftExplorerSkill}
+                        selectedLanguages={deftExplorerLanguages}
+                        onExpertiseSkillChange={setDeftExplorerSkill}
+                        onLanguagesChange={setDeftExplorerLanguages}
+                    />
+                );
             case 'savant':
                 return (
                     <SchoolSavantStep
@@ -599,7 +637,9 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
                             stat2,
                             feat,
                             featStat,
-                            selectedFeat
+                            selectedFeat,
+                            deftExplorerSkill,
+                            deftExplorerLanguages
                         }}
                         onConfirm={confirmLevelUp}
                     />

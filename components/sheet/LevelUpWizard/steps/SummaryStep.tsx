@@ -17,6 +17,8 @@ interface SummaryStepProps {
         feat: string;
         featStat: Ability | null;
         selectedFeat?: Feat;
+        deftExplorerSkill?: string;
+        deftExplorerLanguages?: string[];
     };
     onConfirm: () => void;
 }
@@ -60,6 +62,20 @@ const SummaryStep: React.FC<SummaryStepProps> = ({ character, nextLevel, pending
                             <span className="font-bold text-base text-slate-900 dark:text-white">
                                 {t.skills || 'Skills'}: {pending.selectedSkills.join(', ')}
                             </span>
+                        </div>
+                    )}
+                    {pending.deftExplorerSkill && (
+                        <div className="flex items-start gap-3">
+                            <span className="material-symbols-outlined text-indigo-500 text-xl">check_circle</span>
+                            <div className="flex-1">
+                                <div className="font-bold text-base text-slate-900 dark:text-white">
+                                    Deft Explorer
+                                </div>
+                                <div className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                                    • Expertise: {pending.deftExplorerSkill}
+                                    <br />• Languages: {pending.deftExplorerLanguages?.join(', ')}
+                                </div>
+                            </div>
                         </div>
                     )}
                     {pending.asiType === 'stat' && (
