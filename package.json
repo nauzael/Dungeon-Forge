@@ -11,6 +11,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:oauth": "node scripts/validate-oauth.js",
+    "test:oauth:e2e": "node scripts/test-oauth-e2e.js",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,css,md}\""

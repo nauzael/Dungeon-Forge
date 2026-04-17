@@ -17,9 +17,20 @@
             android:launchMode="singleTask"
             android:exported="true">
 
+            <!-- Launcher intent filter -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- OAuth Deeplink intent filter - CRITICAL for login redirect -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data 
+                    android:scheme="com.tupaquete.dndcompanion"
+                    android:host="login-callback" />
             </intent-filter>
 
         </activity>

@@ -1,0 +1,109 @@
+🔧 COMANDO RÁPIDO DE INSTALACIÓN
+=================================
+
+Si tienes tu dispositivo Android conectado via USB con depuración habilitada:
+
+COPIA Y EJECUTA ESTE COMANDO EN LA TERMINAL:
+
+  adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+
+
+ESPERADO:
+---------
+
+La terminal mostrará algo como:
+
+  adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+  * daemon not running; starting now at tcp:5037 *
+  * daemon started successfully *
+  Success
+
+Cuando veas "Success" → El APK está instalado ✅
+
+
+VERIFICAR QUE ESTÁ INSTALADO:
+------------------------------
+
+Ejecuta:
+
+  adb shell pm list packages | grep dungeforge
+
+Si aparece el package name → Está instalado ✅
+
+
+ABRIR LA APP:
+-----------
+
+Ejecuta:
+
+  adb shell am start -n com.dungeforge.app/.MainActivity
+
+O simplemente:
+  - Mira en tu dispositivo en el app launcher
+  - Busca "Dungeon Forge"
+  - Tapa para abrir
+
+
+MONITOR DE LOGS EN TIEMPO REAL:
+-------------------------------
+
+Mientras pruebas, puedes ver logs de la app ejecutando:
+
+  adb logcat | grep -E "\[Login\]|\[OAuth\]|\[Auth\]"
+
+Esto mostrará SOLO los logs del OAuth fix.
+Deberías ver:
+
+  [Login] Starting Google OAuth...
+  [OAuth] Deeplink received...
+  [OAuth] Found tokens extracted: true
+  [OAuth] Waiting 2 seconds before reload...
+  [OAuth] Reloading page
+  [Auth] onAuthStateChange fired, event: SIGNED_IN
+
+
+DESINSTALAR SI NECESITAS RE-INSTALAR:
+--------------------------------------
+
+  adb uninstall com.dungeforge.app
+
+
+COMANDO COMPLETO PARA LIMPIAR Y RE-INSTALAR:
+--------------------------------------------
+
+  adb uninstall com.dungeforge.app && adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+
+
+¿NO TIENES ADB?
+---------------
+
+Si "adb" no es reconocido en tu terminal:
+
+Windows:
+  - Descarga Android Platform Tools: https://developer.android.com/tools/releases/platform-tools
+  - Extrae en C:\Android\platform-tools
+  - Abre PowerShell como admin
+  - Ejecuta: $env:Path += ";C:\Android\platform-tools"
+  - Intenta: adb devices
+
+Mac/Linux:
+  - brew install android-platform-tools
+  - O: sudo apt-get install adb (Linux)
+  - Luego: adb devices
+
+
+REFERENCIA RÁPIDA:
+------------------
+
+Instalar:              adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+Ver packages:          adb shell pm list packages | grep dungeforge
+Abrir app:             adb shell am start -n com.dungeforge.app/.MainActivity
+Ver logs OAuth:        adb logcat | grep -E "\[Login\]|\[OAuth\]|\[Auth\]"
+Desinstalar:           adb uninstall com.dungeforge.app
+Listar dispositivos:   adb devices
+
+
+¿NECESITAS MÁS AYUDA?
+---------------------
+
+Lee: INSTALL-AND-TEST-APK.txt para guía completa con troubleshooting.

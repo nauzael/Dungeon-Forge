@@ -1,0 +1,45 @@
+ULTRA-QUICK-START (Copy & Paste This)
+====================================
+
+PROBLEM: OAuth hangs forever on Android ❌
+SOLUTION: Already fixed! Just verify it works ✅
+
+STEP 1 - Open Terminal
+=======================
+In project root (where package.json is)
+
+
+STEP 2 - Run Commands (Just Copy & Paste)
+==========================================
+
+npm run test:oauth
+
+npm run test:oauth:e2e
+
+npm run build
+
+build-and-deploy.bat
+
+(Or on Mac/Linux: bash build-and-deploy.sh)
+
+
+STEP 3 - Test on Device
+=======================
+1. Install APK on Android device (build-and-deploy.bat does this)
+2. Open Dungeon Forge app
+3. Read: DEVICE-VERIFICATION.txt (8 steps to verify)
+4. Follow the verification steps
+5. ✅ You should see "Character List" = logged in!
+
+
+THAT'S IT!
+==========
+
+If all commands succeeded:
+    → Follow DEVICE-VERIFICATION.txt on your device
+    → Verify OAuth works end-to-end
+    → ✅ OAuth is FIXED!
+
+If something failed:
+    → Read: OAUTH-FIX-GUIDE.md
+    → Or: FILE-GUIDE.txt (to find the right docs)

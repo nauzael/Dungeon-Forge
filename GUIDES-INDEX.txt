@@ -1,0 +1,195 @@
+📚 MATRIZ DE GUÍAS - ENCUENTRA LO QUE NECESITAS
+=============================================
+
+¿QUÉ NECESITAS?              │ LEE ESTE ARCHIVO
+─────────────────────────────┼──────────────────────────────────
+Empezar rápido               │ START-HERE.txt
+Instalar el APK              │ INSTALL-COMMAND.txt
+Guía completa paso a paso    │ INSTALL-AND-TEST-APK.txt
+Ver exactamente qué compiló  │ COMPILATION-CHECKLIST.txt
+Info técnica del APK         │ TECHNICAL-SUMMARY.txt
+Troubleshooting/problemas    │ OAUTH-FIX-GUIDE.md
+Entender el fix (5 fases)    │ COMPLETE-WORKFLOW.txt
+Verificación científica      │ PROOF-OF-FIX.txt
+8 pasos de verificación      │ DEVICE-VERIFICATION.txt
+Info rápida                  │ APK-READY-TO-TEST.txt
+
+
+DECISIÓN RÁPIDA
+===============
+
+¿TENGO POCO TIEMPO?
+→ Lee START-HERE.txt (2 minutos)
+→ Ejecuta comando en INSTALL-COMMAND.txt (1 minuto)
+→ Prueba en dispositivo (5 minutos)
+TOTAL: 8 minutos
+
+¿QUIERO GUÍA COMPLETA?
+→ Lee INSTALL-AND-TEST-APK.txt (10 minutos)
+→ Sigue cada paso exacto (15 minutos)
+TOTAL: 25 minutos garantizado
+
+¿TENGO PROBLEMAS?
+→ Ve a OAUTH-FIX-GUIDE.md
+→ Busca tu problema en "Troubleshooting"
+→ Sigue la solución
+
+¿QUIERO ENTENDER TÉCNICAMENTE?
+→ Lee TECHNICAL-SUMMARY.txt (15 minutos)
+→ Lee COMPLETE-WORKFLOW.txt (10 minutos)
+→ Entiende el arquitectura completa (25 minutos)
+
+
+ARCHIVOS POR TIPO
+=================
+
+🚀 PARA INSTALAR:
+  - START-HERE.txt
+  - INSTALL-COMMAND.txt
+  - APK-READY-TO-TEST.txt
+
+📖 PARA APRENDER A USAR:
+  - INSTALL-AND-TEST-APK.txt (GUÍA COMPLETA)
+  - DEVICE-VERIFICATION.txt (8 pasos)
+  - COMPILATION-CHECKLIST.txt
+
+🔧 TÉCNICO/REFERENCIA:
+  - TECHNICAL-SUMMARY.txt
+  - COMPLETE-WORKFLOW.txt
+  - OAUTH-FIX-GUIDE.md
+
+✔️ VALIDACIÓN:
+  - PROOF-OF-FIX.txt
+  - COMPILATION-CHECKLIST.txt
+
+
+LECTURA RECOMENDADA POR ESCENARIO
+==================================
+
+ESCENARIO #1: "Acabo de llegar, no sé qué hacer"
+  1. START-HERE.txt (entender qué es esto)
+  2. INSTALL-COMMAND.txt (instalar rápido)
+  3. INSTALL-AND-TEST-APK.txt (seguir pasos)
+  Tiempo: 25 minutos
+
+ESCENARIO #2: "Tengo experiencia, quiero hacerlo rápido"
+  1. INSTALL-COMMAND.txt (copiar/pegar comando)
+  2. Instalar y probar
+  3. Si hay problema → OAUTH-FIX-GUIDE.md
+  Tiempo: 10 minutos
+
+ESCENARIO #3: "Quiero entender todo"
+  1. START-HERE.txt (visión general)
+  2. TECHNICAL-SUMMARY.txt (qué está en el APK)
+  3. COMPLETE-WORKFLOW.txt (cómo se hizo el fix)
+  4. PROOF-OF-FIX.txt (validación)
+  5. INSTALL-AND-TEST-APK.txt (instalar y probar)
+  Tiempo: 45 minutos
+
+ESCENARIO #4: "Algo no funciona"
+  1. OAUTH-FIX-GUIDE.md → TROUBLESHOOTING section
+  2. INSTALLATION-CHECKLIST.txt (verificar pasos)
+  3. DEVICE-VERIFICATION.txt (8 pasos específicos)
+  4. TECHNICAL-SUMMARY.txt (info del APK)
+
+
+ACCESO RÁPIDO A SECCIONES
+=========================
+
+INSTALACIÓN:
+  ├─ INSTALL-COMMAND.txt → Comando directo
+  ├─ INSTALL-AND-TEST-APK.txt → Paso 1-2 (Conectar + Instalar)
+  └─ TECHNICAL-SUMMARY.txt → Requisitos del dispositivo
+
+TESTEO:
+  ├─ INSTALL-AND-TEST-APK.txt → Pasos 3-6 (Probar + Verificar)
+  ├─ DEVICE-VERIFICATION.txt → 8 pasos detallado
+  └─ COMPILATION-CHECKLIST.txt → Verificación final
+
+MONITOREO:
+  ├─ INSTALL-AND-TEST-APK.txt → Paso 4 (Logs esperados)
+  ├─ TECHNICAL-SUMMARY.txt → Debug Console Features
+  └─ OAUTH-FIX-GUIDE.md → Logging detallado
+
+TROUBLESHOOTING:
+  ├─ INSTALL-AND-TEST-APK.txt → Paso 9 (Problemas comunes)
+  └─ OAUTH-FIX-GUIDE.md → Troubleshooting completo
+
+COMPRENSIÓN:
+  ├─ START-HERE.txt → Visión general
+  ├─ TECHNICAL-SUMMARY.txt → Detalles técnicos
+  ├─ COMPLETE-WORKFLOW.txt → Proceso de desarrollo
+  └─ PROOF-OF-FIX.txt → Validación
+
+
+TABLA DE BÚSQUEDA ALFABÉTICA
+=============================
+
+¿Buscas cómo...?
+
+...abrir ADB?                    INSTALL-COMMAND.txt
+...conectar dispositivo?         INSTALL-AND-TEST-APK.txt PASO 1
+...desinstalar APK?              INSTALL-COMMAND.txt
+...encontrar Debug Console?      INSTALL-AND-TEST-APK.txt PASO 4
+...exportar logs?                TECHNICAL-SUMMARY.txt
+...habilitar Depuración USB?     INSTALL-AND-TEST-APK.txt PASO 1
+...instalar APK?                 INSTALL-COMMAND.txt
+...instalar adb?                 INSTALL-COMMAND.txt
+...limpiar cache?                INSTALL-AND-TEST-APK.txt PASO 9
+...monitorear OAuth?             INSTALL-AND-TEST-APK.txt PASO 4
+...verificar si funciona?        INSTALL-AND-TEST-APK.txt PASO 5
+...ver logs en tiempo real?      INSTALL-COMMAND.txt
+
+
+MAPA VISUAL DE FLUJO
+====================
+
+                    ┌─────────────────┐
+                    │  START-HERE.txt │
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ Quiero instalar │
+                    └────────┬────────┘
+                             │
+              ┌──────────────┴──────────────┐
+              │                             │
+         RÁPIDO               PASO A PASO   │
+         (1 min)              (10 min)      │
+              │                   │         │
+              ▼                   ▼         │
+      INSTALL-          INSTALL-AND-     │
+      COMMAND.txt       TEST-APK.txt      │
+              │                   │         │
+              └──────────┬────────┘         │
+                         │                 │
+                    ┌────▼──────┐          │
+                    │ Instalar  │◄─────────┘
+                    │ en móvil  │
+                    └────┬──────┘
+                         │
+                    ┌────▼──────┐
+                    │  Probar   │
+                    │  OAuth    │
+                    └────┬──────┘
+                         │
+              ┌──────────▼───────────┐
+              │   ¿Funciona?         │
+              └──┬────────────────┬──┘
+                SÍ              NO
+                │                │
+                ▼                ▼
+            ✅ LISTO      OAUTH-FIX-
+                          GUIDE.md
+                          (troubleshoot)
+
+
+RECOMENDACIÓN FINAL
+===================
+
+1. Primero: START-HERE.txt (2 minutos)
+2. Luego: INSTALL-COMMAND.txt (instalar)
+3. Después: INSTALL-AND-TEST-APK.txt si necesitas guía
+4. Si hay problema: OAUTH-FIX-GUIDE.md
+
+Eso es todo lo que necesitas. El resto son referencias.

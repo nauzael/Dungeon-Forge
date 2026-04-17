@@ -1,0 +1,164 @@
+✅ PRE-INSTALACIÓN CHECKLIST
+=============================
+
+Antes de instalar el APK, asegúrate de completar estos pasos:
+
+
+REQUISITOS EN TU PC
+===================
+
+□ Tienes Android SDK Platform Tools instalado
+  Si no: Descarga de https://developer.android.com/tools/releases/platform-tools
+  
+□ Tienes adb en tu PATH
+  Verifica: Abre PowerShell/Terminal y ejecuta: adb version
+  Si sale error: Agrega C:\Android\platform-tools a tu PATH
+
+□ Tienes la carpeta "android/app/build/outputs/apk/debug/" 
+  Verifica: Abre explorador y ve a: Dungeon Forge\android\app\build\outputs\apk\debug\
+  Deberías ver: app-debug.apk
+
+□ Tienes estos archivos en tu carpeta Dungeon Forge:
+  ✓ App.tsx (contiene el fix)
+  ✓ android/app/build/outputs/apk/debug/app-debug.apk (11.3 MB)
+  ✓ START-HERE.txt (guía)
+  ✓ INSTALL-COMMAND.txt (comando)
+
+
+REQUISITOS EN TU DISPOSITIVO ANDROID
+====================================
+
+□ Android 8.0 o superior
+  Verifica: Configuración → Acerca de → Versión de Android
+
+□ USB habilitado
+  Verifica: Conecta a PC y mira si aparece notificación
+
+□ Depuración USB habilitada
+  Pasos:
+    1. Ve a Configuración
+    2. Busca "Opciones de Desarrollador" (puede requerir taps en "Versión")
+    3. Habilita "Depuración por USB"
+    4. Acepta el aviso de seguridad
+
+□ Conexión a Internet (WiFi o datos móviles)
+  Verifica: Abre navegador y entra a Google.com
+
+□ Cuenta de Google
+  Verifica: Tienes un correo de Google y sabes la contraseña
+
+
+VERIFICACIÓN DE CONECTIVIDAD
+============================
+
+Antes de instalar, verifica que adb ve tu dispositivo:
+
+1. Conecta el dispositivo a USB
+2. En tu PC: Abre PowerShell/Terminal
+3. Ejecuta: adb devices
+
+Deberías ver algo como:
+  List of attached devices
+  emulator-5554    device
+  
+  ← Tu dispositivo aparece con "device"
+
+Si ves "unauthorized":
+  → En tu dispositivo: Busca notificación "Allow USB debugging from this computer"
+  → Tapa "Allow"
+  → Repite: adb devices
+
+Si NO ves tu dispositivo:
+  → Desconecta/reconecta el USB
+  → Asegúrate que está en "Modo de transferencia" (no "Charge only")
+  → Repite: adb devices
+
+
+VERIFICACIÓN DEL APK
+====================
+
+Antes de instalar, verifica que el APK existe y es válido:
+
+1. Abre PowerShell/Terminal en tu carpeta Dungeon Forge
+2. Ejecuta: ls android/app/build/outputs/apk/debug/app-debug.apk
+
+Deberías ver:
+  Mode       LastWriteTime      Length Name
+  ----       -------------      ------ ----
+  -a----  17/04/2026  8:29 AM  11845762 app-debug.apk
+
+  ← El APK existe y tiene tamaño correcto (11-12 MB)
+
+
+LISTA DE VERIFICACIÓN FINAL
+===========================
+
+Marca cada item antes de instalar:
+
+PC:
+  ☐ adb instalado y en PATH
+  ☐ adb version funciona
+  ☐ APK existe en android/app/build/outputs/apk/debug/
+  ☐ APK tiene ~11 MB de tamaño
+  ☐ adb devices muestra tu dispositivo
+
+Dispositivo:
+  ☐ Android 8.0 o superior
+  ☐ Depuración USB habilitada
+  ☐ Conectado a PC via USB
+  ☐ Conectado a Internet (WiFi/datos)
+  ☐ Tiene cuenta de Google
+
+Si TODOS están ☑:
+  → Estás listo para instalar!
+
+
+PRÓXIMO PASO
+============
+
+Una vez que completaste TODO el checklist:
+
+→ Ve a INSTALL-COMMAND.txt
+→ Copia y ejecuta el comando
+→ Sigue las instrucciones
+
+
+TROUBLESHOOTING PRE-INSTALACIÓN
+================================
+
+PROBLEMA: adb no es reconocido
+  Solución: Descarga Platform Tools y agrega a PATH
+
+PROBLEMA: adb devices muestra "unauthorized"
+  Solución: En tu dispositivo, busca notificación y tapa "Allow"
+
+PROBLEMA: No aparece notificación de USB en dispositivo
+  Solución: Desconecta/reconecta, verifica que está en "Modo de transferencia"
+
+PROBLEMA: APK no existe o es muy pequeño
+  Solución: Ejecuta nuevamente: cd android && ./gradlew assembleDebug
+
+PROBLEMA: Dispositivo no está conectado
+  Solución: Usa cable USB diferente, revisa puerto USB en PC
+
+PROBLEMA: Depuración USB está grisada
+  Solución: Necesitas habilitar "Opciones de Desarrollador" primero
+            Configación → Acerca de → Versión → Tapa 7 veces
+
+¿NECESITAS AYUDA?
+=================
+
+→ Si algo no funciona: INSTALL-AND-TEST-APK.txt PASO 1
+→ Para troubleshooting detallado: OAUTH-FIX-GUIDE.md
+
+
+¡CUANDO ESTÉS LISTO!
+====================
+
+Una vez marcados TODOS los ☐:
+
+1. Ve a INSTALL-COMMAND.txt
+2. Ejecuta el comando
+3. Sigue INSTALL-AND-TEST-APK.txt
+
+¡A instalar! 🚀

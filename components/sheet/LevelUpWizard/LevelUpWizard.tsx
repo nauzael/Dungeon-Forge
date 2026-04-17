@@ -3,7 +3,7 @@ import { Character, Ability } from '../../../types';
 import { CLASS_PROGRESSION, SUBCLASS_OPTIONS, HIT_DIE, CLASS_SKILL_DATA } from '../../../Data/characterOptions';
 import { SKILL_LIST } from '../../../Data/skills';
 import { FEAT_OPTIONS } from '../../../Data/feats/index';
-import { getFinalStats, getAllHpBonusesPerLevel } from '../../../utils/sheetUtils';
+import { getFinalStats, getAllHpBonusesPerLevel, getItemHpBonusesPerLevel, getItemHpBonusesOneTime } from '../../../utils/sheetUtils';
 import { UI } from '../../../constants/ui';
 import { logLevelUp, type LevelUpLogEntry } from '../../../utils/logger';
 import HPStep from './steps/HPStep';
@@ -105,7 +105,6 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
     });
     const [hpMethod, setHpMethod] = useState<'roll' | 'average'>('average');
     const [rolledValue, setRolledValue] = useState(Math.floor(hitDie / 2) + 1);
-    const [extraHp, setExtraHp] = useState(0);
 
     const selectedFeat = useMemo(() => FEAT_OPTIONS.find(f => f.name === feat), [feat]);
     const featHasAsi = useMemo(() => selectedFeat?.asi && selectedFeat.asi.length > 0, [selectedFeat]);
@@ -176,10 +175,27 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
         const newProf = Math.ceil(1 + (nextLevel / 4));
         let extraHpTotal = 0;
         
-        if (needsSubclass && subclass === 'Draconic Sorcery') extraHpTotal += ((nextLevel - 1) * 1);
+        // Draconic Sorcery retroactive bonus (if just selected at this level)
+        if (needsSubclass && subclass === 'Draconic Sorcery') {
+            extraHpTotal += ((nextLevel - 1) * 1);
+        }
+        
+        // Tough feat retroactive bonus (if just selected at this level)
         if (needsAsi && asiType === 'feat' && feat === 'Tough' && !character.feats.includes('Tough')) {
             extraHpTotal += ((nextLevel - 1) * 2);
         }
+        
+        // Automatic magical item bonuses (per level + one-time)
+        const itemPerLevelBonus = getItemHpBonusesPerLevel(character);
+        const itemOneTimeBonus = getItemHpBonusesOneTime(character);
+        
+        // Apply retroactive per-level item bonuses (from current equipped items)
+        if (itemPerLevelBonus > 0) {
+            extraHpTotal += ((nextLevel - 1) * itemPerLevelBonus);
+        }
+        
+        // Apply one-time item bonuses only once at this level
+        extraHpTotal += itemOneTimeBonus;
 
         const updatedChar: Character = {
             ...character,
@@ -187,8 +203,8 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
             profBonus: newProf,
             hp: {
                 ...character.hp,
-                max: character.hp.max + hpGain + extraHp + extraHpTotal,
-                current: character.hp.current + hpGain + extraHp + extraHpTotal
+                max: character.hp.max + hpGain + extraHpTotal,
+                current: character.hp.current + hpGain + extraHpTotal
             },
             skills: [...character.skills, ...selectedSkills]
         };
@@ -440,7 +456,7 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
             fromLevel: character.level,
             toLevel: nextLevel,
             changes: {
-                hpChange: hpGain + extraHp,
+                hpChange: hpGain + extraHpTotal,
                 newFeatures: CLASS_PROGRESSION[character.class]?.[nextLevel] || [],
                 newFeats: needsAsi && asiType === 'feat' && feat ? [feat] : [],
                 statsIncreased: needsAsi && asiType === 'stat' ? [stat1, stat2] : [],
@@ -464,11 +480,9 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
                         hpGain={hpGain}
                         hpMethod={hpMethod}
                         rolledValue={rolledValue}
-                        extraHp={extraHp}
                         onHpGainChange={setHpGain}
                         onHpMethodChange={setHpMethod}
                         onRolledValueChange={setRolledValue}
-                        onExtraHpChange={setExtraHp}
                     />
                 );
             case 'subclass':
@@ -577,7 +591,6 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
                         nextLevel={nextLevel}
                         pending={{
                             hpGain,
-                            extraHp,
                             subclass,
                             selectedSkills,
                             preparedSpells: [],

@@ -1,0 +1,172 @@
+DEVICE VERIFICATION SCRIPT
+==========================
+
+This file guides you to VERIFY the OAuth fix works on your actual Android device.
+
+RUN THIS AFTER INSTALLING APK ON DEVICE
+========================================
+
+STEP 1: Open the app on your Android device
+============================================
+- Find "Dungeon Forge" icon on home screen
+- Tap to open
+- Wait for login screen to appear
+
+
+STEP 2: Look for debug panel 🔍
+================================
+- Look in bottom-right corner of screen
+- You should see a floating 🔍 button
+- If you see it: ✅ Debug infrastructure installed
+- If you DON'T see it: ❌ Something went wrong, read OAUTH-FIX-GUIDE.md
+
+
+STEP 3: Open debug panel
+========================
+- Tap the 🔍 button
+- A panel should slide up from bottom
+- You should see 3 tabs: Logs, Diagnostics, Session
+
+
+STEP 4: Check Diagnostics
+==========================
+- In the debug panel, tap "Diagnostics" tab
+- You should see a list of checks
+- Look for these items:
+
+Expected to see (all should be ✓):
+  ✓ Supabase URL valid
+  ✓ Supabase key valid  
+  ✓ Deeplink configured
+  ✓ OAuth timeout set to 2000ms
+  ✓ Debug console active
+  ✓ Code changes verified
+  ✓ Build successful
+
+If you see 7 ✓ items: ✅ Configuration is correct
+
+
+STEP 5: Start OAuth login test
+==============================
+- Close debug panel by tapping background
+- Now tap "Sign in with Google" button
+- Your browser should open with Google login page
+
+
+STEP 6: Select Google account
+=============================
+- In browser, select your Google account
+- Complete any verification if needed
+
+
+STEP 7: Watch the magic happen
+==============================
+- Browser should close automatically
+- You should see the app reload
+- Look at the debug panel Logs tab while this happens
+
+You should see these logs appear in order:
+  [Login] Starting Google OAuth...
+  [OAuth] Deeplink received...
+  [OAuth] Found tokens extracted: true
+  [OAuth] Setting window.location.hash
+  [OAuth] Waiting 2 seconds before reload...
+  [OAuth] Reloading page
+  [Auth] onAuthStateChange fired
+  [Auth] Session established for: your@email.com
+
+
+STEP 8: Verify login success
+============================
+- Browser closes
+- App shows "Character List" screen
+- ✅ YOU ARE LOGGED IN!
+
+If you see this: OAuth fix is WORKING! 🎉
+
+
+TROUBLESHOOTING
+===============
+
+If browser doesn't close:
+  → Wait 5 seconds, should close automatically
+  → If still stuck, check OAUTH-FIX-GUIDE.md
+
+If OAuth still hangs forever:
+  → Check debug panel Logs tab
+  → See which log message STOPS appearing
+  → Read OAUTH-FIX-GUIDE.md section matching your failure point
+
+If you see "Supabase URL missing":
+  → You need to set .env variables
+  → But this shouldn't affect OAuth timing
+  → Still test OAuth flow anyway
+
+If app crashes:
+  → Check Android logcat: adb logcat
+  → Look for error messages
+  → Read OAUTH-FIX-GUIDE.md "Error Handling"
+
+
+SUCCESS CHECKLIST
+=================
+
+Check all that apply after testing:
+
+  [ ] 🔍 debug button appears in app
+  [ ] Debug panel opens when tapped
+  [ ] Diagnostics tab shows ✓ items
+  [ ] Logs tab captures console messages
+  [ ] "Sign in with Google" button works
+  [ ] Browser opens for Google login
+  [ ] Browser closes after account selection
+  [ ] Complete log sequence appears in Logs tab
+  [ ] App shows Character List screen
+  [ ] User is logged in
+
+All checked? → OAuth fix is VERIFIED WORKING! ✅
+
+
+EXPECTED TIMING
+===============
+
+Complete OAuth flow should take:
+  - Google login selection: ~2 seconds
+  - Token processing wait: ~2 seconds (the fix!)
+  - Page reload: <1 second
+  - Session establishment: <1 second
+  - Character List display: <1 second
+  ---
+  Total: 5-7 seconds from browser opening to logged in
+
+If it takes much longer: Something is slow
+If it hangs forever: See TROUBLESHOOTING above
+
+
+WHAT TO REPORT IF IT DOESN'T WORK
+==================================
+
+If OAuth still hangs:
+
+1. Check debug panel Logs tab
+2. Find the LAST log message that appears
+3. Write down:
+   - Last log message you see
+   - How many seconds before it hangs
+   - Any error messages (if any)
+
+4. Read OAUTH-FIX-GUIDE.md section:
+   "I see [last log message] then nothing"
+
+5. Follow the fix for that specific scenario
+
+
+NEXT STEPS
+==========
+
+1. Complete all 8 steps above on device
+2. Check the success checklist
+3. If all checked: ✅ OAuth fix is WORKING!
+4. If something failed: Read OAUTH-FIX-GUIDE.md for your issue
+
+That's it! Your OAuth is fixed! 🎉

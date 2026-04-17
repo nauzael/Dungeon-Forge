@@ -38,7 +38,46 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
   const [isCreating, setIsCreating] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
-    const [initiativeCombatants, setInitiativeCombatants] = useState<InitiativeCombatant[]>([]);
+
+  // Helper: Deduplicate characters and keep the most recent version by timestamp
+  const deduplicateAndMerge = (current: Character[], incoming: Character): Character[] => {
+    const existingIndex = current.findIndex(c => c.id === incoming.id);
+    
+    if (existingIndex === -1) {
+      return [...current, incoming];
+    }
+    
+    const existing = current[existingIndex];
+    const incomingTime = incoming.syncTimestamp || 0;
+    const existingTime = existing.syncTimestamp || 0;
+    
+    if (incomingTime >= existingTime) {
+      return current.map((c, i) => i === existingIndex ? incoming : c);
+    }
+    return current;
+  };
+
+  // Helper: Remove duplicates from array (keep by ID, prefer higher timestamp)
+  const removeDuplicates = (chars: Character[]): Character[] => {
+    const map = new Map<string, Character>();
+    
+    for (const char of chars) {
+      const existing = map.get(char.id);
+      if (!existing) {
+        map.set(char.id, char);
+      } else {
+        const incomingTime = char.syncTimestamp || 0;
+        const existingTime = existing.syncTimestamp || 0;
+        if (incomingTime > existingTime) {
+          map.set(char.id, char);
+        }
+      }
+    }
+    
+    return Array.from(map.values());
+  };
+
+  const [initiativeCombatants, setInitiativeCombatants] = useState<InitiativeCombatant[]>([]);
 
     const buildInitiativeState = (
         currentCombatants: InitiativeCombatant[],
@@ -134,7 +173,11 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
       .eq('party_id', partyId);
     
     if (data) {
-      setMembers(data.map(item => item.data as Character));
+      const loadedChars = data.map(item => item.data as Character);
+      // Deduplicate in case there are duplicates in the DB
+      const deduplicated = removeDuplicates(loadedChars);
+      console.log(`[DM] Loaded ${loadedChars.length} characters, deduplicated to ${deduplicated.length}`);
+      setMembers(deduplicated);
     }
     setIsLoading(false);
   };
@@ -153,32 +196,34 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
                 // Defensive check: if it no longer belongs to the party, remove it from view
                 if (payload.new.party_id !== party.id) {
                     setMembers(prev => prev.filter(c => c.id !== updatedChar.id));
+                    console.log(`[DM-Realtime] Character ${updatedChar.id} removed (left party)`);
                     return;
                 }
 
                 setMembers(prev => {
-                    const exists = prev.find(c => c.id === updatedChar.id);
-                    if (exists) {
-                        return prev.map(c => c.id === updatedChar.id ? updatedChar : c);
-                    } else {
-                        return [...prev, updatedChar];
+                    const updated = deduplicateAndMerge(prev, updatedChar);
+                    // Only log if there was a change
+                    if (updated.length !== prev.length || updated.some((c, i) => c.id !== prev[i]?.id)) {
+                        console.log(`[DM-Realtime] Character updated: ${updatedChar.name}`);
                     }
+                    return updated;
                 });
             } else if (payload.eventType === 'DELETE') {
                 const oldId = payload.old.id;
                 setMembers(prev => prev.filter(c => c.id !== oldId));
+                console.log(`[DM-Realtime] Character deleted: ${oldId}`);
             }
         },
         (broadcastChar: any) => {
-            // Broadcast (Ephemeral Live Update)
+            // Broadcast (Ephemeral Live Update) - use deduplicateAndMerge to avoid duplicates
+            const char = broadcastChar as Character;
             setMembers(prev => {
-                const char = broadcastChar as Character;
-                const exists = prev.find(c => c.id === char.id);
-                if (exists) {
-                    return prev.map(c => c.id === char.id ? char : c);
-                } else {
-                    return [...prev, char];
+                const updated = deduplicateAndMerge(prev, char);
+                // Log only if it's a new character (length increased)
+                if (updated.length > prev.length) {
+                    console.log(`[DM-Broadcast] Character added via broadcast: ${char.name}`);
                 }
+                return updated;
             });
         }
       );

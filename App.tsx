@@ -21,6 +21,7 @@ import { CapacitorUpdater } from '@capgo/capacitor-updater';
 const CreatorSteps = lazy(() => import('./components/CreatorSteps'));
 const SheetTabs = lazy(() => import('./components/SheetTabs'));
 const DMDashboard = lazy(() => import('./components/DMDashboard'));
+const OAuthDebugConsole = lazy(() => import('./components/OAuthDebugConsole'));
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('list');
@@ -70,13 +71,25 @@ const App: React.FC = () => {
     if (Capacitor.getPlatform() !== 'web') {
       CapacitorApp.addListener('appUrlOpen', async (event) => {
         const url = event.url;
+        console.log('[OAuth] Deeplink received:', url.substring(0, 80) + '...');
+        
         // If the URL contains a hash with a session or access token, pass it to window so supabase can parse it
         if (url.includes('access_token=') || url.includes('refresh_token=')) {
           const params = url.split('#')[1] || url.split('?')[1];
+          console.log('[OAuth] Found tokens, parameters extracted:', !!params);
+          
           // Manually replace URL and force reload so Supabase onAuthStateChange initializes immediately
           if (params) {
-              window.location.href = `/#${params}`;
-              setTimeout(() => window.location.reload(), 100);
+              console.log('[OAuth] Setting window.location.hash');
+              window.location.hash = params;
+              
+              // CRITICAL: Give Supabase 2 seconds to process the callback
+              // before reload, so onAuthStateChange can fire
+              console.log('[OAuth] Waiting 2 seconds before reload...');
+              setTimeout(() => {
+                console.log('[OAuth] Reloading page');
+                window.location.reload();
+              }, 2000);
           }
         }
       });
@@ -142,7 +155,10 @@ const App: React.FC = () => {
 
     // Listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('[Auth] onAuthStateChange fired, event:', _event, 'has session:', !!session);
+      
       if (session) {
+        console.log('[Auth] Session established for:', session.user.email);
         setUser({ name: session.user.email || 'Adventurer', id: session.user.id });
         setIsAuthenticated(true);
         try {
@@ -151,6 +167,7 @@ const App: React.FC = () => {
           console.error("Failed to save session:", e);
         }
       } else {
+        console.log('[Auth] No session found or session cleared');
         setUser(null);
         setIsAuthenticated(false);
         try {
@@ -686,6 +703,12 @@ const App: React.FC = () => {
                 </div>
             )}
 
+            {/* OAuth Debug Console - Only in development or when needed */}
+            {Capacitor.getPlatform() !== 'web' && (
+              <Suspense fallback={null}>
+                <OAuthDebugConsole />
+              </Suspense>
+            )}
     </div>
   );
 };

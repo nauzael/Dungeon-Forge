@@ -24,6 +24,11 @@ const Login: React.FC = () => {
       ? 'com.tupaquete.dndcompanion://login-callback' 
       : window.location.origin;
 
+    console.log('[Login] Starting OAuth flow');
+    console.log('[Login] Platform:', isNative ? 'native (Capacitor)' : 'web');
+    console.log('[Login] Redirect URL:', redirectUrl);
+    console.log('[Login] Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -35,27 +40,36 @@ const Login: React.FC = () => {
       });
       
       if (error) {
+         console.error('[Login] Supabase OAuth error:', error.message);
          setLoading(false);
          alert("SUPABASE ERROR: " + error.message);
          return;
       }
 
+      console.log('[Login] OAuth URL generated successfully');
+
       if (isNative && data?.url) {
+        console.log('[Login] Opening browser with OAuth URL');
         try {
           await Browser.open({ url: data.url });
-          
-          Browser.addListener('browserFinished', () => {
-            setLoading(false);
-          });
+          console.log('[Login] Browser opened');
+          // Don't set loading to false here - it will be set when session is established
+          // The app should stay in loading state until onAuthStateChange fires with a session
         } catch (bErr) {
+          console.error('[Login] Browser open error:', bErr);
           alert('BROWSER OPEN ERROR: ' + (bErr instanceof Error ? bErr.message : String(bErr)));
           setLoading(false);
         }
+      } else if (!isNative) {
+        console.log('[Login] Web platform - OAuth should redirect automatically');
+        // For web, the redirect happens automatically
       } else {
-        // Fallback or Web logic that might not have a URL immediately
-        // Though skipBrowserRedirect=false usually navigates automatically on web
+        console.warn('[Login] No OAuth URL generated');
+        setLoading(false);
+        setError('OAuth URL not generated. Please try again.');
       }
     } catch (e) {
+      console.error('[Login] Unexpected error:', e);
       alert(`GENERAL AUTH ERROR: ${e instanceof Error ? e.message : JSON.stringify(e)}`);
       setError(e instanceof Error ? e.message : String(e));
       setLoading(false);

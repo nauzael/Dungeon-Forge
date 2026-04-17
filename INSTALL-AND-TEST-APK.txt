@@ -1,0 +1,204 @@
+🚀 GUÍA COMPLETA: INSTALAR Y TESTEAR APK
+=========================================
+
+Tu APK está compilado y listo. Sigue estos pasos para instalar y verificar 
+que el OAuth fix funciona en tu dispositivo Android.
+
+
+PASO 1: CONECTAR DISPOSITIVO
+=============================
+
+□ Conecta tu Android a la PC con cable USB
+□ En el dispositivo: Toca "Permitir" cuando pida permisos USB
+□ En el dispositivo: Ve a Configuración → Opciones de Desarrollador
+□ En el dispositivo: Habilita "Depuración por USB"
+□ En la PC: Abre PowerShell/Terminal en la carpeta Dungeon Forge
+□ En la PC: Ejecuta: adb devices
+  
+  Deberías ver tu dispositivo listado. Si sale "unauthorized", toca 
+  nuevamente "Permitir" en el dispositivo.
+
+
+PASO 2: INSTALAR APK
+====================
+
+En la PC, ejecuta:
+
+  adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+
+Espera a ver:
+  Success
+
+El APK está instalado cuando ves "Success".
+
+
+PASO 3: ABRIR LA APP
+====================
+
+En el dispositivo:
+□ Abre Dungeon Forge desde el launcher
+□ Deberías ver la pantalla de Login
+□ Busca el botón "Sign in with Google" (o similar)
+
+
+PASO 4: MONITOREAR OAUTH FIX
+=============================
+
+Mientras se ejecuta el login:
+
+□ En la esquina INFERIOR DERECHA busca el botón 🔍 (lupa)
+□ Tapa el botón para abrir el Debug Console
+□ Ve a la pestaña "Logs" (debería ser la primera)
+□ Mientras haces login, mira los logs en tiempo real
+
+Deberías ver ESTOS mensajes en orden:
+
+  [Login] Starting Google OAuth...
+  [OAuth] Deeplink received...
+  [OAuth] Found tokens extracted: true
+  [OAuth] Setting window.location.hash...
+  [OAuth] Waiting 2 seconds before reload...
+  [OAuth] Reloading page
+  [Auth] onAuthStateChange fired, event: SIGNED_IN
+  [Auth] Session established for: TU@EMAIL.COM
+
+
+PASO 5: VERIFICAR FIX FUNCIONA
+================================
+
+Después de seleccionar tu cuenta de Google:
+
+□ El navegador se cierra automáticamente (2-3 segundos de espera)
+□ Vuelves a ver Dungeon Forge
+□ Deberías estar en la pantalla "Character List" (tus personajes)
+□ Si ves tus personajes → ✅ OAUTH FUNCIONA!
+
+Si en cambio ves:
+  - Pantalla de login aún visible → ❌ Login no se completó
+  - Error de conexión → ❌ Problema de red
+  - Cuelga indefinidamente → ❌ OAuth sigue roto
+
+
+PASO 6: VERIFICACIÓN DETALLADA (PESTAÑA DIAGNOSTICS)
+======================================================
+
+En el Debug Console, ve a "Diagnostics":
+
+□ "Supabase URL configured" → debería ser ✅ (si es ❌, falta .env)
+□ "Google OAuth client ID found" → debería ser ✅ (si es ❌, falta .env)
+□ "Current session status" → debería mostrar TU EMAIL
+□ "Deeplink handler active" → debería ser ✅
+
+Si los primeros dos estan ❌, necesitas agregar .env (ver PASO 7).
+Los últimos dos confirman que estás logueado.
+
+
+PASO 7: SI FALTA .env (VARIABLES DE ENTORNO)
+===============================================
+
+Si en Diagnostics ves ❌ en los primeros dos checks:
+
+□ Abre el archivo: .env en la raíz del proyecto
+□ Debería tener estas variables:
+
+  VITE_SUPABASE_URL=https://xxxxx.supabase.co
+  VITE_SUPABASE_ANON_KEY=eyJxxxxx...
+
+□ Si el archivo .env no existe O está vacío:
+  - Contacta al equipo para obtener las credenciales
+  - Copia los valores a .env
+  - Ejecuta: npm run build
+  - Ejecuta: cd android && ./gradlew assembleDebug
+  - Instala el nuevo APK
+
+
+PASO 8: PRUEBA DE FLUJO COMPLETO
+==================================
+
+TEST SCENARIO: Login completo sin cuelgues
+
+1. Toca "Sign in with Google"
+2. Selecciona tu cuenta
+3. Autoriza la app (si pide)
+4. Espera 2-3 segundos
+5. Debería cerrar navegador automáticamente
+6. Ves "Character List" con tus personajes
+7. ✅ PRUEBA PASADA
+
+TIEMPO ESPERADO: 10-15 segundos total
+ANTES DEL FIX: Se colgaba indefinidamente
+DESPUÉS DEL FIX: Se completa en 10-15 segundos
+
+
+PASO 9: TROUBLESHOOTING
+=========================
+
+PROBLEMA: "Activity not found"
+  → El APK no se instaló correctamente
+  → Solución: adb uninstall com.dungeforge.app && adb install -r ...
+
+PROBLEMA: "Permission denied" en adb
+  → Permisos USB no están habilitados
+  → Solución: Revisa PASO 1, habilita "Depuración por USB"
+
+PROBLEMA: Login se cuelga indefinidamente
+  → El fix NO se aplicó correctamente
+  → Solución: Verifica App.tsx línea 92 tiene }, 2000);
+  → Re-compila: npm run build && cd android && ./gradlew assembleDebug
+
+PROBLEMA: Debug Console no aparece (botón 🔍)
+  → OAuthDebugConsole no está cargando
+  → Solución: Abre browser dev tools → Console → busca errores
+  → Verifica components/OAuthDebugConsole.tsx existe
+
+PROBLEMA: "Network error" en logs
+  → Problema de conectividad a Supabase
+  → Solución: Verifica WiFi/datos móviles están ON
+  → Verifica SUPABASE_URL en .env es válida
+
+PROBLEMA: "Invalid credentials"
+  → Tokens de OAuth no son válidos
+  → Solución: Cierra sesión completamente
+  → Limpia cache: Settings → Apps → Dungeon Forge → Clear Cache
+  → Abre app nuevamente y prueba login
+
+
+PASO 10: CONFIRMAR ÉXITO
+=========================
+
+✅ OAUTH FIX CONFIRMADO cuando:
+
+□ Login se completa en 10-15 segundos
+□ NO se cuelga indefinidamente
+□ Ves "Character List" después del login
+□ Debug Console muestra todos 8 mensajes de log
+□ Diagnostics muestra session status con tu email
+
+Si TODOS estos puntos son ✅:
+  → OAuth fix está funcionando correctamente
+  → El problema original está resuelto
+
+
+REFERENCIAS
+===========
+
+Archivos importantes si necesitas más detalles:
+
+- COMPLETE-WORKFLOW.txt → Workflow 5-fases completo
+- DEVICE-VERIFICATION.txt → 8 pasos de verificación detallado
+- PROOF-OF-FIX.txt → Método científico de prueba
+- OAUTH-FIX-GUIDE.md → Troubleshooting completo
+- App.tsx línea 92 → Código del fix (}, 2000);)
+
+
+¿NECESITAS AYUDA?
+=================
+
+Si algo no funciona según esta guía:
+
+1. Verifica que viste TODOS los logs en orden (PASO 4)
+2. Verifica Diagnostics muestra ✅ en los 4 puntos (PASO 6)
+3. Lee OAUTH-FIX-GUIDE.md para troubleshooting detallado
+4. Prueba nuevamente siguiendo exactamente los PASOS
+
+¡A PROBAR! 🚀

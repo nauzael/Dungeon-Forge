@@ -1022,7 +1022,7 @@ const getSlots = (type: string, lvl: number, spellLvl: number): number => {
 };
 
 export const getToughHpBonusPerLevel = (character: Character): number => {
-    return character.feats.includes('Tough') ? 2 : 0;
+    return character.feats.includes('Tough') || character.feats.includes('Duro') ? 2 : 0;
 };
 
 export const getDwarvenToughnessHpBonusPerLevel = (character: Character): number => {
@@ -1033,10 +1033,44 @@ export const getDraconicSorceryHpBonusPerLevel = (character: Character): number 
     return character.subclass === 'Draconic Sorcery' ? 1 : 0;
 };
 
+export const getItemHpBonusesPerLevel = (character: Character): number => {
+    // Auto-detect equipped items that give HP per level
+    const equippedItems = (character.inventory || [])
+        .filter(item => item.equipped)
+        .map(item => item.name.toLowerCase());
+    
+    let bonus = 0;
+    // Ring of Vigor: +1 HP per level (example magical item)
+    if (equippedItems.some(name => name.includes('ring of vigor'))) bonus += 1;
+    
+    return bonus;
+};
+
+export const getItemHpBonusesOneTime = (character: Character): number => {
+    // Auto-detect equipped items that give static HP bonuses
+    const equippedItems = (character.inventory || [])
+        .filter(item => item.equipped)
+        .map(item => item.name.toLowerCase());
+    
+    let bonus = 0;
+    // One-time bonuses from magical items
+    if (equippedItems.some(name => name.includes('amulet of health'))) {
+        // Amulet of Health sets CON to 19, but HP bonus is calculated via CON modifier
+        // Not added here to avoid double-counting
+    }
+    if (equippedItems.some(name => name.includes('boon of bountiful health'))) bonus += 20;
+    if (equippedItems.some(name => name.includes('boon of fortitude'))) bonus += 30;
+    if (equippedItems.some(name => name.includes('cloak of vitality'))) bonus += 10;
+    if (equippedItems.some(name => name.includes('stone of endurance'))) bonus += 15;
+    
+    return bonus;
+};
+
 export const getAllHpBonusesPerLevel = (character: Character): number => {
     return getToughHpBonusPerLevel(character) + 
            getDwarvenToughnessHpBonusPerLevel(character) + 
-           getDraconicSorceryHpBonusPerLevel(character);
+           getDraconicSorceryHpBonusPerLevel(character) +
+           getItemHpBonusesPerLevel(character);
 };
 
 export const getToughRetroactiveBonus = (levelWhenTaken: number): number => {

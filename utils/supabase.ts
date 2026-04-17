@@ -16,6 +16,10 @@ const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
+console.log('[Supabase Init] URL:', supabaseUrl ? 'SET ✓' : 'MISSING ✗');
+console.log('[Supabase Init] Key: ', supabaseAnonKey ? 'SET ✓' : 'MISSING ✗');
+console.log('[Supabase Init] App ID: com.tupaquete.dndcompanion');
+
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase credentials missing. Local storage will be used as fallback.');
 }
@@ -60,6 +64,65 @@ export const fetchCharactersFromCloud = async (userId: string) => {
   } catch (e) {
     console.error('Cloud fetch failed:', e);
     return [];
+  }
+};
+
+// New function: Fetch IDs of deleted characters (soft deleted) to sync deletions across devices
+export const fetchDeletedCharacterIds = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('characters')
+      .select('id')
+      .eq('user_id', userId)
+      .not('deleted_at', 'is', null);
+
+    if (error) throw error;
+    return data ? data.map((item) => item.id) : [];
+  } catch (e) {
+    console.error('Failed to fetch deleted character IDs:', e);
+    return [];
+  }
+};
+
+// Fetch COMPLETE deleted characters for recovery
+export const fetchDeletedCharacters = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('characters')
+      .select('id, data, deleted_at')
+      .eq('user_id', userId)
+      .not('deleted_at', 'is', null)
+      .order('deleted_at', { ascending: false });
+
+    if (error) throw error;
+    return data ? data.map((item) => ({ 
+      id: item.id,
+      character: item.data as Character,
+      deleted_at: item.deleted_at
+    })) : [];
+  } catch (e) {
+    console.error('Failed to fetch deleted characters:', e);
+    return [];
+  }
+};
+
+// Restore a soft-deleted character
+export const restoreCharacter = async (characterId: string) => {
+  try {
+    const { error } = await supabase
+      .from('characters')
+      .update({ 
+        deleted_at: null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', characterId);
+
+    if (error) throw error;
+    console.log(`[Recovery] Character ${characterId} restored successfully`);
+    return true;
+  } catch (e) {
+    console.error(`[Recovery] Failed to restore character ${characterId}:`, e);
+    return false;
   }
 };
 

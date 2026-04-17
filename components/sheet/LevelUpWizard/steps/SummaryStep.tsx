@@ -8,7 +8,6 @@ interface SummaryStepProps {
     nextLevel: number;
     pending: {
         hpGain: number;
-        extraHp: number;
         subclass: string;
         selectedSkills: string[];
         preparedSpells: string[];
@@ -44,7 +43,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({ character, nextLevel, pending
                     <div className="flex items-center gap-3">
                         <span className="material-symbols-outlined text-green-500 text-xl">check_circle</span>
                         <span className="font-bold text-base text-slate-900 dark:text-white">
-                            HP: +{pending.hpGain + pending.extraHp}
+                            HP: +{pending.hpGain} (+ automatic bonuses)
                         </span>
                     </div>
                     {pending.subclass && (

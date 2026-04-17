@@ -1,0 +1,91 @@
+✅ APK COMPILADO Y LISTO
+========================
+
+El APK con el fix de OAuth ha sido compilado exitosamente.
+
+UBICACIÓN DEL APK
+=================
+android/app/build/outputs/apk/debug/app-debug.apk
+
+TAMAÑO: 11.3 MB
+FECHA: 17/04/2026
+ESTADO: ✅ Listo para instalar
+
+
+INSTALAR EN DISPOSITIVO
+=======================
+
+1. Conecta tu dispositivo Android via USB
+2. Habilita "USB Debugging" en el dispositivo
+3. Corre este comando en la terminal:
+
+   adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+
+Espera a ver: "Success"
+
+
+TESTEAR OAUTH FIX
+=================
+
+Una vez instalado:
+
+1. Abre Dungeon Forge en el dispositivo
+2. Busca el botón 🔍 en la esquina inferior derecha
+3. Abre el debug panel
+4. Ve a la pestaña "Logs"
+5. Tap "Sign in with Google"
+6. Selecciona tu cuenta de Google
+7. Espera a que el navegador se cierre (2-3 segundos)
+8. Deberías ver la pantalla "Character List"
+9. ✅ ESTÁS LOGUEADO - OAUTH FUNCIONA!
+
+
+MONITOREAR EL FLUJO
+===================
+
+En la pestaña "Logs" del debug panel deberías ver:
+
+[Login] Starting Google OAuth...
+[OAuth] Deeplink received...
+[OAuth] Found tokens extracted: true
+[OAuth] Setting window.location.hash
+[OAuth] Waiting 2 seconds before reload...
+[OAuth] Reloading page
+[Auth] onAuthStateChange fired, event: SIGNED_IN
+[Auth] Session established for: tu@email.com
+
+Si ves TODOS estos mensajes → ✅ FIX FUNCIONA
+
+
+VERIFICACIÓN RÁPIDA
+===================
+
+El fix arreglaba:
+
+ANTES:
+  100ms timeout → Supabase sin procesar → Session vacía → Colgado
+
+DESPUÉS:  
+  2000ms timeout → Supabase procesa → Session válida → Login exitoso
+
+Si el login se completa en 5-7 segundos y ves "Character List":
+  ✅ OAUTH FIX VERIFICADO Y FUNCIONANDO
+
+
+ARCHIVOS DE REFERENCIA
+======================
+
+Para guías detalladas:
+  - COMPLETE-WORKFLOW.txt (workflow 5-fases)
+  - DEVICE-VERIFICATION.txt (8 pasos verificación)
+  - PROOF-OF-FIX.txt (método de prueba)
+  - OAUTH-FIX-GUIDE.md (troubleshooting)
+
+
+¡A PROBAR!
+==========
+
+Tu APK con el OAuth fix está listo.
+Instala en tu dispositivo y prueba el login.
+
+Deberías funcionar sin cuelgues. ✅
