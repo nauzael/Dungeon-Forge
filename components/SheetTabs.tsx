@@ -116,6 +116,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
 
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const touchEnd = useRef<{ x: number; y: number } | null>(null);
+  const touchElement = useRef<HTMLElement | null>(null);
   const minSwipeDistance = 50;
 
   const magicInitiateType = useMemo(() => {
@@ -154,6 +155,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
     if (zoomImage) return;
     touchEnd.current = null;
     touchStart.current = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY };
+    touchElement.current = e.target as HTMLElement;
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
@@ -164,6 +166,21 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
   const onTouchEnd = () => {
     if (zoomImage) return;
     if (!touchStart.current || !touchEnd.current) return;
+    
+    // Check if touch started in a horizontal scrollable container
+    if (touchElement.current) {
+      let parent = touchElement.current;
+      while (parent) {
+        const styles = window.getComputedStyle(parent);
+        const overflowX = styles.overflowX;
+        // If element has overflow-x-auto or overflow-x-scroll and is scrollable, skip tab change
+        if ((overflowX === 'auto' || overflowX === 'scroll') && parent.scrollWidth > parent.clientWidth) {
+          return;
+        }
+        parent = parent.parentElement;
+      }
+    }
+    
     const distanceX = touchStart.current.x - touchEnd.current.x;
     const distanceY = touchStart.current.y - touchEnd.current.y;
     if (Math.abs(distanceY) > Math.abs(distanceX)) return;
