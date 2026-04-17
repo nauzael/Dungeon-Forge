@@ -1,0 +1,8 @@
+{
+  "appId": "com.tupaquete.dndcompanion",
+  "appName": "Dungeon Forge",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

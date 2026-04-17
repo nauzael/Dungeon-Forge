@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Dungeon Forge</string>
+    <string name="title_activity_main">Dungeon Forge</string>
+    <string name="package_name">com.tupaquete.dndcompanion</string>
+    <string name="custom_url_scheme">com.tupaquete.dndcompanion</string>
+</resources>

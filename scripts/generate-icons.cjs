@@ -8,8 +8,9 @@ const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
-const svgPath = path.join(__dirname, '..', 'public', 'icon.svg');
+const sourcePath = path.join(__dirname, '..', 'public', 'icon.png');
 const androidRes = path.join(__dirname, '..', 'android', 'app', 'src', 'main', 'res');
+const publicPath = path.join(__dirname, '..', 'public');
 
 // Tamaños para Android mipmap
 const androidSizes = [
@@ -20,43 +21,45 @@ const androidSizes = [
   { dir: 'mipmap-xxxhdpi', size: 192 },
 ];
 
+// Tamaños para PWA / Web
+const webSizes = [
+  { name: 'icon-192.png', size: 192 },
+  { name: 'icon-512.png', size: 512 },
+];
+
 async function generateIcons() {
-  console.log('Generando iconos para Android...');
+  console.log('Generando iconos desde PNG:', sourcePath);
 
-  // Leer SVG
-  const svgBuffer = fs.readFileSync(svgPath);
+  if (!fs.existsSync(sourcePath)) {
+    console.error('Error: No se encontró el archivo de origen icon.png');
+    return;
+  }
 
+  // Generar iconos para Android
+  console.log('\nGenerando iconos para Android...');
   for (const { dir, size } of androidSizes) {
     const outputDir = path.join(androidRes, dir);
 
-    // Crear directorio si no existe
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    // Generar ic_launcher.png
-    const launcherPath = path.join(outputDir, 'ic_launcher.png');
-    await sharp(svgBuffer)
-      .resize(size, size)
-      .png()
-      .toFile(launcherPath);
-    console.log(`  Generado: ${launcherPath}`);
+    // ic_launcher.png
+    await sharp(sourcePath).resize(size, size).toFile(path.join(outputDir, 'ic_launcher.png'));
+    // ic_launcher_round.png
+    await sharp(sourcePath).resize(size, size).toFile(path.join(outputDir, 'ic_launcher_round.png'));
+    // ic_launcher_foreground.png
+    await sharp(sourcePath).resize(size, size).toFile(path.join(outputDir, 'ic_launcher_foreground.png'));
+    
+    console.log(`  Procesado: ${dir} (${size}x${size})`);
+  }
 
-    // Generar ic_launcher_round.png (mismo contenido para este diseño)
-    const roundPath = path.join(outputDir, 'ic_launcher_round.png');
-    await sharp(svgBuffer)
-      .resize(size, size)
-      .png()
-      .toFile(roundPath);
-    console.log(`  Generado: ${roundPath}`);
-
-    // Generar ic_launcher_foreground.png (requerido por adaptive icons Android 8+)
-    const foregroundPath = path.join(outputDir, 'ic_launcher_foreground.png');
-    await sharp(svgBuffer)
-      .resize(size, size)
-      .png()
-      .toFile(foregroundPath);
-    console.log(`  Generado: ${foregroundPath}`);
+  // Generar iconos para Web/PWA
+  console.log('\nGenerando iconos para Web/PWA...');
+  for (const { name, size } of webSizes) {
+    const outputPath = path.join(publicPath, name);
+    await sharp(sourcePath).resize(size, size).toFile(outputPath);
+    console.log(`  Generado: public/${name}`);
   }
 
   console.log('\nIconos de Android generados correctamente!');
