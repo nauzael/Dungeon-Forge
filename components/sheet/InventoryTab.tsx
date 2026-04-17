@@ -377,7 +377,9 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
            </div>
            
            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-1 px-1">
-               {quickPotions.map(potion => (
+               {quickPotions.map(potion => {
+                   const itemData = getItemData(potion.name);
+                   return (
                    <div 
                        key={potion.id}
                        className="flex flex-col gap-2 min-w-[140px] p-3 rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm active:scale-95 transition-transform"
@@ -390,15 +392,14 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                                <p className="text-[11px] font-bold text-slate-900 dark:text-white truncate leading-tight">
                                    {potion.name.replace('Potion of ', '')}
                                </p>
-                                                               <div className="flex justify-between items-end mt-0.5">
+                               <div className="flex justify-between items-end mt-0.5">
                                     <p className="text-[10px] text-slate-400 font-bold">Qty: {potion.quantity}</p>
-                                    {potion.description?.includes('Regains') && (
+                                    {itemData?.description?.includes('Regains') && (
                                         <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-pink-500/10 text-pink-500 font-black">
-                                            {potion.description.match(/(\d+d\d+\s*\+\s*\d+)/)?.[0] || 'HP'}
+                                            {itemData.description?.match(/(\d+d\d+\s*\+\s*\d+)/)?.[0] || 'HP'}
                                         </span>
                                     )}
                                 </div>
-
                            </div>
                        </div>
                        
@@ -411,7 +412,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                            </button>
                        )}
                    </div>
-               ))}
+               )})}
                
                {!isReadOnly && (
                    <button 
@@ -426,7 +427,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                    </button>
                )}
            </div>
-           {quickPotions.length === 0 && !isReadOnly && (
+{quickPotions.length === 0 && !isReadOnly && (
                <p className="text-[10px] italic text-slate-400 px-1">Tu cinturón está vacío. Agrega pociones para verlas aquí.</p>
            )}
        </div>
