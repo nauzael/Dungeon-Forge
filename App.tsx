@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy, useCallback } from 'react';
 // Deploy Trigger: Syntax verification commit
 import { Character, ViewState, SharedResourceEvent, OTAUpdate, VersionJsonResponse, CharacterWithOwner } from './types';
 import { MOCK_CHARACTERS } from './constants';
@@ -467,7 +467,7 @@ const App: React.FC = () => {
         };
     }, [activeCharacter?.party_id]);
 
-  const handleCharacterUpdate = (updatedChar: Partial<Character> | Character) => {
+  const handleCharacterUpdate = useCallback((updatedChar: Partial<Character> | Character) => {
     if (!activeCharacter) return;
     
     const isPartial = !('class' in updatedChar) || !('id' in updatedChar);
@@ -481,7 +481,7 @@ const App: React.FC = () => {
     if (fullUpdate.party_id) {
         broadcastCharacterUpdate(fullUpdate.party_id, fullUpdate);
     }
-  };
+  }, [activeCharacter]);
 
   const handleDMCharacterUpdate = async (updatedChar: Character) => {
     // 1. Update the local observed character state

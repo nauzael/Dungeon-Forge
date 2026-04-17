@@ -11,6 +11,8 @@ interface LevelResetModalProps {
   onDeleteSnapshot: (snapshotId: string) => void;
   onClose: () => void;
   getChangesForSnapshot: (snapshotId: string) => LevelResetChanges | null;
+  onForceSync?: () => void;
+  isSyncing?: boolean;
 }
 
 const LevelResetModal: React.FC<LevelResetModalProps> = ({
@@ -21,6 +23,8 @@ const LevelResetModal: React.FC<LevelResetModalProps> = ({
   onDeleteSnapshot,
   onClose,
   getChangesForSnapshot,
+  onForceSync,
+  isSyncing,
 }) => {
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -95,13 +99,31 @@ const LevelResetModal: React.FC<LevelResetModalProps> = ({
 
         <div className="flex-1 overflow-y-auto min-h-0 p-4">
           <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-            <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300 text-sm">
-              <span className="material-symbols-outlined text-lg">info</span>
-              <span>
-                <strong>Current Level:</strong> {currentLevel} |{' '}
-                <strong>Available Snapshots:</strong> {levelUpSnapshots.length}
-              </span>
+            <div className="flex items-center justify-between gap-2 text-blue-700 dark:text-blue-300 text-sm">
+                <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-lg">info</span>
+                    <span>
+                        <strong>Level:</strong> {currentLevel} | {' '}
+                        <strong>Snapshots:</strong> {levelUpSnapshots.length}
+                    </span>
+                </div>
+                {onForceSync && (
+                    <button 
+                        onClick={onForceSync}
+                        disabled={isSyncing}
+                        className="flex items-center gap-1 px-2 py-1 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
+                    >
+                        <span className={`material-symbols-outlined text-[14px] ${isSyncing ? 'animate-spin' : ''}`}>
+                            {isSyncing ? 'sync' : 'cloud_upload'}
+                        </span>
+                        {isSyncing ? 'Syncing...' : 'Sync Cloud'}
+                    </button>
+                )}
             </div>
+          </div>
+
+          <div className="mb-4 text-[10px] text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 p-2 rounded-lg border border-slate-200 dark:border-white/10 italic">
+            <p>Los puntos de restauración se sincronizan con tu cuenta para que puedas recuperarlos en cualquier dispositivo.</p>
           </div>
 
           {levelUpSnapshots.length === 0 ? (

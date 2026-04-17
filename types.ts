@@ -122,6 +122,8 @@ export interface Character {
   savantSpellsAddedAt?: number[];
   savantSpells?: string[]; // Wizard Savant: hechizos gratuitos de la escuela
   featureUsages?: Record<string, FeatureUsage>; // Feature usage tracking (generic system)
+  snapshots?: any[]; // For Cloud sync of level snapshots
+  auditLog?: any[];  // For Cloud sync of audit logs
 }
 
 export type ResetType = 'long_rest' | 'short_rest' | 'always' | 'never';

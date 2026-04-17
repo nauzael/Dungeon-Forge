@@ -74,6 +74,20 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
   const [showLevelReset, setShowLevelReset] = useState(false);
   const [manualHpGain, setManualHpGain] = useState<string>('');
   const [levelUpSnapshot, setLevelUpSnapshot] = useState<Character | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState(character.name);
+
+  // Sync tempName when character changes
+  useEffect(() => {
+    setTempName(character.name);
+  }, [character.name]);
+
+  const handleSaveName = () => {
+    if (tempName.trim() && tempName !== character.name) {
+      onUpdate({ ...character, name: tempName.trim() });
+    }
+    setIsEditingName(false);
+  };
 
   const {
     snapshots,
@@ -82,7 +96,16 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
     deleteSnapshotById,
     getChangesForSnapshot,
     hasSnapshots,
-  } = useLevelSnapshots(character.id);
+    getAuditLog,
+  } = useLevelSnapshots(character, onUpdate);
+
+  const handleManualSync = () => {
+    onUpdate({ 
+        snapshots: snapshots,
+        auditLog: getAuditLog()
+    });
+    alert("Snapshot sync triggered! Your restoration points are being uploaded to the cloud.");
+  };
 
   const [pendingSubclass, setPendingSubclass] = useState<string>('');
   const [pendingAsiType, setPendingAsiType] = useState<'stat' | 'feat'>('stat');
@@ -483,9 +506,37 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
           </div>
 
           <div className="flex flex-col min-w-0 flex-1">
-            <h2 className="font-extrabold text-xl leading-[0.8] text-slate-900 dark:text-white truncate pb-1">
-              {character.name}
-            </h2>
+            <div className="flex items-center gap-2 group/name">
+              {isEditingName && !isReadOnly ? (
+                <input
+                  autoFocus
+                  type="text"
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  onBlur={handleSaveName}
+                  onFocus={(e) => e.target.select()}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+                  className="font-extrabold text-xl leading-tight bg-transparent border-b-2 border-primary text-slate-900 dark:text-white focus:outline-none w-full py-1"
+                />
+              ) : (
+                <>
+                  <h2 
+                    onClick={() => !isReadOnly && setIsEditingName(true)}
+                    className={`font-extrabold text-xl leading-snug text-slate-900 dark:text-white truncate ${!isReadOnly ? 'cursor-pointer hover:text-primary transition-colors' : ''}`}
+                  >
+                    {character.name}
+                  </h2>
+                  {!isReadOnly && (
+                    <button 
+                      onClick={() => setIsEditingName(true)}
+                      className="size-8 rounded-full flex items-center justify-center text-slate-300 dark:text-slate-600 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover/name:opacity-100"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">edit</span>
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
             <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 dark:text-slate-500 truncate flex items-center gap-1">
               <span className={character.level >= 20 ? 'text-amber-400' : ''}>
                 Lvl {character.level}
@@ -495,7 +546,10 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
                   MAX
                 </span>
               )}
-              <span>{character.class} • {character.subspecies || character.species}</span>
+              <span>
+                {character.subclass ? `${character.subclass} ` : ''}
+                {character.class} • {character.subspecies || character.species}
+              </span>
             </p>
           </div>
         </div>
@@ -650,6 +704,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
           }}
           onClose={() => setShowLevelReset(false)}
           getChangesForSnapshot={(snapshotId) => getChangesForSnapshot(snapshotId, character)}
+          onForceSync={handleManualSync}
         />
       )}
 

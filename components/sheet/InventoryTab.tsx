@@ -50,6 +50,26 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
         setSelectedStat('Default');
     };
 
+    const consumeItem = (itemId: string) => {
+        if (isReadOnly) return;
+        const item = inventory.find(i => i.id === itemId);
+        if (!item) return;
+        
+        if (item.quantity > 1) {
+            updateInventory(inventory.map(i => i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i));
+        } else {
+            updateInventory(inventory.filter(i => i.id !== itemId));
+        }
+    };
+
+    const isPotion = (name: string) => {
+        const n = name.toLowerCase();
+        return n.includes('potion') || n.includes('poción') || n.includes('pocion') || n.includes('philter') || n.includes('antitoxin') || n.includes('vial') || n.includes('oil of');
+    };
+
+    const quickPotions = inventory.filter(i => isPotion(i.name));
+
+
     /**
      * Helper to adjust HP when Constitution modifier changes due to gear
      */
@@ -348,6 +368,69 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                 </div>
            </div>
        </div>
+
+       {/* Potions Quick Belt */}
+       <div className="flex flex-col gap-3">
+           <div className="flex justify-between items-center px-1">
+               <h3 className="text-slate-400 dark:text-slate-400 text-xs font-bold uppercase tracking-wider pl-1">Potion Belt</h3>
+               <span className="material-symbols-outlined text-sm text-primary animate-pulse">healing</span>
+           </div>
+           
+           <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-1 px-1">
+               {quickPotions.map(potion => (
+                   <div 
+                       key={potion.id}
+                       className="flex flex-col gap-2 min-w-[140px] p-3 rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/5 shadow-sm active:scale-95 transition-transform"
+                   >
+                       <div className="flex items-start gap-2">
+                           <div className="size-8 rounded-lg bg-pink-500/10 text-pink-500 flex items-center justify-center shrink-0">
+                               <span className="material-symbols-outlined text-lg">ecg_heart</span>
+                           </div>
+                           <div className="min-w-0 flex-1">
+                               <p className="text-[11px] font-bold text-slate-900 dark:text-white truncate leading-tight">
+                                   {potion.name.replace('Potion of ', '')}
+                               </p>
+                                                               <div className="flex justify-between items-end mt-0.5">
+                                    <p className="text-[10px] text-slate-400 font-bold">Qty: {potion.quantity}</p>
+                                    {potion.description?.includes('Regains') && (
+                                        <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-pink-500/10 text-pink-500 font-black">
+                                            {potion.description.match(/(\d+d\d+\s*\+\s*\d+)/)?.[0] || 'HP'}
+                                        </span>
+                                    )}
+                                </div>
+
+                           </div>
+                       </div>
+                       
+                       {!isReadOnly && (
+                           <button
+                               onClick={() => consumeItem(potion.id)}
+                               className="w-full py-1.5 rounded-lg bg-primary/10 hover:bg-primary text-primary hover:text-white text-[10px] font-black uppercase tracking-widest transition-all"
+                           >
+                               Drink
+                           </button>
+                       )}
+                   </div>
+               ))}
+               
+               {!isReadOnly && (
+                   <button 
+                       onClick={() => {
+                           setSearchQuery('Potion');
+                           setShowAddItem(true);
+                       }}
+                       className="flex flex-col items-center justify-center gap-2 min-w-[100px] p-3 rounded-2xl border-2 border-dashed border-slate-200 dark:border-white/5 text-slate-300 dark:text-slate-600 hover:text-primary hover:border-primary transition-all"
+                   >
+                       <span className="material-symbols-outlined">add_circle</span>
+                       <span className="text-[10px] font-bold uppercase">Add</span>
+                   </button>
+               )}
+           </div>
+           {quickPotions.length === 0 && !isReadOnly && (
+               <p className="text-[10px] italic text-slate-400 px-1">Tu cinturón está vacío. Agrega pociones para verlas aquí.</p>
+           )}
+       </div>
+
 
        {equippedItems.length > 0 && (<div className="flex flex-col gap-3">            <h3 className="text-slate-400 dark:text-slate-400 text-xs font-bold uppercase tracking-wider pl-1">Equipment ({equippedItems.length})</h3>{equippedItems.map(renderItemRow)}</div>)}
        

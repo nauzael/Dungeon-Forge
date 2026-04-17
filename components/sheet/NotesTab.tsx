@@ -202,6 +202,41 @@ const NotesTab: React.FC<NotesTabProps> = ({ character, onUpdate, isReadOnly }) 
                 </div>
             )}
 
+            {/* Alignment and Languages Section */}
+            <div className="grid grid-cols-2 gap-4 mb-8">
+                {/* Alignment Card */}
+                <div className="bg-white dark:bg-surface-dark rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden group">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-500/50"></div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                        <span className="material-symbols-outlined text-amber-500 text-lg">balance</span>
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Alignment</h4>
+                    </div>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white pl-1 capitalize">
+                        {character.alignment || 'None'}
+                    </p>
+                </div>
+
+                {/* Languages Card */}
+                <div className="bg-white dark:bg-surface-dark rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden group">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500/50"></div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                        <span className="material-symbols-outlined text-blue-500 text-lg">translate</span>
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Languages</h4>
+                    </div>
+                    <div className="flex flex-wrap gap-1 pl-1">
+                        {character.languages && character.languages.length > 0 ? (
+                            character.languages.map((lang, idx) => (
+                                <span key={idx} className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[9px] font-bold px-1.5 py-0.5 rounded-md">
+                                    {lang}
+                                </span>
+                            ))
+                        ) : (
+                            <p className="text-sm font-bold text-slate-900 dark:text-white">None</p>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             {/* Header for Journal */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">

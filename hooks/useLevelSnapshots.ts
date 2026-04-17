@@ -32,9 +32,17 @@ interface UseLevelSnapshotsReturn {
   hasSnapshots: boolean;
 }
 
-export const useLevelSnapshots = (characterId: string): UseLevelSnapshotsReturn => {
-  const [snapshots, setSnapshots] = useState<LevelSnapshot[]>([]);
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+export const useLevelSnapshots = (
+  character: Character,
+  onUpdate?: (update: Partial<Character>) => void
+): UseLevelSnapshotsReturn => {
+  const characterId = character.id;
+  const [snapshots, setSnapshots] = useState<LevelSnapshot[]>(() => {
+    return character.snapshots || [];
+  });
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => {
+    return character.auditLog || [];
+  });
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const refreshSnapshots = useCallback(() => {
@@ -43,12 +51,31 @@ export const useLevelSnapshots = (characterId: string): UseLevelSnapshotsReturn 
 
   useEffect(() => {
     if (characterId) {
+      // 1. Prioritize character internal snapshots (synced with cloud)
+      if (character.snapshots && character.snapshots.length > 0) {
+        setSnapshots(character.snapshots);
+        setAuditLogs(character.auditLog || []);
+        return;
+      }
+
+      // 2. Fallback to localStorage (Legacy or initial load)
       const loadedSnapshots = getSnapshotsForCharacter(characterId);
       const loadedLogs = getAuditLogsForCharacter(characterId);
-      setSnapshots(loadedSnapshots);
-      setAuditLogs(loadedLogs);
+      
+      if (loadedSnapshots.length > 0) {
+          setSnapshots(loadedSnapshots);
+          setAuditLogs(loadedLogs);
+          
+          // Legacy Sync: Migrate localStorage snapshots to character internal object
+          if (onUpdate) {
+              onUpdate({ 
+                  snapshots: loadedSnapshots,
+                  auditLog: loadedLogs
+              });
+          }
+      }
     }
-  }, [characterId, refreshTrigger]);
+  }, [characterId, character.snapshots, refreshTrigger]);
 
   // Sync snapshots when character updates (e.g., after level up)
   useEffect(() => {
@@ -99,15 +126,26 @@ export const useLevelSnapshots = (characterId: string): UseLevelSnapshotsReturn 
       },
     });
 
-    // Ensure state is updated with fresh data from localStorage
-    setSnapshots([...updatedSnapshots]);
-    setAuditLogs(getAuditLogsForCharacter(character.id));
+    // Ensure state is updated with fresh data
+    const newSnapshots = [...updatedSnapshots];
+    const newLogs = getAuditLogsForCharacter(character.id);
+    
+    setSnapshots(newSnapshots);
+    setAuditLogs(newLogs);
+
+    // Sync to Character (Cloud)
+    if (onUpdate) {
+        onUpdate({ 
+            snapshots: newSnapshots,
+            auditLog: newLogs
+        });
+    }
 
     // Log for debugging
     console.log(`[LevelUp] Snapshot created for level ${character.level}. Total snapshots: ${updatedSnapshots.length}`);
 
     return snapshot;
-  }, []);
+  }, [characterId, onUpdate]);
 
   const restoreSnapshot = useCallback((snapshotId: string, character: Character): Character => {
     const snapshot = snapshots.find(s => s.id === snapshotId);
@@ -145,10 +183,20 @@ export const useLevelSnapshots = (characterId: string): UseLevelSnapshotsReturn 
     const restoredCharacter = restoreCharacterFromSnapshot(character, snapshot.snapshotData);
 
     const updatedSnapshots = getSnapshotsForCharacter(character.id);
+    const updatedLogs = getAuditLogsForCharacter(character.id);
     setSnapshots([...updatedSnapshots]);
+    setAuditLogs(updatedLogs);
+
+    // Sync to Character (Cloud) - Since we added a "Pre-reset backup", we should update
+    if (onUpdate) {
+        onUpdate({ 
+            snapshots: updatedSnapshots,
+            auditLog: updatedLogs
+        });
+    }
 
     return restoredCharacter;
-  }, [snapshots]);
+  }, [snapshots, onUpdate]);
 
   const deleteSnapshotById = useCallback((snapshotId: string): boolean => {
     const snapshot = snapshots.find(s => s.id === snapshotId);
@@ -166,11 +214,22 @@ export const useLevelSnapshots = (characterId: string): UseLevelSnapshotsReturn 
         characterState: {},
       });
 
-      setSnapshots(getSnapshotsForCharacter(snapshot.characterId));
+      const newSnapshots = getSnapshotsForCharacter(snapshot.characterId);
+      const newLogs = getAuditLogsForCharacter(snapshot.characterId);
+      setSnapshots(newSnapshots);
+      setAuditLogs(newLogs);
+
+      // Sync to Character (Cloud)
+      if (onUpdate) {
+          onUpdate({ 
+              snapshots: newSnapshots,
+              auditLog: newLogs
+          });
+      }
     }
 
     return success;
-  }, [snapshots]);
+  }, [snapshots, onUpdate]);
 
   const canRestore = useCallback((snapshotId: string): boolean => {
     const snapshot = snapshots.find(s => s.id === snapshotId);
