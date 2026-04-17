@@ -377,6 +377,19 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
            </div>
            
            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-1 px-1">
+               {!isReadOnly && (
+                   <button 
+                       onClick={() => {
+                           setSearchQuery('Potion');
+                           setShowAddItem(true);
+                       }}
+                       className="flex flex-col items-center justify-center gap-2 min-w-[100px] p-3 rounded-2xl border-2 border-dashed border-slate-200 dark:border-white/5 text-slate-300 dark:text-slate-600 hover:text-primary hover:border-primary transition-all shrink-0"
+                   >
+                       <span className="material-symbols-outlined">add_circle</span>
+                       <span className="text-[10px] font-bold uppercase">Add</span>
+                   </button>
+               )}
+               
                {quickPotions.map(potion => {
                    const itemData = getItemData(potion.name);
                    return (
@@ -413,19 +426,6 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                        )}
                    </div>
                )})}
-               
-               {!isReadOnly && (
-                   <button 
-                       onClick={() => {
-                           setSearchQuery('Potion');
-                           setShowAddItem(true);
-                       }}
-                       className="flex flex-col items-center justify-center gap-2 min-w-[100px] p-3 rounded-2xl border-2 border-dashed border-slate-200 dark:border-white/5 text-slate-300 dark:text-slate-600 hover:text-primary hover:border-primary transition-all"
-                   >
-                       <span className="material-symbols-outlined">add_circle</span>
-                       <span className="text-[10px] font-bold uppercase">Add</span>
-                   </button>
-               )}
            </div>
 {quickPotions.length === 0 && !isReadOnly && (
                <p className="text-[10px] italic text-slate-400 px-1">Tu cinturón está vacío. Agrega pociones para verlas aquí.</p>

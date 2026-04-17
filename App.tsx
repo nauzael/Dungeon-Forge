@@ -21,7 +21,6 @@ import { CapacitorUpdater } from '@capgo/capacitor-updater';
 const CreatorSteps = lazy(() => import('./components/CreatorSteps'));
 const SheetTabs = lazy(() => import('./components/SheetTabs'));
 const DMDashboard = lazy(() => import('./components/DMDashboard'));
-const OAuthDebugConsole = lazy(() => import('./components/OAuthDebugConsole'));
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('list');
@@ -703,12 +702,6 @@ const App: React.FC = () => {
                 </div>
             )}
 
-            {/* OAuth Debug Console - Only in development or when needed */}
-            {Capacitor.getPlatform() !== 'web' && (
-              <Suspense fallback={null}>
-                <OAuthDebugConsole />
-              </Suspense>
-            )}
     </div>
   );
 };
