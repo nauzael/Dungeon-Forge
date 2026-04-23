@@ -661,11 +661,12 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
               </div>
               
               <div className="flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar w-full" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
-                <div className="p-3 w-full">
+                <div className="p-3 pb-32 w-full">
                   <CombatTab
                     character={character}
                     onUpdate={onUpdate}
                     isReadOnly={isReadOnly || isObserver}
+                    showQuickActions={false}
                     onShowJoinParty={() => setShowJoinParty(true)}
                     onShowLevelReset={() => setShowLevelReset(true)}
                     onShowRestModal={() => setShowRestModal(true)}
@@ -674,6 +675,76 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
                   />
                 </div>
               </div>
+
+              {!isReadOnly && !isObserver && (
+                <div className="absolute bottom-0 left-0 right-0 z-30 p-3 bg-gradient-to-t from-slate-900 dark:from-surface-dark via-slate-900/95 to-transparent safe-area-inset-bottom">
+                  <div className="bg-white dark:bg-surface-dark rounded-3xl shadow-lg border border-slate-200 dark:border-white/5 p-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex items-center gap-2">
+                        {(character.level < 20) ? (
+                          <button
+                            onClick={initiateLevelUp}
+                            className="w-10 h-10 rounded-xl bg-emerald-500 text-white shadow-md shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center flex-shrink-0"
+                            aria-label="Level up"
+                          >
+                            <span className="material-symbols-outlined text-base font-bold">keyboard_double_arrow_up</span>
+                          </button>
+                        ) : (
+                          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+                            <span className="material-symbols-outlined text-base font-bold text-amber-500">stars</span>
+                          </div>
+                        )}
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">Level Up</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setShowRestModal(true)}
+                          className="w-10 h-10 rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center flex-shrink-0"
+                          aria-label="Rest"
+                        >
+                          <span className="material-symbols-outlined text-base font-bold">bedtime</span>
+                        </button>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">Rest</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {hasSnapshots ? (
+                          <button
+                            onClick={() => setShowLevelReset(true)}
+                            className="w-10 h-10 rounded-xl bg-purple-500 text-white shadow-md shadow-purple-500/20 active:scale-95 transition-all flex items-center justify-center flex-shrink-0"
+                            aria-label="Level reset"
+                          >
+                            <span className="material-symbols-outlined text-base font-bold">history</span>
+                          </button>
+                        ) : (
+                          <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center flex-shrink-0">
+                            <span className="material-symbols-outlined text-base text-slate-400">history</span>
+                          </div>
+                        )}
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">Reset Level</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setShowJoinParty(true)}
+                          className={`w-10 h-10 rounded-xl transition-all active:scale-95 flex items-center justify-center flex-shrink-0 shadow-md ${
+                            character.party_id
+                              ? 'bg-blue-500 text-white shadow-blue-500/20'
+                              : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10'
+                          }`}
+                          aria-label={character.party_id ? 'Connected to party' : 'Join party'}
+                        >
+                          <span className={`material-symbols-outlined text-base font-bold ${character.party_id ? '' : 'text-slate-500 dark:text-slate-400'}`}>
+                            {character.party_id ? 'hub' : 'link'}
+                          </span>
+                        </button>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">Party</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Right Column (70%) */}

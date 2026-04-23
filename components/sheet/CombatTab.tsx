@@ -45,6 +45,7 @@ interface CombatTabProps {
     character: Character;
     onUpdate: (update: Partial<Character>) => void;
     isReadOnly?: boolean;
+    showQuickActions?: boolean;
     onShowJoinParty?: () => void;
     onShowLevelReset?: () => void;
     onShowRestModal?: () => void;
@@ -56,6 +57,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
     character, 
     onUpdate, 
     isReadOnly,
+    showQuickActions = true,
     onShowJoinParty,
     onShowLevelReset,
     onShowRestModal,
@@ -1223,7 +1225,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
             </div>
 
             {/* Quick Actions Bar */}
-            {!isReadOnly && (
+            {showQuickActions && !isReadOnly && (
                 <div className="sticky bottom-0 left-0 right-0 p-4 z-10 safe-area-inset-bottom">
                     <div className="bg-white dark:bg-surface-dark rounded-3xl shadow-lg border border-slate-200 dark:border-white/5 p-4">
                         <div className="grid grid-cols-2 gap-3">
@@ -1245,13 +1247,13 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Level Up</span>
                             </div>
 
-                            {/* Short Rest */}
+                            {/* Rest */}
                             <div className="flex items-center gap-3">
                                 {onShowRestModal ? (
                                     <button
                                         onClick={onShowRestModal}
                                         className="w-12 h-12 rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center flex-shrink-0"
-                                        aria-label="Short rest"
+                                        aria-label="Rest"
                                     >
                                         <span className="material-symbols-outlined text-lg font-bold">bedtime</span>
                                     </button>
@@ -1260,7 +1262,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                         <span className="material-symbols-outlined text-lg text-slate-400">bedtime_off</span>
                                     </div>
                                 )}
-                                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Short Rest</span>
+                                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Rest</span>
                             </div>
 
                             {/* Reset Level */}
