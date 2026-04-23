@@ -2,6 +2,7 @@
 import { createPortal } from 'react-dom';
 import React, { useState, useMemo, useEffect, memo } from 'react';
 import { useModalScrollLock } from '../../hooks/useModalScrollLock';
+import { useResponsive } from '../../hooks/useResponsive';
 import { Character, Ability, WeaponData } from '../../types';
 import { SKILL_ABILITY_MAP, SKILL_DESCRIPTIONS } from '../../Data/skills';
 import { useSkills } from '../../Data/skills/index';
@@ -45,7 +46,6 @@ interface CombatTabProps {
     character: Character;
     onUpdate: (update: Partial<Character>) => void;
     isReadOnly?: boolean;
-    showQuickActions?: boolean;
     onShowJoinParty?: () => void;
     onShowLevelReset?: () => void;
     onShowRestModal?: () => void;
@@ -57,13 +57,14 @@ const CombatTab: React.FC<CombatTabProps> = ({
     character, 
     onUpdate, 
     isReadOnly,
-    showQuickActions = true,
     onShowJoinParty,
     onShowLevelReset,
     onShowRestModal,
     onInitiateLevelUp,
     hasSnapshots
 }) => {
+    const { isTablet, orientation } = useResponsive();
+    const isTabletLandscape = isTablet && orientation === 'landscape';
     const skills = useSkills();
     const SKILL_LIST = skills.map(s => s.name);
     const [hpModal, setHpModal] = useState<{ show: boolean; type: 'damage' | 'heal' | 'temp' }>({ show: false, type: 'damage' });
@@ -1225,8 +1226,8 @@ const CombatTab: React.FC<CombatTabProps> = ({
             </div>
 
             {/* Quick Actions Bar */}
-            {showQuickActions && !isReadOnly && (
-                <div className="sticky bottom-0 left-0 right-0 p-4 z-10 safe-area-inset-bottom">
+            {!isReadOnly && (
+                <div className={isTabletLandscape ? 'fixed bottom-0 left-0 w-[30%] p-3 z-30 safe-area-inset-bottom' : 'sticky bottom-0 left-0 right-0 p-4 z-10 safe-area-inset-bottom'}>
                     <div className="bg-white dark:bg-surface-dark rounded-3xl shadow-lg border border-slate-200 dark:border-white/5 p-4">
                         <div className="grid grid-cols-2 gap-3">
                             {/* Level Up */}
