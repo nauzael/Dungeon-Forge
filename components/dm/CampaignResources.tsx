@@ -212,7 +212,13 @@ const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
 
   return (
     <>
-    <div className="space-y-6">
+    <div
+      className="space-y-6"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+      onTouchCancel={(e) => e.stopPropagation()}
+    >
       <div className="flex justify-between items-center">
         <div className="space-y-0.5">
           <h2 className="text-xl font-black italic uppercase tracking-tight text-white/90 leading-none">
