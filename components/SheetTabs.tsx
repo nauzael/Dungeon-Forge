@@ -80,22 +80,24 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
   const [rightPanelTab, setRightPanelTab] = useState<SheetTab>('spells');
 
   // Responsive hook: detects landscape/portrait orientation
-  const { orientation } = useResponsive();
-  const isLandscape = orientation === 'landscape';
+  const { isMobile, isTablet, orientation } = useResponsive();
+  const isLandscape = orientation === 'landscape' && !isMobile;
+  const isTabletPortrait = isTablet && orientation === 'portrait';
 
   // Swipe detection for right panel in landscape
   const rightPanelTouchStart = useRef<{ x: number; y: number } | null>(null);
   const rightPanelTouchEnd = useRef<{ x: number; y: number } | null>(null);
-  const rightPanelMinSwipeDistance = 30;
+  const rightPanelMinSwipeDistance = 80;
 
-  const rightPanelTabs: SheetTab[] = ['spells', 'inventory', 'features', 'notes'];
+  const rightPanelTabs: SheetTab[] = ['spells', 'features', 'inventory', 'notes'];
 
   const handleRightPanelSwipe = () => {
     if (!rightPanelTouchStart.current || !rightPanelTouchEnd.current) return;
 
     const distance = rightPanelTouchStart.current.x - rightPanelTouchEnd.current.x;
-    const isLeftSwipe = distance > rightPanelMinSwipeDistance;
-    const isRightSwipe = distance < -rightPanelMinSwipeDistance;
+    const deltaY = rightPanelTouchStart.current.y - rightPanelTouchEnd.current.y;
+    const isLeftSwipe = distance > rightPanelMinSwipeDistance && Math.abs(distance) > Math.abs(deltaY) * 1.2;
+    const isRightSwipe = distance < -rightPanelMinSwipeDistance && Math.abs(distance) > Math.abs(deltaY) * 1.2;
 
     if (!isLeftSwipe && !isRightSwipe) return;
 
@@ -150,7 +152,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const touchEnd = useRef<{ x: number; y: number } | null>(null);
   const touchElement = useRef<HTMLElement | null>(null);
-  const minSwipeDistance = 50;
+  const minSwipeDistance = 100;
 
   const magicInitiateType = useMemo(() => {
     const feats = character.feats || [];
@@ -216,9 +218,11 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
     
     const distanceX = touchStart.current.x - touchEnd.current.x;
     const distanceY = touchStart.current.y - touchEnd.current.y;
-    if (Math.abs(distanceY) > Math.abs(distanceX)) return;
-    const isLeftSwipe = distanceX > minSwipeDistance;
-    const isRightSwipe = distanceX < -minSwipeDistance;
+    const absX = Math.abs(distanceX);
+    const absY = Math.abs(distanceY);
+    if (absX < minSwipeDistance || absX < absY * 1.2) return;
+    const isLeftSwipe = distanceX > 0;
+    const isRightSwipe = distanceX < 0;
     if (isLeftSwipe || isRightSwipe) {
       const validTabs = tabs.filter((t) => !t.disabled);
       const currentIndex = validTabs.findIndex((t) => t.id === activeTab);
@@ -480,6 +484,22 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
     }
   };
 
+  if (isTabletPortrait) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark p-6">
+        <div className="max-w-md rounded-3xl border border-slate-200/10 bg-white dark:bg-slate-950/95 p-8 text-center shadow-2xl">
+          <span className="material-symbols-outlined text-5xl text-primary mb-4">screen_rotation</span>
+          <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Gira tu tablet</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            La vista de hoja solo está disponible en landscape para tablet.
+            <br />
+            Por favor rota tu dispositivo a horizontal para continuar.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="flex flex-col h-full min-h-screen bg-background-light dark:bg-background-dark relative"
@@ -658,7 +678,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
 
             {/* Right Column (70%) */}
             <div 
-              className="flex-1 h-screen flex flex-col relative bg-background-light dark:bg-background-dark border-l border-slate-200/10"
+              className="flex-1 h-screen flex flex-col relative min-w-0 bg-background-light dark:bg-background-dark border-l border-slate-200/10"
               onTouchStart={(e) => {
                 rightPanelTouchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
               }}
@@ -668,7 +688,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
               onTouchEnd={handleRightPanelSwipe}
             >
               {/* Scrollable Content Area */}
-              <div className="flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar pb-24 w-full" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
+              <div className="flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar pb-24 w-full min-w-0" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
                 <div className="p-3 w-full">
                   {/* Dynamic Content */}
                   <div className={`transition-opacity duration-200 w-full ${rightPanelTab ? 'opacity-100' : 'opacity-0'}`}>
@@ -705,12 +725,12 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
               </div>
 
               {/* FLOATING MINI TAB BAR - Fixed at Bottom */}
-              <div className="fixed bottom-0 right-0 w-[70%] bg-gradient-to-t from-slate-900 dark:from-surface-dark via-slate-900/95 to-slate-900/80 backdrop-blur-md border-t border-slate-200/10 px-2 py-3 z-30">
+              <div className="fixed bottom-0 left-[30%] right-0 bg-gradient-to-t from-slate-900 dark:from-surface-dark via-slate-900/95 to-slate-900/80 backdrop-blur-md border-t border-slate-200/10 px-2 py-3 z-30">
                 <div className="flex gap-1.5 overflow-x-auto no-scrollbar justify-center">
                   {[
                     { id: 'spells' as SheetTab, icon: 'auto_stories', label: 'Spells', disabled: !isCaster },
-                    { id: 'inventory' as SheetTab, icon: 'backpack', label: 'Bag' },
                     { id: 'features' as SheetTab, icon: 'stars', label: 'Feats' },
+                    { id: 'inventory' as SheetTab, icon: 'backpack', label: 'Bag' },
                     { id: 'notes' as SheetTab, icon: 'edit_note', label: 'Notes' },
                   ].map((tab) => {
                     const isActive = rightPanelTab === tab.id;

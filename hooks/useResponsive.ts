@@ -43,7 +43,7 @@ export const useResponsive = (): ResponsiveBreakpoints => {
       setDimensions({
         isMobile: width < 768,
         isTablet: width >= 768 && width < 1024,
-        isTabletLandscape: width >= 1024 && width < 1366,
+        isTabletLandscape: width >= 1024,
         isDesktop: width >= 1024,
         width,
         height,
