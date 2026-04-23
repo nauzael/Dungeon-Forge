@@ -5,6 +5,7 @@ import { MOCK_CHARACTERS } from './constants';
 import CharacterList from './components/CharacterList';
 import Login from './components/Login';
 import { migrateCharacters } from './utils/characterMigrations';
+import { useResponsive } from './hooks/useResponsive';
 
 import { 
     supabase, 
@@ -30,6 +31,10 @@ const App: React.FC = () => {
   const [user, setUser] = useState<{name: string, id: string} | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState<OTAUpdate | null>(null);
+
+  // Responsive hook for landscape/portrait detection
+  const { orientation } = useResponsive();
+  const isLandscape = orientation === 'landscape';
 
   // Auto-Restart when update is read
   useEffect(() => {
@@ -589,7 +594,7 @@ const App: React.FC = () => {
 
   return (
     <div className="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
-          <div className="mx-auto max-w-md bg-background-light dark:bg-background-dark shadow-2xl min-h-screen relative overflow-hidden">
+          <div className={`mx-auto ${isLandscape ? 'max-w-none' : 'max-w-md'} bg-background-light dark:bg-background-dark shadow-2xl min-h-screen relative overflow-hidden`}>
             
             {/* OTA Update Spinner / Modal */}
             {updateAvailable && (

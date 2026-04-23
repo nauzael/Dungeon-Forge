@@ -380,7 +380,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
     };
 
     return (
-        <div className="px-4 pb-24 pt-4">
+        <div className="px-4 pb-24 pt-4 w-full">
             {isWarlock && (
                 <div className="space-y-3 mb-8">
                     <div className="relative overflow-hidden group/warlock shadow-sm">

@@ -153,7 +153,7 @@ const NotesTab: React.FC<NotesTabProps> = ({ character, onUpdate, isReadOnly }) 
     };
 
     return (
-        <div className="flex flex-col h-full px-4 pb-24 pt-4 min-h-[80vh] bg-slate-50/30 dark:bg-transparent">
+        <div className="flex flex-col h-full px-4 pb-24 pt-4 min-h-[80vh] bg-slate-50/30 dark:bg-transparent w-full">
             
             {/* Campaign Atlas Section - DM Shared Resources */}
             {character.party_id && (

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect, memo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useImageZoom } from '../hooks/useImageZoom';
+import { useResponsive } from '../hooks/useResponsive';
 import { Character, SheetTab, Ability } from '../types';
 import CombatTab from './sheet/CombatTab';
 import InventoryTab from './sheet/InventoryTab';
@@ -76,6 +77,38 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
   const [levelUpSnapshot, setLevelUpSnapshot] = useState<Character | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(character.name);
+  const [rightPanelTab, setRightPanelTab] = useState<SheetTab>('spells');
+
+  // Responsive hook: detects landscape/portrait orientation
+  const { orientation } = useResponsive();
+  const isLandscape = orientation === 'landscape';
+
+  // Swipe detection for right panel in landscape
+  const rightPanelTouchStart = useRef<{ x: number; y: number } | null>(null);
+  const rightPanelTouchEnd = useRef<{ x: number; y: number } | null>(null);
+  const rightPanelMinSwipeDistance = 30;
+
+  const rightPanelTabs: SheetTab[] = ['spells', 'inventory', 'features', 'notes'];
+
+  const handleRightPanelSwipe = () => {
+    if (!rightPanelTouchStart.current || !rightPanelTouchEnd.current) return;
+
+    const distance = rightPanelTouchStart.current.x - rightPanelTouchEnd.current.x;
+    const isLeftSwipe = distance > rightPanelMinSwipeDistance;
+    const isRightSwipe = distance < -rightPanelMinSwipeDistance;
+
+    if (!isLeftSwipe && !isRightSwipe) return;
+
+    const currentIndex = rightPanelTabs.indexOf(rightPanelTab);
+    if (isLeftSwipe && currentIndex < rightPanelTabs.length - 1) {
+      setRightPanelTab(rightPanelTabs[currentIndex + 1]);
+    } else if (isRightSwipe && currentIndex > 0) {
+      setRightPanelTab(rightPanelTabs[currentIndex - 1]);
+    }
+
+    rightPanelTouchStart.current = null;
+    rightPanelTouchEnd.current = null;
+  };
 
   // Sync tempName when character changes
   useEffect(() => {
@@ -593,54 +626,166 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
 
       <main
         ref={mainScrollRef}
-        className="flex-1 overflow-y-auto no-scrollbar relative overflow-x-hidden pb-3"
+        className={`flex-1 relative ${isLandscape ? '' : 'overflow-x-hidden overflow-y-auto no-scrollbar pb-3'}`}
       >
-        <div
-          key={activeTab}
-          className={`min-h-full ${slideDirection === 'forward' ? 'animate-slide-right' : 'animate-slide-left'}`}
-        >
-          {activeTab === 'combat' && (
-            <CombatTab
-              character={character}
-              onUpdate={onUpdate}
-              isReadOnly={isReadOnly || isObserver}
-              onShowJoinParty={() => setShowJoinParty(true)}
-              onShowLevelReset={() => setShowLevelReset(true)}
-              onShowRestModal={() => setShowRestModal(true)}
-              onInitiateLevelUp={initiateLevelUp}
-              hasSnapshots={hasSnapshots}
-            />
-          )}
-          {activeTab === 'inventory' && (
-            <InventoryTab
-              character={character}
-              onUpdate={onUpdate}
-              isReadOnly={isReadOnly || isObserver}
-            />
-          )}
-          {activeTab === 'spells' && (
-            <SpellsTab
-              character={character}
-              onUpdate={onUpdate}
-              isReadOnly={isReadOnly || isObserver}
-            />
-          )}
-          {activeTab === 'features' && (
-            <FeaturesTab
-              character={character}
-              onUpdate={onUpdate}
-              isReadOnly={isReadOnly || isObserver}
-            />
-          )}
-          {activeTab === 'notes' && (
-            <NotesTab
-              character={character}
-              onUpdate={onUpdate}
-              isReadOnly={isReadOnly || isObserver}
-            />
-          )}
-        </div>
+        {isLandscape ? (
+          // Landscape: 30/70 split with proper independent scrolls
+          <div className="flex h-screen w-screen gap-0">
+            {/* Combat Tab - Left Column (30%) */}
+            <div className="w-[30%] h-screen flex flex-col bg-background-light dark:bg-background-dark">
+              <div className="sticky top-0 z-20 bg-gradient-to-b from-slate-900 dark:from-surface-dark via-slate-900/80 to-transparent pb-3 px-3 pt-3">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-lg">swords</span>
+                  <h3 className="text-xs font-black uppercase text-primary tracking-widest">Combat</h3>
+                </div>
+              </div>
+              
+              <div className="flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar w-full" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
+                <div className="p-3 w-full">
+                  <CombatTab
+                    character={character}
+                    onUpdate={onUpdate}
+                    isReadOnly={isReadOnly || isObserver}
+                    onShowJoinParty={() => setShowJoinParty(true)}
+                    onShowLevelReset={() => setShowLevelReset(true)}
+                    onShowRestModal={() => setShowRestModal(true)}
+                    onInitiateLevelUp={initiateLevelUp}
+                    hasSnapshots={hasSnapshots}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column (70%) */}
+            <div 
+              className="flex-1 h-screen flex flex-col relative bg-background-light dark:bg-background-dark border-l border-slate-200/10"
+              onTouchStart={(e) => {
+                rightPanelTouchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+              }}
+              onTouchMove={(e) => {
+                rightPanelTouchEnd.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+              }}
+              onTouchEnd={handleRightPanelSwipe}
+            >
+              {/* Scrollable Content Area */}
+              <div className="flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar pb-24 w-full" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
+                <div className="p-3 w-full">
+                  {/* Dynamic Content */}
+                  <div className={`transition-opacity duration-200 w-full ${rightPanelTab ? 'opacity-100' : 'opacity-0'}`}>
+                  {rightPanelTab === 'spells' && (
+                    <SpellsTab
+                      character={character}
+                      onUpdate={onUpdate}
+                      isReadOnly={isReadOnly || isObserver}
+                    />
+                  )}
+                  {rightPanelTab === 'inventory' && (
+                    <InventoryTab
+                      character={character}
+                      onUpdate={onUpdate}
+                      isReadOnly={isReadOnly || isObserver}
+                    />
+                  )}
+                  {rightPanelTab === 'features' && (
+                    <FeaturesTab
+                      character={character}
+                      onUpdate={onUpdate}
+                      isReadOnly={isReadOnly || isObserver}
+                    />
+                  )}
+                  {rightPanelTab === 'notes' && (
+                    <NotesTab
+                      character={character}
+                      onUpdate={onUpdate}
+                      isReadOnly={isReadOnly || isObserver}
+                    />
+                  )}
+                </div>
+                </div>
+              </div>
+
+              {/* FLOATING MINI TAB BAR - Fixed at Bottom */}
+              <div className="fixed bottom-0 right-0 w-[70%] bg-gradient-to-t from-slate-900 dark:from-surface-dark via-slate-900/95 to-slate-900/80 backdrop-blur-md border-t border-slate-200/10 px-2 py-3 z-30">
+                <div className="flex gap-1.5 overflow-x-auto no-scrollbar justify-center">
+                  {[
+                    { id: 'spells' as SheetTab, icon: 'auto_stories', label: 'Spells', disabled: !isCaster },
+                    { id: 'inventory' as SheetTab, icon: 'backpack', label: 'Bag' },
+                    { id: 'features' as SheetTab, icon: 'stars', label: 'Feats' },
+                    { id: 'notes' as SheetTab, icon: 'edit_note', label: 'Notes' },
+                  ].map((tab) => {
+                    const isActive = rightPanelTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => !tab.disabled && setRightPanelTab(tab.id)}
+                        disabled={tab.disabled}
+                        className={`flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase whitespace-nowrap transition-all duration-200 shrink-0 ${
+                          isActive
+                            ? 'text-white bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/30 scale-100'
+                            : `text-slate-400 dark:text-slate-500 hover:bg-white/8 hover:text-slate-300 active:scale-95 ${tab.disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`
+                        }`}
+                      >
+                        <span className={`material-symbols-outlined text-lg transition-transform leading-none ${isActive ? 'scale-110' : ''}`}>{tab.icon}</span>
+                        <span className="hidden sm:inline tracking-wider text-[8px]">{tab.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Portrait: Single tab with slide animation (original behavior)
+          <div
+            key={activeTab}
+            className={`min-h-full ${slideDirection === 'forward' ? 'animate-slide-right' : 'animate-slide-left'}`}
+          >
+            {activeTab === 'combat' && (
+              <CombatTab
+                character={character}
+                onUpdate={onUpdate}
+                isReadOnly={isReadOnly || isObserver}
+                onShowJoinParty={() => setShowJoinParty(true)}
+                onShowLevelReset={() => setShowLevelReset(true)}
+                onShowRestModal={() => setShowRestModal(true)}
+                onInitiateLevelUp={initiateLevelUp}
+                hasSnapshots={hasSnapshots}
+              />
+            )}
+            {activeTab === 'inventory' && (
+              <InventoryTab
+                character={character}
+                onUpdate={onUpdate}
+                isReadOnly={isReadOnly || isObserver}
+              />
+            )}
+            {activeTab === 'spells' && (
+              <SpellsTab
+                character={character}
+                onUpdate={onUpdate}
+                isReadOnly={isReadOnly || isObserver}
+              />
+            )}
+            {activeTab === 'features' && (
+              <FeaturesTab
+                character={character}
+                onUpdate={onUpdate}
+                isReadOnly={isReadOnly || isObserver}
+              />
+            )}
+            {activeTab === 'notes' && (
+              <NotesTab
+                character={character}
+                onUpdate={onUpdate}
+                isReadOnly={isReadOnly || isObserver}
+              />
+            )}
+          </div>
+        )}
       </main>
+
+      {/* Tab Bar - Hidden in landscape, shown in portrait */}
+      {!isLandscape && (
 
       <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 transform -translate-x-1/2 bg-white/90 dark:bg-[#1E293B]/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-1.5 z-40 flex items-center gap-1.5">
         {tabs.map((tab) => (
@@ -667,6 +812,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
           </button>
         ))}
       </div>
+      )}
 
       {showLevelUp && (
         <LevelUpWizard
@@ -801,3 +947,4 @@ const SheetTabsMemo = memo(SheetTabs);
 SheetTabsMemo.displayName = 'SheetTabs';
 
 export default SheetTabsMemo;
+

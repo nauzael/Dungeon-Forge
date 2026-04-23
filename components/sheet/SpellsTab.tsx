@@ -471,7 +471,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
     };
 
     return (
-    <div className="flex flex-col gap-6 px-4 pb-28 relative min-h-screen">
+    <div className="flex flex-col gap-6 px-4 pb-28 relative min-h-screen w-full">
        <div className="grid grid-cols-3 gap-3 mt-4">
            <div className="flex flex-col items-center justify-center p-3 rounded-xl bg-surface-dark border border-white/5 shadow-sm">
               <span className="text-primary text-2xl font-bold leading-none">{formatModifier(spellMod)}</span>

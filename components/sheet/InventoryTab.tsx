@@ -4,6 +4,9 @@ import { createPortal } from 'react-dom';
 import { Character, InventoryItem, ItemData, WeaponData, ArmorData, Ability } from '../../types';
 import { ALL_ITEMS, MASTERY_DESCRIPTIONS, MAGIC_ITEMS } from '../../Data/items';
 import { getItemData, getFinalStats } from '../../utils/sheetUtils';
+import { useResponsive } from '../../hooks/useResponsive';
+import TabletInventoryGrid from './TabletInventoryGrid';
+import TabletPotionBelt from './TabletPotionBelt';
 
 interface InventoryTabProps {
     character: Character;
@@ -18,6 +21,9 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
     const [previewItemName, setPreviewItemName] = useState<string | null>(null);
     const [enchantmentLevel, setEnchantmentLevel] = useState<number>(0);
     const [selectedStat, setSelectedStat] = useState<Ability | 'Default'>('Default');
+
+    // Tablet responsive
+    const { isTablet } = useResponsive();
 
     const inventory = character.inventory || [];
 
@@ -297,7 +303,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
     };
 
     return (
-    <div className="flex flex-col gap-5 px-4 pb-20">
+    <div className="flex flex-col gap-5 px-4 pb-20 w-full">
        <div className="pt-4 shrink-0 flex flex-col gap-4">
            {/* Info Bar: Weight & Attunement */}
            <div className="grid grid-cols-2 gap-3">
@@ -376,7 +382,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                <span className="material-symbols-outlined text-sm text-primary animate-pulse">healing</span>
            </div>
            
-           <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-1 px-1">
+           <TabletPotionBelt isTablet={isTablet}>
                {!isReadOnly && (
                    <button 
                        onClick={() => {
@@ -426,7 +432,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
                        )}
                    </div>
                )})}
-           </div>
+           </TabletPotionBelt>
 {quickPotions.length === 0 && !isReadOnly && (
                <p className="text-[10px] italic text-slate-400 px-1">Tu cinturón está vacío. Agrega pociones para verlas aquí.</p>
            )}
@@ -435,11 +441,14 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
 
        {equippedItems.length > 0 && (<div className="flex flex-col gap-3">            <h3 className="text-slate-400 dark:text-slate-400 text-xs font-bold uppercase tracking-wider pl-1">Equipment ({equippedItems.length})</h3>{equippedItems.map(renderItemRow)}</div>)}
        
-       <div className="flex flex-col gap-3">
-            <h3 className="text-slate-400 dark:text-slate-400 text-xs font-bold uppercase tracking-wider pl-1">Backpack ({backpackItems.length})</h3>
-            {backpackItems.length === 0 && (<div className="p-4 text-center border border-dashed border-slate-200 dark:border-white/5 rounded-xl"><p className="text-sm text-slate-400 italic">Your backpack is empty.</p></div>)}
-           {backpackItems.map(renderItemRow)}
-       </div>
+       <TabletInventoryGrid
+           items={backpackItems}
+           isTablet={isTablet}
+           renderItemRow={renderItemRow}
+           categoryTitle={`Backpack (${backpackItems.length})`}
+           isEmpty={backpackItems.length === 0}
+           emptyMessage={<div className="p-4 text-center border border-dashed border-slate-200 dark:border-white/5 rounded-xl"><p className="text-sm text-slate-400 italic">Your backpack is empty.</p></div>}
+       />
 
        {showAddItem && createPortal(
            <div className="fixed inset-0 z-50 bg-background-light dark:bg-background-dark flex flex-col p-4 animate-fadeIn pt-[env(safe-area-inset-top)]">

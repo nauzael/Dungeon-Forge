@@ -525,7 +525,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
     };
 
     return (
-        <div className="px-4 pb-20">
+        <div className="px-4 pb-20 w-full">
             <div className="grid grid-cols-5 gap-2 my-4">
                 {[
                     { id: 'AC' as const, icon: "shield", label: "AC", value: armorClass, color: "text-primary" },

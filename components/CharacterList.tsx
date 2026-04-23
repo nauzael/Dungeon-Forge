@@ -3,6 +3,7 @@ import React, { useState, useRef, useMemo, memo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Character } from '../types';
 import { UI } from '../constants/ui';
+import { useResponsive } from '../hooks/useResponsive';
 const t = UI;
 
 interface CharacterListProps {
@@ -159,6 +160,8 @@ CharacterCard.displayName = 'CharacterCard';
 const CharacterList: React.FC<CharacterListProps> = memo(({ characters, onCreate, onSelect, onDelete, onExport, onImport, onLogout, onOpenDMDashboard }) => {
   const [appVersion, setAppVersion] = useState<string>('1.0.0');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { orientation } = useResponsive();
+  const isLandscape = orientation === 'landscape';
 
   // Obtener versión de la app
   useEffect(() => {
@@ -178,8 +181,8 @@ const CharacterList: React.FC<CharacterListProps> = memo(({ characters, onCreate
   [characters, onSelect, onDelete]);
 
   return (
-    <div className="flex flex-col h-full min-h-screen relative leather-bg overflow-x-hidden safe-top">
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_0%,transparent_0%,rgba(15,23,41,0.8)_100%)]"></div>
+    <div className={`flex flex-col h-full min-h-screen relative overflow-x-hidden safe-top ${isLandscape ? 'bg-black' : 'leather-bg'}`}>
+      <div className={`fixed inset-0 pointer-events-none ${isLandscape ? 'bg-[radial-gradient(ellipse_at_50%_30%,rgba(30,58,138,0.4)_0%,transparent_30%),radial-gradient(circle_at_20%_50%,rgba(180,0,0,0.15)_0%,transparent_25%),radial-gradient(circle_at_80%_60%,rgba(100,30,150,0.2)_0%,transparent_30%),linear-gradient(135deg,rgba(5,15,35,0.95)_0%,rgba(15,23,41,0.92)_50%,rgba(8,20,40,0.95)_100%)]' : 'bg-[radial-gradient(circle_at_50%_0%,transparent_0%,rgba(15,23,41,0.8)_100%)]'}`}></div>
 
       <input 
         type="file" 
@@ -189,18 +192,19 @@ const CharacterList: React.FC<CharacterListProps> = memo(({ characters, onCreate
         accept=".json" 
       />
 
-      <main className="flex-1 pb-10 px-5 w-full mx-auto relative pt-8 max-w-lg">
-        <div className="text-center space-y-2 relative mb-10">
+      <main className="flex-1 pb-10 px-4 w-full mx-auto relative pt-8">
+        <div className="text-center space-y-2 relative mb-10 max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-white app-title-glow" style={{fontVariant: 'small-caps'}}>
             Dungeon Forge
           </h1>
           <div className="h-px w-24 bg-gradient-to-r from-transparent via-[#9adbff]/30 to-transparent mx-auto mt-3"></div>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto mb-10">
           {characterCards}
+        </div>
 
-          <div className="flex flex-col items-center justify-center py-6 gap-4">
+        <div className="flex flex-col items-center justify-center py-6 gap-4 max-w-7xl mx-auto">
             <button 
               onClick={onCreate}
               className="group relative flex items-center gap-4 px-6 py-3 rounded-full bg-[#1b1f2b] border border-[#9adbff]/20 shadow-2xl hover:bg-[#252a3a] hover:border-[#9adbff]/40 transition-all active:scale-95 overflow-hidden"
@@ -222,9 +226,9 @@ const CharacterList: React.FC<CharacterListProps> = memo(({ characters, onCreate
               <span className="relative z-10 text-sm font-black text-white tracking-[0.2em] uppercase">DM Panel</span>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
             </button>
-          </div>
+        </div>
 
-          <div className="mt-6 pt-6 border-t border-white/5">
+        <div className="mt-6 pt-6 border-t border-white/5 max-w-7xl mx-auto">
             <div className="text-center mb-4">
               <span className="text-[10px] text-white/30 font-mono">
                 v{appVersion}
@@ -238,7 +242,6 @@ const CharacterList: React.FC<CharacterListProps> = memo(({ characters, onCreate
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500/40 group-hover:text-red-500/80">{t.logout}</span>
             </button>
           </div>
-        </div>
       </main>
     </div>
   );
