@@ -1227,7 +1227,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
 
             {/* Quick Actions Bar */}
             {!isReadOnly && (
-                <div className={isTabletLandscape ? 'fixed bottom-0 left-0 w-[30%] p-3 z-30 safe-area-inset-bottom' : 'sticky bottom-0 left-0 right-0 p-4 z-10 safe-area-inset-bottom'}>
+                <div className={isTabletLandscape ? 'p-3 mt-4' : 'sticky bottom-0 left-0 right-0 p-4 z-10 safe-area-inset-bottom'}>
                     <div className="bg-white dark:bg-surface-dark rounded-3xl shadow-lg border border-slate-200 dark:border-white/5 p-4">
                         <div className="grid grid-cols-2 gap-3">
                             {/* Level Up */}

@@ -660,7 +660,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
                 </div>
               </div>
               
-              <div className={`flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar w-full ${isTablet ? 'pb-40' : ''}`} style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
+              <div className="flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar w-full" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
                 <div className="p-3 w-full">
                   <CombatTab
                     character={character}
