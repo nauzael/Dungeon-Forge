@@ -26,21 +26,31 @@
 <table>
   <tr>
     <td align="center">
-      <img src="docs/screenshots/01-login.png" width="280" alt="Login screen with epic dungeon background"/>
-      <br/><sub><b>🔐 Login — Powered by Google OAuth</b></sub>
+      <img src="docs/screenshots/01-login.png" width="280" alt="Pantalla de login mobile con fondo epico de mazmorra"/>
+      <br/><sub><b>Login mobile (390px) - fondo epico de mazmorra, logo Dungeon Forge</b></sub>
     </td>
     <td align="center">
-      <img src="docs/screenshots/02-character-list.png" width="280" alt="Character list with stats overview"/>
-      <br/><sub><b>🧙 Character List — All your heroes at a glance</b></sub>
+      <img src="docs/screenshots/real-mobile-character-list.png" width="280" alt="Lista de personajes en mobile con Vermund"/>
+      <br/><sub><b>Lista de personajes - Vermund (Ranger Wood Elf Lv4) en mobile</b></sub>
     </td>
   </tr>
   <tr>
     <td align="center" colspan="2">
-      <img src="docs/screenshots/01-login-desktop.png" width="600" alt="Desktop view"/>
-      <br/><sub><b>🖥️ Desktop View — Full widescreen experience</b></sub>
+      <img src="docs/screenshots/real-mobile-vermund-sheet.png" width="280" alt="Hoja de personaje Vermund en mobile"/>
+      <br/><sub><b>Hoja de personaje Vermund - Combat tab con AC 17, Init +7, HP 32/32, hechizos</b></sub>
     </td>
   </tr>
 </table>
+
+<p align="center">
+  <img src="docs/screenshots/real-tablet-vermund-sheet.png" width="600" alt="Hoja de Vermund en tablet"/>
+  <br/><sub><b>Hoja de Vermund en tablet - vista dividida combat stats + spell list</b></sub>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/real-tablet-character-list.png" width="600" alt="Lista de personajes en tablet"/>
+  <br/><sub><b>Lista de personajes en tablet - Vermund y Torwil cards</b></sub>
+</p>
 
 </div>
 
