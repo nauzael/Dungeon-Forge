@@ -26,31 +26,41 @@
 <table>
   <tr>
     <td align="center">
-      <img src="docs/screenshots/01-login.png" width="280" alt="Pantalla de login mobile con fondo epico de mazmorra"/>
-      <br/><sub><b>Login mobile (390px) - fondo epico de mazmorra, logo Dungeon Forge</b></sub>
+      <img src="docs/screenshots/login.png" width="280" alt="Login"/>
+      <br/><sub><b>01. Login</b></sub>
     </td>
     <td align="center">
-      <img src="docs/screenshots/real-mobile-character-list.png" width="280" alt="Lista de personajes en mobile con Vermund"/>
-      <br/><sub><b>Lista de personajes - Vermund (Ranger Wood Elf Lv4) en mobile</b></sub>
+      <img src="docs/screenshots/char_select.jpeg" width="280" alt="Character select"/>
+      <br/><sub><b>02. Char Select</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/sheet_1.jpeg" width="280" alt="Sheet 1"/>
+      <br/><sub><b>03. Sheet 1</b></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/sheet_2.jpeg" width="280" alt="Sheet 2"/>
+      <br/><sub><b>04. Sheet 2</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/sheet_3.jpeg" width="280" alt="Sheet 3"/>
+      <br/><sub><b>05. Sheet 3</b></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/sheet_4.jpeg" width="280" alt="Sheet 4"/>
+      <br/><sub><b>06. Sheet 4</b></sub>
     </td>
   </tr>
   <tr>
     <td align="center" colspan="2">
-      <img src="docs/screenshots/real-mobile-vermund-sheet.png" width="280" alt="Hoja de personaje Vermund en mobile"/>
-      <br/><sub><b>Hoja de personaje Vermund - Combat tab con AC 17, Init +7, HP 32/32, hechizos</b></sub>
+      <img src="docs/screenshots/sheet_5.jpeg" width="280" alt="Sheet 5"/>
+      <br/><sub><b>07. Sheet 5</b></sub>
     </td>
   </tr>
 </table>
-
-<p align="center">
-  <img src="docs/screenshots/real-tablet-vermund-sheet.png" width="600" alt="Hoja de Vermund en tablet"/>
-  <br/><sub><b>Hoja de Vermund en tablet - vista dividida combat stats + spell list</b></sub>
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/real-tablet-character-list.png" width="600" alt="Lista de personajes en tablet"/>
-  <br/><sub><b>Lista de personajes en tablet - Vermund y Torwil cards</b></sub>
-</p>
 
 </div>
 
