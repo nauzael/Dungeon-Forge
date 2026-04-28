@@ -4,8 +4,7 @@
 const https = require('https');
 
 const SUPABASE_URL = 'https://usnlhzkpukkuwbtortil.supabase.co';
-const SERVICE_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzbmxoemtwdWtrdXdidG9ydGlsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDM2ODQ3NywiZXhwIjoyMDg5OTQ0NDc3fQ.QNSwwJ10U4UDiQiYQBci7GUxYM15w14vGgKqJnWvhJw';
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const sql = `
 CREATE TABLE IF NOT EXISTS party_resources (

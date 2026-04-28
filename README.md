@@ -1,177 +1,259 @@
-# Supabase CLI
+<div align="center">
 
-[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=develop)](https://coveralls.io/github/supabase/cli?branch=develop) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
-](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
+# ⚔️ Dungeon Forge
 
-[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
+### *Forge your destiny*
 
-This repository contains all the functionality for Supabase CLI.
+**Full-featured D&D 5e (2024) character management — web, PWA & mobile**
 
-- [x] Running Supabase locally
-- [x] Managing database migrations
-- [x] Creating and deploying Supabase Functions
-- [x] Generating types directly from your database schema
-- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Capacitor](https://img.shields.io/badge/Capacitor-6-119EFF?style=flat-square&logo=capacitor&logoColor=white)](https://capacitorjs.com)
+[![Supabase](https://img.shields.io/badge/Supabase-2-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
+[![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square&logo=pwa&logoColor=white)](#)
 
-## Getting started
+</div>
 
-### Install the CLI
+---
 
-Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
+## 📸 Screenshots
 
-```bash
-npm i supabase --save-dev
-```
+<div align="center">
 
-When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/01-login.png" width="280" alt="Login screen with epic dungeon background"/>
+      <br/><sub><b>🔐 Login — Powered by Google OAuth</b></sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/02-character-list.png" width="280" alt="Character list with stats overview"/>
+      <br/><sub><b>🧙 Character List — All your heroes at a glance</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <img src="docs/screenshots/01-login-desktop.png" width="600" alt="Desktop view"/>
+      <br/><sub><b>🖥️ Desktop View — Full widescreen experience</b></sub>
+    </td>
+  </tr>
+</table>
 
-```
-NODE_OPTIONS=--no-experimental-fetch yarn add supabase
-```
+</div>
 
-> **Note**
-For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
+---
 
-<details>
-  <summary><b>macOS</b></summary>
+## ✨ Features
 
-  Available via [Homebrew](https://brew.sh). To install:
+| Feature | Description |
+|---------|-------------|
+| 🧝 **12 D&D 5e 2024 Classes** | Barbarian, Bard, Cleric, Druid, Fighter, Monk, Paladin, Ranger, Rogue, Sorcerer, Warlock, Wizard |
+| 📋 **Full Character Sheet** | Stats, combat, inventory, spells (levels 0–9), class features & traits |
+| 🧙‍♂️ **5-Step Guided Creator** | Species → Class → Background → Abilities → Review |
+| ☁️ **Cloud Sync** | Real-time cross-device sync via Supabase |
+| 🎲 **DM Dashboard** | Dungeon Master view to track the whole party |
+| 📡 **OTA Updates** | Automatic over-the-air updates on mobile (no store re-publish) |
+| 📴 **Offline-Ready PWA** | Service worker for offline play |
+| 🔐 **Google OAuth** | Secure login via Supabase Auth |
+| ⚔️ **Multiclass Support** | Full multiclassing as per 2024 rules |
+| 🎨 **Class Avatars** | Unique illustrated avatar per class |
 
-  ```sh
-  brew install supabase/tap/supabase
-  ```
+---
 
-  To install the beta release channel:
-  
-  ```sh
-  brew install supabase/tap/supabase-beta
-  brew link --overwrite supabase-beta
-  ```
-  
-  To upgrade:
+## 🛠️ Tech Stack
 
-  ```sh
-  brew upgrade supabase
-  ```
-</details>
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Frontend | React | 19 |
+| Language | TypeScript (strict) | 5 |
+| Build | Vite | 5 |
+| Styling | Tailwind CSS | 3 |
+| Mobile | Capacitor | 6 |
+| Backend/Auth | Supabase | 2 |
+| OTA | @capgo/capacitor-updater | 6 |
+| Platforms | Web, Android, iOS | — |
 
-<details>
-  <summary><b>Windows</b></summary>
+---
 
-  Available via [Scoop](https://scoop.sh). To install:
+## 🚀 Quick Start
 
-  ```powershell
-  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
-  scoop install supabase
-  ```
+### Prerequisites
 
-  To upgrade:
+- Node.js 20+
+- npm 9+
+- A [Supabase](https://supabase.com) project (free tier works)
 
-  ```powershell
-  scoop update supabase
-  ```
-</details>
-
-<details>
-  <summary><b>Linux</b></summary>
-
-  Available via [Homebrew](https://brew.sh) and Linux packages.
-
-  #### via Homebrew
-
-  To install:
-
-  ```sh
-  brew install supabase/tap/supabase
-  ```
-
-  To upgrade:
-
-  ```sh
-  brew upgrade supabase
-  ```
-
-  #### via Linux packages
-
-  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
-
-  ```sh
-  sudo apk add --allow-untrusted <...>.apk
-  ```
-
-  ```sh
-  sudo dpkg -i <...>.deb
-  ```
-
-  ```sh
-  sudo rpm -i <...>.rpm
-  ```
-
-  ```sh
-  sudo pacman -U <...>.pkg.tar.zst
-  ```
-</details>
-
-<details>
-  <summary><b>Other Platforms</b></summary>
-
-  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
-
-  ```sh
-  go install github.com/supabase/cli@latest
-  ```
-
-  Add a symlink to the binary in `$PATH` for easier access:
-
-  ```sh
-  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
-  ```
-
-  This works on other non-standard Linux distros.
-</details>
-
-<details>
-  <summary><b>Community Maintained Packages</b></summary>
-
-  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
-  To install in your working directory:
-
-  ```bash
-  pkgx install supabase
-  ```
-
-  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
-</details>
-
-### Run the CLI
+### 1. Clone & Install
 
 ```bash
-supabase bootstrap
+git clone https://github.com/your-username/dungeon-forge.git
+cd dungeon-forge
+npm install
 ```
 
-Or using npx:
+### 2. Configure Environment
+
+Create a `.env` file in the project root:
+
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
+```
+
+> Get these values from your Supabase project dashboard → **Settings → API**.
+
+### 3. Run Dev Server
 
 ```bash
-npx supabase bootstrap
+npm run dev
+# → http://localhost:5173
 ```
 
-The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
+---
 
-## Docs
+## 📦 Build & Deploy
 
-Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
+### Web / PWA
 
-## Breaking changes
-
-We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
-
-However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
-
-## Developing
-
-To run from source:
-
-```sh
-# Go >= 1.22
-go run . help
+```bash
+npm run build
+# Output: dist/
 ```
+
+### Android APK
+
+```bash
+npm run build
+npx cap sync android
+cd android
+./gradlew assembleDebug
+# Output: android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+### OTA Release (mobile update without re-publish)
+
+```bash
+npm run ota
+```
+
+---
+
+## 📁 Project Structure
+
+```
+dungeon-forge/
+├── App.tsx                 # Root component & routing
+├── types.ts                # Shared TypeScript interfaces
+├── constants.ts            # App-wide constants
+├── index.css               # Global styles & CSS variables
+│
+├── components/             # React components
+│   ├── CharacterList.tsx   # Hero roster
+│   ├── CreatorSteps.tsx    # 5-step character creator
+│   ├── SheetTabs.tsx       # Character sheet tabs
+│   ├── DMDashboard.tsx     # Dungeon Master panel
+│   ├── Login.tsx           # Auth screen
+│   └── sheet/
+│       ├── CombatTab.tsx   # Combat stats & actions
+│       ├── SpellsTab.tsx   # Spell management
+│       └── LevelUpWizard/  # Level-up flow
+│
+├── Data/                   # D&D 5e 2024 data
+│   ├── classes/            # 12 class definitions
+│   ├── species/            # Species & traits
+│   ├── spells/             # Spells by level (0–9)
+│   ├── items.ts            # Equipment & items
+│   ├── feats.ts            # Feats catalog
+│   └── backgrounds.ts      # Backgrounds
+│
+├── hooks/                  # Custom React hooks
+├── utils/                  # Utility functions
+└── docs/screenshots/       # App screenshots
+```
+
+---
+
+## 🔑 Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VITE_SUPABASE_URL` | ✅ | Your Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | ✅ | Your Supabase anonymous public key |
+
+> ⚠️ Never commit your `.env` file. It is already in `.gitignore`.
+
+---
+
+## 🧑‍💻 Development Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Production build
+npm run preview      # Preview production build locally
+npm run lint         # Lint with ESLint
+npm run lint:fix     # Auto-fix lint errors
+npm run test         # Run unit tests (watch mode)
+npm run test:run     # Run unit tests once
+npm run test:coverage # Run tests with coverage report
+npm run ota          # Build + publish OTA update
+```
+
+---
+
+## 🗂️ D&D 5e 2024 Classes
+
+<div align="center">
+
+| ⚔️ Barbarian | 🎶 Bard | ✨ Cleric | 🌿 Druid |
+|:-----------:|:------:|:-------:|:------:|
+| 🗡️ Fighter | 👊 Monk | 🛡️ Paladin | 🏹 Ranger |
+| 🥷 Rogue | 🔮 Sorcerer | 👁️ Warlock | 📚 Wizard |
+
+</div>
+
+All classes include:
+- Subclass selection at appropriate levels
+- Full spell slots and spell lists (spellcasting classes)
+- Class-specific resources (Rage, Ki, Superiority Dice, etc.)
+- Multiclass support per 2024 rules
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m "feat: add amazing feature"`
+4. Push to your branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+Please ensure:
+- TypeScript strict mode is respected (no `any`)
+- Components stay under 500 lines
+- UI text is in Spanish (app language)
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+
+**D&D 5e content references** are used under fair use for a fan/companion tool.
+*Dungeons & Dragons* is a trademark of Wizards of the Coast LLC.
+
+<br/>
+
+Made with ❤️ for adventurers everywhere
+
+⚔️ *Roll for initiative*
+
+</div>

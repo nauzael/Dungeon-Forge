@@ -61,3 +61,59 @@ opencode-telegram-agent/node_modules/
 
 # Development
 .vite/
+
+# Secretos y credenciales
+AI_CONTEXT.md
+start-telegram-agent.bat
+
+# Archivos temporales de trabajo
+*.txt
+thoughts/
+.opencode/
+tmp/
+Libros/
+opencode-telegram-agent/
+
+# Android secrets
+android/local.properties
+android/app/google-services.json
+*.keystore
+*.jks
+
+# Documentos temporales de desarrollo
+PLAN-*.md
+GEM-TEAM-*.md
+SPEC-*.md
+OAUTH-FIX*.md
+CODE-CHANGES*.txt
+COMPILATION-*.txt
+COMPLETE-WORKFLOW*.txt
+DEFT-EXPLORER*.md
+FEATS-AUDIT*.md
+FINAL-DEPLOYMENT*.md
+IMPLEMENTATION*.txt
+IMPLEMENTATION*.md
+INSTALL-*.txt
+REORGANIZATION*.md
+TECHNICAL-*.md
+TECHNICAL-*.txt
+VERIFICATION-*.md
+MEMORY.md
+SKILLS_README.md
+skills-lock.json
+APK-READY*.txt
+DEVICE-VERIFICATION*.txt
+INSTALL-COMMAND*.txt
+PRE-INSTALL*.txt
+PROOF-OF-FIX*.txt
+QUICK-START*.txt
+README-APK*.txt
+SOLUTION-COMPLETE*.txt
+START-HERE*.txt
+capture-logs.js
+test-atlas.js
+test-hp*.js
+test-upload.js
+generate-*.cjs
+nul
+spells-extracted.json
