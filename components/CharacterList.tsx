@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { Character } from '../types';
 import { UI } from '../constants/ui';
 import { useResponsive } from '../hooks/useResponsive';
+import ThemeSelector from '../src/components/ThemeSelector';
 const t = UI;
 
 interface CharacterListProps {
@@ -159,6 +160,7 @@ CharacterCard.displayName = 'CharacterCard';
 
 const CharacterList: React.FC<CharacterListProps> = memo(({ characters, onCreate, onSelect, onDelete, onExport, onImport, onLogout, onOpenDMDashboard }) => {
   const [appVersion, setAppVersion] = useState<string>('1.0.0');
+  const [showThemeSelector, setShowThemeSelector] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { orientation } = useResponsive();
   const isLandscape = orientation === 'landscape';
@@ -204,45 +206,67 @@ const CharacterList: React.FC<CharacterListProps> = memo(({ characters, onCreate
           {characterCards}
         </div>
 
-        <div className="flex flex-col items-center justify-center py-6 gap-4 max-w-7xl mx-auto">
-            <button 
-              onClick={onCreate}
-              className="group relative flex items-center gap-4 px-6 py-3 rounded-full bg-[#1b1f2b] border border-[#9adbff]/20 shadow-2xl hover:bg-[#252a3a] hover:border-[#9adbff]/40 transition-all active:scale-95 overflow-hidden"
-            >
-              <div className="relative z-10 size-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:bg-primary/20 transition-colors">
-                <span className="material-symbols-outlined text-2xl text-[#9adbff]">swords</span>
-              </div>
-              <span className="relative z-10 text-sm font-black text-white tracking-[0.2em] uppercase">Bind New Soul</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-            </button>
+  <div className="flex flex-col items-center justify-center py-6 gap-4 max-w-7xl mx-auto">
+    <button
+      onClick={onCreate}
+      className="group relative flex items-center gap-4 px-6 py-3 rounded-full bg-[#1b1f2b] border border-[#9adbff]/20 shadow-2xl hover:bg-[#252a3a] hover:border-[#9adbff]/40 transition-all active:scale-95 overflow-hidden"
+    >
+      <div className="relative z-10 size-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:bg-primary/20 transition-colors">
+        <span className="material-symbols-outlined text-2xl text-[#9adbff]">swords</span>
+      </div>
+      <span className="relative z-10 text-sm font-black text-white tracking-[0.2em] uppercase">Bind New Soul</span>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+    </button>
 
-            <button 
-              onClick={onOpenDMDashboard}
-              className="group relative flex items-center gap-4 px-6 py-3 rounded-full bg-[#1b1f2b] border border-blue-500/20 shadow-2xl hover:bg-[#252a3a] hover:border-blue-500/40 transition-all active:scale-95 overflow-hidden"
-            >
-              <div className="relative z-10 size-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
-                <span className="material-symbols-outlined text-2xl text-blue-400">monitoring</span>
-              </div>
-              <span className="relative z-10 text-sm font-black text-white tracking-[0.2em] uppercase">DM Panel</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-            </button>
-        </div>
+    <button
+      onClick={onOpenDMDashboard}
+      className="group relative flex items-center gap-4 px-6 py-3 rounded-full bg-[#1b1f2b] border border-blue-500/20 shadow-2xl hover:bg-[#252a3a] hover:border-blue-500/40 transition-all active:scale-95 overflow-hidden"
+    >
+      <div className="relative z-10 size-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
+        <span className="material-symbols-outlined text-2xl text-blue-400">monitoring</span>
+      </div>
+      <span className="relative z-10 text-sm font-black text-white tracking-[0.2em] uppercase">DM Panel</span>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+    </button>
 
-        <div className="mt-6 pt-6 border-t border-white/5 max-w-7xl mx-auto">
-            <div className="text-center mb-4">
-              <span className="text-[10px] text-white/30 font-mono">
-                v{appVersion}
-              </span>
-            </div>
-            <button 
-              onClick={onLogout}
-              className="w-full h-12 flex items-center justify-center gap-3 rounded-xl bg-red-500/5 border border-red-500/10 hover:bg-red-500/10 hover:border-red-500/20 transition-all active:scale-95 group"
-            >
-              <span className="material-symbols-outlined text-lg text-red-500/40 group-hover:text-red-500/80">logout</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500/40 group-hover:text-red-500/80">{t.logout}</span>
-            </button>
-          </div>
-      </main>
+    <button
+      onClick={() => setShowThemeSelector(true)}
+      className="group relative flex items-center gap-4 px-6 py-3 rounded-full bg-[#1b1f2b] border border-purple-500/20 shadow-2xl hover:bg-[#252a3a] hover:border-purple-500/40 transition-all active:scale-95 overflow-hidden"
+    >
+      <div className="relative z-10 size-10 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:bg-purple-500/20 transition-colors">
+        <span className="material-symbols-outlined text-2xl text-purple-400">palette</span>
+      </div>
+      <span className="relative z-10 text-sm font-black text-white tracking-[0.2em] uppercase">Temas</span>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+    </button>
+  </div>
+
+  <div className="mt-6 pt-6 border-t border-white/5 max-w-7xl mx-auto">
+    <div className="flex items-center justify-between mb-4">
+      <span className="text-[10px] text-white/30 font-mono">
+        v{appVersion}
+      </span>
+      <button
+        onClick={() => setShowThemeSelector(true)}
+        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-highlight/50 hover:bg-surface-highlight transition-colors group"
+        title="Cambiar tema"
+      >
+        <span className="material-symbols-outlined text-base text-[#9adbff] group-hover:text-white transition-colors">palette</span>
+        <span className="text-[9px] font-black uppercase tracking-[0.15em] text-[#9adbff] group-hover:text-white">
+          Tema
+        </span>
+      </button>
+    </div>
+    <button
+      onClick={onLogout}
+      className="w-full h-12 flex items-center justify-center gap-3 rounded-xl bg-red-500/5 border border-red-500/10 hover:bg-red-500/10 hover:border-red-500/20 transition-all active:scale-95 group"
+    >
+      <span className="material-symbols-outlined text-lg text-red-500/40 group-hover:text-red-500/80">logout</span>
+      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500/40 group-hover:text-red-500/80">{t.logout}</span>
+    </button>
+  </div>
+  {showThemeSelector && <ThemeSelector onClose={() => setShowThemeSelector(false)} />}
+</main>
     </div>
   );
 });

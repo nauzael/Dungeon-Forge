@@ -1,0 +1,65 @@
+{
+  "name": "Dungeon Forge - Gem-Team Auto-Activation",
+  "version": "1.0.0",
+  "description": "Auto-activate Gem-Team for Dungeon Forge development",
+  
+  "agents": {
+    "default": "gem-orchestrator",
+    "autoActivate": true,
+    "autoActivateOnStartup": false,
+    "verbose": true,
+    "fallback": "claude"
+  },
+  
+  "commands": {
+    "plan": "Gem Team: Plan Implementation",
+    "implement": "Gem Team: Implement",
+    "review": "Gem Team: Review",
+    "debug": "Gem Team: Debug",
+    "test": "Gem Team: Test"
+  },
+  
+  "paths": {
+    "agents": "tools/gem-team/agents",
+    "specs": "docs/SPECS",
+    "plans": "docs/PROGRESS",
+    "source": "src",
+    "tests": "tests"
+  },
+  
+  "rules": {
+    "autoActivateOnNewFeature": true,
+    "autoActivateOnBugReport": true,
+    "autoActivateOnRefactor": true,
+    "autoActivateOnPerformance": true,
+    "requirePlanBeforeImplementation": true,
+    "requireTestsBeforeCode": true,
+    "requireReviewBeforeCommit": true
+  },
+  
+  "multiclass": {
+    "enabled": true,
+    "specFile": "docs/SPECS/MULTICLASS-SPEC.md",
+    "planFile": "PLAN-MULTICLASS-IMPLEMENTATION.md",
+    "autoUsePlanForTasks": true
+  },
+  
+  "security": {
+    "scanSecrets": true,
+    "scanPII": true,
+    "requireApprovalGates": true
+  },
+  
+  "verification": {
+    "typeCheck": true,
+    "eslint": true,
+    "tests": true,
+    "coverage": true
+  },
+  
+  "shortcuts": {
+    "gem-multiclass": "Plan and implement D&D 5e multiclass system",
+    "gem-quick-plan": "Quick 5-minute planning session",
+    "gem-full-spec": "Complete specification-driven development"
+  }
+}
