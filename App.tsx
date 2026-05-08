@@ -6,24 +6,24 @@ import CharacterList from './components/CharacterList';
 import Login from './components/Login';
 import { migrateCharacters } from './utils/characterMigrations';
 import { useResponsive } from './hooks/useResponsive';
-
-import { 
-    supabase, 
-    saveCharacterToCloud, 
-    fetchCharactersFromCloud, 
-    subscribeToParty, 
-    broadcastCharacterUpdate,
-    softDeleteCharacter 
+import {
+  supabase,
+  saveCharacterToCloud,
+  fetchCharactersFromCloud,
+  subscribeToParty,
+  broadcastCharacterUpdate,
+  softDeleteCharacter
 } from './utils/supabase';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
+import { ThemeProvider } from './src/contexts/ThemeContext';
 
 const CreatorSteps = lazy(() => import('./components/CreatorSteps'));
 const SheetTabs = lazy(() => import('./components/SheetTabs'));
 const DMDashboard = lazy(() => import('./components/DMDashboard'));
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [view, setView] = useState<ViewState>('list');
   const [sharedResource, setSharedResource] = useState<SharedResourceEvent | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -712,3 +712,15 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+/**
+ * App Wrapper with ThemeProvider
+ * Envuelve la app con el proveedor de temas
+ */
+const App: React.FC = () => {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+};

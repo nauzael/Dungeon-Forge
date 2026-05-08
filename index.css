@@ -3,10 +3,43 @@
 @tailwind utilities;
 
 :root {
+  /* Safe area variables para móviles */
   --sat: calc(env(safe-area-inset-top) / 2);
   --sar: env(safe-area-inset-right);
   --sab: env(safe-area-inset-bottom);
   --sal: env(safe-area-inset-left);
+  
+  /* Variables de tema por defecto (fallback si JS no ha cargado) */
+  --color-background: #0F172A;
+  --color-background-secondary: #1E293B;
+  --color-surface: #1E293B;
+  --color-surface-highlight: #334155;
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #E2E8F0;
+  --color-text-muted: #94A3B8;
+  --color-primary: #359EFF;
+  --color-primary-dark: #2B7DE0;
+  --color-secondary: #64748B;
+  --color-accent: #9ADBFF;
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+  --color-border: rgba(154, 219, 255, 0.1);
+  --color-border-hover: rgba(154, 219, 255, 0.2);
+  
+  /* Tipografía */
+  --font-family-display: 'Spline Sans', sans-serif;
+  --font-family-body: 'Noto Sans', sans-serif;
+  --font-size-base: 0.875rem;
+  --line-height-base: 1.5;
+  
+  /* Forma */
+  --border-radius: 0.25rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+  --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
 }
 
 .safe-top { padding-top: var(--sat); }
@@ -16,7 +49,11 @@
 
 body {
   min-height: 100vh;
-  background-color: #0f1729;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
   overscroll-behavior-y: none;
 }
 
@@ -47,27 +84,27 @@ select::-ms-expand {
   display: none;
 }
 
-/* Dungeon Forge Stitch UI Utilities */
+/* Dungeon Forge Stitch UI Utilities - Actualizados con variables de tema */
 .leather-bg {
-    background-color: #0f1729;
-    background-image: 
-        radial-gradient(circle at 50% 0%, rgba(154, 219, 255, 0.05) 0%, transparent 50%),
-        url("https://lh3.googleusercontent.com/aida-public/AB6AXuAtlmpW9OmtvfbfCmLJo1AmjJ67NDIE0H4uXA3IeQ56LKmxLxatsb3SeAwLLjMAe625i24Hwiq3wxwtU2nH2U32MHMLkBkF2AaTkKZPgiZT1ex9roAqDlt_WZJz9sWWUSEZI86oII4liP3W4ukLdt_mpzOy0i33AjkvodEMcXUozVCMc7-DJ4_xU0rP7z6qdUHDtsMt9dGpj8bDI1UswGKbc5P-JRQaYQqkiVcHdvsfXhUYx59McUEq1tvok1yE_XlIbxMlpYrLS23B");
-    background-blend-mode: overlay;
+  background-color: var(--color-background);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(154, 219, 255, 0.05) 0%, transparent 50%),
+    url("https://lh3.googleusercontent.com/aida-public/AB6AXuAtlmpW9OmtvfbfCmLJo1AmjJ67NDIE0H4uXA3IeQ56LKmxLxatsb3SeAwLLjMAe625i24Hwiq3wxwtU2nH2U32MHMLkBkF2AaTkKZPgiZT1ex9roAqDlt_WZJz9sWWUSEZI86oII4liP3W4ukLdt_mpzOy0i33AjkvodEMcXUozVCMc7-DJ4_xU0rP7z6qdUHDtsMt9dGpj8bDI1UswGKbc5P-JRQaYQqkiVcHdvsfXhUYx59McUEq1tvok1yE_XlIbxMlpYrLS23B");
+  background-blend-mode: overlay;
 }
 
 .gold-shimmer {
-    background: linear-gradient(135deg, #9adbff 0%, #4fc3f7 50%, #9adbff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  background: linear-gradient(135deg, #9adbff 0%, #4fc3f7 50%, #9adbff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .iron-border {
-    box-shadow: inset 0 0 0 1px rgba(154, 219, 255, 0.1), 0 0 20px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 0 1px var(--color-border), 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .app-title-glow {
-    text-shadow: 0 0 20px rgba(154, 219, 255, 0.3), 0 0 40px rgba(154, 219, 255, 0.1);
+  text-shadow: 0 0 20px rgba(154, 219, 255, 0.3), 0 0 40px rgba(154, 219, 255, 0.1);
 }
 
 @keyframes fadeIn {

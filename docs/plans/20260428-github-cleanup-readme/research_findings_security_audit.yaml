@@ -1,0 +1,325 @@
+plan_id: "20260428-github-cleanup-readme"
+objective: "Auditar el repositorio de Dungeon Forge para seguridad, limpieza y README"
+focus_area: "security audit, .gitignore, project description, assets"
+created_at: "2026-04-28"
+created_by: "gem-researcher"
+status: completed
+
+tldr: |
+  - CRÍTICO: 3 secretos reales hardcodeados en archivos rastreados por git (SERVICE_KEY, ANON_KEY, TELEGRAM_BOT_TOKEN)
+  - Archivos afectados: scripts/run_migration.js, AI_CONTEXT.md, start-telegram-agent.bat
+  - .gitignore existe y cubre .env, dist, node_modules, ota-release — pero NO cubre los archivos con secretos
+  - README.md actual es el README del CLI de Supabase (no tiene nada que ver con el proyecto)
+  - 30+ archivos .txt/.md temporales en la raíz del repo que no deberían estar en GitHub público
+  - Assets de imágenes disponibles: avatares por clase, iconos de app, login_bg.png
+
+research_metadata:
+  methodology: "grep_search para secretos, file_search para estructura, read_file para contenido"
+  scope: "Raíz del repo, scripts/, supabase/, android/, assets/, public/"
+  confidence: high
+  coverage: 90
+  decision_blockers: 1
+  research_blockers: 0
+
+# ==============================================================================
+# SECCIÓN 1: SECRETOS Y ARCHIVOS SENSIBLES (CRÍTICO)
+# ==============================================================================
+secrets_found:
+  - severity: CRITICAL
+    file: "scripts/run_migration.js"
+    line: 6-8
+    type: "Supabase Service Role Key (JWT) + URL hardcodeados"
+    value_preview: "SUPABASE_URL=https://usnlhzkpukkuwbtortil.supabase.co | SERVICE_KEY=eyJhbGci..."
+    risk: "El service role key tiene acceso completo a la BD bypaseando RLS. Cualquiera que acceda al repo puede leer/escribir/borrar toda la base de datos."
+    action: "ELIMINAR el archivo O reemplazar con process.env. Rotar la key en Supabase Dashboard inmediatamente si el repo es/fue público."
+
+  - severity: CRITICAL
+    file: "AI_CONTEXT.md"
+    lines: 24-31
+    type: "Supabase ANON Key + Service Role Key hardcodeados"
+    value_preview: "VITE_SUPABASE_ANON_KEY=eyJ... | SUPABASE_SERVICE_KEY=eyJ..."
+    risk: "Contiene AMBAS keys (anon + service role). Diseñado como 'referencia de credenciales reales' para IA — extremadamente peligroso en un repo público."
+    action: "ELIMINAR del repo o reemplazar valores con placeholders. Añadir a .gitignore."
+
+  - severity: CRITICAL
+    file: "start-telegram-agent.bat"
+    lines: 29-31
+    type: "Telegram Bot Token + Supabase Service Role Key hardcodeados"
+    value_preview: "TELEGRAM_BOT_TOKEN=8682922559:AAFr... | SUPABASE_SERVICE_ROLE_KEY=eyJ..."
+    risk: "El Telegram Bot Token permite controlar el bot completamente (enviar mensajes, leer updates). El service role key como bonus."
+    action: "ELIMINAR credenciales reales del script. Usar variables de entorno. Rotar el token del bot en @BotFather."
+
+  - severity: LOW
+    file: "android/local.properties"
+    line: 1
+    type: "Ruta local del SDK de Android"
+    value_preview: "sdk.dir=C:/Users/Nauzael/AppData/Local/Android/Sdk"
+    risk: "Solo revela una ruta de usuario local — no es un secreto, pero tampoco debería estar en git."
+    action: "Añadir android/local.properties a .gitignore (ya está cubierto en algunos proyectos Capacitor pero aquí no aparece)."
+
+# ==============================================================================
+# SECCIÓN 2: ESTADO ACTUAL DEL .gitignore
+# ==============================================================================
+gitignore_analysis:
+  file_exists: true
+  path: "g:\\Apks\\Dungeon Forge\\.gitignore"
+  current_coverage:
+    - ".env, .env.local, .env.*.local"  # ✅ Variables de entorno
+    - "node_modules/"                    # ✅ Dependencias
+    - "dist/, build/"                    # ✅ Outputs
+    - "ota-release/"                     # ✅ OTA builds
+    - "android/build/, android/.gradle/" # ✅ Android builds
+    - ".vscode/, .idea/"                 # ✅ IDEs
+    - "supabase/.temp/"                  # ✅ Supabase temp
+
+  missing_entries:
+    - "android/local.properties"         # ❌ Ruta local del usuario
+    - "AI_CONTEXT.md"                    # ❌ Contiene credenciales reales
+    - "*.bat (específicamente start-telegram-agent.bat)" # ❌ Contiene tokens
+    - "scripts/run_migration.js"         # ❌ Contiene service key
+    - "docs/Criticos.docx"               # ❌ Documento con nombre sospechoso
+    - "docs/Pifias.docx"                 # ❌ Documento con nombre sospechoso
+    - "docs/*.pdf"                       # ❌ PDFs de libros de D&D (posible copyright)
+    - ".opencode/"                       # ❌ Herramienta de desarrollo interna
+    - "thoughts/"                        # ❌ Notas de desarrollo/diseño internas
+
+# ==============================================================================
+# SECCIÓN 3: README ACTUAL
+# ==============================================================================
+readme_analysis:
+  file_exists: true
+  path: "g:\\Apks\\Dungeon Forge\\README.md"
+  content_summary: "El README.md actual es una copia del README del repositorio oficial de Supabase CLI (supabase/cli). NO describe el proyecto Dungeon Forge en absoluto. Empieza con 'Supabase CLI' y describe cómo instalar el CLI de Supabase."
+  verdict: "REEMPLAZAR COMPLETAMENTE — es el README equivocado."
+  sections_needed_for_new_readme:
+    - "Nombre + descripción del proyecto"
+    - "Screenshot o GIF de la app"
+    - "Features principales"
+    - "Tech stack"
+    - "Requisitos"
+    - "Setup / instalación"
+    - "Variables de entorno (con .env.example)"
+    - "Comandos útiles"
+    - "Estructura del proyecto"
+    - "Contribución (opcional)"
+    - "Licencia"
+
+# ==============================================================================
+# SECCIÓN 4: PACKAGE.JSON — INFO CLAVE
+# ==============================================================================
+package_json:
+  name: "dnd-companion-2024"
+  version: "1.0.0"
+  private: true
+  description: "(no description field)"
+  main_dependencies:
+    - "@capacitor/android: ^6.0.0"
+    - "@capacitor/core: ^6.0.0"
+    - "@capgo/capacitor-updater: ^6.0.0 (OTA updates)"
+    - "@supabase/supabase-js: ^2.100.0"
+    - "react: ^19.0.0"
+    - "react-dom: ^19.0.0"
+    - "browser-image-compression: ^2.0.2"
+  dev_dependencies_notable:
+    - "vite: ^5.2.11"
+    - "typescript: ^5.4.5"
+    - "tailwindcss: ^3.4.4"
+    - "vitest: ^4.1.2"
+    - "@playwright/test: ^1.59.1"
+  scripts:
+    dev: "vite"
+    build: "vite build"
+    ota: "npm run build && node scripts/build_ota.mjs"
+    test: "vitest"
+  note: "El nombre del paquete es 'dnd-companion-2024', pero el app name en capacitor.config.json es 'Dungeon Forge'"
+
+# ==============================================================================
+# SECCIÓN 5: ASSETS E IMÁGENES
+# ==============================================================================
+assets_inventory:
+  app_icons:
+    location: "public/"
+    files:
+      - "icon.png, icon.svg"
+      - "icon-192.png, icon-512.png, icon-512.svg"
+      - "icon-android.svg, icon-minimal.svg"
+      - "login_bg.png (fondo de la pantalla de login)"
+      - "placeholder.svg"
+
+  character_avatars:
+    location: "assets/avatars/ y public/assets/avatars/"
+    files:
+      - "barbarian.png (+ barbarian_m.png, barbarian_f.png en public/)"
+      - "bard.png (+ bard_m.png, bard_f.png)"
+      - "cleric.png (+ cleric_m.png, cleric_f.png)"
+      - "druid_m.png, druid_f.png (solo en public/)"
+      - "fighter.png (+ fighter_m.png)"
+      - "ranger.png"
+      - "rogue.png"
+      - "warlock.png"
+      - "wizard.png"
+    note: "Hay duplicación entre assets/ y public/assets/avatars/ — solo public/ debería servirse en web"
+
+  project_icon:
+    location: "docs/Icono.png"
+    description: "Icono del proyecto en carpeta docs"
+
+  screenshots:
+    available: false
+    note: "NO hay screenshots de la app en ninguna carpeta. Solo avatares y assets de UI. Para el README se necesitarían capturas reales de la app."
+
+  android_splash_screens:
+    location: "android/app/src/main/res/drawable-*/"
+    note: "Splash screens para múltiples densidades de pantalla Android"
+
+# ==============================================================================
+# SECCIÓN 6: ARCHIVOS TEMPORALES/INNECESARIOS EN RAÍZ
+# ==============================================================================
+root_cleanup_candidates:
+  total_txt_files_in_root: 20
+  total_extra_md_files_in_root: 15
+  files_to_remove_or_gitignore:
+    high_priority:
+      - "⚡-COPY-PASTE-COMMANDS.txt"
+      - "👉-START-HERE.txt"
+      - "🔧-READ-ME-FIRST.txt"
+      - "APK-READY-TO-TEST.txt"
+      - "CODE-CHANGES-SUMMARY.txt"
+      - "COMPILATION-CHECKLIST.txt"
+      - "COMPLETE-WORKFLOW.txt"
+      - "DEVICE-VERIFICATION.txt"
+      - "FILE-GUIDE.txt"
+      - "GUIDES-INDEX.txt"
+      - "IMPLEMENTATION-COMPLETE.txt"
+      - "IMPLEMENTATION-VERIFIED.txt"
+      - "INSTALL-AND-TEST-APK.txt"
+      - "INSTALL-COMMAND.txt"
+      - "OAUTH-FIX-COMPLETION-CHECKLIST.txt"
+      - "OAUTH-FIX-QUICK-START.txt"
+      - "OAUTH-FIX-README.txt"
+      - "PRE-INSTALL-CHECKLIST.txt"
+      - "PROOF-OF-FIX.txt"
+      - "QUICK-START-OAUTH-TEST.txt"
+      - "README-APK-LISTO.txt"
+      - "SOLUTION-COMPLETE.txt"
+      - "START-HERE-OAUTH-FIX.txt"
+      - "START-HERE.txt"
+      - "TECHNICAL-SUMMARY.txt"
+      - "DEFT-EXPLORER-IMPLEMENTATION.md"
+      - "FEATS-AUDIT-2024.md"
+      - "FINAL-DEPLOYMENT-CHECKLIST.md"
+      - "GEM-TEAM-AUTO-ACTIVATE-COMPLETE.md"
+      - "GEM-TEAM-INSTALLED.md"
+      - "GEM-TEAM-QUICK-START.md"
+      - "IMPLEMENTATION-VERIFIED.txt"
+      - "OAUTH-FIX-GUIDE.md"
+      - "OAUTH-FIX-START-HERE.md"
+      - "PLAN-FILE-REORGANIZATION.md"
+      - "PLAN-MULTICLASS-IMPLEMENTATION.md"
+      - "REORGANIZATION-COMPLETE.md"
+      - "SKILLS_README.md"
+      - "SPEC-Level-Reset-System.md"
+      - "TECHNICAL-IMPLEMENTATION-PLAN-2026-04-09.md"
+      - "VERIFICATION-LEVEL-PROGRESSION-2026-04-09.md"
+      - "nul"  # archivo extraño (nombre de dispositivo en Windows)
+
+    keep_or_review:
+      - "AGENTS.md"        # Útil para agentes IA — puede quedar en repo privado
+      - "AI_CONTEXT.md"    # ELIMINAR — contiene credenciales reales
+      - "CHANGELOG.md"     # Útil para repo público
+      - "MEMORY.md"        # Notas de desarrollo — privado/opcional
+      - "README.md"        # REEMPLAZAR completamente
+
+  other_internal_folders_to_gitignore:
+    - "thoughts/"          # Notas de diseño internas
+    - ".opencode/"         # Herramienta de desarrollo interna
+    - "tmp/"               # Archivos temporales
+    - "Libros/"            # Probable material copyrightado
+    - "opencode-telegram-agent/"  # Herramienta interna de desarrollo
+
+# ==============================================================================
+# SECCIÓN 7: ESTRUCTURA DEL PROYECTO (para README)
+# ==============================================================================
+project_description_for_readme:
+  app_name: "Dungeon Forge"
+  tagline: "Character Sheet completa para D&D 5e (2024) — Web + Android"
+  platform: "PWA (Progressive Web App) + Android APK via Capacitor"
+  language: "Español (UI) / TypeScript"
+  app_id: "com.tupaquete.dndcompanion"
+
+  key_features:
+    - "Gestión completa de personajes D&D 5e (edición 2024)"
+    - "12 clases jugables con recursos y características específicas"
+    - "Sincronización en tiempo real entre jugadores y DM via Supabase"
+    - "Modo DM Dashboard para gestionar la partida"
+    - "Actualizaciones OTA (Over-The-Air) sin pasar por Play Store"
+    - "Modo offline con localStorage"
+    - "PWA instalable + APK Android"
+    - "Compendio de hechizos, dotes, equipo y razas"
+    - "Sistema de niveles con wizard de subida de nivel"
+    - "Soporte para multiclase"
+
+  tech_stack:
+    frontend: "React 19, TypeScript (strict), Tailwind CSS"
+    build: "Vite 5"
+    mobile: "Capacitor 6"
+    backend: "Supabase (Auth + Realtime + Storage)"
+    ota: "@capgo/capacitor-updater"
+
+  data_coverage:
+    classes: "12 clases (barbarian, bard, cleric, druid, fighter, monk, paladin, ranger, rogue, sorcerer, warlock, wizard)"
+    spells: "Niveles 0-9 (cantrips incluidos)"
+    backgrounds: "Trasfondos del PHB 2024"
+    feats: "Dotes del PHB 2024"
+    species: "Especies del PHB 2024"
+    items: "Equipo, armas, armaduras, objetos mágicos"
+
+  main_components:
+    - "App.tsx: Orquestador principal, autenticación, routing"
+    - "components/CharacterList.tsx: Lista y selección de personajes"
+    - "components/CreatorSteps.tsx: Wizard de creación (5 pasos)"
+    - "components/SheetTabs.tsx: Hoja de personaje con tabs"
+    - "components/sheet/CombatTab.tsx: Tab de combate (~1200 líneas)"
+    - "components/sheet/SpellsTab.tsx: Gestor de hechizos (~732 líneas)"
+    - "components/DMDashboard.tsx: Panel del Dungeon Master"
+    - "components/Login.tsx: Autenticación Google via Supabase"
+
+# ==============================================================================
+# SECCIÓN 8: PREGUNTAS ABIERTAS
+# ==============================================================================
+open_questions:
+  - question: "¿El repositorio es actualmente público en GitHub?"
+    context: "Si ya fue público con los secretos expuestos, es necesario rotar TODAS las keys de Supabase y el Telegram Bot Token inmediatamente, ya que GitHub guarda el historial."
+    type: decision_blocker
+    affects: ["security", "key_rotation"]
+
+  - question: "¿Hay screenshots reales de la app disponibles para el README?"
+    context: "No se encontraron screenshots en ninguna carpeta del repo. Sería necesario hacer capturas del navegador/emulador."
+    type: nice_to_know
+    affects: ["readme_quality"]
+
+  - question: "¿Qué carpetas/archivos internos deben moverse a .gitignore vs cuáles eliminar del historial de git?"
+    context: "Algunos archivos (AI_CONTEXT.md, start-telegram-agent.bat) ya podrían estar en el historial de git."
+    type: decision_blocker
+    affects: ["git_history_cleanup"]
+
+  - question: "¿La carpeta 'Libros/' contiene material con copyright de D&D?"
+    context: "Visible en el workspace listing. Si contiene PDFs de libros de Wizards of the Coast, no debe estar en un repo público."
+    type: decision_blocker
+    affects: ["legal", "github_cleanup"]
+
+gaps:
+  - area: "Screenshots de la app"
+    description: "No existen capturas de pantalla de la app funcionando en ninguna carpeta del repo"
+    impact: nice_to_know
+    affects: ["readme"]
+
+  - area: "Historial de git"
+    description: "No se auditó si los secretos ya fueron commiteados al historial. Si es así, git filter-branch o BFG Repo Cleaner serían necesarios."
+    impact: decision_blocker
+    affects: ["security"]
+
+  - area: "Licencia"
+    description: "Existe LICENSE pero no se leyó su contenido"
+    impact: nice_to_know
+    affects: ["readme"]

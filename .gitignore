@@ -117,3 +117,4 @@ test-upload.js
 generate-*.cjs
 nul
 spells-extracted.json
+.opencode
