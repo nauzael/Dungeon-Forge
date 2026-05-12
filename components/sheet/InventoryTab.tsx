@@ -70,7 +70,34 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
 
     const isPotion = (name: string) => {
         const n = name.toLowerCase();
-        return n.includes('potion') || n.includes('poción') || n.includes('pocion') || n.includes('philter') || n.includes('antitoxin') || n.includes('vial') || n.includes('oil of');
+        // Only include actual potions from the game, not related items like Acid (vial) or Oil (flask)
+        return (n.startsWith('potion') || n.includes('philter')) && !n.includes('oil') && !n.includes('acid') && !n.includes('alchemist');
+    };
+
+    // Detectar si un arma usa municiones y qué tipo
+    const getWeaponAmmoType = (weaponName: string): 'arrows' | 'bolts' | 'bullets' | 'needles' | null => {
+        const n = weaponName.toLowerCase();
+        if (n.includes('bow')) return 'arrows';
+        if (n.includes('crossbow')) return 'bolts';
+        if (n.includes('pistol') || n.includes('musket') || n.includes('firearm')) return 'bullets';
+        if (n.includes('blowgun')) return 'needles';
+        return null;
+    };
+
+    // Contar municiones disponibles para un arma específica
+    const getAmmunitionCount = (ammoType: string): number => {
+        return inventory
+            .filter(item => {
+                const n = item.name.toLowerCase();
+                switch (ammoType) {
+                    case 'arrows': return n.includes('arrows') || n.includes('arrow');
+                    case 'bolts': return n.includes('bolts') || n.includes('bolt');
+                    case 'bullets': return n.includes('bullets') || n.includes('bullet');
+                    case 'needles': return n.includes('needles') || n.includes('needle');
+                    default: return false;
+                }
+            })
+            .reduce((total, item) => total + item.quantity, 0);
     };
 
     const quickPotions = inventory.filter(i => isPotion(i.name));
@@ -169,15 +196,29 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
         const requiresAttunement = checkAttunement(item.name);
         const isEquippable = itemData.type === 'Weapon' || itemData.type === 'Armor' || isMagic;
         
+        // Check if weapon uses ammunition
+        const ammoType = itemData.type === 'Weapon' ? getWeaponAmmoType(item.name) : null;
+        const ammoCount = ammoType ? getAmmunitionCount(ammoType) : 0;
+        
         return (
         <div key={item.id} onClick={() => setSelectedItem(item)} className="group relative flex items-center gap-4 p-3 rounded-xl bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-white/5 shadow-sm active:scale-[0.99] transition-transform cursor-pointer">
             <div className={`size-12 rounded-lg flex items-center justify-center shrink-0 relative overflow-hidden ${item.equipped ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-black/40 text-slate-600 dark:text-white'}`}>
             <span className="material-symbols-outlined relative z-10">{itemData.type === 'Weapon' ? 'swords' : itemData.type === 'Armor' ? 'shield' : isMagic ? 'auto_awesome' : 'backpack'}</span>
+            {ammoType && item.equipped && (
+                <div className="absolute bottom-0 right-0 size-5 rounded-tl-lg bg-amber-400 text-slate-900 flex items-center justify-center text-[10px] font-black">
+                    {ammoCount > 99 ? '99+' : ammoCount}
+                </div>
+            )}
             </div>
             <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
                 <p className="text-slate-900 dark:text-white font-semibold truncate">{item.name}</p>
-                {item.quantity > 1 && <span className="text-xs text-slate-500">x{item.quantity}</span>}
+                {ammoType && item.equipped && (
+                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${ammoCount === 0 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : ammoCount < 20 ? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' : 'bg-green-500/20 text-green-600 dark:text-green-400'}`}>
+                        {ammoCount} {ammoType}
+                    </span>
+                )}
+                {item.quantity > 1 && !ammoType && <span className="text-xs text-slate-500">x{item.quantity}</span>}
                 {item.customStat && <span className="text-[10px] font-black text-primary bg-primary/10 px-1 rounded uppercase tracking-tighter">{item.customStat}</span>}
             </div>
             <div className="flex items-center gap-2 mt-0.5">
@@ -451,7 +492,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({ character, onUpdate, isRead
        />
 
        {showAddItem && createPortal(
-           <div className="fixed inset-0 z-50 bg-background-light dark:bg-background-dark flex flex-col p-4 animate-fadeIn pt-[env(safe-area-inset-top)]">
+           <div className="fixed inset-0 z-50 bg-background-light dark:bg-background-dark flex flex-col p-4 animate-fadeIn pt-[max(0.75rem,env(safe-area-inset-top))]">
                <div className="flex items-center gap-3 mb-4">
                    <button onClick={() => setShowAddItem(false)} className="size-10 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center"><span className="material-symbols-outlined">close</span></button>
                     <div className="flex-1 relative"><input autoFocus type="text" placeholder="Search items..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-slate-100 dark:bg-black/20 border-none rounded-xl py-2.5 pl-10 pr-4 outline-none focus:ring-2 ring-primary/50 dark:text-white"/><span className="material-symbols-outlined absolute left-3 top-2.5 text-slate-400">search</span></div>

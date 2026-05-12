@@ -160,21 +160,39 @@ const InitiativeTracker: React.FC<InitiativeTrackerProps> = ({ partyMembers, com
             placeholder="Name"
             value={newName}
             onChange={e => setNewName(e.target.value)}
-            className="flex-1 min-w-[100px] px-3 py-2 bg-white/10 rounded-lg text-white text-sm border border-white/10 focus:border-blue-500 outline-none"
+            className="flex-1 min-w-[100px] px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500"
+            style={{
+              backgroundColor: 'var(--color-background-secondary)',
+              borderColor: 'var(--color-border)',
+              borderWidth: '1px',
+              color: 'var(--color-text-primary)',
+            }}
           />
           <input
             type="number"
             placeholder="Init"
             value={newInit}
             onChange={e => setNewInit(e.target.value)}
-            className="w-16 px-2 py-2 bg-white/10 rounded-lg text-white text-sm border border-white/10 focus:border-blue-500 outline-none text-center"
+            className="w-16 px-2 py-2 rounded-lg text-sm outline-none text-center focus:border-blue-500"
+            style={{
+              backgroundColor: 'var(--color-background-secondary)',
+              borderColor: 'var(--color-border)',
+              borderWidth: '1px',
+              color: 'var(--color-text-primary)',
+            }}
           />
           <input
             type="number"
             placeholder="AC"
             value={newAC}
             onChange={e => setNewAC(e.target.value)}
-            className="w-14 px-2 py-2 bg-white/10 rounded-lg text-white text-sm border border-white/10 focus:border-blue-500 outline-none text-center"
+            className="w-14 px-2 py-2 rounded-lg text-sm outline-none text-center focus:border-blue-500"
+            style={{
+              backgroundColor: 'var(--color-background-secondary)',
+              borderColor: 'var(--color-border)',
+              borderWidth: '1px',
+              color: 'var(--color-text-primary)',
+            }}
           />
           <input
             type="number"

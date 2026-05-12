@@ -66,7 +66,7 @@ Double proficiency for two skill proficiencies.
 
 #### Level 2: Jack of All Trades
 
-Add half Proficiency Bonus (round down) to any ability check that doesn't use it.`
+You can add half your Proficiency Bonus (round down) to any ability check you make that uses a skill proficiency you lack and that doesn't otherwise use your Proficiency Bonus. For example, if you make a Strength (Athletics) check and lack Athletics proficiency, you can add half your Proficiency Bonus to the check.`
     },
     {
         id: 'cleric-2024',

@@ -260,7 +260,8 @@ export const removeFromParty = async (characterId: string) => {
 
     if (fError || !char) throw new Error('Personaje no encontrado');
 
-    const updatedData = { ...char.data, party_id: null };
+    // ✅ FIX: Actualizar syncTimestamp cuando se cambia party_id
+    const updatedData = { ...char.data, party_id: null, syncTimestamp: Date.now() };
 
     const { error: uError } = await supabase
       .from('characters')
@@ -272,6 +273,7 @@ export const removeFromParty = async (characterId: string) => {
       .eq('id', characterId);
 
     if (uError) throw uError;
+    console.log(`[removeFromParty] Character ${characterId} kicked, syncTimestamp updated to ${updatedData.syncTimestamp}`);
     return true;
   } catch (e) {
     console.error('Failed to remove from party:', e);

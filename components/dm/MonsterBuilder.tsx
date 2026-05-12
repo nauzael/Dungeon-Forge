@@ -371,7 +371,12 @@ const MonsterBuilder: React.FC<MonsterBuilderProps> = ({ playerLevels }) => {
   return (
     <div className="space-y-6">
       {/* Encounter Balance Card */}
-      <div className="bg-[#1e293b] rounded-3xl p-6 border border-white/5 shadow-2xl space-y-5">
+      <div className="rounded-3xl p-6 shadow-2xl space-y-5"
+        style={{
+          backgroundColor: 'var(--color-surface)',
+          borderColor: 'var(--color-border)',
+          borderWidth: '1px',
+        }}>
         <div className="flex flex-col items-center text-center space-y-1">
           <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">
             Tactical Budget
@@ -387,7 +392,12 @@ const MonsterBuilder: React.FC<MonsterBuilderProps> = ({ playerLevels }) => {
           {Object.entries(budgets).map(([diff, xp]) => (
             <div
               key={diff}
-              className={`flex flex-col items-center bg-black/20 rounded-xl p-2 border ${difficulty.toLowerCase() === diff.toLowerCase() ? 'border-blue-500/50 bg-blue-500/10' : 'border-white/5'}`}
+              className={`flex flex-col items-center rounded-xl p-2 ${difficulty.toLowerCase() === diff.toLowerCase() ? 'border-blue-500/50 bg-blue-500/10' : ''}`}
+              style={{
+                backgroundColor: 'var(--color-background-secondary)',
+                borderColor: difficulty.toLowerCase() === diff.toLowerCase() ? '#3B82F6' : 'var(--color-border)',
+                borderWidth: '1px',
+              }}
             >
               <span
                 className={`text-[7px] font-black uppercase ${difficulty.toLowerCase() === diff.toLowerCase() ? 'text-blue-400' : 'text-slate-500'}`}
@@ -410,7 +420,12 @@ const MonsterBuilder: React.FC<MonsterBuilderProps> = ({ playerLevels }) => {
               {currentTotalXP} ({difficulty})
             </span>
           </div>
-          <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5 shadow-inner">
+          <div className="h-3 w-full rounded-full overflow-hidden shadow-inner"
+            style={{
+              backgroundColor: 'var(--color-background-secondary)',
+              borderColor: 'var(--color-border)',
+              borderWidth: '1px',
+            }}>
             <div
               className={`h-full transition-all duration-700 ${difficulty === 'DEADLY' ? 'bg-red-500' : difficulty === 'HARD' ? 'bg-orange-500' : 'bg-emerald-500'}`}
               style={{ width: `${Math.min((currentTotalXP / (budgets.deadly || 1)) * 100, 100)}%` }}

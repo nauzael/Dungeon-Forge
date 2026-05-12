@@ -4,7 +4,7 @@
 
 :root {
   /* Safe area variables para móviles */
-  --sat: calc(env(safe-area-inset-top) / 2);
+  --sat: env(safe-area-inset-top);
   --sar: env(safe-area-inset-right);
   --sab: env(safe-area-inset-bottom);
   --sal: env(safe-area-inset-left);
@@ -69,7 +69,32 @@ body {
 }
 
 .material-symbols-outlined {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+  letter-spacing: -0.02em;
+  /* Optimize rendering on high-DPI screens (like Poco X6 Pro) */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Icon size variants for better rendering on different screen densities */
+.icon-xs {
+  font-size: 0.875rem; /* 14px - better than 10px on high-DPI */
+}
+
+.icon-sm {
+  font-size: 1rem; /* 16px */
+}
+
+.icon-md {
+  font-size: 1.25rem; /* 20px */
+}
+
+.icon-lg {
+  font-size: 1.5rem; /* 24px */
+}
+
+.icon-xl {
+  font-size: 2rem; /* 32px */
 }
 
 /* Fix for double arrows in select elements */

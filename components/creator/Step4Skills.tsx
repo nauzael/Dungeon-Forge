@@ -28,6 +28,7 @@ interface Step4Props {
     maxExpertise: number;
     selectedExpertise: string[];
     toggleExpertise: (s: string) => void;
+    bgSkilledSkills: string[];
 }
 
 import { UI } from '../../constants/ui';
@@ -39,7 +40,8 @@ const Step4Skills: React.FC<Step4Props> = ({
     selectedSkills, toggleSkill, finalStats, backgroundData, level, classSkillOptions,
     maxMetamagics, selectedMetamagics, toggleMetamagic,
     maxMasteries, selectedMasteries, setMasteryAtIndex,
-    maxExpertise, selectedExpertise, toggleExpertise
+    maxExpertise, selectedExpertise, toggleExpertise,
+    bgSkilledSkills
 }) => {
     const t = UI;
     const { metamagics: metamagicOptions, weapons: allWeapons } = useGameData();
@@ -74,7 +76,7 @@ const Step4Skills: React.FC<Step4Props> = ({
                     <select value={selectedHumanSkill} onChange={(e) => setSelectedHumanSkill(e.target.value)} className="w-full bg-white dark:bg-surface-dark border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold">
                         <option value="" disabled>{t.select_extra_skill_prompt}</option>
                         {SKILL_LIST.map(skill => {
-                            if ((backgroundData?.skills || []).includes(skill) || selectedSkills.includes(skill) || selectedElfSkill === skill) return null;
+                            if ((backgroundData?.skills || []).includes(skill) || selectedSkills.includes(skill) || selectedElfSkill === skill || bgSkilledSkills.includes(skill)) return null;
                             return <option key={skill} value={skill}>{skill}</option>;
                         })}
                     </select>
@@ -91,15 +93,16 @@ const Step4Skills: React.FC<Step4Props> = ({
                         const ability = SKILL_ABILITY_MAP[skill];
                         const mod = Math.floor(((finalStats[ability] || 10) - 10) / 2);
                         const isBackground = (backgroundData?.skills || []).includes(skill);
+                        const isBgSkilled = bgSkilledSkills.includes(skill);
                         const isHumanSelected = selectedHumanSkill === skill;
                         const isElfSelected = selectedElfSkill === skill;
                         const isSelected = selectedSkills.includes(skill);
-                        const isProf = isBackground || isHumanSelected || isElfSelected || isSelected;
+                        const isProf = isBackground || isHumanSelected || isElfSelected || isSelected || isBgSkilled;
                         const currentProfBonus = Math.ceil(1 + (level / 4));
                         const total = mod + (isProf ? currentProfBonus : 0);
                         return (
-                            <button key={skill} onClick={() => !isBackground && !isHumanSelected && !isElfSelected && toggleSkill(skill)} disabled={isBackground || isHumanSelected || isElfSelected} className={`flex items-center justify-between p-3.5 rounded-xl border transition-all ${isBackground || isHumanSelected || isElfSelected ? 'bg-slate-100 dark:bg-white/5 border-transparent opacity-80' : isSelected ? 'bg-primary/5 border-primary shadow-[0_0_15px_rgba(53,158,255,0.2)]' : 'bg-white dark:bg-surface-dark border-slate-200 hover:border-primary/50'}`}>
-                                <span className={`font-bold ${isProf ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>{skill} {isBackground && <span className="text-[10px] text-primary uppercase ml-2">({t.background_label})</span>}{isHumanSelected && <span className="text-[10px] text-blue-500 uppercase ml-2">({t.human_label})</span>}{isElfSelected && <span className="text-[10px] text-green-500 uppercase ml-2">({t.elf_label})</span>}</span>
+                            <button key={skill} onClick={() => !isBackground && !isHumanSelected && !isElfSelected && !isBgSkilled && toggleSkill(skill)} disabled={isBackground || isHumanSelected || isElfSelected || isBgSkilled} className={`flex items-center justify-between p-3.5 rounded-xl border transition-all ${isBackground || isHumanSelected || isElfSelected || isBgSkilled ? 'bg-slate-100 dark:bg-white/5 border-transparent opacity-80' : isSelected ? 'bg-primary/5 border-primary shadow-[0_0_15px_rgba(53,158,255,0.2)]' : 'bg-white dark:bg-surface-dark border-slate-200 hover:border-primary/50'}`}>
+                                <span className={`font-bold ${isProf ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>{skill} {isBackground && <span className="text-[10px] text-primary uppercase ml-2">({t.background_label})</span>}{isHumanSelected && <span className="text-[10px] text-blue-500 uppercase ml-2">({t.human_label})</span>}{isElfSelected && <span className="text-[10px] text-green-500 uppercase ml-2">({t.elf_label})</span>}{isBgSkilled && <span className="text-[10px] text-amber-500 uppercase ml-2">(Skilled)</span>}</span>
                                 <div className="flex items-center gap-3"><span className={`text-xs font-bold ${isProf ? 'text-primary' : 'text-slate-400'}`}>{total >= 0 ? '+' : ''}{total}</span><div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isProf ? 'bg-primary border-primary' : 'border-slate-300 dark:border-slate-600'}`}>{isProf && <span className="material-symbols-outlined text-sm text-black font-bold">check</span>}</div></div>
                             </button>
                         );

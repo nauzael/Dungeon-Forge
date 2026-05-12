@@ -83,6 +83,22 @@ export const SORCERER_SPELLS = [
   'Astral Projection', 'Foresight', 'Gate', 'Imprisonment', 'Meteor Swarm', 'Power Word Heal', 'Power Word Kill', 'True Resurrection',
 ];
 
+// Artificer spell list (official 2024 from dnd2024.wikidot.com)
+export const ARTIFICER_SPELLS = [
+  // Cantrips (10)
+  'Acid Splash', 'Booming Blade', 'Chill Touch', 'Fire Bolt', 'Light', 'Mage Hand', 'Mending', 'Message', 'Prestidigitation', 'Thorn Whip',
+  // Level 1 (23)
+  'Alarm', 'Armor of Agathys', 'Cure Wounds', 'Detect Magic', 'Disguise Self', 'Earmuff', 'Feather Fall', 'Find Familiar', 'Fog Cloud', 'Grease', 'Identify', 'Illusory Script', 'Mage Armor', 'Magic Missile', 'Protection from Evil and Good', 'Sanctuary', 'Shield', 'Tasha\'s Hideous Laughter', 'Tenser\'s Floating Disk', 'Unseen Servant', 'Wrathful Smite', 'Thunderwave', 'Purify Food and Drink',
+  // Level 2 (19)
+  'Aid', 'Alter Self', 'Arcane Lock', 'Blur', 'Continual Flame', 'Darkvision', 'Detect Thoughts', 'Dispel Magic', 'Enhance Ability', 'Enlarge/Reduce', 'Entangle', 'Find Traps', 'Gust of Wind', 'Heat Metal', 'Identify', 'Knock', 'Lesser Restoration', 'Magic Weapon', 'Nystul\'s Magic Aura',
+  // Level 3 (15)
+  'Animate Dead', 'Bestow Curse', 'Clairvoyance', 'Daylight', 'Dispel Magic', 'Elemental Weapon', 'Fly', 'Glyph of Warding', 'Hypnotic Pattern', 'Leomund\'s Tiny Hut', 'Major Image', 'Phantom Steed', 'Sending', 'Speak with Dead', 'Water Walking',
+  // Level 4 (12)
+  'Arcane Eye', 'Fabricate', 'Faithful Hound', 'Greater Invisibility', 'Hallucinatory Terrain', 'Leomund\'s Secret Chest', 'Mordenkainen\'s Faithful Hound', 'Mordenkainen\'s Private Sanctum', 'Phantasmal Killer', 'Polymorph', 'Stone Shape', 'Stoneskin',
+  // Level 5 (8)
+  'Animate Objects', 'Bigby\'s Hand', 'Creation', 'Geas', 'Greater Restoration', 'Passwall', 'Rary\'s Telepathic Bond', 'Seeming',
+];
+
 // Wizard spell list (official 2024)
 export const ARCANE_SPELLS = [
   'Acid Splash', 'Blade Ward', 'Chill Touch', 'Dancing Lights', 'Eldritch Blast', 'Elementalism', 'Fire Bolt', 'Friends', 'Light', 'Mage Hand', 'Mending', 'Message', 'Mind Sliver', 'Minor Illusion', 'Poison Spray', 'Prestidigitation', 'Ray of Frost', 'Shocking Grasp', 'Sorcerous Burst', 'Thunderclap', 'Toll the Dead', 'True Strike', 'Vicious Mockery',
@@ -124,6 +140,7 @@ export const PRIMAL_SPELLS = [
 ];
 
 export const SPELL_LIST_BY_CLASS: Record<string, string[]> = {
+    'Artificer': ARTIFICER_SPELLS,
     'Bard': BARD_SPELLS,
     'Cleric': DIVINE_SPELLS,
     'Druid': PRIMAL_SPELLS,
@@ -135,6 +152,7 @@ export const SPELL_LIST_BY_CLASS: Record<string, string[]> = {
 };
 
 export const SPELLCASTING_ABILITY: Record<string, Ability> = {
+    'Artificer': 'INT',
     'Bard': 'CHA',
     'Cleric': 'WIS',
     'Druid': 'WIS',
@@ -146,7 +164,7 @@ export const SPELLCASTING_ABILITY: Record<string, Ability> = {
 };
 
 export const CASTER_TYPE: Record<string, 'full' | 'half' | 'pact' | 'none'> = {
-    'Barbarian': 'none', 'Bard': 'full', 'Cleric': 'full', 'Druid': 'full',
+    'Artificer': 'half', 'Barbarian': 'none', 'Bard': 'full', 'Cleric': 'full', 'Druid': 'full',
     'Fighter': 'none', 'Monk': 'none', 'Paladin': 'half', 'Ranger': 'half',
     'Rogue': 'none', 'Sorcerer': 'full', 'Warlock': 'pact', 'Wizard': 'full',
 };
@@ -158,6 +176,7 @@ export const MAX_SPELL_LEVEL: Record<'full' | 'half' | 'pact', Record<number, nu
 };
 
 export const CANTRIPS_KNOWN_BY_LEVEL: Record<string, Record<number, number>> = {
+    'Artificer': { 1: 2, 4: 2, 10: 3},
     'Bard': { 1: 2, 4: 3, 10: 4},
     'Cleric': { 1: 3, 4: 4, 10: 5},
     'Druid': { 1: 2, 4: 3, 10: 4},
@@ -171,6 +190,7 @@ export const CANTRIPS_KNOWN_BY_LEVEL: Record<string, Record<number, number>> = {
 };
 
 export const SPELLS_KNOWN_BY_LEVEL: Record<string, Record<number, number>> = {
+    'Artificer': { 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 6, 7: 7, 8: 7, 9: 8, 10: 8, 11: 10, 12: 10, 13: 11, 14: 11, 15: 12, 16: 12, 17: 14, 18: 14, 19: 15, 20: 15 },
     'Bard': { 1: 4, 2: 5, 3: 6, 4: 7, 5: 9, 6: 10, 7: 11, 8: 12, 9: 14, 10: 15, 11: 16, 12: 16, 13: 17, 14: 17, 15: 18, 16: 18, 17: 19, 18: 20, 19: 21, 20: 22 },
     'Druid': { 1: 4, 2: 5, 3: 6, 4: 7, 5: 9, 6: 10, 7: 11, 8: 12, 9: 14, 10: 15, 11: 16, 12: 16, 13: 17, 14: 17, 15: 18, 16: 18, 17: 19, 18: 20, 19: 21, 20: 22 },
     'Paladin': { 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 6, 7: 7, 8: 7, 9: 8, 10: 8, 11: 10, 12: 10, 13: 11, 14: 11, 15: 12, 16: 12, 17: 14, 18: 14, 19: 15, 20: 15 },
@@ -181,7 +201,7 @@ export const SPELLS_KNOWN_BY_LEVEL: Record<string, Record<number, number>> = {
     'Arcane Trickster': { 3: 3, 4: 4, 5: 4, 6: 4, 7: 5, 8: 6, 9: 6, 10: 7, 11: 8, 12: 8, 13: 9, 14: 10, 15: 10, 16: 11, 17: 11, 18: 11, 19: 12, 20: 13 },
 };
 
-export const PREPARED_CASTERS = ['Cleric', 'Druid', 'Paladin', 'Wizard', 'Bard', 'Ranger'];
+export const PREPARED_CASTERS = ['Artificer', 'Cleric', 'Druid', 'Paladin', 'Wizard', 'Bard', 'Ranger'];
 
 export const THIRD_CASTER_SLOTS: Record<string, Record<number, { prepared: number; 1?: number; 2?: number; 3?: number; 4?: number }>> = {
     'Eldritch Knight': {

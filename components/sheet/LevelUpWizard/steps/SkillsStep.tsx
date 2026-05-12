@@ -16,7 +16,7 @@ const SkillsStep: React.FC<SkillsStepProps> = ({ availableSkills, skillsNeeded, 
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900/40 dark:to-cyan-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3 border-2 border-white dark:border-white/20 shadow-lg">
                     <span className="material-symbols-outlined text-3xl">psychology</span>
                 </div>
-                <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h2 className="text-xl font-black tracking-tight" style={{color: 'var(--color-text-primary)'}}>
                     New Skills
                 </h2>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -38,7 +38,7 @@ const SkillsStep: React.FC<SkillsStepProps> = ({ availableSkills, skillsNeeded, 
                             }`}
                         >
                             <div className="flex items-center justify-between">
-                                <span className="font-bold text-base text-slate-900 dark:text-white">{skill}</span>
+                                <span className="font-bold text-base" style={{color: 'var(--color-text-primary)'}}>{skill}</span>
                                 {isSelected && (
                                     <span className="material-symbols-outlined text-blue-500 text-2xl">check_circle</span>
                                 )}

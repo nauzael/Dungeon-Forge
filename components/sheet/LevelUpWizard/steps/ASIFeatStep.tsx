@@ -42,7 +42,7 @@ const ASIFeatStep: React.FC<ASIFeatStepProps> = ({
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-3 border-2 border-white dark:border-white/20 shadow-lg">
                     <span className="material-symbols-outlined text-3xl">stars</span>
                 </div>
-                <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h2 className="text-xl font-black tracking-tight" style={{color: 'var(--color-text-primary)'}}>
                     Ability Score or Feat
                 </h2>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -53,21 +53,15 @@ const ASIFeatStep: React.FC<ASIFeatStepProps> = ({
             <div className="flex gap-3 mb-5">
                 <button
                     onClick={() => onAsiTypeChange('stat')}
-                    className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${
-                        asiType === 'stat'
-                            ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg'
-                            : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'
-                    }`}
+                    className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all`}
+                    style={asiType === 'stat' ? {background: 'linear-gradient(to right, var(--color-primary), var(--color-primary))', color: 'white'} : {backgroundColor: 'var(--color-background-secondary)', color: 'var(--color-text-secondary)'}}
                 >
                     Stats
                 </button>
                 <button
                     onClick={() => onAsiTypeChange('feat')}
-                    className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${
-                        asiType === 'feat'
-                            ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg'
-                            : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'
-                    }`}
+                    className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all`}
+                    style={asiType === 'feat' ? {background: 'linear-gradient(to right, var(--color-primary), var(--color-primary))', color: 'white'} : {backgroundColor: 'var(--color-background-secondary)', color: 'var(--color-text-secondary)'}}
                 >
                     Feat
                 </button>
@@ -76,11 +70,11 @@ const ASIFeatStep: React.FC<ASIFeatStepProps> = ({
             <div className="flex-1 overflow-y-auto no-scrollbar">
                 {asiType === 'stat' ? (
                     <div className="space-y-4">
-                        <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-4 text-center">
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <div className="rounded-xl p-4 text-center" style={{backgroundColor: 'var(--color-background-secondary)'}}>
+                            <p className="text-sm" style={{color: 'var(--color-text-muted)'}}>
                                 Increase ability scores
                             </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                            <p className="text-xs mt-2" style={{color: 'var(--color-text-muted)'}}>
                                 Choose to increase one ability by 2, or two abilities by 1 each
                             </p>
                         </div>
@@ -99,17 +93,14 @@ const ASIFeatStep: React.FC<ASIFeatStepProps> = ({
                                         <button
                                             key={`1-${stat}`}
                                             onClick={() => onStat1Change(stat)}
-                                            className={`p-4 rounded-xl border-2 transition-all ${
-                                                isSelected1
-                                                    ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-500'
-                                                    : 'bg-white dark:bg-[#1a2235] border-slate-200 dark:border-white/10 hover:border-amber-300'
-                                            }`}
+                                            className={`p-4 rounded-xl border-2 transition-all`}
+                                            style={isSelected1 ? {backgroundColor: 'var(--color-primary)', opacity: '0.1', borderColor: 'var(--color-primary)'} : {backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)'}}
                                         >
                                             <div className="flex items-center justify-between mb-2">
-                                                <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
+                                                <span className="text-sm font-bold" style={{color: 'var(--color-text-secondary)'}}>
                                                     {stat}
                                                 </span>
-                                                <span className="text-lg font-black text-slate-900 dark:text-white">
+                                                <span className="text-lg font-black" style={{color: 'var(--color-text-primary)'}}>
                                                     {currentValue}{increase1 > 0 ? `+${increase1}` : ''}
                                                 </span>
                                             </div>
@@ -148,7 +139,7 @@ const ASIFeatStep: React.FC<ASIFeatStepProps> = ({
                                                     <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
                                                         {stat}
                                                     </span>
-                                                    <span className="text-lg font-black text-slate-900 dark:text-white">
+                                                    <span className="text-lg font-black" style={{color: 'var(--color-text-primary)'}}>
                                                         {currentValue}{totalIncrease > 0 ? `+${totalIncrease}` : ''}
                                                     </span>
                                                 </div>
@@ -191,7 +182,7 @@ const ASIFeatStep: React.FC<ASIFeatStepProps> = ({
                                                     >
                                                         <div className="flex items-start justify-between gap-3">
                                                             <div className="flex-1">
-                                                                <p className="font-bold text-sm text-slate-900 dark:text-white mb-1">
+                                                                <p className="font-bold text-sm mb-1" style={{color: 'var(--color-text-primary)'}}>
                                                                     {f.name}
                                                                 </p>
                                                                 {f.asi && (
@@ -233,12 +224,14 @@ const ASIFeatStep: React.FC<ASIFeatStepProps> = ({
                                 >
                                     {/* Modal Header */}
                                     <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-white/10 shrink-0">
-                                        <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                                        <h3 className="text-lg font-black" style={{color: 'var(--color-text-primary)'}}>
                                             {expandedFeatModal.name}
                                         </h3>
                                         <button
                                             onClick={() => setExpandedFeatModal(null)}
-                                            className="w-10 h-10 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center transition-colors"
+                                            className="w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
+                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-background-secondary)'}
+                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                         >
                                             <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">close</span>
                                         </button>

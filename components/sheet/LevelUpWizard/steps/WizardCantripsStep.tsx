@@ -57,7 +57,7 @@ const WizardCantripsStep: React.FC<WizardCantripsStepProps> = ({
     return (
         <div className="px-4 py-5 space-y-5">
             <div className="text-center space-y-1.5">
-                <h2 className="text-lg font-black text-slate-900 dark:text-white">
+                <h2 className="text-lg font-black" style={{color: 'var(--color-text-primary)'}}>
                     {isAdditional ? 'Cantrips Adicionales' : (t.choose_cantrips || 'Elegir Cantrips')}
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">

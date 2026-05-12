@@ -528,10 +528,20 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
         className="hidden"
       />
 
-      <div className="sticky top-0 z-30 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-black/5 dark:border-white/5 px-4 py-4 flex items-center gap-4 pt-[calc(1.25rem+env(safe-area-inset-top))]">
+      <div className="sticky top-0 z-30 backdrop-blur-md px-4 py-4 flex items-center gap-4 pt-[calc(1.25rem+env(safe-area-inset-top))]" style={{
+        backgroundColor: 'var(--color-surface)',
+        borderBottomColor: 'var(--color-border)',
+        borderBottomWidth: '1px',
+      }}>
         <button
           onClick={onBack}
-          className="flex size-10 items-center justify-center rounded-2xl bg-slate-100 dark:bg-white/5 border border-black/5 dark:border-white/5 active:scale-95 transition-all text-slate-500 dark:text-slate-400"
+          className="flex size-10 items-center justify-center rounded-2xl transition-all active:scale-95"
+          style={{
+            backgroundColor: 'var(--color-background-secondary)',
+            borderColor: 'var(--color-border)',
+            borderWidth: '1px',
+            color: 'var(--color-text-secondary)',
+          }}
         >
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
@@ -569,8 +579,13 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
               )}
             </div>
             {!isReadOnly && (
-              <div className="absolute -bottom-1 -right-1 size-6 rounded-lg bg-black/60 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg">
-                <span className="material-symbols-outlined text-[14px] text-white">edit</span>
+              <div className="absolute -bottom-1 -right-1 size-6 rounded-lg backdrop-blur-md flex items-center justify-center shadow-lg" 
+                style={{
+                  backgroundColor: 'var(--color-background)',
+                  borderColor: 'var(--color-border-hover)',
+                  borderWidth: '1px',
+                }}>
+                <span className="material-symbols-outlined text-[14px]" style={{ color: 'var(--color-text-primary)' }}>edit</span>
               </div>
             )}
           </div>
@@ -653,14 +668,17 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
           <div className="flex h-screen w-screen gap-0">
             {/* Combat Tab - Left Column (30%) */}
             <div className="w-[30%] h-screen flex flex-col bg-background-light dark:bg-background-dark">
-              <div className="sticky top-0 z-20 bg-gradient-to-b from-slate-900 dark:from-surface-dark via-slate-900/80 to-transparent pb-3 px-3 pt-3">
+              <div className="sticky top-0 z-20 pb-3 px-3 pt-3" style={{
+                backgroundColor: 'var(--color-background)',
+                backgroundImage: 'linear-gradient(to bottom, var(--color-surface), transparent)',
+              }}>
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary text-lg">swords</span>
                   <h3 className="text-xs font-black uppercase text-primary tracking-widest">Combat</h3>
                 </div>
               </div>
               
-              <div className={`flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar w-full ${isTablet ? 'pb-40' : ''}`} style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
+              <div className={`flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar w-full ${isTablet ? 'pb-40' : ''}`} style={{ scrollBehavior: 'smooth' }}>
                 <div className="p-3 w-full">
                   <CombatTab
                     character={character}
@@ -688,7 +706,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
               onTouchEnd={handleRightPanelSwipe}
             >
               {/* Scrollable Content Area */}
-              <div className="flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar pb-24 w-full min-w-0" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
+              <div className="flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar pb-24 w-full min-w-0" style={{ scrollBehavior: 'smooth' }}>
                 <div className="p-3 w-full">
                   {/* Dynamic Content */}
                   <div className={`transition-opacity duration-200 w-full ${rightPanelTab ? 'opacity-100' : 'opacity-0'}`}>
@@ -725,7 +743,11 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
               </div>
 
               {/* FLOATING MINI TAB BAR - Fixed at Bottom */}
-              <div className="fixed bottom-0 left-[30%] right-0 bg-gradient-to-t from-slate-900 dark:from-surface-dark via-slate-900/95 to-slate-900/80 backdrop-blur-md border-t border-slate-200/10 px-2 py-3 z-30">
+              <div className="fixed bottom-0 left-[30%] right-0 backdrop-blur-md px-2 py-3 z-30" style={{
+                background: `linear-gradient(to top, var(--color-background), rgba(var(--color-background), 0.8))`,
+                borderTopColor: 'var(--color-border)',
+                borderTopWidth: '1px',
+              }}>
                 <div className="flex gap-1.5 overflow-x-auto no-scrollbar justify-center">
                   {[
                     { id: 'spells' as SheetTab, icon: 'auto_stories', label: 'Spells', disabled: !isCaster },
@@ -807,7 +829,11 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
       {/* Tab Bar - Hidden in landscape, shown in portrait */}
       {!isLandscape && (
 
-      <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 transform -translate-x-1/2 bg-white/90 dark:bg-[#1E293B]/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-1.5 z-40 flex items-center gap-1.5">
+      <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 transform -translate-x-1/2 backdrop-blur-xl rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-1.5 z-40 flex items-center gap-1.5" style={{
+        backgroundColor: 'var(--color-surface)',
+        borderColor: 'var(--color-border)',
+        borderWidth: '1px',
+      }}>
         {tabs.map((tab) => (
           <button
             key={tab.id}

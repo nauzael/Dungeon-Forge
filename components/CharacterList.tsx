@@ -138,7 +138,7 @@ const CharacterCard: React.FC<CharacterCardProps> = memo(({ char, onSelect, onDe
               </div>
             </div>
             
-            <div className="grid grid-cols-6 gap-0.5 border-t border-white/5 pt-3">
+            <div className="grid grid-cols-6 gap-0.5 pt-3" style={{ borderTopColor: 'var(--color-border)', borderTopWidth: '1px' }}>
               {(['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const).map((stat) => {
                 const statValue = char.stats ? char.stats[stat] : 10;
                 return (
@@ -241,21 +241,11 @@ const CharacterList: React.FC<CharacterListProps> = memo(({ characters, onCreate
     </button>
   </div>
 
-  <div className="mt-6 pt-6 border-t border-white/5 max-w-7xl mx-auto">
+  <div className="mt-6 pt-6 max-w-7xl mx-auto" style={{ borderTopColor: 'var(--color-border)', borderTopWidth: '1px' }}>
     <div className="flex items-center justify-between mb-4">
       <span className="text-[10px] text-white/30 font-mono">
         v{appVersion}
       </span>
-      <button
-        onClick={() => setShowThemeSelector(true)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-highlight/50 hover:bg-surface-highlight transition-colors group"
-        title="Cambiar tema"
-      >
-        <span className="material-symbols-outlined text-base text-[#9adbff] group-hover:text-white transition-colors">palette</span>
-        <span className="text-[9px] font-black uppercase tracking-[0.15em] text-[#9adbff] group-hover:text-white">
-          Tema
-        </span>
-      </button>
     </div>
     <button
       onClick={onLogout}

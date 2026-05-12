@@ -68,13 +68,13 @@ const FightingStyleStep: React.FC<FightingStyleStepProps> = ({
   return (
     <div className="flex flex-col h-full p-5">
       <div className="text-center mb-5">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700/40 dark:to-slate-800/40 text-slate-600 dark:text-slate-400 flex items-center justify-center mx-auto mb-3 border-2 border-white dark:border-white/20 shadow-lg">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg" style={{backgroundColor: 'var(--color-background-secondary)', color: 'var(--color-text-secondary)', borderWidth: '2px', borderColor: 'var(--color-border)'}}>
           <span className="material-symbols-outlined text-3xl">shield</span>
         </div>
-        <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+        <h2 className="text-xl font-black tracking-tight" style={{color: 'var(--color-text-primary)'}}>
           {title}
         </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
+        <p className="text-sm mt-1 font-medium" style={{color: 'var(--color-text-muted)'}}>
           Choose your combat style
         </p>
       </div>
@@ -93,11 +93,8 @@ const FightingStyleStep: React.FC<FightingStyleStepProps> = ({
             <button
               key={feat.name}
               onClick={() => handleStyleSelect(feat.name)}
-              className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                fightingStyle === feat.name && fightingStyle !== 'Druidic Warrior'
-                  ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-500'
-                  : 'bg-white dark:bg-[#1a2235] border-slate-200 dark:border-white/10 hover:border-amber-300'
-              }`}
+              className={`w-full p-4 rounded-xl border-2 text-left transition-all`}
+              style={fightingStyle === feat.name && fightingStyle !== 'Druidic Warrior' ? {backgroundColor: 'var(--color-primary)', opacity: '0.1', borderColor: 'var(--color-primary)'} : {backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)'}}
             >
               <p className="font-bold text-base text-slate-900 dark:text-white mb-0.5">
                 {feat.name}
@@ -111,13 +108,10 @@ const FightingStyleStep: React.FC<FightingStyleStepProps> = ({
           {isRanger && (
             <button
               onClick={() => handleStyleSelect('Druidic Warrior')}
-              className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                fightingStyle === 'Druidic Warrior'
-                  ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-500'
-                  : 'bg-white dark:bg-[#1a2235] border-slate-200 dark:border-white/10 hover:border-amber-300'
-              }`}
+              className={`w-full p-4 rounded-xl border-2 text-left transition-all`}
+              style={fightingStyle === 'Druidic Warrior' ? {backgroundColor: 'var(--color-primary)', opacity: '0.1', borderColor: 'var(--color-primary)'} : {backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)'}}
             >
-              <p className="font-bold text-base text-slate-900 dark:text-white mb-0.5">
+              <p className="font-bold text-base mb-0.5" style={{color: 'var(--color-text-primary)'}}>
                 Druidic Warrior
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
@@ -141,16 +135,11 @@ const FightingStyleStep: React.FC<FightingStyleStepProps> = ({
                     key={cantrip.name}
                     onClick={() => toggleCantrip(cantrip.name)}
                     disabled={isDisabled}
-                    className={`p-3 rounded-xl border-2 text-left transition-all ${
-                      isSelected
-                        ? 'bg-green-100 dark:bg-green-900/30 border-green-500'
-                        : isDisabled
-                        ? 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/5 opacity-50'
-                        : 'bg-white dark:bg-[#1a2235] border-slate-200 dark:border-white/10 hover:border-green-300'
-                    }`}
+                    className={`p-3 rounded-xl border-2 text-left transition-all`}
+                    style={isSelected ? {backgroundColor: 'var(--color-primary)', opacity: '0.1', borderColor: 'var(--color-primary)'} : isDisabled ? {backgroundColor: 'var(--color-background-secondary)', borderColor: 'var(--color-border)', opacity: '0.5'} : {backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)'}}
                   >
                     <div className="flex items-center justify-between">
-                      <p className="font-bold text-sm text-slate-900 dark:text-white">
+                      <p className="font-bold text-sm" style={{color: 'var(--color-text-primary)'}}>
                         {cantrip.name}
                       </p>
                       {isSelected && (

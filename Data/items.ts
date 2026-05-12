@@ -128,10 +128,57 @@ export const GEAR_DB: Record<string, ItemData> = {
     'Parchment (one sheet)': { name: 'Parchment (one sheet)', type: 'Gear', weight: 0, cost: '1 SP' },
     'Perfume (vial)': { name: 'Perfume (vial)', type: 'Gear', weight: 0, cost: '5 GP' },
     'Poison, Basic (vial)': { name: 'Poison, Basic (vial)', type: 'Gear', weight: 0, cost: '100 GP' },
-    'Potion of Healing': { name: 'Potion of Healing', type: 'Gear', weight: 0.5, cost: '50 GP', description: 'Regains 2d4 + 2 HP.' },
-    'Potion of Greater Healing': { name: 'Potion of Greater Healing', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'Regains 4d4 + 4 HP.' },
-    'Potion of Superior Healing': { name: 'Potion of Superior Healing', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'Regains 8d4 + 8 HP.' },
-    'Potion of Supreme Healing': { name: 'Potion of Supreme Healing', type: 'Gear', weight: 0.5, cost: '5,000 GP', description: 'Regains 10d4 + 20 HP.' },
+    
+    // --- POTIONS (D&D 5E 2024) ---
+    // Healing Potions
+    'Potion of Healing': { name: 'Potion of Healing', type: 'Gear', weight: 0.5, cost: '50 GP', description: 'Regains 2d4 + 2 HP. Common.' },
+    'Potion of Greater Healing': { name: 'Potion of Greater Healing', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'Regains 4d4 + 4 HP. Uncommon.' },
+    'Potion of Superior Healing': { name: 'Potion of Superior Healing', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'Regains 8d4 + 8 HP. Rare.' },
+    'Potion of Supreme Healing': { name: 'Potion of Supreme Healing', type: 'Gear', weight: 0.5, cost: '5,000 GP', description: 'Regains 10d4 + 20 HP. Very Rare.' },
+    
+    // Ability & Attribute Potions
+    'Potion of Ability Score Increase': { name: 'Potion of Ability Score Increase', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'Choose an ability score. Increases that score by 1d4 + 1 (max 20) for 1 hour. Uncommon.' },
+    'Potion of Better Luck': { name: 'Potion of Better Luck', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, whenever you make an ability check or attack roll, add 1d4 to the roll. Rare.' },
+    'Potion of Courage': { name: 'Potion of Courage', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, you are immune to the Frightened condition. Uncommon.' },
+    
+    // Utility Potions
+    'Potion of Animal Friendship': { name: 'Potion of Animal Friendship', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, you can speak with Beasts as if you shared a language, and most beasts are indifferent to you. Uncommon.' },
+    'Potion of Awareness': { name: 'Potion of Awareness', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, you have Advantage on Perception (Wisdom) checks. Uncommon.' },
+    'Potion of Climbing': { name: 'Potion of Climbing', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, you gain a climb speed equal to your walking speed and can climb difficult surfaces, including upside down. Uncommon.' },
+    'Potion of Flying': { name: 'Potion of Flying', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'For 1 hour, you gain a Flying speed of 30 feet and hover. Rare.' },
+    'Potion of Gaseous Form': { name: 'Potion of Gaseous Form', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'For 1 hour, you become gaseous. Can fly 30 ft/round, pass through spaces, have Advantage on saves vs. nonmagical damage. Rare.' },
+    'Potion of Growth': { name: 'Potion of Growth', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'For 1 hour, you increase in size by one category (Huge maximum). Damage scales x4. Rare.' },
+    'Potion of Invisibility': { name: 'Potion of Invisibility', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'For 1 hour, you become Invisible. Attacking or casting ends it. Rare.' },
+    'Potion of Mind Reading': { name: 'Potion of Mind Reading', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'For 1 hour, you sense thoughts of creatures within 30 feet (Intelligence save DC 13 resists). Rare.' },
+    'Potion of Poison': { name: 'Potion of Poison', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'You can use an action to splash this poison on a creature within 5 feet (DC 14 Constitution save or 3d6 Poison damage). Uncommon.' },
+    'Potion of Restoration': { name: 'Potion of Restoration', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'Cures diseases and poisons. Can also increase one ability score +2 (max 20) for 1 hour. Rare.' },
+    'Potion of Speed': { name: 'Potion of Speed', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'For 1 minute, double your Walking speed and gain +2 AC. Make one attack with Advantage at round end. Rare.' },
+    'Potion of Undetectability': { name: 'Potion of Undetectability', type: 'Gear', weight: 0.5, cost: '150 GP', description: 'For 1 hour, you are undetectable by divination magic and can\'t be targeted by it. Uncommon.' },
+    'Potion of Vitality': { name: 'Potion of Vitality', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'Cures diseases, poisons, cure Exhaustion. Regain max HP. Rare.' },
+    'Potion of Water Breathing': { name: 'Potion of Water Breathing', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, you can breathe underwater and speak normally. Uncommon.' },
+    
+    // Resistance Potions
+    'Potion of Resistance (Acid)': { name: 'Potion of Resistance (Acid)', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, you have Resistance to Acid damage. Uncommon.' },
+    'Potion of Resistance (Cold)': { name: 'Potion of Resistance (Cold)', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, you have Resistance to Cold damage. Uncommon.' },
+    'Potion of Resistance (Fire)': { name: 'Potion of Resistance (Fire)', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, you have Resistance to Fire damage. Uncommon.' },
+    'Potion of Resistance (Lightning)': { name: 'Potion of Resistance (Lightning)', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, you have Resistance to Lightning damage. Uncommon.' },
+    'Potion of Resistance (Poison)': { name: 'Potion of Resistance (Poison)', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, you have Resistance to Poison damage and Advantage on Poison saves. Uncommon.' },
+    'Potion of Resistance (Thunder)': { name: 'Potion of Resistance (Thunder)', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, you have Resistance to Thunder damage. Uncommon.' },
+    
+    // Giant Strength Potions
+    'Potion of Giant Strength (Hill)': { name: 'Potion of Giant Strength (Hill)', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, Strength becomes 21. Uncommon.' },
+    'Potion of Giant Strength (Frost)': { name: 'Potion of Giant Strength (Frost)', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'For 1 hour, Strength becomes 23. Rare.' },
+    'Potion of Giant Strength (Stone)': { name: 'Potion of Giant Strength (Stone)', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'For 1 hour, Strength becomes 23. Rare.' },
+    'Potion of Giant Strength (Fire)': { name: 'Potion of Giant Strength (Fire)', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'For 1 hour, Strength becomes 25. Rare.' },
+    'Potion of Giant Strength (Cloud)': { name: 'Potion of Giant Strength (Cloud)', type: 'Gear', weight: 0.5, cost: '1,000 GP', description: 'For 1 hour, Strength becomes 27. Very Rare.' },
+    'Potion of Giant Strength (Storm)': { name: 'Potion of Giant Strength (Storm)', type: 'Gear', weight: 0.5, cost: '5,000 GP', description: 'For 1 hour, Strength becomes 29. Very Rare.' },
+    
+    // Transformative Potions
+    'Potion of Diminution': { name: 'Potion of Diminution', type: 'Gear', weight: 0.5, cost: '100 GP', description: 'For 1 hour, you decrease in size by one category (Tiny minimum). Damage scales x1/4. Rare.' },
+    'Potion of Heroism': { name: 'Potion of Heroism', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'For 1 hour, gain Temporary HP = 10 + spell level at start each turn. Rare.' },
+    'Potion of Invulnerability': { name: 'Potion of Invulnerability', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'For 1 minute, you are Immune to all damage. Rare.' },
+    'Potion of Longevity': { name: 'Potion of Longevity', type: 'Gear', weight: 0.5, cost: '2,000 GP', description: 'Reduces your age by 3d6 years (minimum 13 years old). Very Rare.' },
+    'Potion of Necromancy': { name: 'Potion of Necromancy', type: 'Gear', weight: 0.5, cost: '500 GP', description: 'For 10 minutes, gain Advantage on saving throws vs. spells. Gain 1d6 temporary HP. Rare.' },
     'Rations (1 day)': { name: 'Rations (1 day)', type: 'Gear', weight: 2, cost: '5 SP' },
     'Rope, Hempen (50 feet)': { name: 'Rope, Hempen (50 feet)', type: 'Gear', weight: 10, cost: '1 GP' },
     'Rope, Silk (50 feet)': { name: 'Rope, Silk (50 feet)', type: 'Gear', weight: 5, cost: '10 GP' },
@@ -678,6 +725,7 @@ export const MAGIC_ITEMS: Record<string, ItemData | WeaponData | ArmorData> = {
 export const ALL_ITEMS: Record<string, ItemData | WeaponData | ArmorData> = {
     ...WEAPONS_DB,
     ...ARMOR_DB,
+    ...AMMO_DB,
     ...GEAR_DB,
     ...MAGIC_ITEMS
 };

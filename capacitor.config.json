@@ -4,5 +4,17 @@
   "webDir": "dist",
   "server": {
     "androidScheme": "https"
+  },
+  "android": {
+    "preferredColorScheme": "dark",
+    "allowMixedContent": true
+  },
+  "plugins": {
+    "SafeArea": {
+      "offset": 0
+    },
+    "CapacitorHttp": {
+      "enabled": true
+    }
   }
 }

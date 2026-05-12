@@ -613,7 +613,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
 
             {/* MODALES DEL BRUJO */}
             {showInvocationTray && createPortal(
-                <div className="fixed inset-0 z-[60] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                <div className="fixed inset-0 z-[60] bg-background-light dark:bg-background-dark flex flex-col pt-[max(0.75rem,env(safe-area-inset-top))] animate-fadeIn">
                     <div className="p-4 bg-surface-light dark:bg-surface-dark border-b border-black/5 dark:border-white/10 flex items-center justify-between">
                         <button onClick={() => setShowInvocationTray(false)} className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500"><span className="material-symbols-outlined">close</span></button>
                         <h3 className="text-lg font-black uppercase tracking-widest text-fuchsia-500">Arcane Invocations</h3>
@@ -662,7 +662,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
             )}
 
             {showInvocationsModal && createPortal(
-                <div className="fixed inset-0 z-[70] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                <div className="fixed inset-0 z-[70] bg-background-light dark:bg-background-dark flex flex-col pt-[max(0.75rem,env(safe-area-inset-top))] animate-fadeIn">
                     <div className="flex flex-col border-b border-slate-200 dark:border-white/10 bg-white dark:bg-surface-dark">
                         <div className="flex items-center gap-4 p-4">
                             <button onClick={() => setShowInvocationsModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors"><span className="material-symbols-outlined">arrow_back</span></button>
@@ -690,7 +690,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
             )}
 
             {showOriginFeatSelector && createPortal(
-                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[max(0.75rem,env(safe-area-inset-top))] animate-fadeIn">
                     <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
                         <button onClick={() => setShowOriginFeatSelector(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
                         <h3 className="text-sm font-black uppercase tracking-widest text-emerald-500">Lessons of the First</h3>
@@ -710,7 +710,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
             )}
 
             {showTomeConfig && createPortal(
-                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[max(0.75rem,env(safe-area-inset-top))] animate-fadeIn">
                     <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
                         <button onClick={() => setShowTomeConfig(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
                         <h3 className="text-sm font-black uppercase tracking-widest text-blue-500">Tome Pact</h3>
@@ -754,7 +754,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
             )}
 
             {showAgonizingConfig && createPortal(
-                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[max(0.75rem,env(safe-area-inset-top))] animate-fadeIn">
                     <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
                         <button onClick={() => setShowAgonizingConfig(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
                         <h3 className="text-sm font-black uppercase tracking-widest text-amber-500">Agonizing Blast</h3>
@@ -781,7 +781,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
             )}
 
             {showLessonsConfig && createPortal(
-                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[max(0.75rem,env(safe-area-inset-top))] animate-fadeIn">
                     <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
                         <button onClick={() => setShowLessonsConfig(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
                         <h3 className="text-sm font-black uppercase tracking-widest text-emerald-500">Change Lesson</h3>
@@ -823,7 +823,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
             )}
 
             {showWarBondConfig && createPortal(
-                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[max(0.75rem,env(safe-area-inset-top))] animate-fadeIn">
                     <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
                         <button onClick={() => setShowWarBondConfig(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
                         <h3 className="text-sm font-black uppercase tracking-widest text-cyan-500">War Bond</h3>
@@ -903,7 +903,7 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({ character, onUpdate, isReadOn
             )}
 
             {showWarMagicModal && createPortal(
-                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                <div className="fixed inset-0 z-[80] bg-background-light dark:bg-background-dark flex flex-col pt-[max(0.75rem,env(safe-area-inset-top))] animate-fadeIn">
                     <div className="p-4 border-b border-black/5 dark:border-white/10 bg-white dark:bg-surface-dark flex items-center justify-between">
                         <button onClick={() => setShowWarMagicModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
                         <h3 className="text-sm font-black uppercase tracking-widest text-purple-500">War Magic</h3>

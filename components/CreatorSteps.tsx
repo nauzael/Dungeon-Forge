@@ -396,7 +396,15 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
     if (allFeats.includes('Duro') || allFeats.includes('Tough'))
       bonuses.push({ name: t.toughFeat, val: level * 2 });
     return (
-      <div className="mt-3 p-4 bg-slate-50 dark:bg-black/20 rounded-xl border border-slate-200 dark:border-white/5 text-xs font-mono text-slate-600 dark:text-slate-400 shadow-inner">
+      <div className="mt-3 p-4 rounded-xl shadow-inner" 
+        style={{
+          backgroundColor: 'var(--color-background-secondary)',
+          borderColor: 'var(--color-border)',
+          borderWidth: '1px',
+          fontSize: '0.75rem',
+          fontFamily: 'monospace',
+          color: 'var(--color-text-secondary)',
+        }}>
         {hasAmuletOfHealth && (
           <div className="text-primary font-bold mb-2 uppercase text-[9px]">{t.amuletOfHealth}</div>
         )}
@@ -404,11 +412,11 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
           <span>{t.level1}:</span>
           <span>
             {hitDie} + {conMod} ={' '}
-            <span className="font-bold text-slate-900 dark:text-white">{hitDie + conMod}</span>
+            <span className="font-bold" style={{ color: 'var(--color-text-primary)' }}>{hitDie + conMod}</span>
           </span>
         </div>
         {level > 1 && (
-          <div className="flex justify-between border-t border-slate-200 pt-1 border-dashed">
+          <div className="flex justify-between border-b pt-1" style={{ borderColor: 'var(--color-border)' }}>
             <span>
               {t.levels} 2-{level}:
             </span>
@@ -663,7 +671,14 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
           {[1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
-              className={`h-1.5 flex-1 rounded-full ${i <= step ? 'bg-primary shadow-[0_0_10px_rgba(53,158,255,0.5)]' : 'bg-slate-300 dark:bg-surface-dark'}`}
+              className={`h-1.5 flex-1 rounded-full transition-all ${
+                i <= step
+                  ? 'shadow-[0_0_10px_rgba(53,158,255,0.5)]'
+                  : ''
+              }`}
+              style={{
+                backgroundColor: i <= step ? 'var(--color-primary)' : 'var(--color-surface-highlight)',
+              }}
             ></div>
           ))}
         </div>
@@ -770,6 +785,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
             maxExpertise={maxExpertise}
             selectedExpertise={selectedExpertise}
             toggleExpertise={toggleExpertise}
+            bgSkilledSkills={bgSkilledSkills}
           />
         )}
         {step === 5 && (
@@ -807,7 +823,12 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
       </main>
 
       {step < 5 && (
-        <div className="px-4 py-3 border-t border-slate-200 dark:border-white/5 bg-white dark:bg-background-dark sticky bottom-0 z-20 mb-[env(safe-area-inset-bottom)]">
+        <div className="px-4 py-3 sticky bottom-0 z-20 mb-[env(safe-area-inset-bottom)]" 
+          style={{
+            backgroundColor: 'var(--color-surface)',
+            borderColor: 'var(--color-border)',
+            borderTopWidth: '1px',
+          }}>
           <button
             onClick={nextStep}
             className="w-full py-3 rounded-xl font-bold text-lg bg-primary text-background-dark shadow-lg shadow-primary/30"

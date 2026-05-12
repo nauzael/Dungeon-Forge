@@ -377,8 +377,8 @@ const Step1Identity: React.FC<Step1Props> = ({
                             return (
                                 <label key={cls} className="relative shrink-0 cursor-pointer group/card snap-center scroll-m-6">
                                     <input className="peer sr-only" name="class" type="radio" checked={isSelected} onChange={() => setSelectedClass(cls)} />
-                                    <div className={`w-36 h-52 rounded-3xl p-4 flex flex-col items-center justify-between transition-all duration-300 ease-out border-2 ${isSelected ? 'bg-white dark:bg-surface-dark border-primary shadow-[0_10px_30px_-10px_rgba(53,158,255,0.4)] scale-105' : 'bg-white/60 dark:bg-surface-dark/60 border-transparent hover:border-slate-300 shadow-sm'}`}>
-                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-inner ${isSelected ? 'bg-primary/10 rotate-3' : 'bg-slate-100 dark:bg-white/5 group-hover/card:scale-110'}`}>
+                                    <div className={`w-36 h-52 rounded-3xl p-4 flex flex-col items-center justify-between transition-all duration-300 ease-out border-2 ${isSelected ? 'border-primary shadow-[0_10px_30px_-10px_rgba(53,158,255,0.4)] scale-105' : 'border-transparent shadow-sm'}`} style={isSelected ? {} : {backgroundColor: 'var(--color-surface)', opacity: '0.7'}}>
+                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-inner ${isSelected ? 'bg-primary/10 rotate-3' : 'group-hover/card:scale-110'}`} style={isSelected ? {} : {backgroundColor: 'var(--color-background-secondary)'}}>
                                             <span className={`material-symbols-outlined text-4xl ${ui.color} transition-transform ${isSelected ? 'scale-110' : ''}`}>{ui.icon}</span>
                                         </div>
                                         <div className="text-center space-y-1 w-full">
@@ -398,12 +398,12 @@ const Step1Identity: React.FC<Step1Props> = ({
                 <div className="px-6 mt-2 space-y-3">
                     <p className="text-sm text-slate-600 dark:text-slate-300 italic">{classData?.description}</p>
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-slate-50 dark:bg-surface-dark p-3 rounded-xl border border-slate-100 dark:border-white/5">
-                            <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">{t.hit_die}</span>
-                            <span className="text-lg font-bold text-slate-900 dark:text-white">d{HIT_DIE[selectedClass]}</span>
+                        <div className="p-3 rounded-xl border" style={{backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)'}}>
+                            <span className="text-[10px] font-bold uppercase block mb-1" style={{color: 'var(--color-text-secondary)'}}>{t.hit_die}</span>
+                            <span className="text-lg font-bold" style={{color: 'var(--color-text-primary)'}}>d{HIT_DIE[selectedClass]}</span>
                         </div>
-                        <div className="bg-slate-50 dark:bg-surface-dark p-3 rounded-xl border border-slate-100 dark:border-white/5">
-                            <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">{t.primary_ability}</span>
+                        <div className="p-3 rounded-xl border" style={{backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)'}}>
+                            <span className="text-[10px] font-bold uppercase block mb-1" style={{color: 'var(--color-text-secondary)'}}>{t.primary_ability}</span>
                             <span className="text-lg font-bold text-primary">{CLASS_STAT_PRIORITIES[selectedClass]?.[0]}</span>
                         </div>
                     </div>
@@ -438,7 +438,7 @@ const Step1Identity: React.FC<Step1Props> = ({
                                 return (
                                     <label key={sub.name} className="relative shrink-0 cursor-pointer group/card snap-center scroll-m-6">
                                         <input className="peer sr-only" name="subclass" type="radio" checked={isSelected} onChange={() => setSelectedSubclass(sub.name)} />
-                                        <div className={`w-64 min-h-[14rem] h-full rounded-2xl p-5 flex flex-col items-center gap-1 transition-all duration-300 ease-out border-2 text-center relative ${isSelected ? 'bg-white dark:bg-surface-dark border-primary shadow-[0_10px_30px_-10px_rgba(53,158,255,0.4)] scale-105 z-10' : 'bg-white/60 dark:bg-surface-dark/60 border-transparent hover:border-slate-300 shadow-sm'}`}>
+                                        <div className={`w-64 min-h-[14rem] h-full rounded-2xl p-5 flex flex-col items-center gap-1 transition-all duration-300 ease-out border-2 text-center relative ${isSelected ? 'border-primary shadow-[0_10px_30px_-10px_rgba(53,158,255,0.4)] scale-105 z-10' : 'border-transparent shadow-sm'}`} style={isSelected ? {} : {backgroundColor: 'var(--color-surface)', opacity: '0.7'}}>
                                             <div className="flex flex-col items-center w-full gap-2 flex-1">
                                                 <span className={`block font-bold text-sm leading-tight px-2 ${isSelected ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}>{sub.name}</span>
                                                 <div className="w-full border-t border-slate-100 dark:border-white/5 my-0.5 opacity-50"></div>
@@ -472,8 +472,8 @@ const Step1Identity: React.FC<Step1Props> = ({
                             return (
                                 <label key={s} className="relative shrink-0 cursor-pointer group/card snap-center scroll-m-6">
                                     <input className="peer sr-only" name="species" type="radio" checked={isSelected} onChange={() => setSelectedSpecies(s)} />
-                                    <div className={`w-28 h-32 rounded-2xl p-3 flex flex-col items-center justify-center gap-2 transition-all duration-300 ease-out border-2 ${isSelected ? 'bg-white dark:bg-surface-dark border-primary shadow-lg scale-105' : 'bg-white/70 dark:bg-surface-dark/70 border-transparent hover:border-slate-300'}`}>
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${isSelected ? 'bg-primary/10' : 'bg-slate-100 dark:bg-white/5'}`}>
+                                    <div className={`w-28 h-32 rounded-2xl p-3 flex flex-col items-center justify-center gap-2 transition-all duration-300 ease-out border-2 ${isSelected ? 'border-primary shadow-lg scale-105' : 'border-transparent'}`} style={isSelected ? {} : {backgroundColor: 'var(--color-surface)', opacity: '0.7'}}>
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${isSelected ? 'bg-primary/10' : ''}`} style={isSelected ? {} : {backgroundColor: 'var(--color-background-secondary)'}}>
                                             <span className={`material-symbols-outlined text-2xl ${ui.color}`}>{ui.icon}</span>
                                         </div>
                                         <span className={`font-bold text-xs text-center leading-tight ${isSelected ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}>{speciesList[s]?.name || s}</span>
@@ -504,7 +504,7 @@ const Step1Identity: React.FC<Step1Props> = ({
                                 return (
                                     <label key={sub.name} className="relative shrink-0 cursor-pointer group/card snap-center scroll-m-6">
                                         <input className="peer sr-only" name="subspecies" type="radio" checked={isSelected} onChange={() => setSelectedSubspecies(sub.name)} />
-                                        <div className={`w-64 min-h-[12rem] h-full rounded-2xl p-5 flex flex-col items-center gap-1 transition-all duration-300 ease-out border-2 text-center relative ${isSelected ? 'bg-white dark:bg-surface-dark border-primary shadow-lg scale-105 z-10' : 'bg-white/60 dark:bg-surface-dark/60 border-transparent hover:border-slate-300 shadow-sm'}`}>
+                                        <div className={`w-64 min-h-[12rem] h-full rounded-2xl p-5 flex flex-col items-center gap-1 transition-all duration-300 ease-out border-2 text-center relative ${isSelected ? 'border-primary shadow-lg scale-105 z-10' : 'border-transparent shadow-sm'}`} style={isSelected ? {} : {backgroundColor: 'var(--color-surface)', opacity: '0.7'}}>
                                             <div className="flex flex-col items-center w-full gap-2 flex-1">
                                                 <span className={`block font-bold text-sm leading-tight px-2 ${isSelected ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}>{sub.name}</span>
                                                 <div className="w-full border-t border-slate-100 dark:border-white/5 my-0.5 opacity-50"></div>
@@ -537,7 +537,7 @@ const Step1Identity: React.FC<Step1Props> = ({
                             return (
                                 <label key={b} className="relative shrink-0 cursor-pointer group/card snap-center scroll-m-6">
                                     <input className="peer sr-only" name="background" type="radio" checked={isSelected} onChange={() => setSelectedBackground(b)} />
-                                    <div className={`w-36 h-28 rounded-2xl p-3 flex flex-col items-center justify-center gap-1 transition-all duration-300 ease-out border-2 ${isSelected ? 'bg-white dark:bg-surface-dark border-primary shadow-lg scale-105' : 'bg-white/70 dark:bg-surface-dark/70 border-transparent hover:border-slate-300'}`}>
+                                    <div className={`w-36 h-28 rounded-2xl p-3 flex flex-col items-center justify-center gap-1 transition-all duration-300 ease-out border-2 ${isSelected ? 'border-primary shadow-lg scale-105' : 'border-transparent'}`} style={isSelected ? {} : {backgroundColor: 'var(--color-surface)', opacity: '0.7'}}>
                                         <span className={`material-symbols-outlined text-2xl ${ui.color} transition-transform`}>{ui.icon}</span>
                                         <span className={`font-bold text-xs text-center leading-tight mt-1 ${isSelected ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}>{bg.name || b}</span>
                                         <span className="text-[9px] font-bold text-primary uppercase tracking-wider text-center">{bg?.scores.join(' ')}</span>
@@ -652,7 +652,7 @@ const Step1Identity: React.FC<Step1Props> = ({
 
             {/* MODAL DE SELECCIÓN DE MAGIA DE TRASFONDO */}
             {showMagicModal && bgMagicConfig && createPortal(
-                <div className="fixed inset-0 z-[110] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                <div className="fixed inset-0 z-[110] bg-background-light dark:bg-background-dark flex flex-col pt-[max(0.75rem,env(safe-area-inset-top))] animate-fadeIn">
                     <div className="p-4 bg-white dark:bg-surface-dark border-b border-slate-200 dark:border-white/10 flex items-center justify-between shadow-md">
                         <button onClick={() => setShowMagicModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
                         <div className="text-center">
@@ -742,7 +742,7 @@ const Step1Identity: React.FC<Step1Props> = ({
 
             {/* SKILLED FEAT MODAL */}
             {showSkilledModal && bgSkilledConfig && createPortal(
-                <div className="fixed inset-0 z-[110] bg-background-light dark:bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+                <div className="fixed inset-0 z-[110] bg-background-light dark:bg-background-dark flex flex-col pt-[max(0.75rem,env(safe-area-inset-top))] animate-fadeIn">
                     <div className="p-4 bg-white dark:bg-surface-dark border-b border-slate-200 dark:border-white/10 flex items-center justify-between shadow-md">
                         <button onClick={() => setShowSkilledModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-500"><span className="material-symbols-outlined">close</span></button>
                         <div className="text-center">
