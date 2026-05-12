@@ -267,7 +267,7 @@ export const bardEn = {
   savingThrows: ['DEX', 'CHA'] as Ability[],
   statPriorities: ['CHA', 'DEX', 'CON'] as Ability[],
   skillData: { count: 3, options: ['Any 3 skills'] as Skill[] },
-  progression: {1:["Bardic Inspiration","Spellcasting"],2:["Expertise","Jack of all Trades"],3:["Bard Subclass"],4:["Ability Score Improvement"],5:["Font of Inspiration"],6:["Subclass feature"],7:["Countercharm"],8:["Ability Score Improvement"],9:["Expertise"],10:["Magical Secrets"],11:["—"],12:["Ability Score Improvement"],13:["—"],14:["Subclass feature"],15:["—"],16:["Ability Score Improvement"],17:["—"],18:["Superior Inspiration"],19:["Epic Boon"],20:["Words of Creation"]},
+  progression: {1:["Bardic Inspiration","Spellcasting"],2:["Expertise","Jack of All Trades"],3:["Bard Subclass"],4:["Ability Score Improvement"],5:["Font of Inspiration"],6:["Subclass feature"],7:["Countercharm"],8:["Ability Score Improvement"],9:["Expertise"],10:["Magical Secrets"],11:["—"],12:["Ability Score Improvement"],13:["—"],14:["Subclass feature"],15:["—"],16:["Ability Score Improvement"],17:["—"],18:["Superior Inspiration"],19:["Epic Boon"],20:["Words of Creation"]},
   subclasses: [
     {
       name: 'College of Dance',
@@ -307,13 +307,13 @@ export const bardEn = {
       features: {
         3: [
           { name: 'Bonus Proficiencies', description: 'You gain proficiency with three skills of your choice.' },
-          { name: 'Cutting Words', description: 'When a creature that you can see within 60 feet makes a damage roll or succeeds on an ability check or attack roll, you can take a Reaction to expend one use of your Bardic Inspiration and subtract the roll from the creature\'s roll.' },
+          { name: 'Cutting Words', description: 'You learn to use your wit to supernaturally distract, confuse, and otherwise sap the confidence and competence of others. When a creature that you can see within 60 feet of yourself makes a damage roll or succeeds on an ability check or attack roll, you can take a Reaction to expend one use of your Bardic Inspiration; roll your Bardic Inspiration die, and subtract the number rolled from the creature\'s roll, reducing the damage or potentially turning the success into a failure.' },
         ],
         6: [
-          { name: 'Magical Discoveries', description: 'You learn two spells of your choice from the Cleric, Druid, or Wizard spell list. A spell you choose must be a cantrip or a spell for which you have spell slots.' },
+          { name: 'Magical Discoveries', description: 'You learn two spells of your choice. These spells can come from the Cleric, Druid, or Wizard spell list or any combination thereof (see a class\'s section for its spell list). A spell you choose must be a cantrip or a spell for which you have spell slots. You always have the chosen spells prepared, and whenever you gain a Bard level, you can replace one of the spells with another spell that meets these requirements.' },
         ],
         14: [
-          { name: 'Peerless Skill', description: 'When you make an ability check or attack roll and fail, you can expend one use of Bardic Inspiration and add the number rolled to the d20, potentially turning a failure into a success.' },
+          { name: 'Peerless Skill', description: 'When you make an ability check or attack roll and fail, you can expend one use of Bardic Inspiration; roll the Bardic Inspiration die, and add the number rolled to the d20, potentially turning a failure into a success. On a failure, the Bardic Inspiration isn\'t expended.' },
         ],
       }
     },

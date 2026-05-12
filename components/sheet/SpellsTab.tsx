@@ -265,11 +265,22 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
             return count;
         }
 
-        // CASE 2: KNOWN CASTERS (Bard, Ranger, Sorcerer, Warlock)
+        // SPECIAL: Paladin and Ranger use spell SLOTS per level (not global "Spells Known")
+        // They ALWAYS use per-level slot limits, never global limits
+        if (['Paladin', 'Ranger'].includes(character.class)) {
+            const slots = getSlots(effectiveCasterType, character.level, grimoireLevel);
+            if (grimoireLevel === 1 && magicInitiateType) return slots + 1;
+            console.log(`[RANGER/PALADIN] Class: ${character.class}, Level: ${character.level}, Spell Level: ${grimoireLevel}, EffectiveType: ${effectiveCasterType}, Slots returned: ${slots}`);
+            return slots;
+        }
+
+        // CASE 2: KNOWN CASTERS (Bard, Sorcerer, Warlock)
         // These classes have a global "Spells Known" limit at their current character level
         if (SPELLS_KNOWN_BY_LEVEL[character.class]) {
+            const result = getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
+            console.log(`[KNOWN_CASTER] Class: ${character.class}, Level: ${character.level}, Result from SPELLS_KNOWN_BY_LEVEL: ${result}`);
             // Return the TOTAL spells known limit for this level
-            return getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[character.class], character.level, 0);
+            return result;
         }
 
         // CASE 3: THIRD CASTERS (Eldritch Knight, Arcane Trickster)
@@ -291,21 +302,13 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
             return getProgressiveValue(SPELLS_KNOWN_BY_LEVEL[subclass], character.level, 0);
         }
 
-        // CASE 4: PREPARED CASTERS (Cleric, Druid, Paladin, Wizard)
+        // CASE 4: PREPARED CASTERS (Cleric, Druid, Wizard)
         // The limit is the number of spell SLOTS at this level
         // In 5e 2024, "Prepared = Slots" for these casters
         const slots = getSlots(effectiveCasterType, character.level, grimoireLevel);
 
         // Exception: Magic Initiate feat grants +1 level 1 spell
         if (grimoireLevel === 1 && magicInitiateType) return slots + 1;
-
-        // Exception: Paladin and Ranger are "half casters" but use "Spells Known" table
-        // However, they still can't prepare more than their slots allow
-        if (['Paladin', 'Ranger'].includes(character.class)) {
-            // Paladin/Ranger spells known are separate from prepared
-            // They use SPELLS_KNOWN_BY_LEVEL which we already handled above
-            return slots;
-        }
 
         return slots;
     }, [character.class, character.subclass, character.level, grimoireLevel, effectiveCasterType, magicInitiateType, character.preparedSpells]);
@@ -600,7 +603,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
        </div>
 
        {showGrimoire && createPortal(
-           <div className="fixed inset-0 z-50 bg-background-dark flex flex-col pt-[env(safe-area-inset-top)] animate-fadeIn">
+           <div className="fixed inset-0 z-50 bg-background-dark flex flex-col pt-[max(0.75rem,env(safe-area-inset-top))] animate-fadeIn">
                <div className="flex flex-col gap-2 p-4 bg-surface-dark border-b border-white/10 shadow-lg">
                    <div className="flex items-center gap-4">
                        <button onClick={() => setShowGrimoire(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-white hover:bg-white/10 transition-colors"><span className="material-symbols-outlined">close</span></button>

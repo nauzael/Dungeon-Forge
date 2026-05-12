@@ -46,7 +46,7 @@ const SpellsStep: React.FC<SpellsStepProps> = ({
                         {needsMetamagic ? 'auto_fix_normal' : isSpellcaster ? 'auto_awesome' : 'menu_book'}
                     </span>
                 </div>
-                <h2 className="text-lg font-black text-slate-900 dark:text-white">
+                <h2 className="text-lg font-black" style={{color: 'var(--color-text-primary)'}}>
                     {needsMetamagic 
                         ? t.metamagic_options || 'Metamagic Options'
                         : isSpellcaster 

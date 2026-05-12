@@ -53,7 +53,7 @@ const HPStep: React.FC<HPStepProps> = ({
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 text-green-600 dark:text-green-400 flex items-center justify-center mx-auto mb-2 border border-white dark:border-white/20 shadow-sm">
                     <span className="material-symbols-outlined text-2xl">favorite</span>
                 </div>
-                <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                <h2 className="text-base font-black tracking-tight" style={{color: 'var(--color-text-primary)'}}>
                     Hit Points
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -149,7 +149,8 @@ const HPStep: React.FC<HPStepProps> = ({
                                         value={rolledValue}
                                         onChange={(e) => onRolledValueChange(Math.max(1, Math.min(hitDie, parseInt(e.target.value) || 1)))}
                                         onClick={(e) => e.stopPropagation()}
-                                        className="w-14 h-10 text-center bg-white dark:bg-black/20 border border-slate-300 dark:border-white/20 rounded-lg font-mono text-lg font-bold text-slate-900 dark:text-white outline-none focus:border-purple-500"
+                                        className="w-14 h-10 text-center border rounded-lg font-mono text-lg font-bold outline-none focus:border-purple-500" 
+                                        style={{backgroundColor: 'var(--color-background-secondary)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)'}}
                                     />
                                     <button
                                         onClick={(e) => { e.stopPropagation(); onRolledValueChange(Math.min(hitDie, rolledValue + 1)); }}

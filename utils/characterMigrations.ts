@@ -8,7 +8,7 @@ import { SPECIES_DETAILS } from '../Data/characterOptions';
  * Migrations are tracked and only applied once per character.
  */
 
-const MIGRATION_VERSION = '2026.4.3';
+const MIGRATION_VERSION = '2026.5.8';
 
 /**
  * Get the set of migrations that have been applied to characters
@@ -99,6 +99,24 @@ const migrateInnateSpells = (character: Character): Character => {
     return {
       ...character,
       innateSpells: correctInnateSpells
+    };
+  }
+
+  return character;
+};
+
+/**
+ * Migration: Convert Reborn from main race to Elf subrace
+ * Issue: Reborn was originally a main race but should be an Elf lineage option
+ * Converts characters with species='Reborn' to species='Elf' with subspecies='Reborn'
+ */
+const migrateRebornToElfSubrace = (character: Character): Character => {
+  if (character.species === 'Reborn') {
+    console.log(`[Migration] Converting "${character.name}" from Reborn race to Elf (Reborn) lineage`);
+    return {
+      ...character,
+      species: 'Elf',
+      subspecies: 'Reborn'
     };
   }
 
@@ -233,6 +251,7 @@ const migrateClassResources = (character: Character): Character => {
  */
 export const migrateCharacter = (character: Character): Character => {
   let migrated = character;
+  migrated = migrateRebornToElfSubrace(migrated);
   migrated = migrateInnateSpells(migrated);
   migrated = migrateClassResources(migrated);
   return migrated;

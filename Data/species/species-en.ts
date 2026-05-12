@@ -163,7 +163,7 @@ export const elfEn: DetailData = {
   speed: 30,
   traits: [
     { name: 'Darkvision', description: 'You have Darkvision with a range of 60 feet.' },
-    { name: 'Elven Lineage', description: 'You are part of a lineage that grants you supernatural abilities. Choose a lineage: Drow, High Elf, Wood Elf, Lorwyn Elf, or Shadowmoor Elf. You gain the level 1 benefit of that lineage.' },
+    { name: 'Elven Lineage', description: 'You are part of a lineage that grants you supernatural abilities. Choose a lineage: Drow, High Elf, Wood Elf, Lorwyn Elf, Shadowmoor Elf, or Reborn. You gain the level 1 benefit of that lineage.' },
     { name: 'Fey Ancestry', description: 'You have Advantage on saving throws you make to avoid or end the Charmed condition.' },
     { name: 'Keen Senses', description: 'You have proficiency in the Insight, Perception, or Survival skill.' },
     { name: 'Trance', description: 'You don\'t need to sleep, and magic can\'t put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation.' },
@@ -228,6 +228,15 @@ export const elfEn: DetailData = {
         { level: 0, spell: 'Starry Wisp' },
         { level: 3, spell: 'Heroism' },
         { level: 5, spell: 'Gentle Repose' },
+      ]
+    },
+    {
+      name: 'Reborn',
+      description: 'Death is not the end. You exemplify this, being an individual who has died yet somehow still lives. Some display the scars of fatal ends, with ashen flesh or bloodless veins making clear you\'ve been touched by death. Others are marvels of magic or science, stitched together from disparate beings with mysterious minds in manufactured bodies. Whatever your origins, you know a new life and seek experiences and answers all your own.',
+      traits: [
+        { name: 'Deathless Nature', description: 'You have escaped death, a fact represented by the following benefits: You have Advantage on Saving Throws against Disease and being Poisoned, and you have Resistance to Poison damage. You have Advantage on Death Saving Throws. You don\'t need to eat, drink, or breathe. You don\'t need to sleep, and magic can\'t put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in an inactive, motionless state, during which you retain Consciousness.' },
+        { name: 'Ancestral Legacy', description: 'If you replace a race with this lineage, you can keep any skill proficiencies you gained from that race and any Climbing, Flying, or Swimming Speed you gained from it. If you don\'t keep any of those elements or you choose this lineage at character creation, you gain Proficiency in two Skills of your choice.' },
+        { name: 'Knowledge from a Past Life', description: 'You temporarily remember glimpses of the past, perhaps faded memories from ages ago or a previous life. When you make an Ability Check that uses a Skill, you can roll a d6 immediately after seeing the number on the d20 and add the number on the d6 to the Check. You can use this feature a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.' },
       ]
     },
   ]

@@ -74,6 +74,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
     const [weaponStatModal, setWeaponStatModal] = useState<{ item: any; weapon: any; type: 'toHit' | 'damage'; isSpell?: boolean } | null>(null);
     const [showWildShapeModal, setShowWildShapeModal] = useState(false);
     const [wildShapeState, setWildShapeState] = useState<WildShapeState | null>(null);
+    const [ammoSpent, setAmmoSpent] = useState<Record<string, number>>({}); // Track ammo spent during combat
     const { lockScroll, unlockScroll } = useModalScrollLock();
 
     useEffect(() => {
@@ -130,6 +131,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
     
     const chaMod = Math.floor(((finalStats.CHA || 10) - 10) / 2);
     const wisMod = Math.floor(((finalStats.WIS || 10) - 10) / 2);
+    const dexMod = Math.floor(((finalStats.DEX || 10) - 10) / 2);
     const spellSlotSummary = useMemo(() => getSpellSlotSummary(character), [character]);
     
     // Fix: Ensure spellcastingAbility is not undefined before using as index
@@ -414,6 +416,62 @@ const CombatTab: React.FC<CombatTabProps> = ({
         setHpModal({ ...hpModal, show: false });
     };
 
+    // Detectar si un arma necesita municiones
+    const getWeaponAmmoType = (weaponName: string): 'arrows' | 'bolts' | 'bullets' | 'needles' | null => {
+        const n = weaponName.toLowerCase();
+        if (n.includes('bow')) return 'arrows';
+        if (n.includes('crossbow')) return 'bolts';
+        if (n.includes('pistol') || n.includes('musket') || n.includes('firearm')) return 'bullets';
+        if (n.includes('blowgun')) return 'needles';
+        if (n.includes('dart')) return null; // Darts are weapons, not ammo
+        return null;
+    };
+
+    // Contar municiones disponibles en el inventario
+    const getAmmunitionCount = (ammoType: string): number => {
+        return character.inventory
+            .filter(item => {
+                const n = item.name.toLowerCase();
+                switch (ammoType) {
+                    case 'arrows': return n.includes('arrows') || n.includes('arrow');
+                    case 'bolts': return n.includes('bolts') || n.includes('bolt');
+                    case 'bullets': return n.includes('bullets') || n.includes('bullet');
+                    case 'needles': return n.includes('needles') || n.includes('needle');
+                    default: return false;
+                }
+            })
+            .reduce((total, item) => total + item.quantity, 0);
+    };
+
+    // Obtener municiones gastadas para una arma
+    const getSpentAmmo = (weaponName: string): number => {
+        return ammoSpent[weaponName] || 0;
+    };
+
+    // Gastar una munición
+    const spendAmmo = (weaponName: string) => {
+        const ammoType = getWeaponAmmoType(weaponName);
+        if (!ammoType) return;
+        
+        const available = getAmmunitionCount(ammoType);
+        const spent = getSpentAmmo(weaponName);
+        
+        if (spent + 1 > available) {
+            alert(`¡Sin ${ammoType}! Solo tienes ${Math.max(0, available - spent)} disponibles.`);
+            return;
+        }
+        
+        setAmmoSpent(prev => ({
+            ...prev,
+            [weaponName]: spent + 1
+        }));
+    };
+
+    // Restaurar municiones (para un descanso corto)
+    const restoreAmmo = () => {
+        setAmmoSpent({});
+    };
+
     const renderWeapons = () => {
         const physicalWeapons = character.inventory.filter(i => {
             if (!i.equipped) return false;
@@ -490,6 +548,56 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                 )}
                             </button>
                         </div>
+
+                        {/* Municiones Counter */}
+                        {(() => {
+                            const ammoType = getWeaponAmmoType(entry.name);
+                            if (!ammoType) return null;
+                            
+                            const totalAmmo = getAmmunitionCount(ammoType);
+                            const spent = getSpentAmmo(entry.name);
+                            const remaining = totalAmmo - spent;
+                            const isLow = remaining < 10;
+                            const isEmpty = remaining <= 0;
+                            
+                            return (
+                                <div className="mt-3 pt-3 border-t border-slate-200 dark:border-white/5">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider capitalize">{ammoType}</span>
+                                        <span className={`text-sm font-black ${isEmpty ? 'text-red-500' : isLow ? 'text-amber-500' : 'text-green-500'}`}>
+                                            {remaining}/{totalAmmo}
+                                        </span>
+                                    </div>
+                                    <div className="w-full h-2 bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
+                                        <div 
+                                            className={`h-full transition-all ${isEmpty ? 'bg-red-500' : isLow ? 'bg-amber-500' : 'bg-green-500'}`}
+                                            style={{ width: `${(remaining / Math.max(totalAmmo, 1)) * 100}%` }}
+                                        />
+                                    </div>
+                                    <div className="flex gap-2 mt-2">
+                                        <button 
+                                            onClick={() => spendAmmo(entry.name)}
+                                            disabled={isEmpty}
+                                            className="flex-1 py-1.5 px-2 rounded-lg bg-primary/10 hover:bg-primary hover:text-white text-primary text-[10px] font-bold uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Fire
+                                        </button>
+                                        <button 
+                                            onClick={() => {
+                                                setAmmoSpent(prev => ({
+                                                    ...prev,
+                                                    [entry.name]: 0
+                                                }));
+                                            }}
+                                            disabled={spent === 0}
+                                            className="flex-1 py-1.5 px-2 rounded-lg bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-slate-700 dark:text-slate-300 text-[10px] font-bold uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Reload
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })()}
                     </div>
                 );
             } else {
@@ -717,6 +825,46 @@ const CombatTab: React.FC<CombatTabProps> = ({
                         </div>
                         <div className="relative h-2 w-full rounded-full bg-slate-100 dark:bg-black/40 overflow-hidden">
                              <div className="absolute top-0 left-0 h-full bg-cyan-500 transition-all duration-500" style={{ width: `${Math.min(100, focusPercent)}%` }}></div>
+                        </div>
+
+                        {/* Flurry of Blows Section */}
+                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/5 space-y-3">
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="flex-1">
+                                    <h3 className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-1">Rafa de Golpes</h3>
+                                    <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                                        Expende 1 Punto de Enfoque como Acción Bonus para hacer {character.level >= 10 ? '3' : '2'} Ataques sin armas adicionales.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Attack Calculation Box */}
+                            <div className="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-black/20 rounded-2xl p-3">
+                                <div className="flex flex-col items-center gap-1">
+                                    <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Ataques</span>
+                                    <span className="text-2xl font-black text-cyan-500">{character.level >= 10 ? '3' : '2'}</span>
+                                </div>
+                                <div className="flex flex-col items-center gap-1 border-l border-r border-slate-200 dark:border-white/5">
+                                    <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Dado</span>
+                                    <span className="text-lg font-black text-cyan-600 dark:text-cyan-400">{martialArtsDie}</span>
+                                </div>
+                                <div className="flex flex-col items-center gap-1">
+                                    <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Modificador</span>
+                                    <span className="text-lg font-black text-cyan-600 dark:text-cyan-400">{dexMod >= 0 ? '+' : ''}{dexMod}</span>
+                                </div>
+                            </div>
+
+                            {/* What it does */}
+                            <div className="space-y-1.5 bg-gradient-to-br from-cyan-500/5 to-transparent rounded-xl p-2.5 border border-cyan-500/10">
+                                <div className="text-[9px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Lo que hace:</div>
+                                <ul className="text-[10px] text-slate-600 dark:text-slate-400 space-y-0.5 list-disc list-inside">
+                                    <li>Realiza múltiples ataques en una sola tirada</li>
+                                    <li>Cada ataque usa tu Dado de Artes Marciales</li>
+                                    <li>Añades tu modificador de DEX a cada daño</li>
+                                    <li>Puedes usar tus Flurry de Golpes libremente en tu turno</li>
+                                    {character.level >= 10 && <li className="text-cyan-500 font-semibold">⭐ A nivel 10+: 3 ataques (Enfoque Mejorado)</li>}
+                                </ul>
+                            </div>
                         </div>
 
                         <div className="mt-2 pt-2">
@@ -1288,16 +1436,12 @@ const CombatTab: React.FC<CombatTabProps> = ({
                             <div className="flex items-center gap-3">
                                 {onShowJoinParty ? (
                                     <button
-                                        onClick={onShowJoinParty}
-                                        className={`w-12 h-12 rounded-xl transition-all active:scale-95 flex items-center justify-center flex-shrink-0 shadow-md ${
-                                            character.party_id
-                                                ? 'bg-blue-500 text-white shadow-blue-500/20'
-                                                : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10'
-                                        }`}
-                                        aria-label={character.party_id ? 'Connected to party' : 'Join party'}
+                                        onClick={() => onShowJoinParty?.()}
+                                        className="w-12 h-12 rounded-xl transition-all active:scale-95 flex items-center justify-center flex-shrink-0 shadow-md bg-blue-500 text-white shadow-blue-500/20"
+                                        aria-label="Manage party"
                                     >
-                                        <span className={`material-symbols-outlined text-lg font-bold ${character.party_id ? '' : 'text-slate-500 dark:text-slate-400'}`}>
-                                            {character.party_id ? 'hub' : 'link'}
+                                        <span className="material-symbols-outlined text-lg font-bold">
+                                            hub
                                         </span>
                                     </button>
                                 ) : (

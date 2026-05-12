@@ -30,13 +30,38 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
         };
     }, []);
 
-    const t = UI;
+    // ✅ MOVE ALL useState HOOKS TO THE TOP (Before any logic that uses them)
+    const [currentStepIndex, setCurrentStepIndex] = useState(0);
+    const [subclass, setSubclass] = useState('');
+    const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+    const [asiType, setAsiType] = useState<'stat' | 'feat'>('stat');
+    const [stat1, setStat1] = useState<Ability>('STR');
+    const [stat2, setStat2] = useState<Ability>('DEX');
+    const [feat, setFeat] = useState('');
+    const [featStat, setFeatStat] = useState<Ability | null>(null);
+    const [pendingMetamagics, setPendingMetamagics] = useState<string[]>([]);
+    const [fightingStyle, setFightingStyle] = useState(character.fightingStyle || '');
+    const [druidicWarriorCantrips, setDruidicWarriorCantrips] = useState<string[]>(character.druidicWarriorCantrips || []);
+    const [additionalFightingStyle, setAdditionalFightingStyle] = useState('');
+    const [savantSpells, setSavantSpells] = useState<string[]>([]);
+    const [deftExplorerSkill, setDeftExplorerSkill] = useState('');
+    const [deftExplorerLanguages, setDeftExplorerLanguages] = useState<string[]>([]);
     
     const nextLevel = character.level + 1;
     const stats = getFinalStats(character);
     const conMod = Math.floor(((stats.CON || 10) - 10) / 2);
     const hitDie = HIT_DIE[character.class] || 8;
+    
+    const [hpGain, setHpGain] = useState(() => {
+        const avgGain = Math.floor(hitDie / 2) + 1;
+        const hpBonusPerLevel = getAllHpBonusesPerLevel(character);
+        return Math.max(1, avgGain + conMod + hpBonusPerLevel);
+    });
+    const [hpMethod, setHpMethod] = useState<'roll' | 'average'>('average');
+    const [rolledValue, setRolledValue] = useState(Math.floor(hitDie / 2) + 1);
 
+    // ✅ NOW use the state variables after they're defined
+    const t = UI;
     const newFeatures = CLASS_PROGRESSION[character.class]?.[nextLevel] || [];
     const needsSubclass = !character.subclass && newFeatures.some((f: string) => f.toLowerCase().includes('subclass'));
     const needsAsi = newFeatures.some((f: string) => f.toLowerCase().includes('ability score improvement'));
@@ -46,9 +71,28 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
     const isAnySkill = rawOptions === 'Any' || (Array.isArray(rawOptions) && rawOptions.some(o => typeof o === 'string' && o.toLowerCase().includes('any')));
     const skillOptions = isAnySkill ? SKILL_LIST : (Array.isArray(rawOptions) ? rawOptions : []);
 
+    // ⭐ CRÍTICO: Definir effectiveSubclass DESPUÉS de que subclass esté disponible
+    const effectiveSubclass = character.subclass || subclass;
+
+    // Detectar Bonus Proficiencies de SUBCLASES (ej: College of Lore Bard Level 3)
+    let bonusProficienciesCount = 0;
+    if (effectiveSubclass) {
+      const subclassData = SUBCLASS_OPTIONS[character.class]?.find((s: any) => s.name === effectiveSubclass);
+      const subclassFeatures = subclassData?.features?.[nextLevel] || [];
+      const bonusProfsFeature = subclassFeatures.find((f: any) => typeof f === 'object' && f.name?.toLowerCase().includes('bonus proficiencies'));
+      if (bonusProfsFeature) {
+        // Extraer el número de skills de la descripción (ej: "You gain proficiency with three skills of your choice.")
+        const match = bonusProfsFeature.description?.match(/\b(\d+)\s+skills?\b/i) || bonusProfsFeature.description?.match(/\b(one|two|three|four|five)\s+skills?\b/i);
+        if (match) {
+          const numberMap: Record<string, number> = { 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5 };
+          bonusProficienciesCount = !isNaN(parseInt(match[1])) ? parseInt(match[1]) : (numberMap[match[1]?.toLowerCase()] || 0);
+        }
+      }
+    }
+
     const hasPrimalKnowledge = newFeatures.some((f: string) => f.toLowerCase().includes('primal knowledge'));
     const skillsGainedThisLevel = hasPrimalKnowledge ? 1 : 0;
-    const skillsNeeded = skillsGainedThisLevel;
+    const skillsNeeded = skillsGainedThisLevel + bonusProficienciesCount; // ✅ Sumar skills de clase + subclase
     const isGainingSkills = skillsNeeded > 0;
     const availableSkills = skillOptions.filter((s: string) => !character.skills.includes(s));
 
@@ -74,24 +118,7 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
         'Illusionist': { school: 'illusion', featureName: 'Illusion Savant' },
     };
     const hasSavants = (s: string) => s in SAVANT_SUBCLASSES;
-
-    const [currentStepIndex, setCurrentStepIndex] = useState(0);
-    const [subclass, setSubclass] = useState('');
-    const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-    const [asiType, setAsiType] = useState<'stat' | 'feat'>('stat');
-    const [stat1, setStat1] = useState<Ability>('STR');
-    const [stat2, setStat2] = useState<Ability>('DEX');
-    const [feat, setFeat] = useState('');
-    const [featStat, setFeatStat] = useState<Ability | null>(null);
-    const [pendingMetamagics, setPendingMetamagics] = useState<string[]>([]);
-    const [fightingStyle, setFightingStyle] = useState(character.fightingStyle || '');
-    const [druidicWarriorCantrips, setDruidicWarriorCantrips] = useState<string[]>(character.druidicWarriorCantrips || []);
-    const [additionalFightingStyle, setAdditionalFightingStyle] = useState('');
-    const [savantSpells, setSavantSpells] = useState<string[]>([]);
-    const [deftExplorerSkill, setDeftExplorerSkill] = useState('');
-    const [deftExplorerLanguages, setDeftExplorerLanguages] = useState<string[]>([]);
     
-    const effectiveSubclass = character.subclass || subclass;
     const isSavantClass = character.class === 'Wizard' && effectiveSubclass && hasSavants(effectiveSubclass);
     const needsSavantInitial = isSavantClass && nextLevel === 3 && !character.savantSpellsAdded;
     const needsSavantSlot = isSavantClass && nextLevel > 3 && !character.savantSpellsAdded && (
@@ -103,14 +130,6 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
     const savantFeatureName = effectiveSubclass ? SAVANT_SUBCLASSES[effectiveSubclass]?.featureName || 'Savant' : 'Savant';
     const savantSpellCount = needsSavantInitial ? 2 : 1;
     const savantMaxLevel = Math.min(Math.ceil(nextLevel / 2), 9);
-    
-    const [hpGain, setHpGain] = useState(() => {
-        const avgGain = Math.floor(hitDie / 2) + 1;
-        const hpBonusPerLevel = getAllHpBonusesPerLevel(character);
-        return Math.max(1, avgGain + conMod + hpBonusPerLevel);
-    });
-    const [hpMethod, setHpMethod] = useState<'roll' | 'average'>('average');
-    const [rolledValue, setRolledValue] = useState(Math.floor(hitDie / 2) + 1);
 
     const selectedFeat = useMemo(() => FEAT_OPTIONS.find(f => f.name === feat), [feat]);
     const featHasAsi = useMemo(() => selectedFeat?.asi && selectedFeat.asi.length > 0, [selectedFeat]);

@@ -63,7 +63,7 @@ const DeftExplorerStep: React.FC<DeftExplorerStepProps> = ({
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/40 dark:to-indigo-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center mx-auto mb-2 border border-white dark:border-white/20 shadow-sm">
                     <span className="material-symbols-outlined text-2xl">explore</span>
                 </div>
-                <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                <h2 className="text-base font-black tracking-tight" style={{color: 'var(--color-text-primary)'}}>
                     Deft Explorer
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">
@@ -98,7 +98,7 @@ const DeftExplorerStep: React.FC<DeftExplorerStepProps> = ({
                                             : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 hover:border-purple-300 dark:hover:border-purple-600'
                                     }`}
                                 >
-                                    <span className="text-xs font-semibold text-slate-900 dark:text-white">{skill}</span>
+                                    <span className="text-xs font-semibold" style={{color: 'var(--color-text-primary)'}}>{skill}</span>
                                 </button>
                             ))}
                         </div>

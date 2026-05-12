@@ -38,6 +38,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
   const [isCreating, setIsCreating] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
+  const [isRemoving, setIsRemoving] = useState<string | null>(null); // ✅ FIX: Track characters being removed
 
   // Helper: Deduplicate characters and keep the most recent version by timestamp
   const deduplicateAndMerge = (current: Character[], incoming: Character): Character[] => {
@@ -114,6 +115,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
         .eq('creator_id', user.id);
     if (data) setParties(data);
     setIsLoading(false);
+          setIsRemoving(null);
   };
 
   useEffect(() => {
@@ -180,6 +182,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
       setMembers(deduplicated);
     }
     setIsLoading(false);
+          setIsRemoving(null);
   };
 
   // 3. Real-time Subscription
@@ -217,6 +220,19 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
         (broadcastChar: any) => {
             // Broadcast (Ephemeral Live Update) - use deduplicateAndMerge to avoid duplicates
             const char = broadcastChar as Character;
+            
+            // ✅ FIX: Ignore characters being removed to prevent race condition
+            if (isRemoving === char.id) {
+                console.log(`[DM-Broadcast] Ignorando character siendo removido: ${char.name}`);
+                return;
+            }
+            
+            // ✅ FIX: Validate that character still belongs to this party
+            if (char.party_id !== party.id) {
+                console.log(`[DM-Broadcast] Ignorando character fuera de party: ${char.name}`);
+                return;
+            }
+            
             setMembers(prev => {
                 const updated = deduplicateAndMerge(prev, char);
                 // Log only if it's a new character (length increased)
@@ -261,19 +277,23 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
             alert("Error deleting table.");
         }
         setIsLoading(false);
+          setIsRemoving(null);
     }
   };
 
   const handleKickCharacter = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to kick ${name} from your table?`)) {
+        setIsRemoving(id); // ✅ FIX: Mark character as being removed
         setIsLoading(true);
         const success = await removeFromParty(id);
         if (success) {
             setMembers(prev => prev.filter(c => c.id !== id));
+            console.log(`[handleKickCharacter] ${name} successfully kicked`);
         } else {
             alert("Error removing character from the Nexus.");
         }
         setIsLoading(false);
+          setIsRemoving(null);
     }
   };
 

@@ -26,10 +26,11 @@ export const ClassProgressionList = ({ selectedClass, subclassData, currentLevel
 
   return (
     <div className="mt-6 space-y-3 px-6">
-      <div className="border border-slate-200 dark:border-white/10 rounded-2xl bg-white dark:bg-surface-dark overflow-hidden transition-all duration-300 shadow-sm">
+      <div className="border rounded-2xl overflow-hidden transition-all duration-300 shadow-sm" style={{borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)'}}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`w-full flex items-center justify-between p-4 text-left transition-colors ${isOpen ? 'bg-slate-50 dark:bg-white/5' : 'hover:bg-slate-50 dark:hover:bg-white/5'}`}
+          className={`w-full flex items-center justify-between p-4 text-left transition-colors`}
+          style={isOpen ? {backgroundColor: 'var(--color-background-secondary)'} : {}}
         >
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isOpen ? 'bg-primary text-white' : 'bg-primary/10 text-primary'}`}>
@@ -47,7 +48,7 @@ export const ClassProgressionList = ({ selectedClass, subclassData, currentLevel
 
         <div className={`transition-[grid-template-rows] duration-500 ease-in-out grid ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
           <div className="overflow-hidden">
-            <div className="p-4 pt-2 space-y-0 bg-slate-50/50 dark:bg-black/20 border-t border-slate-100 dark:border-white/5">
+            <div className="p-4 pt-2 space-y-0 border-t" style={{backgroundColor: 'var(--color-background-secondary)', borderColor: 'var(--color-border)'}}>
               {Array.from({ length: 20 }, (_, i) => i + 1).map((lvl) => {
                 const features: { name: string, desc: string }[] = [];
 

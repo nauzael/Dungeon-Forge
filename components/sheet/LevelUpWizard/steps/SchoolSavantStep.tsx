@@ -60,7 +60,7 @@ const SchoolSavantStep: React.FC<SchoolSavantStepProps> = ({
                 <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-2 border-4 border-white dark:border-surface-dark shadow-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
                     <span className="material-symbols-outlined text-2xl">auto_fix_normal</span>
                 </div>
-                <h2 className="text-lg font-black text-slate-900 dark:text-white">
+                <h2 className="text-lg font-black" style={{color: 'var(--color-text-primary)'}}>
                     {savantFeatureName}
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

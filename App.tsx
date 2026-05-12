@@ -296,6 +296,28 @@ const AppContent: React.FC = () => {
     }
   }, [isAuthenticated, user]);
 
+  // Handle system back gesture (Android hardware back button, iOS swipe back)
+  useEffect(() => {
+    if (Capacitor.getPlatform() !== 'web') {
+      const backButtonListener = CapacitorApp.addListener('backButton', () => {
+        // If we're not on the list view, go back to list
+        if (view !== 'list') {
+          console.log('[Navigation] System back gesture - going to character list');
+          setView('list');
+          setActiveCharacterId(null);
+        } else {
+          // If we're on the list view, exit the app
+          console.log('[Navigation] System back gesture on list view - exiting app');
+          CapacitorApp.exitApp();
+        }
+      });
+
+      return () => {
+        backButtonListener.then(listener => listener.remove());
+      };
+    }
+  }, [view]);
+
   // Persist characters to localStorage and Supabase
   useEffect(() => {
     const saveData = setTimeout(async () => {
@@ -711,8 +733,6 @@ const AppContent: React.FC = () => {
   );
 };
 
-export default App;
-
 /**
  * App Wrapper with ThemeProvider
  * Envuelve la app con el proveedor de temas
@@ -724,3 +744,5 @@ const App: React.FC = () => {
     </ThemeProvider>
   );
 };
+
+export default App;

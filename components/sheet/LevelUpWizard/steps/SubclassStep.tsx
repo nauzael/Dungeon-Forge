@@ -69,7 +69,7 @@ const SubclassStep: React.FC<SubclassStepProps> = ({ character, nextLevel, selec
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center mx-auto mb-2 border border-white dark:border-white/20 shadow-sm">
                     <span className="material-symbols-outlined text-2xl">auto_awesome</span>
                 </div>
-                <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                <h2 className="text-base font-black tracking-tight" style={{color: 'var(--color-text-primary)'}}>
                     Choose Your Subclass
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -87,7 +87,7 @@ const SubclassStep: React.FC<SubclassStepProps> = ({ character, nextLevel, selec
                         <div className="bg-gradient-to-br from-purple-500/5 to-pink-500/5 dark:from-purple-500/10 dark:to-pink-500/10 p-3 pb-2">
                             <div className="flex items-center justify-center gap-2 mb-1.5">
                                 <span className="material-symbols-outlined text-purple-500 text-lg">shield</span>
-                                <h3 className="text-base font-black text-slate-900 dark:text-white text-center tracking-tight">
+                                <h3 className="text-base font-black text-center tracking-tight" style={{color: 'var(--color-text-primary)'}}>
                                     {currentSubclass?.name}
                                 </h3>
                             </div>
@@ -111,7 +111,7 @@ const SubclassStep: React.FC<SubclassStepProps> = ({ character, nextLevel, selec
                                 <div className="space-y-2">
                                     {level3Features.map((feature: any, idx: number) => (
                                         <div key={idx} className="bg-slate-50 dark:bg-white/5 rounded-xl p-2.5">
-                                            <p className="font-bold text-base text-slate-900 dark:text-white mb-0.5">
+                                            <p className="font-bold text-base mb-0.5" style={{color: 'var(--color-text-primary)'}}>
                                                 {feature.name}
                                             </p>
                                             <p className="text-[12px] text-slate-500 dark:text-slate-400 leading-snug">

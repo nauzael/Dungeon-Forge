@@ -32,7 +32,7 @@ export const GENERIC_FEATURES: Record<string, string> = {
 
   // Bard
   "Bardic Inspiration": "Bonus Action: Inspire an ally within 60 feet (d6 scales to d8/d10/d12). The ally can add the die to a failed d20 check within the next hour.",
-  "Jack of All Trades": "Add half your proficiency bonus (rounded down) to any ability check that does not already use your bonus.",
+  "Jack of All Trades": "You can add half your Proficiency Bonus (round down) to any ability check you make that uses a skill proficiency you lack and that doesn't otherwise use your Proficiency Bonus. Example: Strength (Athletics) check without Athletics proficiency.",
   "Font of Inspiration": "Recover all uses of Inspiration after a short or long rest. You can spend a spell slot to recover one use (no action).",
   "Countercharm": "Reaction: If you or an ally within 30 feet fail a save against Charmed or Frightened, you force a reroll with Advantage.",
   "Magical Secrets": "2024 Redesigned: When preparing spells, you can choose spells from the Bard, Cleric, Druid, or Wizard lists if they are of a level for which you have slots.",

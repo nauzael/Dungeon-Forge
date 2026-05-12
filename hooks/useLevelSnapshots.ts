@@ -36,68 +36,77 @@ export const useLevelSnapshots = (
   character: Character,
   onUpdate?: (update: Partial<Character>) => void
 ): UseLevelSnapshotsReturn => {
+  // Early return safe defaults if character is missing
+  if (!character || !character.id) {
+    return {
+      snapshots: [],
+      currentLevel: 0,
+      createSnapshot: () => { throw new Error('Character not available'); },
+      restoreSnapshot: () => { throw new Error('Character not available'); },
+      deleteSnapshotById: () => false,
+      canRestore: () => false,
+      getAvailableLevels: () => [],
+      getAuditLog: () => [],
+      clearHistory: () => {},
+      memoryUsage: 0,
+      getChangesForSnapshot: () => null,
+      refreshSnapshots: () => {},
+      hasSnapshots: false,
+    };
+  }
+
   const characterId = character.id;
-  const [snapshots, setSnapshots] = useState<LevelSnapshot[]>(() => {
-    return character.snapshots || [];
-  });
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => {
-    return character.auditLog || [];
-  });
+  const [snapshots, setSnapshots] = useState<LevelSnapshot[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const refreshSnapshots = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
   }, []);
 
+  // Single unified effect for loading and syncing snapshots
   useEffect(() => {
-    if (characterId) {
-      // 1. Prioritize character internal snapshots (synced with cloud)
-      if (character.snapshots && character.snapshots.length > 0) {
-        setSnapshots(character.snapshots);
-        setAuditLogs(character.auditLog || []);
-        return;
-      }
+    if (!characterId) return;
 
-      // 2. Fallback to localStorage (Legacy or initial load)
-      const loadedSnapshots = getSnapshotsForCharacter(characterId);
-      const loadedLogs = getAuditLogsForCharacter(characterId);
-      
-      if (loadedSnapshots.length > 0) {
-          setSnapshots(loadedSnapshots);
-          setAuditLogs(loadedLogs);
-          
-          // Legacy Sync: Migrate localStorage snapshots to character internal object
-          if (onUpdate) {
-              onUpdate({ 
-                  snapshots: loadedSnapshots,
-                  auditLog: loadedLogs
-              });
-          }
-      }
+    // Priority 1: Load from character.snapshots if available
+    if (character?.snapshots && character.snapshots.length > 0) {
+      setSnapshots(character.snapshots);
+      setAuditLogs(character.auditLog || []);
+      return;
     }
-  }, [characterId, character.snapshots, refreshTrigger]);
 
-  // Sync snapshots when character updates (e.g., after level up)
-  useEffect(() => {
-    if (characterId) {
-      const syncInterval = setInterval(() => {
-        const currentSnapshots = getSnapshotsForCharacter(characterId);
-        setSnapshots(prev => {
-          // Only update if snapshots changed to avoid unnecessary re-renders
-          if (JSON.stringify(prev) !== JSON.stringify(currentSnapshots)) {
-            return currentSnapshots;
-          }
-          return prev;
+    // Priority 2: Load from localStorage
+    const loadedSnapshots = getSnapshotsForCharacter(characterId);
+    const loadedLogs = getAuditLogsForCharacter(characterId);
+    if (loadedSnapshots.length > 0) {
+      setSnapshots(loadedSnapshots);
+      setAuditLogs(loadedLogs);
+      // Migrate to character if possible
+      if (onUpdate) {
+        onUpdate({ 
+          snapshots: loadedSnapshots,
+          auditLog: loadedLogs
         });
-      }, 500);
-
-      return () => clearInterval(syncInterval);
+      }
     }
-  }, [characterId]);
+  }, [characterId, character?.snapshots, character?.auditLog, onUpdate]);
 
-  const memoryUsage = useMemo(() => {
-    return estimateMemoryUsage(snapshots);
-  }, [snapshots]);
+  // Sync interval for periodic checks
+  useEffect(() => {
+    if (!characterId) return;
+
+    const syncInterval = setInterval(() => {
+      const currentSnapshots = getSnapshotsForCharacter(characterId);
+      setSnapshots(prev => {
+        if (JSON.stringify(prev) !== JSON.stringify(currentSnapshots)) {
+          return currentSnapshots;
+        }
+        return prev;
+      });
+    }, 500);
+
+    return () => clearInterval(syncInterval);
+  }, [characterId]);
 
   const createSnapshot = useCallback((character: Character, reason?: string): LevelSnapshot => {
     if (!character?.id) {
@@ -268,6 +277,10 @@ export const useLevelSnapshots = (
     return snapshots.length > 0
       ? Math.max(...snapshots.map(s => s.level))
       : 0;
+  }, [snapshots]);
+
+  const memoryUsage = useMemo(() => {
+    return estimateMemoryUsage(snapshots);
   }, [snapshots]);
 
   const hasSnapshots = snapshots.length > 0 && snapshots.some(s => s.metadata?.source === 'level_up');

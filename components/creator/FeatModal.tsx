@@ -55,11 +55,24 @@ const FeatModal: React.FC<FeatModalProps> = ({ featModalContext, selectedFeat, a
     };
 
     return (
-        <div className="fixed inset-0 z-[100] bg-background-light dark:bg-background-dark flex flex-col animate-fadeIn pt-[env(safe-area-inset-top)] backdrop-blur-md">
-            <div className="flex flex-col border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-surface-dark/80 backdrop-blur-xl">
+        <div className="fixed inset-0 z-[100] flex flex-col animate-fadeIn pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md"
+          style={{
+            backgroundColor: 'var(--color-background)',
+          }}>
+            <div className="flex flex-col backdrop-blur-xl"
+              style={{
+                backgroundColor: 'var(--color-surface)',
+                borderBottomColor: 'var(--color-border)',
+                borderBottomWidth: '1px',
+              }}>
                 <div className="flex items-center gap-4 p-4">
-                    <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                        <span className="material-symbols-outlined text-slate-900 dark:text-white">close</span>
+                    <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full transition-colors"
+                      style={{
+                        color: 'var(--color-text-primary)',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-background-secondary)' }
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent' }>
+                        <span className="material-symbols-outlined">close</span>
                     </button>
                     <div className="flex-1 relative">
                         <input 
@@ -68,14 +81,20 @@ const FeatModal: React.FC<FeatModalProps> = ({ featModalContext, selectedFeat, a
                             value={featSearchQuery} 
                             onChange={(e) => setFeatSearchQuery(e.target.value)} 
                             autoFocus 
-                            className="w-full bg-slate-100 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-2xl py-2.5 pl-11 pr-4 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium" 
+                            className="w-full rounded-2xl py-2.5 pl-11 pr-4 outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium"
+                            style={{
+                              backgroundColor: 'var(--color-background-secondary)',
+                              borderColor: 'var(--color-border)',
+                              borderWidth: '1px',
+                              color: 'var(--color-text-primary)',
+                            }} 
                         />
-                        <span className="material-symbols-outlined absolute left-3.5 top-2.5 text-slate-400">search</span>
+                        <span className="material-symbols-outlined absolute left-3.5 top-2.5" style={{ color: 'var(--color-text-muted)' }}>search</span>
                     </div>
                 </div>
                 <div className="px-5 pb-3 flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm text-primary">filter_list</span>
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: 'var(--color-text-muted)' }}>
                         {featModalContext?.type === 'human' ? 'Origin Feats Only' : `${t.select_feat_title} (Level ${contextLevel})`}
                     </h3>
                 </div>
@@ -91,11 +110,8 @@ const FeatModal: React.FC<FeatModalProps> = ({ featModalContext, selectedFeat, a
                         <button 
                             key={feat.name} 
                             onClick={() => handleFeatSelect(feat.name)} 
-                            className={`w-full text-left p-5 rounded-3xl border-2 transition-all duration-200 relative overflow-hidden group ${
-                                isSelected 
-                                ? 'bg-primary/5 border-primary shadow-[0_0_20px_rgba(var(--color-primary),0.1)]' 
-                                : 'bg-white dark:bg-surface-dark border-slate-100 dark:border-white/5 hover:border-primary/30 hover:shadow-lg'
-                            }`}
+                            className={`w-full text-left p-5 rounded-3xl border-2 transition-all duration-200 relative overflow-hidden group ${isSelected ? 'border-primary shadow-[0_0_20px_rgba(var(--color-primary),0.1)]' : 'border-slate-100 dark:border-white/5 hover:border-primary/30 hover:shadow-lg'}`}
+                            style={isSelected ? {backgroundColor: 'var(--color-primary)', opacity: '0.05'} : {backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)'}}
                         >
                             {isSelected && (
                                 <div className="absolute top-0 right-0 p-3">
@@ -109,9 +125,15 @@ const FeatModal: React.FC<FeatModalProps> = ({ featModalContext, selectedFeat, a
                                         {feat.category}
                                     </span>
                                     {feat.level > 1 && (
-                                        <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-500 border border-slate-200 dark:border-white/5">
-                                            Lvl {feat.level}
-                                        </span>
+                                    <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full" 
+                                      style={{
+                                        backgroundColor: 'var(--color-background-secondary)',
+                                        borderColor: 'var(--color-border)',
+                                        borderWidth: '1px',
+                                        color: 'var(--color-text-muted)',
+                                      }}>
+                                        Lvl {feat.level}
+                                    </span>
                                     )}
                                 </div>
                                 
@@ -127,7 +149,7 @@ const FeatModal: React.FC<FeatModalProps> = ({ featModalContext, selectedFeat, a
                                     )}
                                 </div>
                                 
-                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                <p className="text-xs leading-relaxed font-medium" style={{ color: 'var(--color-text-secondary)' }}>
                                     {feat.description}
                                 </p>
 
