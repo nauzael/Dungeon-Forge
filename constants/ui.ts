@@ -224,7 +224,7 @@ export const UI = {
   save_dc: 'Save DC',
   attack_bonus: 'Attack Bonus',
   amt_spells: 'Spell Amt',
-  open_grimoire: 'Open Grimoire',
+  open_grimoire: 'Wizard Spellbook',
   information: 'Information',
   time: 'Time',
   sorcery_points: 'Sorcery Points',

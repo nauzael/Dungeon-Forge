@@ -3,11 +3,33 @@ import { supabase } from '../utils/supabase';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 
-const Login: React.FC = () => {
+interface LoginProps {
+  onLocalModeActivated?: (localMode: boolean) => void;
+}
+
+const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const isMockMode = !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('TU_PROYECTO');
+
+  const handleLocalModeClick = () => {
+    try {
+      localStorage.setItem('df_local_mode', 'true');
+      localStorage.setItem('df_session', JSON.stringify({ 
+        user: 'Local Developer', 
+        id: 'local-dev-mode',
+        isLocalMode: true 
+      }));
+      console.log('[LocalMode] Activating local development mode...');
+      onLocalModeActivated?.(true);
+      // Reload to trigger App.tsx re-initialization
+      window.location.reload();
+    } catch (e) {
+      console.error('[LocalMode] Failed to activate local mode:', e);
+      alert('Failed to activate local mode: ' + (e instanceof Error ? e.message : String(e)));
+    }
+  };
 
   const handleGoogleLogin = async () => {
     if (isMockMode) {
@@ -104,9 +126,18 @@ const Login: React.FC = () => {
             {/* Logo Glow */}
             <div className="absolute inset-x-0 -bottom-4 bg-primary/40 blur-3xl h-12 w-full mx-auto rounded-full animate-pulse"></div>
             
-            <div className="relative size-24 mx-auto rounded-3xl bg-primary flex items-center justify-center shadow-[0_20px_50px_rgba(255,102,0,0.3)] transform -rotate-3 hover:rotate-0 transition-transform duration-500">
-              <span className="material-symbols-outlined text-background-dark text-5xl font-black">fort</span>
-            </div>
+            <button
+              onClick={handleLocalModeClick}
+              title="Click to enter Local Development Mode (no authentication required)"
+              className="relative size-24 mx-auto rounded-3xl bg-primary flex items-center justify-center shadow-[0_20px_50px_rgba(255,102,0,0.3)] transform -rotate-3 hover:rotate-0 transition-all duration-500 active:scale-95 cursor-pointer hover:shadow-[0_20px_50px_rgba(255,102,0,0.5)] group"
+            >
+              <span className="material-symbols-outlined text-background-dark text-5xl font-black group-hover:animate-bounce">fort</span>
+              
+              {/* Tooltip hint */}
+              <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap text-[10px] text-white/60 pointer-events-none">
+                Local Mode
+              </div>
+            </button>
           </div>
           
           <h1 className="text-5xl font-black text-white uppercase tracking-tighter leading-none mb-3">
@@ -116,6 +147,11 @@ const Login: React.FC = () => {
           
           <p className="text-white/40 text-xs font-black uppercase tracking-[0.3em] mb-4">
             Forge your destiny
+          </p>
+          
+          {/* Local Mode Info */}
+          <p className="text-primary/60 text-[11px] font-semibold mt-6 italic">
+            💡 Click the logo to enter Local Development Mode (no login required)
           </p>
         </div>
 

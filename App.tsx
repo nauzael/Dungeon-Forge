@@ -30,6 +30,7 @@ const AppContent: React.FC = () => {
   const [syncMessage, setSyncMessage] = useState<string>('');
   const [user, setUser] = useState<{name: string, id: string} | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLocalMode, setIsLocalMode] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState<OTAUpdate | null>(null);
 
   // Responsive hook for landscape/portrait detection
@@ -56,6 +57,20 @@ const AppContent: React.FC = () => {
 
   // Monitor Auth Changes
   useEffect(() => {
+    // Check if local mode is active
+    try {
+      const localModeStr = localStorage.getItem('df_local_mode');
+      if (localModeStr === 'true') {
+        console.log('[LocalMode] Local development mode activated');
+        setIsLocalMode(true);
+        setUser({ name: 'Local Developer', id: 'local-dev-mode' });
+        setIsAuthenticated(true);
+        return; // Skip Supabase auth
+      }
+    } catch (e) {
+      console.error("Failed to check local mode:", e);
+    }
+
     let otaCleanup: (() => void) | null = null;
     
     // Check initial session
@@ -221,6 +236,12 @@ const AppContent: React.FC = () => {
 
   // Sync with Cloud on Login - Merge Inteligente
   useEffect(() => {
+    // Skip sync if in local mode
+    if (isLocalMode) {
+      console.log('[LocalMode] Skipping cloud sync in local mode');
+      return;
+    }
+
     if (isAuthenticated && user?.id && !user.id.includes('mock')) {
         const syncFromCloud = async () => {
             setIsSyncing(true);
@@ -385,7 +406,8 @@ const AppContent: React.FC = () => {
       console.error("Failed to save deleted characters list:", e);
     }
     
-    if (isAuthenticated && user?.id && !user.id.includes('mock')) {
+    // Only sync deletion with Supabase if not in local mode
+    if (!isLocalMode && isAuthenticated && user?.id && !user.id.includes('mock')) {
       const success = await softDeleteCharacter(id);
       if (!success) {
         console.error('[Delete] Soft delete failed, trying hard delete');
@@ -425,7 +447,7 @@ const AppContent: React.FC = () => {
     
     // Real-time sync for own characters (from other devices)
     useEffect(() => {
-        if (!isAuthenticated || !user?.id || user.id.includes('mock')) return;
+        if (isLocalMode || !isAuthenticated || !user?.id || user.id.includes('mock')) return;
 
         const channel = supabase
             .channel('my-characters-sync')
@@ -543,14 +565,22 @@ const AppContent: React.FC = () => {
 
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setIsAuthenticated(false);
-    setUser(null);
+    // Clear local mode flag if set
     try {
+      localStorage.removeItem('df_local_mode');
       localStorage.removeItem('df_session');
     } catch (e) {
-      console.error("Failed to remove session:", e);
+      console.error("Failed to clear session:", e);
     }
+
+    // Sign out from Supabase only if not in local mode
+    if (!isLocalMode) {
+      await supabase.auth.signOut();
+    }
+
+    setIsAuthenticated(false);
+    setIsLocalMode(false);
+    setUser(null);
     setView('list');
   };
 
@@ -657,7 +687,7 @@ const AppContent: React.FC = () => {
             )}
 
             {!isAuthenticated ? (
-              <Login />
+              <Login onLocalModeActivated={() => setIsLocalMode(true)} />
             ) : (
               <>
                  {view === 'list' && (
