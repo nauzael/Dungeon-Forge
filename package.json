@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/clean-dev.mjs",
+    "dev:only": "vite",
+    "dev:clean": "node scripts/clean-dev.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "ota": "npm run build && node scripts/build_ota.mjs",

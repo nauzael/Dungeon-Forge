@@ -19,6 +19,19 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    host: true
+    host: true,
+    // HMR configuration for better dev experience
+    hmr: {
+      protocol: 'http',
+      host: 'localhost',
+      port: 5173,
+    },
+    // Watch configuration - more robust file watcher
+    watch: {
+      usePolling: true,
+      interval: 100,
+      batchTimeout: 100,
+    }
   }
 })
+

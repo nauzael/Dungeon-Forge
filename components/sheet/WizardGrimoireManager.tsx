@@ -159,11 +159,11 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
     return (
       <div
         key={spellName}
-        className="flex items-center justify-between py-2 px-3 border-b border-gray-700 hover:bg-gray-800 transition"
+        className="flex items-center justify-between py-3 px-3 border-b border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition rounded-lg"
       >
-        <div className="flex-1">
-          <div className="font-semibold text-sm">{spellName}</div>
-          <div className="text-xs text-gray-400">
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-sm text-slate-900 dark:text-white">{spellName}</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400">
             Level {detail.level} • {detail.school || 'Unknown'} {detail.ritual ? '(Ritual)' : ''}
           </div>
         </div>
@@ -171,7 +171,7 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
         {activeTab === 'learn' && (
           <button
             onClick={() => handleLearnSpell(spellName)}
-            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition"
+            className="ml-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-slate-700 dark:disabled:text-slate-500 text-white text-xs font-semibold rounded-lg transition-all active:scale-95"
             disabled={isLearned || spellbook.length >= maxSpellbook}
           >
             Learn
@@ -179,21 +179,21 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
         )}
 
         {(activeTab === 'prepare' || activeTab === 'rituals') && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 ml-2">
             <button
               onClick={() => handleTogglePrepare(spellName)}
-              className={`px-3 py-1 text-xs rounded transition ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all active:scale-95 ${
                 isPrepared
-                  ? 'bg-green-600 hover:bg-green-700 text-white'
-                  : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm'
+                  : 'bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 text-slate-700 dark:text-slate-300 disabled:opacity-50'
               }`}
               disabled={!isInBook}
             >
-              {isPrepared ? 'Prepared' : 'Prepare'}
+              {isPrepared ? '✓ Prepared' : 'Prepare'}
             </button>
             <button
               onClick={() => handleRemoveSpell(spellName)}
-              className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded transition"
+              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition-all active:scale-95 shadow-sm"
               title="Remove spell from spellbook"
             >
               Delete
@@ -205,95 +205,100 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-end md:items-center justify-center">
-      <div className="bg-gray-900 w-full md:w-2/3 md:max-w-2xl md:rounded-lg rounded-t-lg max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-[110] bg-slate-900/80 dark:bg-black/60 flex items-end sm:items-center justify-center animate-fadeIn backdrop-blur-sm">
+      <div className="w-full sm:max-w-2xl bg-white dark:bg-[#0f1525] rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[95vh] sm:max-h-[85vh] flex flex-col animate-slideUp overflow-hidden">
         {/* Header */}
-        <div className="border-b border-gray-700 p-4 flex justify-between items-center">
-          <div>
-            <h2 className="text-lg font-bold">Wizard Spellbook</h2>
-            <div className="text-xs text-gray-400 mt-1">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-white/10 shrink-0">
+          <button
+            onClick={onClose}
+            className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+          >
+            <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">close</span>
+          </button>
+          <div className="flex flex-col items-center flex-1 px-4">
+            <h2 className="text-lg font-black uppercase tracking-wider text-slate-900 dark:text-white">Wizard Spellbook</h2>
+            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Grimoire: {spellbook.length}/{maxSpellbook} | Prepared: {prepared.length}/{maxPrepared}
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl"
-          >
-            ×
-          </button>
+          <div className="w-10"></div>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-700 bg-gray-800">
+        <div className="flex border-b border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5">
           {(['learn', 'prepare', 'rituals'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => {
                 setActiveTab(tab);
-                setSelectedLevel(0); // Reset level filter on tab change
+                setSelectedLevel(0);
               }}
-              className={`flex-1 py-2 px-4 text-center text-sm font-semibold transition ${
+              className={`flex-1 py-3 px-4 text-center text-xs font-bold uppercase tracking-widest transition-all ${
                 activeTab === tab
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:text-white'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-white dark:bg-white/5'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
               }`}
             >
-              {tab === 'learn' && 'Learn Spells'}
-              {tab === 'prepare' && 'Prepare'}
-              {tab === 'rituals' && 'Ritual Casting'}
+              {tab === 'learn' && '📚 Learn'}
+              {tab === 'prepare' && '✨ Prepare'}
+              {tab === 'rituals' && '🔮 Rituals'}
             </button>
           ))}
         </div>
 
-        {/* Filters */}
-        <div className="border-b border-gray-700 p-4 bg-gray-800 space-y-2">
-          <input
-            type="text"
-            placeholder="Search spells..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-700 text-white text-sm rounded border border-gray-600 focus:outline-none focus:border-blue-500"
-          />
-
-          {activeTab !== 'rituals' && (
-            <div className="flex gap-2 overflow-x-auto">
-              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(level => (
-                <button
-                  key={level}
-                  onClick={() => setSelectedLevel(level === selectedLevel ? 0 : level)}
-                  className={`px-3 py-1 text-xs rounded whitespace-nowrap transition ${
-                    selectedLevel === level
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  }`}
-                >
-                  {level === 0 ? 'All' : `Lvl ${level}`}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Spell List */}
+        {/* Content Area */}
         <div className="flex-1 overflow-y-auto">
+          {/* Filters */}
+          <div className="border-b border-slate-100 dark:border-white/10 p-4 bg-slate-50 dark:bg-white/5 space-y-3 sticky top-0">
+            <input
+              type="text"
+              placeholder="Search spells..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 bg-white dark:bg-white/5 text-slate-900 dark:text-white text-sm rounded-lg border border-slate-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            />
+
+            {activeTab !== 'rituals' && (
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(level => (
+                  <button
+                    key={level}
+                    onClick={() => setSelectedLevel(level === selectedLevel ? 0 : level)}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-all ${
+                      selectedLevel === level
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                        : 'bg-white dark:bg-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10'
+                    }`}
+                  >
+                    {level === 0 ? 'All' : `Lvl ${level}`}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Spell List */}
           {filteredSpells.length === 0 ? (
-            <div className="p-4 text-center text-gray-400 text-sm">
+            <div className="p-6 text-center text-slate-500 dark:text-slate-400 text-sm">
+              <span className="material-symbols-outlined text-3xl text-slate-300 dark:text-slate-600 block mb-2">spell_check</span>
               {activeTab === 'learn' && 'All available spells learned!'}
               {activeTab === 'prepare' && 'No spells to prepare.'}
               {activeTab === 'rituals' && 'No ritual spells available.'}
             </div>
           ) : (
-            filteredSpells.map(renderSpellRow)
+            <div className="space-y-1 p-3">
+              {filteredSpells.map(renderSpellRow)}
+            </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-700 p-4 bg-gray-800">
+        <div className="border-t border-slate-100 dark:border-white/10 p-4 bg-slate-50 dark:bg-white/5 shrink-0">
           <button
             onClick={onClose}
-            className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm font-semibold transition"
+            className="w-full px-4 py-3 bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 text-slate-900 dark:text-white rounded-xl text-sm font-bold uppercase tracking-widest transition-all active:scale-[0.98]"
           >
-            Close
+            Close Grimoire
           </button>
         </div>
       </div>
