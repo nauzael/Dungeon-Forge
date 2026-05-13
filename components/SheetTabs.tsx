@@ -12,7 +12,7 @@ import JoinPartyModal from './JoinPartyModal';
 import LevelUpWizard from './sheet/LevelUpWizard/LevelUpWizard';
 import RestModal from './sheet/RestModal';
 import LevelResetModal from './sheet/LevelResetModal';
-import { getEffectiveCasterType, getFinalStats } from '../utils/sheetUtils';
+import { getEffectiveCasterType, getFinalStats, migrateWizardSpellbookOnceIfNeeded } from '../utils/sheetUtils';
 import { useLevelSnapshots } from '../hooks/useLevelSnapshots';
 import { logLevelUp, type LevelUpLogEntry } from '../utils/logger';
 import {
@@ -116,6 +116,16 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
   useEffect(() => {
     setTempName(character.name);
   }, [character.name]);
+
+  // Wave 2: Auto-migrate Wizard spellbook structure on first load
+  useEffect(() => {
+    if (character.class === 'Wizard' && !character.wizard) {
+      const migratedCharacter = migrateWizardSpellbookOnceIfNeeded(character);
+      if (migratedCharacter !== character) {
+        onUpdate(migratedCharacter);
+      }
+    }
+  }, [character.id]);
 
   const handleSaveName = () => {
     if (tempName.trim() && tempName !== character.name) {
