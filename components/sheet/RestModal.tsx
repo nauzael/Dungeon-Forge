@@ -171,6 +171,11 @@ const RestModal: React.FC<RestModalProps> = ({ character, onComplete, onCancel }
             updated.hunterMarkUses = { current: hmMax, max: hmMax };
         }
 
+        // Wave 6: Wizard - Reset prepared spells on Long Rest
+        if (charClass === 'Wizard') {
+            updated.preparedSpells = [];
+        }
+
         updated = resetFeatureUsages(updated, 'long_rest');
 
         updated.lastLongRest = Date.now();
