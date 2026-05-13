@@ -267,7 +267,8 @@ export const SPELL_DETAILS: Record<string, SpellDetail> = {
  */
 export const getWizardAvailableSpells = (
     filterByLevel?: number,
-    excludeSpells?: string[]
+    excludeSpells?: string[],
+    maxLevel?: number
 ): string[] => {
     const excluded = new Set(excludeSpells || []);
 
@@ -275,10 +276,17 @@ export const getWizardAvailableSpells = (
         // Skip already learned spells
         if (excluded.has(spellName)) return false;
 
-        // Filter by level if specified
+        const detail = SPELL_DETAILS[spellName];
+        if (!detail) return false;
+
+        // Filter by exact level if specified
         if (filterByLevel !== undefined) {
-            const detail = SPELL_DETAILS[spellName];
-            if (!detail || detail.level !== filterByLevel) return false;
+            if (detail.level !== filterByLevel) return false;
+        }
+
+        // Filter by maximum level if specified (for leveling restrictions)
+        if (maxLevel !== undefined) {
+            if (detail.level > maxLevel) return false;
         }
 
         return true;

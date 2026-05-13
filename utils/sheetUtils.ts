@@ -1101,6 +1101,20 @@ export const getWizardSpellbookByLevel = (level: number): number => {
 };
 
 /**
+ * Calculate the maximum spell level a Wizard can learn at their current level.
+ * Formula: ceil(level / 2), minimum 1 (cantrips), maximum 9
+ * Level 1-2: can learn up to level 1 spells
+ * Level 3-4: can learn up to level 2 spells
+ * Level 5+: can learn up to level 3 spells
+ * ...
+ * Level 20: can learn up to level 9 spells
+ */
+export const getWizardMaxSpellLevel = (level: number): number => {
+    const maxLevel = Math.ceil(level / 2);
+    return Math.min(maxLevel, 9); // Cap at 9 (highest spell level)
+};
+
+/**
  * Calculate how many new spells a Wizard can learn when leveling up.
  * Returns available slots and current spellbook size.
  */
