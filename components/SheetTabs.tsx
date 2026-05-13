@@ -78,6 +78,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(character.name);
   const [rightPanelTab, setRightPanelTab] = useState<SheetTab>('spells');
+  const [isGrimoireOpen, setIsGrimoireOpen] = useState(false);
 
   // Responsive hook: detects landscape/portrait orientation
   const { isMobile, isTablet, orientation } = useResponsive();
@@ -725,6 +726,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
                       character={character}
                       onUpdate={onUpdate}
                       isReadOnly={isReadOnly || isObserver}
+                      onGrimoireStateChange={setIsGrimoireOpen}
                     />
                   )}
                   {rightPanelTab === 'inventory' && (
@@ -816,6 +818,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
                 character={character}
                 onUpdate={onUpdate}
                 isReadOnly={isReadOnly || isObserver}
+                onGrimoireStateChange={setIsGrimoireOpen}
               />
             )}
             {activeTab === 'features' && (
@@ -836,8 +839,8 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
         )}
       </main>
 
-      {/* Tab Bar - Hidden in landscape, shown in portrait */}
-      {!isLandscape && (
+      {/* Tab Bar - Hidden in landscape, shown in portrait, hidden when grimoire is open */}
+      {!isLandscape && !isGrimoireOpen && (
 
       <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 transform -translate-x-1/2 backdrop-blur-xl rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-1.5 z-40 flex items-center gap-1.5" style={{
         backgroundColor: 'var(--color-surface)',
