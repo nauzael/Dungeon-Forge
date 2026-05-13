@@ -1178,3 +1178,92 @@ export const migrateWizardSpellbookOnceIfNeeded = (character: Character): Charac
         innateSpells: [] // Clear innate spells - they're now in spellbook
     };
 };
+
+// ===== WAVE 7: WIZARD VALIDATIONS & EDGE CASES =====
+
+/**
+ * Auto-adjust prepared spells when INT changes.
+ * If INT drops, max prepared might decrease - automatically trim excess.
+ */
+export const autoAdjustPreparedOnIntChange = (character: Character): Character => {
+    if (character.class !== 'Wizard') return character;
+    
+    const maxPrepared = getWizardMaxPreparedSpells(character);
+    const prepared = character.preparedSpells || [];
+    
+    if (prepared.length > maxPrepared) {
+        return {
+            ...character,
+            preparedSpells: prepared.slice(0, maxPrepared)
+        };
+    }
+    return character;
+};
+
+/**
+ * Get Wizard ritual spells from grimoire.
+ * Ritual spells can be cast without preparation if in spellbook.
+ */
+export const getWizardRitualSpells = (character: Character, spellDetails: Record<string, any>): string[] => {
+    if (character.class !== 'Wizard') return [];
+    
+    const spellbook = character.wizard?.spellbook || [];
+    return spellbook.filter(spellName => {
+        const detail = spellDetails[spellName];
+        return detail && detail.ritual === true;
+    });
+};
+
+/**
+ * Check if Wizard can cast a spell (with or without preparation).
+ * - Prepared spells: Yes
+ * - Ritual spells from grimoire: Yes (without prep)
+ * - Anything else: No
+ */
+export const canWizardCastSpell = (character: Character, spellName: string, spellDetails: Record<string, any>): boolean => {
+    if (character.class !== 'Wizard') return false;
+    
+    // Check if prepared
+    if ((character.preparedSpells || []).includes(spellName)) return true;
+    
+    // Check if ritual and in spellbook
+    const detail = spellDetails[spellName];
+    if (detail && detail.ritual === true) {
+        const spellbook = character.wizard?.spellbook || [];
+        return spellbook.includes(spellName);
+    }
+    
+    return false;
+};
+
+/**
+ * Validate Wizard level-up: did they actually gain new spells?
+ * Edge case: Wizard at level 20 when leveling (should not happen normally)
+ */
+export const validateWizardLevelUp = (currentLevel: number, newLevel: number): { valid: boolean; reason?: string } => {
+    if (newLevel > 20) {
+        return { valid: false, reason: 'Cannot exceed level 20' };
+    }
+    if (newLevel <= currentLevel) {
+        return { valid: false, reason: 'No level increase' };
+    }
+    return { valid: true };
+};
+
+/**
+ * Calculate INT modifier change impact on max prepared spells.
+ * Returns old max, new max, and whether it decreased.
+ */
+export const calculateIntModifierImpact = (character: Character, oldStats: Record<string, number>, newStats: Record<string, number>): { oldMax: number; newMax: number; decreased: boolean } => {
+    if (character.class !== 'Wizard') {
+        return { oldMax: 0, newMax: 0, decreased: false };
+    }
+    
+    const oldIntMod = Math.floor((oldStats.INT - 10) / 2);
+    const newIntMod = Math.floor((newStats.INT - 10) / 2);
+    
+    const oldMax = Math.max(1, oldIntMod + character.level);
+    const newMax = Math.max(1, newIntMod + character.level);
+    
+    return { oldMax, newMax, decreased: newMax < oldMax };
+};
