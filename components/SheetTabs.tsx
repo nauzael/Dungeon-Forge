@@ -12,7 +12,7 @@ import JoinPartyModal from './JoinPartyModal';
 import LevelUpWizard from './sheet/LevelUpWizard/LevelUpWizard';
 import RestModal from './sheet/RestModal';
 import LevelResetModal from './sheet/LevelResetModal';
-import { getEffectiveCasterType, getFinalStats, migrateWizardSpellbookOnceIfNeeded } from '../utils/sheetUtils';
+import { getEffectiveCasterType, getFinalStats, migrateWizardSpellbookOnceIfNeeded, autoFixWizardSpellbook } from '../utils/sheetUtils';
 import { useLevelSnapshots } from '../hooks/useLevelSnapshots';
 import { logLevelUp, type LevelUpLogEntry } from '../utils/logger';
 import {
@@ -120,10 +120,19 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
 
   // Wave 2: Auto-migrate Wizard spellbook structure on first load
   useEffect(() => {
-    if (character.class === 'Wizard' && !character.wizard) {
-      const migratedCharacter = migrateWizardSpellbookOnceIfNeeded(character);
-      if (migratedCharacter !== character) {
-        onUpdate(migratedCharacter);
+    if (character.class === 'Wizard') {
+      let migratedCharacter = character;
+      
+      // First migration: create spellbook structure if it doesn't exist
+      if (!character.wizard) {
+        migratedCharacter = migrateWizardSpellbookOnceIfNeeded(character);
+      }
+      
+      // Second auto-fix: add prepared spells that aren't in spellbook
+      const fixedCharacter = autoFixWizardSpellbook(migratedCharacter);
+      
+      if (fixedCharacter !== character) {
+        onUpdate(fixedCharacter);
       }
     }
   }, [character.id]);

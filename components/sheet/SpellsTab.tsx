@@ -85,7 +85,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly, 
         no_spells_prepared: 'No spells prepared',
         view_grimoire: 'View Grimoire',
         pact_source: 'Pact',
-        open_grimoire: 'Open Grimoire',
+        open_grimoire: 'Wizard Spellbook',
         search_spells: 'Search spells...',
         all_sources: 'All Sources',
         capacity: 'Capacity',
@@ -535,18 +535,6 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly, 
            </div>
        )}
 
-       {isWizard && (
-           <div className="relative overflow-hidden bg-white/5 border border-blue-500/20 rounded-2xl p-3 shadow-sm animate-fadeIn">
-               <button
-                   onClick={() => setShowWizardGrimoire(true)}
-                   className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
-               >
-                   <span className="material-symbols-outlined text-lg">library_books</span>
-                   Open Grimoire
-               </button>
-           </div>
-       )}
-
        <div ref={tabsRef} className="flex overflow-x-auto gap-2 no-scrollbar py-1 w-full">
            <div className="flex gap-2 mx-auto min-w-min px-4">
                {availableSpellLevels.map(lvl => (
@@ -579,7 +567,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly, 
            {SPELL_DETAILSToShow.length === 0 ? (
                <div className="text-center p-8 bg-surface-dark rounded-xl border border-dashed border-white/10 mt-2">
                    <p className="text-slate-500 text-sm mb-2">{t.no_spells_prepared}</p>
-                   <button onClick={() => setShowGrimoire(true)} className="text-primary font-bold text-sm">{t.view_grimoire}</button>
+                   {!isWizard && <button onClick={() => setShowGrimoire(true)} className="text-primary font-bold text-sm">{t.view_grimoire}</button>}
                </div>
            ) : SPELL_DETAILSToShow.map(spellName => {
                const spell = SPELL_DETAILS[spellName];
@@ -618,12 +606,23 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly, 
            )})}
        </div>
 
-       <div className="flex justify-center mt-2 mb-8">
-            <button onClick={() => setShowGrimoire(true)} className="flex items-center gap-2 pl-5 pr-6 py-3.5 rounded-full bg-primary text-background-dark font-bold shadow-xl hover:scale-105 active:scale-95 transition-all">
-                <span className="material-symbols-outlined text-xl">menu_book</span>
-                <span className="text-sm">{t.open_grimoire}</span>
-            </button>
-       </div>
+       {isWizard && (
+           <div className="flex justify-center mt-2 mb-8">
+               <button onClick={() => setShowWizardGrimoire(true)} className="flex items-center gap-2 pl-5 pr-6 py-3.5 rounded-full bg-primary text-background-dark font-bold shadow-xl hover:scale-105 active:scale-95 transition-all">
+                   <span className="material-symbols-outlined text-xl">library_books</span>
+                   <span className="text-sm">Wizard Spellbook</span>
+               </button>
+           </div>
+       )}
+
+       {!isWizard && (
+           <div className="flex justify-center mt-2 mb-8">
+                <button onClick={() => setShowGrimoire(true)} className="flex items-center gap-2 pl-5 pr-6 py-3.5 rounded-full bg-primary text-background-dark font-bold shadow-xl hover:scale-105 active:scale-95 transition-all">
+                    <span className="material-symbols-outlined text-xl">menu_book</span>
+                    <span className="text-sm">{t.view_grimoire}</span>
+                </button>
+           </div>
+       )}
 
        {showGrimoire && createPortal(
            <div className="fixed inset-0 z-50 bg-background-dark flex flex-col pt-[max(0.75rem,env(safe-area-inset-top))] animate-fadeIn">

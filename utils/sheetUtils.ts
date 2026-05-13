@@ -1162,6 +1162,37 @@ export const validateWizardPreparedSpells = (
 };
 
 /**
+ * Auto-fix: Add prepared spells to spellbook if they're missing.
+ * This handles cases where spells were prepared before they were in the spellbook.
+ */
+export const autoFixWizardSpellbook = (character: Character): Character => {
+    if (character.class !== 'Wizard' || !character.wizard) {
+        return character;
+    }
+
+    const spellbook = new Set(character.wizard.spellbook || []);
+    const prepared = character.preparedSpells || [];
+    
+    // Find prepared spells that aren't in the spellbook
+    const missingFromSpellbook = prepared.filter(s => !spellbook.has(s));
+    
+    if (missingFromSpellbook.length === 0) {
+        return character; // Nothing to fix
+    }
+
+    // Add missing spells to the spellbook
+    const updatedSpellbook = [...character.wizard.spellbook, ...missingFromSpellbook];
+    
+    return {
+        ...character,
+        wizard: {
+            ...character.wizard,
+            spellbook: updatedSpellbook
+        }
+    };
+};
+
+/**
  * One-time migration: convert existing wizard data structure to new spellbook format.
  * Only applies to Wizard class, only runs if wizard property doesn't exist yet.
  */

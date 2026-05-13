@@ -310,6 +310,7 @@ export interface SpellDetail {
   duration: string;
   description: string;
   name: string;
+  ritual?: boolean;
 }
 
 export interface CampaignResource {
