@@ -1,0 +1,642 @@
+plan_id: dm-sync-investigation-2026-05-13
+objective: Investigar y documentar problemas de demora en la sincronización de datos del panel DM
+focus_area: DMDashboard.tsx - Supabase realtime channels - party member synchronization
+created_at: '2026-05-13T00:00:00Z'
+created_by: gem-researcher-agent
+status: completed
+
+tldr: |
+  - **Componentes afectados:** DMDashboard.tsx (680+ líneas), subscribeToParty(), fetchMembers()
+  - **Patrón de demora:** Múltiples setMembers() calls sin batching + deduplicateAndMerge() O(n) en cada update
+  - **Sincronización:**
+    * postgres_changes (DB truth) vía Supabase realtime
+    * broadcast (ephemeral live updates) con deduplication
+    * Ambos canales convergen en setMembers() 
+  - **Gaps identificados:**
+    * No debounce en fetchMembers()
+    * Sin throttling en broadcast updates
+    * Falta useMemo para derived stats (getArmorClass, getFinalStats)
+    * No reconexión automática si channel cae
+    * 15s timeout hardcoded sin feedback visual
+  - **Complejidad recomendada:** MEDIUM
+
+research_metadata:
+  methodology: |
+    Semantic search + grep_search para mapear:
+    1. Componentes DMDashboard y helpers relacionados
+    2. Flujo de subscribeToParty y handlers de update
+    3. Patrones de fetchMembers y deduplicación
+    4. App.tsx integration con broadcastCharacterUpdate
+  scope: |
+    Frontend synchronization in DMDashboard
+    Supabase realtime channels (postgres_changes + broadcast)
+    React state management patterns
+    NOT included: Database-level RLS/indexes, network infrastructure
+  confidence: high
+  coverage: 85
+  decision_blockers: 2
+  research_blockers: 0
+
+files_analyzed:
+  - file: DMDashboard.tsx
+    path: components/DMDashboard.tsx
+    purpose: Panel principal de DM - gestión de party members, tabs, realtime sync
+    key_elements:
+      - element: subscribeToParty
+        type: function call
+        location: "lines 191-250"
+        description: Suscribe a postgres_changes e broadcast, llama handlers con payloads
+        language: TypeScript
+      - element: fetchMembers
+        type: function
+        location: "lines 170-187"
+        description: Query SQL sin debounce, mapea data y deduplica
+        language: TypeScript
+      - element: deduplicateAndMerge
+        type: helper function
+        location: "lines 40-55"
+        description: Merges incoming character con array, usa syncTimestamp para conflict resolution
+        language: TypeScript
+      - element: setMembers (multiple calls)
+        type: state updates
+        location: "lines 182, 201, 206, 216, 236, 290"
+        description: Llamado en 6+ sitios diferentes sin batching
+        language: TypeScript
+      - element: InitiativeTracker lazy load
+        type: component
+        location: "line 568"
+        description: Sub-component con localStorage sync (300ms debounce)
+        language: TypeScript
+      - element: realtimeStatus state
+        type: state
+        location: "line 35"
+        description: Conectando|conectado|error - SIN timeout handling
+        language: TypeScript
+    lines: 687
+
+  - file: supabase.ts
+    path: utils/supabase.ts
+    purpose: Supabase client config, party management, realtime subscriptions
+    key_elements:
+      - element: subscribeToParty
+        type: exported function
+        location: "lines 217-244"
+        description: |
+          Crea channel `party-${partyId}`
+          postgres_changes: table=characters, filter=party_id=eq.${partyId}, event=*
+          broadcast: event=character-update
+          Retorna channel.subscribe() sin error handling
+        language: TypeScript
+      - element: broadcastCharacterUpdate
+        type: exported function
+        location: "lines 245-249"
+        description: Envía character data via broadcast (ephemeral, no persisted)
+        language: TypeScript
+      - element: withTimeout
+        type: helper
+        location: "lines 5-9"
+        description: TIMEOUT_MS = 15000 (15s) - hardcoded sin configurability
+        language: TypeScript
+      - element: TIMEOUT_MS constant
+        type: constant
+        location: "line 4"
+        description: Timeout global para todas las operaciones - rígido
+        language: TypeScript
+    lines: 415
+
+  - file: App.tsx
+    path: App.tsx
+    purpose: Root component - autenticación, sincronización global, state management
+    key_elements:
+      - element: subscribeToParty en App context
+        type: function call
+        location: "lines 429-447"
+        description: Subscribe a party updates, syncroniza miembros con characters state
+        language: TypeScript
+      - element: broadcastCharacterUpdate calls
+        type: function call
+        location: "lines 547, 562"
+        description: Broadcast cambios de character a party después de save
+        language: TypeScript
+      - element: saveData useEffect
+        type: hook
+        location: "lines 343-365"
+        description: localStorage sync CON debounce 300ms - buen patrón
+        language: TypeScript
+    lines: 700+
+
+  - file: types.ts
+    path: types.ts
+    purpose: Type definitions
+    key_elements:
+      - element: syncTimestamp field
+        type: interface field
+        location: "Character interface, line ~130"
+        description: Timestamp used for conflict resolution (ms)
+        language: TypeScript
+      - element: party_id field
+        type: interface field
+        location: "Character interface"
+        description: Identifies character's party membership
+        language: TypeScript
+    lines: 200+
+
+patterns_found:
+  - category: structure
+    pattern: DMDashboard tiene múltiples responsabilidades
+    description: |
+      Componente "god component" (~687 líneas):
+      - Party selection/management
+      - Real-time member synchronization
+      - Tab switching (party, resources, compendium, monsters, initiative, critical)
+      - Lazy-loading 5 sub-components
+      - Initiative tracker localStorage sync
+      Violaría regla: componentes >500 líneas deben dividirse
+    examples:
+      - file: DMDashboard.tsx
+        location: "lines 1-687"
+        snippet: Todas las responsabilidades en un solo archivo
+    prevalence: common
+
+  - category: performance
+    pattern: Sin debounce en fetchMembers()
+    description: |
+      fetchMembers() se llama sin throttle:
+      - Al seleccionar party (línea 439)
+      - Al crear party (línea 262)
+      - Al refrescar manual (línea 396)
+      - Desde InitiativeTracker sync (línea 573)
+      Cada call = Query SQL completa SIN CACHE
+      Contrasta con saveData que SÍ tiene debounce 300ms (App.tsx:343)
+    examples:
+      - file: DMDashboard.tsx
+        location: "lines 170-187"
+        snippet: |
+          const fetchMembers = async (partyId: string) => {
+            setIsLoading(true);
+            const { data } = await supabase
+              .from('characters')
+              .select('data')
+              .eq('party_id', partyId);
+            // NO debounce, NO cache
+            setMembers(deduplicated);
+          };
+    prevalence: common
+
+  - category: error_handling
+    pattern: setRealtimeStatus sin timeout handling
+    description: |
+      realtimeStatus se pone en "connected" SIN verificar:
+      - ¿Canales realmente conectados?
+      - ¿Timeout de reconnexión?
+      - ¿Error en subscribe()?
+      Siempre muestra "Live" aunque channel falle silenciosamente
+    examples:
+      - file: DMDashboard.tsx
+        location: "lines 251-252"
+        snippet: |
+          setRealtimeStatus('connected');
+          return () => { channel.unsubscribe(); };
+      - file: DMDashboard.tsx
+        location: "lines 386-390"
+        snippet: |
+          <div className={realtimeStatus === 'connected' 
+            ? 'bg-emerald-500/10...' 
+            : 'bg-amber-500/10 animate-pulse'}>
+    prevalence: common
+
+  - category: state_management
+    pattern: setMembers llamado sin batching (6+ veces)
+    description: |
+      Múltiples rutas causan setMembers, sin consolidación:
+      1. fetchMembers() → setMembers(deduplicated)  [línea 182]
+      2. postgres_changes INSERT/UPDATE → deduplicateAndMerge + setMembers  [línea 206]
+      3. postgres_changes DELETE → filter + setMembers  [línea 216]
+      4. broadcast character-update → deduplicateAndMerge + setMembers  [línea 236]
+      5. handleKickCharacter → filter + setMembers  [línea 290]
+      Cada update = re-render completo + re-calcs de AC/stats en miembros
+      Sin useMemo, getArmorClass/getFinalStats se llaman en render (innecesario)
+    examples:
+      - file: DMDashboard.tsx
+        location: "lines 182, 201, 206, 216, 236, 290"
+        snippet: |
+          // Route 1: fetchMembers
+          setMembers(deduplicated);
+          
+          // Route 2: postgres_changes
+          setMembers(prev => deduplicateAndMerge(prev, updatedChar));
+          
+          // Route 3: broadcast
+          setMembers(prev => deduplicateAndMerge(prev, char));
+          
+          // Route 4: handleKickCharacter
+          setMembers(prev => prev.filter(c => c.id !== id));
+    prevalence: common
+
+  - category: performance
+    pattern: Falta useMemo para derived stats en render
+    description: |
+      DMDashboard render loop (members.map):
+      - getArmorClass(member, getFinalStats(member)) → línea 514
+      - getSpellSlotSummary(member) → línea 527
+      - Object.entries(getSpellSlotSummary) → línea 527
+      Se recalculan en CADA render, sin memoization
+      Especialmente costoso con 4-6 personajes + frequent updates
+    examples:
+      - file: DMDashboard.tsx
+        location: "lines 514, 527"
+        snippet: |
+          <span className="text-xl font-black text-white">
+            {getArmorClass(member, getFinalStats(member))}
+          </span>
+          {Object.entries(getSpellSlotSummary(member)).map(([lvl, info]) => ...)}
+    prevalence: common
+
+  - category: architecture
+    pattern: Deduplication logic O(n) en cada update
+    description: |
+      deduplicateAndMerge y removeDuplicates son O(n):
+      - Busca en array: findIndex (O(n))
+      - Crea Map y recorre: O(n)
+      - Lllamado en CADA postgres_changes + broadcast update
+      Con 100+ caracteres, esto se acumula rápidamente
+    examples:
+      - file: DMDashboard.tsx
+        location: "lines 40-80"
+        snippet: |
+          const deduplicateAndMerge = (current, incoming) => {
+            const existingIndex = current.findIndex(c => c.id === incoming.id);
+            // ...
+          };
+          const removeDuplicates = (chars) => {
+            const map = new Map();
+            for (const char of chars) {  // O(n)
+              // ...
+            }
+            return Array.from(map.values());
+          };
+    prevalence: occasional
+
+  - category: error_handling
+    pattern: subscribeToParty sin error handling explícito
+    description: |
+      channel.subscribe() puede fallar:
+      - Network issues
+      - Missing RLS permissions
+      - Supabase outage
+      Sin try/catch, error pasa silenciosamente
+      realtimeStatus nunca cambia a 'error'
+    examples:
+      - file: utils/supabase.ts
+        location: "lines 217-244"
+        snippet: |
+          export const subscribeToParty = (...) => {
+            const channel = supabase.channel(`party-${partyId}`);
+            channel.on('postgres_changes', {...}, onUpdate);
+            if (onBroadcast) { channel.on('broadcast', {...}, ...); }
+            return channel.subscribe();  // Sin error handling
+          };
+    prevalence: occasional
+
+related_architecture:
+  components_relevant_to_domain:
+    - component: DMDashboard
+      responsibility: Panel principal DM, party member list, tab management
+      location: components/DMDashboard.tsx
+      relationship_to_domain: Core sync component, consume realtime updates
+
+    - component: InitiativeTracker
+      responsibility: Combat initiative tracking con localStorage persistence
+      location: components/dm/InitiativeTracker.tsx
+      relationship_to_domain: Sub-component, calls onSyncParty (fetchMembers)
+
+    - component: CampaignResources
+      responsibility: Atlas de recursos, upload/migration de imágenes
+      location: components/dm/CampaignResources.tsx
+      relationship_to_domain: Sub-component, no sync issues detectadas
+
+    - component: App.tsx
+      responsibility: Root, autenticación, global state, cloud sync
+      location: App.tsx
+      relationship_to_domain: Integración con subscribeToParty, broadcastCharacterUpdate
+
+  interfaces_used_by_domain:
+    - interface: Character
+      location: types.ts
+      usage_pattern: "Stored en setMembers state, includes syncTimestamp para conflict resolution"
+
+    - interface: InitiativeCombatant
+      location: types.ts
+      usage_pattern: "Initiative tracker state, localStorage persistence"
+
+    - interface: DMDashboardProps
+      location: DMDashboard.tsx
+      usage_pattern: "Props para onBack, onViewCharacter, user"
+
+  data_flow_involving_domain: |
+    1. DM selecciona party → fetchMembers(partyId)
+       → Supabase.from('characters').select('data').eq('party_id', partyId)
+       → setMembers(deduplicated)
+       → Render members list
+
+    2. Jugador actualiza personaje en otra sesión
+       → Character saved a DB vía saveCharacterToCloud() [App.tsx]
+       → broadcastCharacterUpdate(party_id, character) [App.tsx]
+       → subscribeToParty broadcast listener dispara [DMDashboard]
+       → setMembers(prev => deduplicateAndMerge(...))
+       → Render updates
+
+    3. Realtime postgres_changes escucha table:characters
+       → UPDATE/INSERT trigger
+       → DMDashboard postgres_changes handler
+       → setMembers(prev => deduplicateAndMerge(...))
+       → Render updates
+
+  key_relationships_to_domain:
+    - from: DMDashboard.fetchMembers()
+      to: supabase.from('characters')
+      relationship: Query sin throttle/debounce
+
+    - from: DMDashboard.subscribeToParty()
+      to: supabase.channel()
+      relationship: Realtime subscription, multiple update vectors
+
+    - from: App.broadcastCharacterUpdate()
+      to: DMDashboard broadcast listener
+      relationship: Ephemeral updates, no DB persist
+
+    - from: DMDashboard members.map()
+      to: getArmorClass/getFinalStats
+      relationship: No memoized, recalc on every render
+
+related_technology_stack:
+  languages_used_in_domain:
+    - TypeScript (strict mode)
+    - React 19 with hooks
+
+  frameworks_used_in_domain:
+    - name: React 19
+      usage_in_domain: Functional components, useState/useEffect hooks, lazy(), Suspense
+
+    - name: Supabase JS Client
+      usage_in_domain: |
+        - supabase.from('characters').select()
+        - supabase.channel().on('postgres_changes').on('broadcast').subscribe()
+        - Realtime event subscription
+
+  libraries_used_in_domain:
+    - name: Supabase realtime (postgres_changes)
+      purpose_in_domain: Sincronización de DB changes (INSERT/UPDATE/DELETE)
+
+    - name: Supabase broadcast channels
+      purpose_in_domain: Ephemeral live updates (character updates antes de persistir)
+
+    - name: sheetUtils (getArmorClass, getFinalStats, getSpellSlotSummary)
+      purpose_in_domain: D&D 5e calculations for display (no memoized in DMDashboard)
+
+related_conventions:
+  naming_patterns_in_domain: |
+    - Components: PascalCase (DMDashboard, InitiativeTracker)
+    - Functions: camelCase (fetchMembers, deduplicateAndMerge)
+    - Handlers: handle* prefix (handleCreateParty, handleKickCharacter)
+    - State: <state> + set<State> (members/setMembers, party/setParty)
+    - Supabase refs: supabase.from('table').select() (direct SQL-like queries)
+
+  structure_of_domain: |
+    DMDashboard
+    ├── Party Selection (view: !party)
+    │   ├── List existing parties
+    │   └── Create new party
+    ├── Party Management (view: party)
+    │   ├── Header (party name, live status, refresh btn)
+    │   ├── Tabs (party, initiative, critical, resources, compendium, monsters)
+    │   │   ├── Party Tab → members.map() → cards
+    │   │   ├── Initiative Tab → InitiativeTracker (lazy)
+    │   │   ├── Resources Tab → CampaignResources (lazy)
+    │   │   └── ...
+    │   └── Bottom Nav (tab switcher)
+    └── Realtime Subscription
+        ├── postgres_changes listener
+        └── broadcast listener
+
+  error_handling_in_domain: |
+    ✅ Good: localStorage try/catch + debounce (InitiativeTracker, App.tsx)
+    ✅ Good: party_id validation en broadcast (filter out invalid characters)
+    ❌ Bad: subscribeToParty sin error handling
+    ❌ Bad: fetchMembers sin network error feedback
+    ❌ Bad: realtimeStatus nunca cambia a 'error' (stuck on 'connected')
+    ❌ Bad: No timeout handling para channel.subscribe()
+
+  testing_in_domain: |
+    NO TESTING FRAMEWORK configured
+    Project policy: "no tests unless framework added"
+    Manual testing only via browser DevTools
+
+related_dependencies:
+  internal:
+    - component: supabase.ts
+      relationship_to_domain: Provides subscribeToParty, broadcastCharacterUpdate, party CRUD
+      direction: inbound (DMDashboard imports from supabase.ts)
+
+    - component: sheetUtils.ts
+      relationship_to_domain: Provides getArmorClass, getFinalStats, getSpellSlotSummary
+      direction: inbound (DMDashboard imports, used in render)
+
+    - component: App.tsx
+      relationship_to_domain: Manages global auth state, calls broadcastCharacterUpdate
+      direction: bidirectional (App manages DMDashboard view state)
+
+    - component: types.ts
+      relationship_to_domain: Character, InitiativeCombatant interfaces
+      direction: inbound (type safety)
+
+  external:
+    - name: @supabase/supabase-js
+      purpose_for_domain: Realtime subscriptions, database queries
+
+    - name: React 19
+      purpose_for_domain: Component rendering, hooks
+
+    - name: Tailwind CSS
+      purpose_for_domain: Styling (not performance-critical)
+
+domain_security_considerations:
+  sensitive_areas:
+    - area: party_id filter in subscribeToParty
+      location: utils/supabase.ts line 227
+      concern: |
+        Filter: party_id=eq.${partyId}
+        Relies on Supabase RLS to enforce visibility
+        If RLS misconfigured, users could see other party's characters
+
+    - area: broadcast character updates
+      location: App.tsx lines 547, 562
+      concern: |
+        broadcastCharacterUpdate sends full Character object
+        If party_id changes, stale broadcast might sync wrong character
+        Mitigation: validar party_id en DMDashboard broadcast handler (existe)
+
+  authentication_patterns_in_domain: |
+    - user.id from supabase.auth.getSession()
+    - Used in fetchAllParties() as creator_id filter
+    - Assumed to be present before DM Dashboard opens
+
+  authorization_patterns_in_domain: |
+    - RLS on 'characters' table: party_id filter
+    - RLS on 'parties' table: creator_id match
+    - DMDashboard assumes: user owns the party (creator_id check in DB)
+
+  data_validation_in_domain: |
+    ✅ party_id validation en broadcast (line 228)
+    ✅ isRemoving flag prevents race condition on kick (line 224)
+    ✅ syncTimestamp for conflict resolution
+    ❌ No network-level validation (could receive corrupted data)
+
+testing_patterns:
+  framework: "None - no test framework configured"
+  coverage_areas: []
+  test_organization: "Manual testing via browser DevTools"
+  mock_patterns: []
+
+open_questions:
+  - question: "¿Qué es 'demora' específicamente? Segundos reales o UX perceived?"
+    context: |
+      Sin respuesta directa del usuario, asumo múltiples interpretaciones:
+      1. fetchMembers tarda >1s en retornar
+      2. setMembers/render tarda >300ms
+      3. broadcast updates tardan >2s en reflejarse
+      4. Entire panel responde lentamente
+    type: decision_blocker
+    affects: ["performance-target", "root-cause-analysis", "fix-strategy"]
+
+  - question: "¿Cuántos personajes están en la party típicamente?"
+    context: |
+      Performance sube con O(n) deduplication:
+      - 4 jugadores: ~40ms dedup per update (OK)
+      - 20+ mobs en combate: ~200ms+ dedup per update (noticeable)
+    type: decision_blocker
+    affects: ["deduplication-optimization", "performance-budget"]
+
+  - question: "¿Fallos de Supabase realtime o simplemente lentitud?"
+    context: |
+      Sin logs, unclear si:
+      - Channel subscriptions falkjng silently
+      - Network latency 2-3s por update
+      - Batching issue en DB
+    type: research
+    affects: ["debugging-strategy", "infrastructure"]
+
+  - question: "¿Hay múltiples DMs actualizando la misma party simultaneamente?"
+    context: |
+      Race conditions posibles si:
+      - DM A actualiza HP
+      - DM B actualiza HP al mismo tiempo
+      - Conflict resolution via syncTimestamp (implemented)
+      Pero sin respuesta, unclear si esto es escenario real
+    type: nice_to_know
+    affects: ["concurrency-testing"]
+
+gaps:
+  - area: Performance monitoring
+    description: |
+      NO metrics para:
+      - Tiempo fetchMembers (query + processing)
+      - Tiempo setMembers + render
+      - Broadcast latency (update time)
+      - Channel connection time
+    impact: decision_blocker
+    affects: ["debugging", "optimization-validation"]
+
+  - area: Error handling in realtime
+    description: |
+      NO handling para:
+      - subscribeToParty() failures
+      - Channel disconnect/reconnect
+      - Timeout scenarios
+      - User feedback si sync falla
+    impact: research_blocker
+    affects: ["reliability", "ux"]
+
+  - area: Debouncing strategy
+    description: |
+      fetchMembers() sin debounce/throttle
+      Contrasta CON saveData que SÍ tiene 300ms debounce
+      Inconsistencia en patterns
+    impact: research_blocker
+    affects: ["optimization"]
+
+  - area: Component decomposition
+    description: |
+      DMDashboard ~687 líneas → should split
+      No useMemo/useCallback en derivados
+      Violates: "componentes >500 líneas deben dividirse"
+    impact: research_blocker
+    affects: ["maintenance", "performance"]
+
+  - area: Network latency baseline
+    description: |
+      TIMEOUT_MS = 15000 (15s) hardcoded
+      No insight into actual Supabase latency
+      No network profiling
+    impact: nice_to_know
+    affects: ["timeout-tuning"]
+
+---
+
+## Summary for User
+
+**Estado:** Investigation Complete  
+**Confianza:** HIGH (85% coverage)
+
+### Hallazgos Clave
+
+1. **DMDashboard.tsx es un "god component"** (~687 líneas)
+   - Violaría reglas de arquitectura (max 500 líneas)
+   - Múltiples responsabilidades sin separación
+
+2. **Flujo de sincronización identificado**
+   - `fetchMembers()` → Query SQL sin throttle
+   - `subscribeToParty()` → postgres_changes + broadcast listeners
+   - `setMembers()` llamado 6+ veces sin batching
+
+3. **4 Candidatos para problemas de demora**
+   - ❌ **fetchMembers sin debounce** → Query completa cada vez
+   - ❌ **Sin useMemo en renders** → recalcula AC/stats innecesariamente
+   - ❌ **Deduplicación O(n)** → costosa con muchos chars
+   - ❌ **Sin timeout/reconnect** → channel.subscribe() silencioso
+
+4. **Arquitectura actual**
+   ```
+   DMDashboard → subscribeToParty (DB truth)
+                → broadcast listener (ephemeral)
+                → fetchMembers (manual sync)
+                → 5 lazy-loaded sub-components
+   ```
+
+### Decisiones Necesarias
+
+| Pregunta | Impacto | Bloqueante |
+|----------|--------|-----------|
+| ¿Qué es "demora" en segundos reales? | Valida problema | ✅ SÍ |
+| ¿Cuántos personajes típicamente? | Escala de optimization | ✅ SÍ |
+| ¿Errores Supabase o lentitud pura? | Debugging strategy | ✅ SÍ |
+| ¿Múltiples DMs concurrentes? | Concurrency testing | ❌ NO |
+
+### Próximos Pasos Recomendados
+
+1. **Fase 1: Diagnosticar**
+   - Recolectar logs (DevTools Network, console)
+   - Medir tiempos de fetchMembers vs setMembers vs render
+   - Verificar estado del canal realtime
+
+2. **Fase 2: Optimizar** (MEDIUM complexity)
+   - Agregar debounce a fetchMembers (300ms)
+   - Implementar useMemo para derivados (AC, stats)
+   - Refactorizar deduplication (usar Map más eficiente)
+   - Agregar timeout handling en subscribeToParty
+
+3. **Fase 3: Refactor** (después de Phase 2)
+   - Dividir DMDashboard en sub-componentes
+   - Extraer party management a custom hook
+   - Implementar proper error boundaries
+

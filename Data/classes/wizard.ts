@@ -57,56 +57,56 @@ export const wizard = {
   subclasses: [
       { 
         name: 'Abjurer', 
-        description: 'Abjurers specialize in magic that blocks, banishes, or protects. They are experts at warding and counter magic.',
+        description: 'Protectors and defenders, Abjurers master magic that blocks, banishes, and protects. They are unmatched experts at creating magical wards and breaking enemy spellcasting.',
         features: { 
             3: [
-                { name: 'Abjuration Savant', description: 'Choose two Abjuration spells of level 2 or lower and add them to your spellbook for free. Each time you gain access to a new spell slot level, add another Abjuration spell for free.' },
-                { name: 'Arcane Ward', description: 'When casting an Abjuration spell with a spell slot, you create a magical ward. The ward\'s maximum Hit Points equal twice your Wizard level plus your Intelligence modifier. It absorbs damage before you do. You regain Hit Points equal to the amount of damage absorbed when you cast an Abjuration spell.' }
+                { name: 'Abjuration Savant', description: 'When you add an Abjuration spell to your spellbook, it costs 1 hour and 25 gold per spell level (instead of 2 hours and 50 gold). You automatically gain 2 Abjuration spells of level 1-2. Each time you gain access to a new spell slot level (levels 5, 7, 9, 11, 13, 15, 17), you gain 1 additional Abjuration spell for free.' },
+                { name: 'Arcane Ward', description: 'When you cast an Abjuration spell with a spell slot for the first time each day, you create an invisible magical ward. The ward has HP equal to your Wizard level × 2 + your INT modifier. Damage you take is absorbed by the ward first, then by your HP. The ward lasts until your next Long Rest. When you cast another Abjuration spell, the ward regains HP equal to the damage absorbed by your last spell.' }
             ],
-            6: [{ name: 'Projected Ward', description: 'When a creature you can see within 30 feet takes damage, you can take a Reaction to have your Arcane Ward absorb that damage instead.' }],
+            6: [{ name: 'Projected Ward', description: 'As a Reaction when a creature you can see within 30 feet takes damage, you can have your Arcane Ward absorb that damage instead. The ward is destroyed when it reaches 0 HP.' }],
             10: [
-                { name: 'Spell Breaker', description: 'You always have Counterspell and Dispel Magic prepared. You can cast Dispel Magic as a Bonus Action, and you add your Proficiency Bonus to the ability check to end a spell. If you fail the check to end a spell, you don\'t expend the spell slot.' }
+                { name: 'Spell Breaker', description: 'You always have Counterspell and Dispel Magic prepared and they don\'t count against your prepared spells. You can cast Dispel Magic as a Bonus Action instead of an action. When you fail a Counterspell or Dispel Magic check, you don\'t expend the spell slot.' }
             ],
-            14: [{ name: 'Spell Resistance', description: 'You have Advantage on saving throws against spells, and you have Resistance to damage from spells.' }]
+            14: [{ name: 'Improved Ward', description: 'Your Arcane Ward gains HP equal to your Wizard level × 2 (cumulative with other bonuses). As a Bonus Action, you can expend a spell slot to restore HP to your ward equal to 2d6 + your INT modifier.' }]
         } 
       },
       { 
         name: 'Diviner', 
-        description: 'Diviners seek to unravel the mysteries of past, present, and future. They peer through divination magic to uncover secrets.',
+        description: 'Seers of fate and manipulators of destiny, Diviners unravel the mysteries of past, present, and future. They see fragments of what might be and make reality bend to match their visions.',
         features: { 
             3: [
-                { name: 'Divination Savant', description: 'Choose two Divination spells of level 2 or lower and add them to your spellbook for free. Each time you gain access to a new spell slot level, add another Divination spell for free.' },
-                { name: 'Portent', description: 'When you finish a Long Rest, roll two d20s and record the numbers. When you make a d20 roll, you can substitute one of your portent rolls for the roll. You can only do this once per turn.' }
+                { name: 'Divination Savant', description: 'When you add a Divination spell to your spellbook, it costs 1 hour and 25 gold per spell level (instead of 2 hours and 50 gold). You automatically gain 2 Divination spells of level 1-2. Each time you gain access to a new spell slot level (levels 5, 7, 9, 11, 13, 15, 17), you gain 1 additional Divination spell for free.' },
+                { name: 'Portent (Presagio)', description: 'After each Long Rest, roll 2d20 and record the numbers. You can replace any d20 roll made by you or a creature you can see with one of these Portent rolls. You can only use this once per turn. The rolled d20 must be replaced before rolling. Unused Portent rolls are lost after your next Long Rest.' }
             ],
-            6: [{ name: 'Expert Divination', description: 'When you cast a Divination spell of level 2 or higher, you regain a expended spell slot of a level lower than the spell you cast.' }],
-            10: [{ name: 'The Third Eye', description: 'As a Bonus Action, you can spend 1 or more sorcery points to choose an effect until your next Long Rest: see invisibility (2 SP), read any language (2 SP), or darkvision 120 ft (2 SP).' }],
-            14: [{ name: 'Greater Portent', description: 'You now roll three d20s for your Portent feature.' }]
+            6: [{ name: 'Third Eye', description: 'As a Bonus Action, you can activate or deactivate your Third Eye until your next Long Rest. While active: You see in darkness up to 120 feet, you can see invisible creatures and objects within 30 feet, and you automatically detect magical auras (as if using Detect Magic). You can cast See Invisibility without expending a spell slot. The effect lasts 10 minutes (or until deactivated).' }],
+            10: [{ name: 'Read Thoughts', description: 'When you cast a Divination spell of level 1+, you can read the surface thoughts of one creature within 30 feet that you can see (unless it has Wisdom 16 or higher). You sense its immediate emotions and surface thoughts (but not secrets or true intentions). The creature doesn\'t know you\'re reading its thoughts unless it has magic that detects such magic.' }],
+            14: [{ name: 'Greater Portent', description: 'You now roll 3d20 after each Long Rest instead of 2d20, giving you more flexibility with your Portent feature. You can still only use Portent to replace one d20 roll per turn.' }]
         } 
       },
       { 
         name: 'Evoker', 
-        description: 'Evokers specialize in pure destructive energy. They master the art of dealing maximum damage with area-effect spells.',
+        description: 'Masters of raw elemental power, Evokers wield fire, frost, lightning, and acid to create devastation. They channel magic into explosive destruction that reshapes the battlefield.',
         features: { 
             3: [
-                { name: 'Evocation Savant', description: 'Choose two Evocation spells of level 2 or lower and add them to your spellbook for free. Each time you gain access to a new spell slot level, add another Evocation spell for free.' },
-                { name: 'Potent Cantrip', description: 'When a creature succeeds on a saving throw against your cantrip, the creature takes half the cantrip\'s damage (if any) but suffers no effect from the failed save.' }
+                { name: 'Evocation Savant', description: 'When you add an Evocation spell to your spellbook, it costs 1 hour and 25 gold per spell level (instead of 2 hours and 50 gold). You automatically gain 2 Evocation spells of level 1-2. Each time you gain access to a new spell slot level (levels 5, 7, 9, 11, 13, 15, 17), you gain 1 additional Evocation spell for free.' },
+                { name: 'Potent Cantrip', description: 'When a creature succeeds on a saving throw against your cantrip or your ranged spell attack with a cantrip misses, the creature still takes half the cantrip\'s damage (if any). The additional effects of the cantrip don\'t occur.' }
             ],
-            6: [{ name: 'Sculpt Spells', description: 'When you cast an Evocation spell that affects other creatures, you can choose a number of them equal to 1 plus the spell\'s level. The chosen creatures automatically succeed on their saving throws against the spell, and they take no damage if they would normally take half damage on a successful save.' }],
-            10: [{ name: 'Empowered Evocation', description: 'When you cast an Evocation spell, add your Intelligence modifier to one damage roll of the spell.' }],
-            14: [{ name: 'Overchannel', description: 'When you cast a damage spell of level 1-5, you can deal maximum damage with that spell. The first time you do this, you suffer no adverse effect. If you use this feature again before finishing a Long Rest, you take 2d12 Necrotic damage for each spell level above 1.' }]
+            6: [{ name: 'Sculpt Spells', description: 'When you cast an Evocation spell that affects multiple creatures in an area, you can choose a number of those creatures equal to 1 + the spell\'s level. Those chosen creatures automatically succeed on their saves and take no damage from the spell (or half damage if they would take half on a successful save). This allows you to protect allies when casting area spells like Fireball.' }],
+            10: [{ name: 'Empowered Evocation', description: 'When you cast an Evocation spell of level 1+, add your Intelligence modifier to one damage roll of that spell.' }],
+            14: [{ name: 'Overchannel', description: 'When you cast an Evocation spell of level 1-5 that deals damage, you can maximize the damage roll. The first time you use this each Long Rest, no penalty occurs. Each subsequent use before finishing a Long Rest deals you 2d12 Necrotic damage (ignoring resistances) for each level of the spell above 1st (stacking with each use: 3d12 the second time, 4d12 the third time, etc).' }]
         } 
       },
       { 
         name: 'Illusionist', 
-        description: 'Illusionists specialize in deceiving the senses and mind. They make the impossible appear real.',
+        description: 'Weavers of light and shadow, Illusionists redefine reality through deception. They twist perception to confuse enemies and create impossible scenarios from thin air.',
         features: { 
             3: [
-                { name: 'Illusion Savant', description: 'Choose two Illusion spells of level 2 or lower and add them to your spellbook for free. Each time you gain access to a new spell slot level, add another Illusion spell for free.' },
-                { name: 'Improved Minor Illusion', description: 'You learn the Minor Illusion cantrip. When you cast it, you can create both a sound and an image simultaneously. Additionally, when you cast an Illusion spell with a range of 10 feet or more, the spell\'s range increases by 30 feet.' }
+                { name: 'Illusion Savant', description: 'When you add an Illusion spell to your spellbook, it costs 1 hour and 25 gold per spell level (instead of 2 hours and 50 gold). You automatically gain 2 Illusion spells of level 1-2. Each time you gain access to a new spell slot level (levels 5, 7, 9, 11, 13, 15, 17), you gain 1 additional Illusion spell for free.' },
+                { name: 'Improved Illusion', description: 'You can cast Minor Illusion as a Bonus Action instead of an action. When you cast an Illusion spell, you ignore verbal and somatic components. The range of Illusion spells increases by 30 feet (to 120 feet instead of the normal range).' }
             ],
-            6: [{ name: 'Phantasmal Creatures', description: 'When you cast a Summon Beast or Summon Fey spell, you can choose to have it be an Illusion: the summoned creature appears translucent, and its attacks have no effect on material creatures. It has half the normal hit points.' }],
-            10: [{ name: 'Illusory Self', description: 'When a creature makes an attack roll against you, you can create an illusory duplicate of yourself as a Reaction. The attack misses, then you can use your Bonus Action to have the duplicate move up to 20 feet and create a distraction.' }],
-            14: [{ name: 'Illusory Reality', description: 'As a Bonus Action, you can choose one inanimate, nonmagical object that is part of an illusion you created and make that object real for 1 minute.' }]
+            6: [{ name: 'Phantasmal Creatures', description: 'You always have Summon Beast and Summon Fey prepared (as Illusion spells). When you cast these spells using the Illusion version, the summoned creature appears as a magical illusion. You can cast each one once per Long Rest without expending a spell slot, though they appear translucent and may interact differently with the environment.' }],
+            10: [{ name: 'Illusory Self', description: 'When a creature that you can see attacks you, you can use your Reaction to create an illusory duplicate of yourself in the attacker\'s line of sight. The attack targets the illusion instead and misses. You have 3 uses of this feature, regaining all uses at the end of a Short or Long Rest.' }],
+            14: [{ name: 'Illusory Reinforcement', description: 'When you use Illusory Self, you can expend a spell slot of level 2+ (Bonus Action, no action required) to regain all expended uses. Your illusions become more convincing: creatures have Disadvantage on checks to determine they are false. The more detailed your illusions, the harder they are to see through.' }]
         } 
       },
       { 

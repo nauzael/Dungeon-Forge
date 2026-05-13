@@ -5,12 +5,13 @@ import { MOCK_CHARACTERS } from './constants';
 import CharacterList from './components/CharacterList';
 import Login from './components/Login';
 import { migrateCharacters } from './utils/characterMigrations';
+import { generateUUID } from './utils/uuid';
 import { useResponsive } from './hooks/useResponsive';
 import {
   supabase,
   saveCharacterToCloud,
   fetchCharactersFromCloud,
-  subscribeToParty,
+  subscribeWithRetry,
   broadcastCharacterUpdate,
   softDeleteCharacter
 } from './utils/supabase';
@@ -63,7 +64,9 @@ const AppContent: React.FC = () => {
       if (localModeStr === 'true') {
         console.log('[LocalMode] Local development mode activated');
         setIsLocalMode(true);
-        setUser({ name: 'Local Developer', id: 'local-dev-mode' });
+        // Generate a valid UUID for local dev mode instead of hardcoded string
+        const devUUID = generateUUID();
+        setUser({ name: 'Local Developer', id: devUUID });
         setIsAuthenticated(true);
         return; // Skip Supabase auth
       }
@@ -426,7 +429,7 @@ const AppContent: React.FC = () => {
     useEffect(() => {
         if (!observedCharacter || view !== 'observer-sheet') return;
 
-        const channel = subscribeToParty(
+        const subscription = subscribeWithRetry(
             observedCharacter.party_id || 'no-party',
             (payload: any) => {
                 if (payload.new?.id === observedCharacter.id) {
@@ -437,11 +440,15 @@ const AppContent: React.FC = () => {
                 if (broadcastChar && broadcastChar.id === observedCharacter.id) {
                     setObservedCharacter(broadcastChar as Character);
                 }
+            },
+            (status) => {
+                // Log status changes (connecting, connected, error, reconnecting)
+                console.log(`[Observer] Realtime status: ${status}`);
             }
         );
 
         return () => {
-            channel.unsubscribe();
+            subscription.unsubscribe();
         };
     }, [observedCharacter?.id, view]);
     

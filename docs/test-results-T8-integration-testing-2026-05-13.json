@@ -1,0 +1,122 @@
+{
+  "status": "blocked",
+  "task_id": "T8",
+  "plan_id": "dm-sync-investigation-2026-05-13",
+  "summary": "Integration testing BLOCKED por arquitectura incompleta de local mode. Waves 1-2 están implementadas y compiladas (✅), pero no pueden ser testeadas sin Supabase auth o RLS bypass. Identificado: createParty() y otras operaciones fallan con RLS policy violation (code 42501).",
+  "failure_type": "architecture_gap",
+  "blocker_details": {
+    "error_code": 42501,
+    "error_message": "new row violates row-level security policy for table 'parties'",
+    "root_cause": "Local mode genera UUID válido, pero Supabase RLS bloquea inserciones sin autenticación",
+    "affected_operations": ["createParty", "deleteParty", "updatePartyName"],
+    "missing_feature": "Fallback a localStorage cuando RLS falla en local mode"
+  },
+  "waves_status": {
+    "wave_1_debounce": "✅ IMPLEMENTED (T1) - fetchMembers con debounce 300ms",
+    "wave_1_usememo": "✅ IMPLEMENTED (T2) - MemberCard con useMemo para AC, finalStats, spellSlots",
+    "wave_1_dedup": "✅ IMPLEMENTED (T2) - Deduplication O(1) con Map lookup",
+    "wave_1_timeout_backoff": "✅ IMPLEMENTED (T4) - subscribeWithRetry() con exponential backoff 1s→2s→4s→8s",
+    "wave_2_refactor": "✅ IMPLEMENTED (T5) - DMDashboard 687→116 líneas, hooks modulares",
+    "wave_2_batching": "✅ IMPLEMENTED (T6) - Batched updates x6 rutas con unstable_batchedUpdates()",
+    "compilation": "✅ PASSED (npm run build 3.75s, zero errors)"
+  },
+  "code_changes_made": {
+    "utils_uuid_ts": "✅ CREATED - UUID v4 generator para local dev mode",
+    "app_tsx": "✅ UPDATED - Import generateUUID, line 70 usa UUID en lugar de 'local-dev-mode'",
+    "build_status": "✅ SUCCESS - No compilation errors"
+  },
+  "test_scenarios_status": {
+    "scenario_1_party_sync_debounce": {
+      "status": "blocked",
+      "reason": "Cannot create parties (RLS violation)",
+      "prerequisites_met": false
+    },
+    "scenario_2_member_render_usememo": {
+      "status": "blocked",
+      "reason": "Cannot create parties (RLS violation)",
+      "prerequisites_met": false
+    },
+    "scenario_3_combat_sync_batching": {
+      "status": "blocked",
+      "reason": "Cannot create parties (RLS violation)",
+      "prerequisites_met": false
+    },
+    "scenario_4_network_failure_backoff": {
+      "status": "blocked",
+      "reason": "Cannot create parties (RLS violation)",
+      "prerequisites_met": false
+    },
+    "scenario_5_deduplication_performance": {
+      "status": "blocked",
+      "reason": "Cannot create parties (RLS violation)",
+      "prerequisites_met": false
+    }
+  },
+  "extra": {
+    "console_errors": 2,
+    "console_warnings": 0,
+    "network_failures": 1,
+    "rls_violations": 1,
+    "flows_executed": 0,
+    "flows_passed": 0,
+    "scenarios_executed": 0,
+    "scenarios_passed": 0,
+    "evidence_path": "docs/plan/dm-sync-investigation-2026-05-13/evidence/T8/",
+    "blockers": [
+      {
+        "type": "RLS_Policy_Violation",
+        "details": "Supabase RLS policy prevents unauthenticated writes to 'parties' table",
+        "affected_tables": ["parties", "characters"],
+        "code": 42501,
+        "severity": "CRITICAL"
+      },
+      {
+        "type": "Architecture_Gap",
+        "details": "Local mode incomplete - no fallback storage when Supabase fails",
+        "location": "App.tsx local mode setup",
+        "severity": "CRITICAL"
+      }
+    ]
+  },
+  "resolution_options": [
+    {
+      "option": "A - Generate UUID (PARTIAL FIX)",
+      "status": "✅ COMPLETED",
+      "effort": "5 min",
+      "impact": "Solves UUID type mismatch, no effect en RLS",
+      "result": "Necessary but insufficient"
+    },
+    {
+      "option": "B - Add localStorage fallback (FULL FIX)",
+      "status": "❌ NOT IMPLEMENTED",
+      "effort": "30-60 min",
+      "impact": "Permite local mode sin Supabase",
+      "required_changes": [
+        "createParty(): Check RLS error → fallback a localStorage",
+        "fetchAllParties(): Check RLS error → fallback a localStorage",
+        "subscribeToParty(): Disable realtime en local mode",
+        "Add localStorage schema: parties, characters, initiative"
+      ]
+    },
+    {
+      "option": "C - Use Supabase Auth (INFRASTRUCTURE FIX)",
+      "status": "❌ NOT APPLICABLE",
+      "effort": "N/A",
+      "impact": "Requiere OAuth setup/test account",
+      "blocker": "No credenciales disponibles"
+    },
+    {
+      "option": "D - Disable RLS in Supabase (DB ADMIN FIX)",
+      "status": "❌ NOT APPLICABLE",
+      "effort": "N/A",
+      "impact": "Permite cualquier insert sin auth",
+      "blocker": "Requiere acceso DB admin"
+    }
+  ],
+  "recommendations": {
+    "immediate_action": "Implementar Option B - localStorage fallback en local mode",
+    "timeline": "15-20 minutos",
+    "blocked_until": "RLS bypass o fallback storage implementado",
+    "wave_2_status": "IMPLEMENTATION COMPLETE pero NO TESTEABLE sin party creation"
+  }
+}

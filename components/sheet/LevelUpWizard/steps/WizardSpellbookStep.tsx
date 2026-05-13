@@ -25,10 +25,16 @@ const WizardSpellbookStep: React.FC<WizardSpellbookStepProps> = ({
 
     // Calculate how many spells can be learned
     const currentSpellbook = character.wizard?.spellbook || [];
+    const nonCantripSpells = useMemo(() => {
+        return currentSpellbook.filter(s => {
+            const detail = SPELL_DETAILS[s];
+            return detail && detail.level > 0;
+        }).length;
+    }, [currentSpellbook]);
     const maxAtCurrentLevel = getWizardSpellbookByLevel(currentLevel);
     const maxAtNextLevel = getWizardSpellbookByLevel(nextLevel);
     const maxSpellLevelAtNextLevel = getWizardMaxSpellLevel(nextLevel);
-    const spellSlots = getWizardSpellsToLearnOnLevelUp(currentLevel, nextLevel, currentSpellbook.length);
+    const spellSlots = getWizardSpellsToLearnOnLevelUp(currentLevel, nextLevel, nonCantripSpells);
 
     // Available spells for learning
     const availableToLearn = useMemo(() => {

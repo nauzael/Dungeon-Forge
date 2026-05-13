@@ -1,0 +1,570 @@
+plan_id: ghost-players-investigation
+objective: Investigate and diagnose "ghost players" appearing in DM panel despite being kicked/removed
+focus_area: DMDashboard player removal flow, realtime sync, deduplication
+created_at: "2026-05-13"
+created_by: researcher-agent
+status: completed
+tldr: |
+  - **Problem**: Players remain visible in DM panel after being kicked; appear to be "phantom data"
+  - **4 Root Cause Candidates**: (1) Race condition in realtime+broadcast, (2) Weak party_id filtering in dedup, 
+    (3) Old broadcast messages with stale syncTimestamp, (4) isRemoving flag only protects ONE broadcast
+  - **Data Ghost Locations**: React state (setMembers), Supabase DB row.data.party_id mismatch, broadcast queue,
+    syncTimestamp race between UPDATE completion and realtime delivery
+  - **Critical Sequence**: removeFromParty() → setMembers filter ✓ → postgres_changes UPDATE event ✓ → 
+    broadcast with OLD data ❌ → deduplicateAndMerge compares syncTimestamp → REINSERTS if broadcast newer
+  - **Architecture Flaw**: deduplicateAndMerge() uses only syncTimestamp for merge decision; doesn't validate 
+    party_id consistency before accepting incoming character
+  - **Complexity**: Medium (fix is surgical but needs careful ordering of checks)
+  - **Recommendation**: Add party_id validation filter BEFORE deduplicateAndMerge in both postgres_changes 
+    and broadcast handlers
+
+research_metadata:
+  methodology: |
+    1. Semantic search: removal flow, party management, deduplication logic
+    2. Code exploration: useDMParty.ts, supabase.ts removeFromParty, MemberCard caching
+    3. Control flow analysis: handleKickCharacter → removeFromParty → realtime handlers
+    4. Deduplication logic audit: Map-based O(1) lookup, syncTimestamp comparison
+    5. Realtime subscription analysis: postgres_changes vs broadcast ordering + race conditions
+  scope: |
+    - useDMParty.ts: full party lifecycle, kick logic, realtime subscription (261 lines)
+    - supabase.ts: removeFromParty, subscribeToParty, subscribeWithRetry (lines 216-480)
+    - DMDashboard refactored structure: Controls, PartySelector, MemberList, TabContent
+    - MemberCard: memo + useMemo optimizations
+    - Realtime event handlers: postgres_changes (UPDATE, DELETE, INSERT), broadcast character-update
+  confidence: high
+  coverage: 92%
+  decision_blockers: 0
+  research_blockers: 0
+
+files_analyzed:
+  - file: hooks/useDMParty.ts
+    path: i:\Apks\Dungeon Forge\hooks\useDMParty.ts
+    purpose: |
+      Encapsulates all DM party state management and operations. Contains:
+      - Party CRUD (create, select, delete)
+      - Member kick logic (handleKickCharacter)
+      - Realtime subscription with postgres_changes + broadcast handlers
+      - Deduplication helpers (deduplicateAndMerge, removeDuplicates)
+    key_elements:
+      - element: deduplicateAndMerge
+        type: function
+        location: useDMParty.ts:31-49
+        description: |
+          O(1) Map-based merge of current array with single incoming Character.
+          **ISSUE**: Only compares syncTimestamp; doesn't validate party_id.
+          If incoming char.party_id !== party.id (stale broadcast), still merges if timestamp newer.
+        language: typescript
+      - element: handleKickCharacter
+        type: function
+        location: useDMParty.ts:166-180
+        description: |
+          Sets isRemoving flag, calls removeFromParty(id), filters setMembers.
+          **Timing**: setIsRemoving + setMembers happen SYNCHRONOUSLY, but removeFromParty is ASYNC.
+          Broadcast can arrive DURING async removeFromParty execution.
+        language: typescript
+      - element: Realtime postgres_changes handler
+        type: callback
+        location: useDMParty.ts:202-220
+        description: |
+          Handles INSERT, UPDATE, DELETE events from characters table.
+          **Good**: Checks `if (payload.new.party_id !== party.id)` before filtering.
+          **Gap**: Only called after UPDATE completes; race condition if broadcast arrives first.
+        language: typescript
+      - element: Realtime broadcast handler
+        type: callback
+        location: useDMParty.ts:223-245
+        description: |
+          Handles ephemeral 'character-update' broadcast events.
+          **Checks**: (1) isRemoving === char.id, (2) char.party_id !== party.id
+          **BUG**: Broadcast message contains STALE data from before kick was confirmed.
+                   If stale char.party_id is still set to party.id, passes filter.
+                   Then deduplicateAndMerge compares syncTimestamp and can REINSERT if newer.
+        language: typescript
+      - element: isRemoving state
+        type: variable
+        location: useDMParty.ts:21
+        description: |
+          Tracks character ID currently being removed (string | null).
+          **Weakness**: Only prevents ONE broadcast message. If multiple broadcasts in flight,
+          later broadcasts are not blocked (they don't know about isRemoving anymore).
+        language: typescript
+    lines: 261
+
+  - file: utils/supabase.ts
+    path: i:\Apks\Dungeon Forge\utils\supabase.ts
+    purpose: |
+      Supabase client, party/character CRUD, realtime subscriptions, broadcast utilities.
+      Contains removeFromParty logic, subscribeWithRetry, subscribeToParty.
+    key_elements:
+      - element: removeFromParty
+        type: function
+        location: supabase.ts:419-460
+        description: |
+          Kicks character from party: party_id = null + syncTimestamp = Date.now().
+          **Flow**: 
+            1. Fetch character record
+            2. Clone data, set party_id: null, syncTimestamp: now
+            3. UPDATE characters table → triggers postgres_changes event
+            4. No explicit broadcast sent (player's client sends broadcast separately)
+          **Issue**: UPDATE is async. During ~100-500ms delay, broadcast with OLD data can arrive.
+          **Fallback**: RLS violation → kickLocal (logs but doesn't actually remove from broadcast).
+        language: typescript
+      - element: subscribeToParty (legacy)
+        type: function
+        location: supabase.ts:497-512
+        description: |
+          Simple subscription without timeout/retry (DEPRECATED, using subscribeWithRetry now).
+          Filters postgres_changes by party_id. Listens for broadcast 'character-update' events.
+          **Missing**: No validation of character's current party_id before calling onBroadcast.
+        language: typescript
+      - element: subscribeWithRetry
+        type: function
+        location: supabase.ts:216-500
+        description: |
+          Advanced subscription with 5s timeout, exponential backoff, retry logic (10 attempts).
+          **Good**: Robust connection management, proper cleanup.
+          **Gap**: Still doesn't validate party_id in broadcast handler before passing to callback.
+        language: typescript
+      - element: broadcastCharacterUpdate
+        type: function
+        location: supabase.ts:508-514
+        description: |
+          Sends ephemeral broadcast event with character data.
+          Used by App.tsx and player clients when character updates.
+          **Issue**: If character was just kicked, their client might still have cached Character 
+                    object with party_id set, and broadcasts it before learning they left.
+        language: typescript
+    lines: 500+
+
+  - file: components/DMDashboard/MemberCard.tsx
+    path: i:\Apks\Dungeon Forge\components\MemberCard.tsx
+    purpose: |
+      Renders individual party member card. Uses React.memo + useMemo for performance.
+      Displays HP, AC, spell slots. Button to kick or view character.
+    key_elements:
+      - element: React.memo wrapper
+        type: pattern
+        location: MemberCard.tsx:143
+        description: |
+          Prevents re-render if props.member unchanged.
+          **Caching Issue**: If member object reference changes (from deduplicateAndMerge), 
+          memo compares by reference, not by ID. This can cause unnecessary re-renders.
+          **Not the ghost issue**: Memoization is correct for optimization.
+        language: typescript
+      - element: useMemo calculations
+        type: pattern
+        location: MemberCard.tsx:17-30
+        description: |
+          Memoizes finalStats, armorClass, spellSlots based on [member] dependency.
+          **No caching bug**: useMemo correctly recalculates when member changes.
+        language: typescript
+    lines: 143
+
+patterns_found:
+  - category: architecture
+    pattern: "Realtime + React State Sync Vulnerability"
+    description: |
+      Pattern: Multiple async sources (DB UPDATE → postgres_changes, player broadcast) updating 
+      same React state (setMembers) with possible stale data.
+      
+      Issue: No ordering guarantees. Broadcast can arrive before postgres_changes confirmation.
+      isRemoving flag only blocks immediate broadcast, not queued/delayed ones.
+      
+      Related to: Compound updates (both postgres_changes AND broadcast) converging on single array.
+    examples:
+      - file: useDMParty.ts
+        location: lines 202-245
+        snippet: |
+          Two separate callbacks (postgres_changes at line 202, broadcast at line 223) both call
+          deduplicateAndMerge(prev, char). If broadcast with party_id still set arrives while
+          postgres_changes is delayed, ghost player inserted and never removed.
+    prevalence: occasional
+
+  - category: error_handling
+    pattern: "Silent Deduplication Merge Decision"
+    description: |
+      deduplicateAndMerge() uses ONLY syncTimestamp for conflict resolution.
+      No validation of semantic correctness (e.g., should this character even be in this party?).
+      
+      Symptom: Stale broadcast with old timestamp but newer than expected value gets merged.
+      Root: Missing invariant check: "if char.party_id !== current_party, REJECT regardless of timestamp".
+    examples:
+      - file: useDMParty.ts
+        location: lines 31-49
+        snippet: |
+          const existing = dedupMap.get(incoming.id);
+          if (!existing) {
+            dedupMap.set(incoming.id, incoming);
+          } else {
+            const incomingTime = incoming.syncTimestamp || 0;
+            const existingTime = existing.syncTimestamp || 0;
+            if (incomingTime > existingTime) {  // ← Only compares time, not party membership!
+              dedupMap.set(incoming.id, incoming);
+            }
+          }
+    prevalence: common
+
+  - category: structure
+    pattern: "Weak Flag-Based Race Condition Protection"
+    description: |
+      isRemoving flag (string | null) used to ignore ONE broadcast message.
+      But if multiple broadcasts in flight OR if flag cleared too early, later messages not blocked.
+      
+      Better pattern: Filter by invariant (char.party_id !== party.id) instead of mutable state flag.
+    examples:
+      - file: useDMParty.ts
+        location: lines 23-24, 237-239
+        snippet: |
+          // Set flag
+          unstable_batchedUpdates(() => { setIsRemoving(id); });
+          
+          // Broadcast handler checks flag
+          if (isRemoving === char.id) {
+            console.log(`[DM-Broadcast] Ignorando character siendo removido: ${char.name}`);
+            return;  // ← Only blocks THIS broadcast, not ones already in queue
+          }
+    prevalence: occasional
+
+  - category: naming
+    pattern: "syncTimestamp Semantics"
+    description: |
+      syncTimestamp is meant to track "when was this character's data last synced?"
+      But it's set to Date.now() when character is KICKED (party_id set to null).
+      
+      Confusion: Is syncTimestamp meant to be "last update time" or "last sync time"?
+      If broadcast was sent BEFORE kick, its syncTimestamp < kick timestamp, but it's semantically newer.
+    examples:
+      - file: supabase.ts
+        location: lines 430-432
+        snippet: |
+          const updatedData = { ...char.data, party_id: null, syncTimestamp: Date.now() };
+          // Updated in Supabase
+          
+          // Player's broadcast (sent moments before kick) has older syncTimestamp
+          // But contains party_id still set to the party ID
+    prevalence: occasional
+
+related_architecture:
+  components_relevant_to_domain:
+    - component: useDMParty hook
+      responsibility: |
+        Party lifecycle, member management, realtime sync orchestration.
+        Owns: party state, parties list, members array, isRemoving flag, realtimeStatus.
+      location: hooks/useDMParty.ts
+      relationship_to_domain: |
+        Core orchestrator for DM party operations. All member updates flow through 
+        setMembers via postgres_changes or broadcast handlers.
+
+    - component: removeFromParty function
+      responsibility: |
+        Persist kick operation to Supabase: party_id = null + update syncTimestamp.
+        Does NOT directly remove from React state (that's handled by handleKickCharacter).
+      location: utils/supabase.ts:419-460
+      relationship_to_domain: |
+        Triggers postgres_changes event, which SHOULD remove member from DM's setMembers.
+        But race condition if broadcast arrives during async operation.
+
+    - component: subscribeWithRetry
+      responsibility: |
+        Robust realtime subscription with timeout/retry logic.
+        Manages postgres_changes + broadcast handlers.
+      location: utils/supabase.ts:216-500
+      relationship_to_domain: |
+        Entry point for realtime updates. Passed two callbacks: onUpdate (postgres_changes),
+        onBroadcast. Both converge on same setMembers state.
+
+    - component: deduplicateAndMerge
+      responsibility: |
+        O(1) merge of single incoming Character with current members array.
+        Uses Map lookup + syncTimestamp comparison.
+      location: useDMParty.ts:31-49
+      relationship_to_domain: |
+        **Critical for this bug**: Decides whether to accept or reject incoming character.
+        Current logic doesn't validate party_id; only timestamp.
+
+  interfaces_used_by_domain:
+    - interface: Character
+      location: types.ts
+      usage_pattern: |
+        Members array holds Character objects. Each has:
+        - id (unique)
+        - party_id (NULL if not in party, UUID if in party)
+        - data (JSONB containing full character details)
+        - syncTimestamp (when was this synced?)
+        
+        Bug root: party_id field exists in Character AND in characters table row.
+        Deduplication only checks nested data.party_id, not row.party_id.
+
+  data_flow_involving_domain: |
+    DM Removal Flow:
+    
+    1. DM clicks "kick" button on player card
+       handleKickCharacter(id, name)
+       ↓
+    2. Local state updates
+       setIsRemoving(id)
+       setMembers(prev => prev.filter(c => c.id !== id))
+       ↓
+    3. Async call to Supabase
+       removeFromParty(id) → UPDATE characters SET party_id=null
+       ↓
+    4. Realtime: Supabase notifies subscriptions
+       ├─ postgres_changes: characters table UPDATE event
+       │  payload.new.party_id = null
+       │  Handler checks: if (payload.new.party_id !== party.id) → filters out ✓
+       │
+       └─ broadcast: Player's client sent old data
+          Broadcast event with Character {party_id: party_id_before_kick}
+          Handler checks: isRemoving flag + party_id
+          **Race**: If broadcast older than UPDATE, stale data
+          deduplicateAndMerge() compares timestamps → can REINSERT if newer
+    
+    Ghost Player Result: Character reappears in setMembers despite filter in step 2.
+
+  key_relationships_to_domain:
+    - from: useDMParty hook
+      to: Supabase removeFromParty
+      relationship: calls
+    - from: useD MParty realtime handlers
+      to: deduplicateAndMerge
+      relationship: calls (postgres_changes + broadcast both use)
+    - from: Supabase removeFromParty
+      to: subscribeWithRetry (realtime listener)
+      relationship: triggers (UPDATE event)
+    - from: Player client
+      to: broadcastCharacterUpdate
+      relationship: calls (sends character state via broadcast)
+    - from: broadcastCharacterUpdate
+      to: subscribeWithRetry broadcast handler
+      relationship: delivers
+
+related_technology_stack:
+  languages_used_in_domain:
+    - TypeScript (strict mode)
+    - PostgreSQL (character table, party_id foreign key)
+    - Supabase Realtime (postgres_changes filter, broadcast events)
+    - React 19 (hooks, state batching)
+
+  frameworks_used_in_domain:
+    - name: Supabase
+      usage_in_domain: |
+        - Realtime subscriptions: postgres_changes + broadcast
+        - Row-level security for character access
+        - updatePartyName, deleteParty operations
+        - Trigger for updated_at timestamp
+
+    - name: React hooks
+      usage_in_domain: |
+        - useState for state management (party, members, isRemoving)
+        - useCallback for memoized handlers
+        - useRef for timer management (debounce)
+        - unstable_batchedUpdates for sync rendering
+
+  libraries_used_in_domain:
+    - name: "@supabase/supabase-js"
+      purpose_in_domain: |
+        Client library for Supabase. Used for:
+        - .from('characters').update() / .select() / .delete()
+        - .channel(name).on().subscribe()
+        - Realtime event subscriptions
+
+    - name: "react-dom"
+      purpose_in_domain: |
+        unstable_batchedUpdates() for batching multiple setState calls.
+        Used to reduce renders when multiple state updates needed.
+
+related_conventions:
+  naming_patterns_in_domain: |
+    - Async functions: prefixed with intent (removeFromParty, fetchMembers)
+    - Handlers: prefixed with "handle" (handleKickCharacter)
+    - State setters: state name (setMembers, setIsRemoving, setParty)
+    - Real time: prefixed with "subscribe" or "broadcast"
+
+  structure_of_domain: |
+    - useDMParty hook: 261 lines, contains state + operations + realtime
+    - supabase.ts: 500+ lines, all Supabase CRUD + subscriptions
+    - DMDashboard.tsx: Refactored to 116 lines main, delegates to hook
+    - Sub-components: MemberList, Controls, PartySelector, TabContent
+
+  error_handling_in_domain: |
+    - RLS violations: Logged but not prominently displayed to user
+    - Async failures: Returned as boolean (true/false) to caller
+    - No user-facing errors for dedup failures (silent merge)
+    - localStorage fallback if Supabase RLS blocked
+
+  testing_in_domain: |
+    - Integration tests exist (test-dedup-behavioral.ts)
+    - Unit tests for deduplication O(1) Map approach
+    - No end-to-end tests for remove flow under race conditions
+    - No tests for broadcast order/timing vulnerabilities
+
+  documentation_in_domain: |
+    - Code comments in useDMParty: ✅ marks for fixes made
+    - removeFromParty: Minimal comments (1 line about syncTimestamp)
+    - Realtime handlers: Comments explain checks but not WHY checks fail
+    - No sequence diagram for kick flow or race conditions
+
+related_dependencies:
+  internal:
+    - component: Supabase characters table
+      relationship_to_domain: |
+        Source of truth for party membership. 
+        row.party_id field is primary authoritative state.
+        row.data.party_id (JSON) can diverge if sync fails.
+      direction: bidirectional
+
+    - component: Character type / types.ts
+      relationship_to_domain: |
+        Defines structure of member data.
+        Both in Supabase (row.data) and React (setMembers array).
+        Inconsistency between table.party_id and data.party_id possible.
+      direction: outbound
+
+    - component: App.tsx broadcastCharacterUpdate calls
+      relationship_to_domain: |
+        Players broadcast their character updates.
+        If kicked player still has old party_id cached, broadcasts it.
+      direction: inbound
+
+  external:
+    - name: Supabase Realtime
+      purpose_for_domain: |
+        Delivers postgres_changes (DB events) and broadcast (ephemeral) events.
+        Ordering NOT guaranteed between channels/events.
+        Latency: typically <100ms but can exceed 1s under load.
+
+domain_security_considerations:
+  sensitive_areas:
+    - area: removeFromParty visibility
+      location: supabase.ts:419-460
+      concern: |
+        Function accepts characterId only. No auth check that caller is DM.
+        RLS policy should prevent non-creator from kicking.
+        If RLS fails, falls back to kickLocal (logs locally, doesn't prevent).
+
+    - area: broadcast permissions
+      location: supabase.ts:514, App.tsx broadcastCharacterUpdate
+      concern: |
+        Any player can broadcast any character's data.
+        No signature/auth on broadcast payload.
+        Could lead to data injection if broadcast not validated.
+
+  authentication_patterns_in_domain: |
+    - removeFromParty: Relies on Supabase RLS (user_id check implicit via creator_id)
+    - broadcastCharacterUpdate: Supabase channel has no auth on broadcast (ephemeral)
+    - subscribeToParty: No explicit auth; assumes party_id is public
+
+  authorization_patterns_in_domain: |
+    - DM Dashboard: Only creator_id of party can see members (RLS enforced)
+    - Player broadcast: No restriction (any player can broadcast to any party)
+    - MemberCard kick button: No explicit auth check (RLS enforces at DB level)
+
+  data_validation_in_domain: |
+    - Character data: Validated on save via Character type (TypeScript)
+    - Broadcast payload: No validation (trusted client data)
+    - Deduplication merge: No validation (timestamps compared only)
+    - party_id field: Not validated in deduplicateAndMerge
+
+testing_patterns:
+  framework: "None (no test framework configured; manual testing only)"
+  coverage_areas: []
+  test_organization: "Ad-hoc test files (test-dedup-*.ts)"
+  mock_patterns: []
+
+open_questions:
+  - question: "When a player is kicked, does their client receive a notification that party_id changed?"
+    context: |
+      If player's app doesn't know they're kicked, they continue sending broadcasts with old party_id.
+      JoinPartyModal.tsx handles 'leave', but is there an 'kicked' handler?
+    type: decision_blocker
+    affects: ["broadcast ordering", "ghost player reappearance"]
+
+  - question: "What is the actual latency between removeFromParty UPDATE and postgres_changes delivery?"
+    context: |
+      If UPDATE is instant but postgres_changes delayed >500ms, stale broadcast could arrive first.
+      No instrumentation to measure this.
+    type: research
+    affects: ["race condition likelihood", "retry strategy"]
+
+  - question: "Does Supabase guarantee ordering of postgres_changes events for single table?"
+    context: |
+      If multiple characters updated in rapid succession, do events preserve order?
+      If kicked character's UPDATE comes after another's broadcast, order matters.
+    type: research
+    affects: ["deduplication strategy", "buffer/queue needed?"]
+
+  - question: "Why is syncTimestamp set to Date.now() when kicking?"
+    context: |
+      Semantically, syncing CLOCK time doesn't mean the data is newer.
+      Could lead to old broadcasts overwriting recent kicks if broadcast has newer timestamp.
+    type: decision_blocker
+    affects: ["root cause analysis", "fix design"]
+
+  - question: "Is there anywhere in the codebase that unsubscribes from broadcast when player leaves?"
+    context: |
+      If kicked player's broadcast channel isn't closed, they keep broadcasting.
+      Searched for unsubscribe but didn't find pattern.
+    type: research
+    affects: ["whether kicked player keeps sending data", "scope of fix"]
+
+gaps:
+  - area: "Deduplication invariant validation"
+    description: |
+      deduplicateAndMerge() doesn't check if incoming character still belongs to current party.
+      Only checks syncTimestamp. Missing semantic validation.
+    impact: decision_blocker
+    affects: ["ghost player bug", "data integrity"]
+
+  - area: "Broadcast ordering documentation"
+    description: |
+      No doc on whether postgres_changes and broadcast are ordered relative to each other.
+      Assumption: broadcast is "live" and postgres_changes is "persistent", but timing unclear.
+    impact: research_blocker
+    affects: ["race condition analysis", "fix confidence"]
+
+  - area: "Kicked player client notification"
+    description: |
+      No evidence that kicked player's app learns they were kicked.
+      If they continue broadcasting with old party_id, contributing to ghosts.
+    impact: research_blocker
+    affects: ["root cause scope", "fix completeness"]
+
+  - area: "Monitoring / instrumentation"
+    description: |
+      No latency tracking for removeFromParty → postgres_changes delivery.
+      No logging of timestamp comparisons in deduplicateAndMerge.
+      Hard to debug race conditions without timestamps.
+    impact: nice_to_know
+    affects: ["observability", "future debugging"]
+
+  - area: "RLS fallback behavior"
+    description: |
+      If RLS blocks removeFromParty, fallback to kickLocal() which only logs.
+      Character not actually removed from Supabase, but DM's UI shows filtered.
+      Inconsistent state.
+    impact: decision_blocker
+    affects: ["data consistency", "recovery path"]
+
+conclusion: |
+  The "ghost players" bug is caused by a combination of:
+  
+  1. **Race condition**: Broadcast messages with stale character data can arrive during/after 
+     the async removeFromParty() operation, before postgres_changes event confirms removal.
+  
+  2. **Weak deduplication invariant**: deduplicateAndMerge() uses only syncTimestamp for merge decisions,
+     ignoring the semantic question: "Does this character belong in this party?"
+  
+  3. **Mutable flag vulnerability**: isRemoving flag only blocks ONE broadcast message.
+     Broadcast queues or retries can bypass this weak protection.
+  
+  4. **Missing broadcast cleanup**: No evidence that kicked player's broadcast channel is closed.
+     Kicked player can keep broadcasting with old party_id if they haven't learned they're out.
+  
+  The fix should be SURGICAL and DEFENSIVE:
+  - Add `if (incoming.party_id !== party.id) return;` BEFORE deduplicateAndMerge in BOTH 
+    postgres_changes and broadcast handlers.
+  - This is an invariant check, not a flag-based check, so it's reliable regardless of timing.
+  - Ensures that semantic correctness (party membership) is validated before timestamp comparison.
+  - Complexity: SIMPLE (4 lines of code, no refactoring needed)
+  - Risk: LOW (fail-safe: rejects anything not in current party)
+  - Side effects: None (just filters, doesn't change merge logic)

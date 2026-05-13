@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Character, Ability } from '../../../types';
 import { CLASS_PROGRESSION, SUBCLASS_OPTIONS, HIT_DIE, CLASS_SKILL_DATA } from '../../../Data/characterOptions';
 import { SKILL_LIST } from '../../../Data/skills';
+import { SPELL_DETAILS } from '../../../Data/spells';
 import { FEAT_OPTIONS } from '../../../Data/feats/index';
 import { getFinalStats, getAllHpBonusesPerLevel, getItemHpBonusesPerLevel, getItemHpBonusesOneTime, getWizardSpellsToLearnOnLevelUp } from '../../../utils/sheetUtils';
 import { UI } from '../../../constants/ui';
@@ -183,7 +184,11 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
             case 'wizardSpellbook':
                 // For Wizard spellbook step, must learn available spells (can be 0)
                 const spellbook = character.wizard?.spellbook || [];
-                const { available: maxNewSpells } = getWizardSpellsToLearnOnLevelUp(character.level, nextLevel, spellbook.length);
+                const nonCantripCount = spellbook.filter(s => {
+                    const detail = SPELL_DETAILS[s];
+                    return detail && detail.level > 0;
+                }).length;
+                const { available: maxNewSpells } = getWizardSpellsToLearnOnLevelUp(character.level, nextLevel, nonCantripCount);
                 return newSpellsLearned.length <= maxNewSpells; // Can proceed with 0 or more (up to max)
             case 'asiFeat':
                 if (asiType === 'stat') {
