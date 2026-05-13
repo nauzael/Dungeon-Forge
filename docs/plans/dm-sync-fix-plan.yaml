@@ -1,0 +1,710 @@
+plan_id: dm-sync-investigation-2026-05-13
+objective: "Resolver todos los 4 problemas de demora en sincronización del panel DM + refactor DMDashboard"
+created_at: "2026-05-13T10:00:00Z"
+created_by: gem-planner
+status: pending
+research_confidence: high
+
+plan_metrics:
+  wave_1_task_count: 4
+  total_dependencies: 8
+  risk_score: medium
+  estimated_total_effort: "8-10 horas"
+  estimated_total_files: 12
+  estimated_total_lines: 850
+
+tldr: |
+  Resolver 4 problemas críticos de sincronización DM mediante:
+  1. Agregar debounce 300ms a fetchMembers (como saveData)
+  2. Memoizar cálculos costosos en member cards (AC, spell slots)
+  3. Mejorar deduplicación O(n) → O(1) con Map
+  4. Agregar timeout + reconnect logic en realtime channel
+  5. Refactor DMDashboard (687→350 líneas) via compound components
+  
+  **Ejecución**: 4 fixes paralelos en Wave 1 → refactor en Wave 2 → review en Wave 3
+  
+  **Rollback**: Cada task es self-contained; si falla una, deshacer cambios + redeploy anterior OTA
+
+open_questions: []
+
+gaps: []
+
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "Debounce provoca race condition si usuario selecciona party rápidamente"
+      likelihood: medium
+      impact: high
+      mitigation: "Usar AbortController + UUID para invalidar requests obsoletas"
+    
+    - scenario: "useMemo dependency arrays incorrectos → stale renders"
+      likelihood: medium
+      impact: high
+      mitigation: "Code review exhaustivo de deps; test con React DevTools Profiler"
+    
+    - scenario: "Deduplicación con Map rompe si party_id undefined"
+      likelihood: low
+      impact: critical
+      mitigation: "Validar party_id !== null en entrada; añadir unit tests"
+    
+    - scenario: "Timeout realtime causa infinite reconnect loop (CPU spike)"
+      likelihood: medium
+      impact: medium
+      mitigation: "Exponential backoff 500ms→8s max; timeout corto (5s) para disconnect rápido"
+    
+    - scenario: "Refactor DMDashboard introduce bugs en InitiativeTracker sync"
+      likelihood: medium
+      impact: high
+      mitigation: "Preservar APIs públicas; test end-to-end con combat scenario"
+  
+  assumptions:
+    - "Supabase realtime channel puede desconectarse sin error"
+    - "fetchMembers toma >100ms consistentemente con 4+ miembros"
+    - "useMemo será suficiente sin lazy loading de components"
+    - "Deduplicación ocurre >10 veces/sesión típica"
+    - "Usuario acepta 300ms latency en party selection (debounce)"
+
+implementation_specification:
+  code_structure: |
+    **Patrones reutilizables:**
+    - Debounce hook: `useDebounce<T>(value, delay, onDebounced)` → aplicable a futuras queries
+    - Memoize utilities: `memoizeStats()`, `memoizeSpellSlots()` → reusable en sheet tabs
+    - Dedup Map: `createMemberMap()` → O(1) lookups
+    - Realtime retry: `subscribeWithRetry(channel, maxRetries, initialDelay)`
+    
+    **Estructura post-refactor:**
+    ```
+    components/
+    ├── DMDashboard.tsx        (350 líneas) → compounds
+    ├── DMDashboard/
+    │   ├── MemberList.tsx       (header + list logic)
+    │   ├── MemberCard.tsx       (memoized, reusable)
+    │   ├── InitiativeTracker.tsx (existing, min changes)
+    │   └── Controls.tsx         (buttons, party selector)
+    └── hooks/
+        ├── useDMParty.ts        (state + fetchMembers debounced)
+        └── useMemberStats.ts    (memoized calculations)
+    ```
+  
+  affected_areas:
+    - "DMDashboard.tsx: state management, render optimization, code split"
+    - "utils/supabase.ts: realtime channel subscription (add timeout + retry)"
+    - "hooks/: create 2 custom hooks (useDMParty, useMemberStats)"
+    - "types.ts: extend PartyMember interface si necessary"
+  
+  component_details:
+    - component: "DMDashboard (refactored)"
+      responsibility: "Orchestrate party + member data flow; delegate rendering"
+      interfaces:
+        - "fetchMembers(partyId: string): Promise<PartyMember[]>"
+        - "subscribeToParty(partyId: string): Unsubscribe"
+      dependencies:
+        - "useDMParty hook"
+        - "MemberList, InitiativeTracker compound children"
+      integration_points:
+        - "Supabase realtime: party.changes + broadcast"
+        - "localStorage: party_id selection"
+        - "InitiativeTracker: sync member HP + AC"
+    
+    - component: "MemberCard (memoized)"
+      responsibility: "Render single party member stats; prevent re-render unless member data changes"
+      interfaces:
+        - "member: PartyMember, isActive: boolean, onUpdate?: (member) => void"
+      dependencies:
+        - "useMemberStats hook (memoized)"
+      integration_points:
+        - "Receives memoized AC, spell slots from parent"
+
+contracts:
+  - from_task: "T1-debounce-fetchMembers"
+    to_task: "T5-refactor-dmdashboard"
+    interface: "fetchMembers(partyId, debounceDelay=300)"
+    format: |
+      {
+        "function": "fetchMembers",
+        "signature": "(partyId: string, debounceDelay?: number) => Promise<PartyMember[]>",
+        "returns": "Array<PartyMember> deduplicated and merged",
+        "side_effects": "Sets realtimeStatus, logs network timing"
+      }
+  
+  - from_task: "T2-usememo-member-renders"
+    to_task: "T5-refactor-dmdashboard"
+    interface: "useMemberStats(member: PartyMember) → memoized {ac, spellSlots, ...}"
+    format: |
+      {
+        "hook": "useMemberStats",
+        "input": "PartyMember",
+        "output": {"ac": number, "spellSlots": {level: number, used: number}[], ...},
+        "deps": "[member.id, member.class, member.level, ...]"
+      }
+  
+  - from_task: "T3-dedup-optimization"
+    to_task: "T4-realtime-timeout"
+    interface: "createMemberMap(members: PartyMember[]) → Map<string, PartyMember>"
+    format: |
+      {
+        "function": "createMemberMap",
+        "input": "Array<PartyMember>",
+        "output": "Map<id, PartyMember> with version tracking",
+        "guarantee": "O(1) lookups, automatic dedup on insert"
+      }
+  
+  - from_task: "T4-realtime-timeout"
+    to_task: "T5-refactor-dmdashboard"
+    interface: "subscribeWithRetry(channel, onMessage, maxRetries=3)"
+    format: |
+      {
+        "function": "subscribeWithRetry",
+        "retry_strategy": "exponential backoff 500ms → 8s max",
+        "timeout": "5s disconnect → reconnect",
+        "onError": "callback to update UI realtimeStatus"
+      }
+
+tasks:
+  # ===== WAVE 1: Critical Fixes (parallelizable) =====
+  
+  - id: T1-debounce-fetchMembers
+    title: "Agregar debounce 300ms a fetchMembers"
+    description: |
+      **Problema**: fetchMembers se llama sin debounce en select party, create party, manual refresh, 
+      InitiativeTracker sync → genera queries SQL redundantes cada vez.
+      
+      **Solución**: Implementar debounce 300ms (como saveData en App.tsx) + AbortController 
+      para invalidar requests obsoletas si usuario cambia party ID rápidamente.
+      
+      **Archivos afectados**:
+      - DMDashboard.tsx: línea 170 fetchMembers()
+      - utils/supabase.ts: exportar fetchMembers con debounce
+      
+      **Patrón**: 
+      ```typescript
+      const debouncedFetch = useCallback(
+        debounce((id: string) => {
+          abortController.abort();
+          abortController = new AbortController();
+          return fetchMembers(id, { signal: abortController.signal });
+        }, 300),
+        []
+      );
+      ```
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers: ["fetchMembers", "debounce", "race condition prevention"]
+    priority: high
+    status: pending
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "components/DMDashboard.tsx"
+        description: "Lines 170, call to fetchMembers in handlePartySelect"
+      - path: "utils/supabase.ts"
+        description: "fetchMembers function definition + realtime subscriptions"
+      - path: "hooks"
+        description: "Create useDebounce hook if not exists"
+    estimated_effort: small
+    estimated_files: 3
+    estimated_lines: 120
+    verification:
+      - "fetchMembers no se llama más de 1 vez en 300ms durante rapid party selection"
+      - "InitiativeTracker.tsx seguirá funcionando (verifica que sync still triggers)"
+      - "Network tab muestra 1 query en lugar de 3-5 en quick succession"
+      - "Verificar AbortController cancela requests anteriores"
+    acceptance_criteria:
+      - "Debounce implementado y funcional (console logs show delay)"
+      - "AbortController cancela requests if party ID changes"
+      - "No visual glitches (loading state still correct)"
+      - "Latency < 400ms total (300ms debounce + 50-100ms query)"
+    failure_modes:
+      - scenario: "Race condition: User selects party A, then B, then A → version mismatch"
+        likelihood: medium
+        impact: high
+        mitigation: "Include UUID/version in AbortController; verify response ID matches current"
+      - scenario: "Debounce delay feels sluggish for 'manual refresh' button"
+        likelihood: low
+        impact: low
+        mitigation: "Add `immediate: true` for non-debounced refresh path"
+
+  - id: T2-usememo-member-renders
+    title: "Memoizar cálculos costosos en member card renders"
+    description: |
+      **Problema**: Cada render de member card recalcula:
+      - getArmorClass(member, getFinalStats(member)) 
+      - getSpellSlotSummary(member.spells)
+      - 4-6 miembros = 8-12 funciones O(n) por render
+      
+      **Solución**: Crear `useMemberStats` hook que memoiza estos cálculos.
+      Parámetro de dependencia: [member.id, member.class, member.level, member.stats, member.equipment]
+      
+      **Archivos afectados**:
+      - components/DMDashboard.tsx: líneas 514, 527 (member card render loop)
+      - hooks/useMemberStats.ts: NEW
+      - types.ts: extend MemberStats interface si necessary
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers: ["useMemo", "performance", "render optimization"]
+    priority: high
+    status: pending
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "components/DMDashboard.tsx"
+        description: "Member card render loop; identify getArmorClass + getSpellSlotSummary calls"
+      - path: "Data/classes"
+        description: "May need to import class features for final stats calculation"
+    estimated_effort: small
+    estimated_files: 3
+    estimated_lines: 100
+    verification:
+      - "React DevTools Profiler shows 0 re-renders on member data change (should be 1)"
+      - "Member card AC value correct and updates on equipment change"
+      - "Spell slot summary accurate after spell cast"
+      - "Performance improvement: <500ms total render time for 6 members"
+    acceptance_criteria:
+      - "useMemberStats hook created and tested"
+      - "Member cards use useMemberStats (AC, spellSlots memoized)"
+      - "Dependency array complete (no stale data)"
+      - "No visual regressions (all values display correctly)"
+    failure_modes:
+      - scenario: "Stale data: memoize deps incomplete → AC doesn't update when armor changes"
+        likelihood: medium
+        impact: high
+        mitigation: "Include all stat-affecting fields in deps; test with Equipment changes"
+      - scenario: "Over-memoization: hook creates too much overhead"
+        likelihood: low
+        impact: low
+        mitigation: "Monitor with React Profiler; remove if no benefit"
+
+  - id: T3-dedup-optimization
+    title: "Optimizar deduplicación O(n) → O(1) con Map"
+    description: |
+      **Problema**: deduplicateAndMerge() + removeDuplicates() buscan array entero en CADA update.
+      Llamado en: postgres_changes (INSERT/UPDATE), broadcast, fetchMembers.
+      Con 100+ chars = acumulable latency.
+      
+      **Solución**: Reemplazar array.filter() con Map<id, member> para O(1) lookups.
+      
+      **Archivos afectados**:
+      - utils/supabase.ts: líneas 40-80 (deduplicateAndMerge, removeDuplicates)
+      - May refactor into utils/memberDedup.ts
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers: ["deduplication", "algorithmic optimization", "performance"]
+    priority: medium
+    status: pending
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "utils/supabase.ts"
+        description: "Lines 40-80 dedup functions"
+      - path: "types.ts"
+        description: "PartyMember interface; verify id field present"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 80
+    verification:
+      - "Deduplication still removes duplicates correctly"
+      - "Merge preserves latest version of each member"
+      - "No undefined/null id crashes"
+      - "Performance: dedup call < 10ms even with 100+ members"
+    acceptance_criteria:
+      - "createMemberMap() function implemented (O(1) lookups)"
+      - "deduplicateAndMerge() refactored to use Map internally"
+      - "All tests pass (existing + new)"
+      - "No behavioral changes (dedup result identical to before)"
+    failure_modes:
+      - scenario: "Refactor breaks merge logic → loses member data"
+        likelihood: low
+        impact: critical
+        mitigation: "Add unit tests before/after; compare results with Array version"
+      - scenario: "Null/undefined party_id in Map key → NaN or 'undefined' key"
+        likelihood: medium
+        impact: high
+        mitigation: "Validate party_id !== null in input; throw error if invalid"
+
+  - id: T4-realtime-timeout
+    title: "Agregar timeout + reconnect logic en realtime channel"
+    description: |
+      **Problema**: channel.subscribe() falla silenciosamente. realtimeStatus nunca cambia a 'error'.
+      No retry logic → user queda con datos stale sin saberlo.
+      
+      **Solución**: Implementar subscribeWithRetry() con:
+      - Timeout 5s para detectar disconnect
+      - Exponential backoff 500ms → 8s max para reconnect
+      - Error callback para actualizar UI (realtimeStatus = 'error' | 'connected' | 'reconnecting')
+      
+      **Archivos afectados**:
+      - utils/supabase.ts: línea 217 (subscribeToParty)
+      - utils/realtimeRetry.ts: NEW (extracted utility)
+      - DMDashboard.tsx: consume realtimeStatus state
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers: ["realtime", "error handling", "retry logic", "network resilience"]
+    priority: medium
+    status: pending
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "utils/supabase.ts"
+        description: "subscribeToParty function; lines 217+"
+      - path: "components/DMDashboard.tsx"
+        description: "realtimeStatus state + UI indicator"
+    estimated_effort: medium
+    estimated_files: 3
+    estimated_lines: 150
+    verification:
+      - "Disconnect network → realtimeStatus changes to 'error' within 5s"
+      - "Reconnect → realtimeStatus changes to 'connecting' then 'connected' within backoff window"
+      - "No infinite reconnect loops (exponential backoff works)"
+      - "UI shows error state to user (visual feedback)"
+      - "Console shows retry attempts + backoff delays"
+    acceptance_criteria:
+      - "subscribeWithRetry() implemented with timeout + exponential backoff"
+      - "realtimeStatus: 'connected' | 'error' | 'reconnecting' | 'disconnected'"
+      - "Error state persists max 8s before retry"
+      - "Max 5 retries per reconnect cycle (then user notified to refresh)"
+    failure_modes:
+      - scenario: "Exponential backoff → CPU spike from rapid reconnects"
+        likelihood: medium
+        impact: medium
+        mitigation: "Ensure maxDelay >= 8s; add jitter ±10% to prevent thundering herd"
+      - scenario: "Timeout too short (5s) → false positives on slow networks"
+        likelihood: low
+        impact: medium
+        mitigation: "Monitor timeout errors in logs; increase to 10s if needed (v2)"
+
+  # ===== WAVE 2: Refactor + Integration =====
+  
+  - id: T5-refactor-dmdashboard
+    title: "Refactor DMDashboard para cumplir regla 500-line + mejorar batching"
+    description: |
+      **Problema**: DMDashboard.tsx = 687 líneas (exceeds 500-line rule).
+      6+ rutas de actualización de estado sin batching → UI jank + inconsistencies.
+      
+      **Solución**: 
+      1. Extraer components: MemberList.tsx, MemberCard.tsx (memoized), Controls.tsx
+      2. Crear hook useDMParty.ts (state + fetchMembers debounced)
+      3. Implementar state batching con unstable_batchedUpdates()
+      4. Preservar APIs públicas para InitiativeTracker integration
+      
+      **Estructura post-refactor**:
+      ```
+      DMDashboard.tsx          (350 líneas)
+      ├── useDMParty.ts        (120 líneas, custom hook)
+      ├── useMemberStats.ts    (80 líneas, custom hook)
+      ├── MemberList.tsx       (100 líneas)
+      ├── MemberCard.tsx       (80 líneas, memoized)
+      └── Controls.tsx         (60 líneas)
+      ```
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers: ["refactoring", "component split", "code organization", "state batching"]
+    priority: high
+    status: pending
+    dependencies: ["T1-debounce-fetchMembers", "T2-usememo-member-renders"]
+    conflicts_with: []
+    context_files:
+      - path: "components/DMDashboard.tsx"
+        description: "Entire file; identify logical sections to extract"
+      - path: "components"
+        description: "Create DMDashboard/ subdirectory for split components"
+    estimated_effort: large
+    estimated_files: 6
+    estimated_lines: 350
+    verification:
+      - "DMDashboard.tsx now ≤ 350 líneas (was 687)"
+      - "All 6 state update paths use unstable_batchedUpdates()"
+      - "InitiativeTracker.tsx still renders correctly (zero behavioral changes)"
+      - "Member card renders memoized (no render on parent change)"
+      - "Network performance still good (debounce from T1 active)"
+    acceptance_criteria:
+      - "DMDashboard refactored into compound components"
+      - "useDMParty hook created (state + debounced fetch)"
+      - "All components < 150 líneas each"
+      - "Public APIs preserved (same props, same return values)"
+      - "No behavioral regressions (feature parity)"
+    failure_modes:
+      - scenario: "Extract MemberCard breaks InitiativeTracker sync (can't update member HP)"
+        likelihood: medium
+        impact: high
+        mitigation: "Preserve onMemberUpdate callback; test combat scenario end-to-end"
+      - scenario: "State batching breaks order of updates → race condition in realtime"
+        likelihood: low
+        impact: high
+        mitigation: "Verify batch updates are atomic; test with multiple concurrent edits"
+
+  - id: T6-verify-state-batching
+    title: "Verificar y optimizar batching de state updates (6+ rutas)"
+    description: |
+      **Problema**: DMDashboard tiene 6+ rutas de actualización de estado:
+      1. fetchMembers → setMembers
+      2. subscribeToParty (postgres_changes) → setMembers
+      3. subscribeToParty (broadcast) → setMembers
+      4. handlePartySelect → setPartyId + setMembers (2 updates)
+      5. handleMemberUpdate → setMembers
+      6. handleInitiativeUpdate → setMembers + setInitiativeOrder
+      
+      **Solución**: Usar React's unstable_batchedUpdates() para agrupar updates → single render cycle.
+      
+      **Archivos afectados**:
+      - components/DMDashboard.tsx: líneas donde setMembers/setPartyId/etc are called
+      - hooks/useDMParty.ts: batchedUpdates en fetch response handler
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers: ["batching", "performance", "state management"]
+    priority: medium
+    status: pending
+    dependencies: ["T5-refactor-dmdashboard"]
+    conflicts_with: []
+    context_files:
+      - path: "hooks/useDMParty.ts"
+        description: "State setters from useDMParty; identify all setState calls"
+      - path: "components/DMDashboard.tsx"
+        description: "Component event handlers; find all setMembers/setPartyId calls"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 60
+    verification:
+      - "React DevTools Profiler shows 1 render per state update (not 2-3)"
+      - "handlePartySelect triggers only 1 render (not 2)"
+      - "subscribeToParty callbacks batched (1 render for multi-field updates)"
+    acceptance_criteria:
+      - "All setState calls wrapped in unstable_batchedUpdates()"
+      - "No visual jank or flicker on state changes"
+      - "Performance metrics: <100ms between update + render"
+    failure_modes:
+      - scenario: "Batching breaks update order → member data inconsistent"
+        likelihood: low
+        impact: medium
+        mitigation: "Verify setState dependencies; test with combat edits"
+
+  # ===== WAVE 3: Code Review & Validation =====
+  
+  - id: T7-code-review-all-changes
+    title: "Code review exhaustivo de todos los cambios (T1-T6)"
+    description: |
+      **Scope**: Revisar todos los cambios desde Wave 1-2 en:
+      - DMDashboard.tsx refactor (estructura, APIs públicas)
+      - useDMParty.ts hook (state management, cleanup)
+      - useMemberStats.ts hook (dependency arrays)
+      - Debounce implementation (race conditions, AbortController)
+      - Deduplication logic (merge correctness)
+      - Realtime retry logic (exponential backoff)
+      - State batching (order, completeness)
+      
+      **Review checklist**:
+      ✓ TypeScript types complete (no `any`)
+      ✓ No memory leaks (cleanup functions, unsubscribe)
+      ✓ Immutability respected (no mutations)
+      ✓ Performance assumptions validated (useMemo deps, debounce timing)
+      ✓ Security: no sensitive data in logs
+      ✓ Error handling: all paths covered
+      ✓ Documentation: comments on complex logic
+      ✓ Test coverage: unit tests for hooks, integration tests for sync
+      
+      **Responsabilidades**:
+      - gem-reviewer: Security, architecture, patterns
+      - gem-implementer (author): Respond to feedback
+    wave: 3
+    agent: gem-reviewer
+    prototype: false
+    covers: ["code review", "quality assurance", "architecture validation"]
+    priority: high
+    status: pending
+    dependencies: ["T1-debounce-fetchMembers", "T2-usememo-member-renders", "T3-dedup-optimization", 
+                   "T4-realtime-timeout", "T5-refactor-dmdashboard", "T6-verify-state-batching"]
+    conflicts_with: []
+    context_files:
+      - path: "components/DMDashboard.tsx"
+        description: "Refactored component + subcomponents"
+      - path: "hooks/useDMParty.ts"
+        description: "Custom hook with debounce + realtime"
+      - path: "hooks/useMemberStats.ts"
+        description: "Memoized calculations"
+      - path: "utils/supabase.ts"
+        description: "fetchMembers + subscribeWithRetry"
+    estimated_effort: medium
+    estimated_files: 6
+    estimated_lines: 0
+    verification:
+      - "Review checklist 100% complete"
+      - "All issues either fixed or documented as known limitations"
+      - "No objections to architectural decisions"
+    acceptance_criteria:
+      - "All code passes security review (no exposed secrets, proper validation)"
+      - "All TypeScript types valid (strict mode)"
+      - "Immutability rules followed throughout"
+      - "Memory management correct (cleanup functions present)"
+      - "Performance assumptions documented"
+      - "Ready for deployment"
+    failure_modes:
+      - scenario: "Review finds critical issue (e.g., stale closure in debounce)"
+        likelihood: medium
+        impact: high
+        mitigation: "Return task to gem-implementer for fix; re-review before Wave 4"
+
+  # ===== WAVE 4: Integration Testing & Deployment =====
+  
+  - id: T8-integration-testing
+    title: "Integration testing: Sync + Combat scenarios"
+    description: |
+      **Scope**: Validate all fixes work together in realistic scenarios:
+      
+      **Test Scenarios**:
+      1. **Party Sync** (tests T1 debounce + T4 realtime)
+         - Create 6-member party
+         - Rapidly select different party_ids (3x in 1 second)
+         - Verify: only 1 fetchMembers call (debounce working)
+         - Verify: realtime updates arrive without duplicates
+      
+      2. **Member Card Render** (tests T2 useMemo + T5 refactor)
+         - Render 6-member party, change equipment on 1 member
+         - Verify: AC updates only on changed member (memoization)
+         - Verify: No visual glitches, <300ms render time
+      
+      3. **Combat Sync** (tests InitiativeTracker integration)
+         - Start combat with 6 enemies
+         - Roll initiative, take turn, attack
+         - Verify: HP changes sync to DM dashboard in <500ms
+         - Verify: Initiative order persists (T6 batching)
+      
+      4. **Network Failure** (tests T4 timeout + retry)
+         - Start sync, disconnect network (DevTools)
+         - Wait 5s → verify realtimeStatus = 'error'
+         - Reconnect → verify realtimeStatus = 'connected' within backoff
+         - Manual refresh still works (debounce shouldn't block)
+      
+      5. **Deduplication** (tests T3 Map optimization)
+         - Simulate 100+ party members in DB (mock)
+         - Fetch → verify dedup < 10ms
+         - Add duplicate via realtime → verify merged correctly
+      
+      **Tools**: 
+      - Cypress for end-to-end (combat flow)
+      - React DevTools Profiler (render performance)
+      - Chrome DevTools Network (debounce + fetch count)
+      - Mock Supabase for network failure simulation
+    wave: 4
+    agent: gem-browser-tester
+    prototype: false
+    covers: ["integration testing", "end-to-end", "performance validation"]
+    priority: high
+    status: pending
+    dependencies: ["T7-code-review-all-changes"]
+    conflicts_with: []
+    context_files:
+      - path: "components/DMDashboard.tsx"
+        description: "Integrated component"
+      - path: "components/DMDashboard/__tests__"
+        description: "Create integration test files"
+      - path: "e2e/tests"
+        description: "Cypress tests for combat scenarios"
+    estimated_effort: large
+    estimated_files: 5
+    estimated_lines: 300
+    verification:
+      - "All 5 test scenarios pass"
+      - "No console errors or warnings"
+      - "Performance metrics within target (LCP <2.5s, INP <200ms)"
+      - "Visual regression tests pass (if added)"
+    acceptance_criteria:
+      - "Party Sync scenario: debounce visible in network tab (1 call)"
+      - "Member Card scenario: memoization confirmed in Profiler"
+      - "Combat Sync scenario: HP/initiative updates <500ms"
+      - "Network Failure scenario: reconnect within 8s, no infinite loops"
+      - "Deduplication scenario: performance <10ms for 100+ members"
+      - "All tests pass; no flaky tests"
+    failure_modes:
+      - scenario: "Test finds race condition in realtime + debounce interaction"
+        likelihood: medium
+        impact: high
+        mitigation: "Return to gem-implementer; may need AbortController validation"
+      - scenario: "Performance still slow despite all fixes (e.g., InitiativeTracker causes jank)"
+        likelihood: low
+        impact: high
+        mitigation: "Profile with DevTools; may need additional optimization (virtualization)"
+
+  - id: T9-final-verification-and-rollback-plan
+    title: "Final verification + rollback strategy"
+    description: |
+      **Scope**: Verify everything ready for production; document rollback procedure.
+      
+      **Pre-Deployment Checklist**:
+      ✓ All tests passing (Unit + Integration + E2E)
+      ✓ No TypeScript errors (strict mode)
+      ✓ No console errors in browser
+      ✓ Performance metrics within target
+      ✓ Security review approved
+      ✓ Changelog updated (link to plan_id)
+      ✓ Current OTA version tagged (stable point)
+      
+      **Rollback Strategy**:
+      If critical issue found post-deployment:
+      
+      1. **Quick Rollback (OTA only)** - 1 minute
+         ```bash
+         node scripts/restore_ota.mjs 1.1.0-2026-05-13-prev "Rollback DM sync fixes"
+         ```
+         
+      2. **Full Rollback (code + OTA)** - 5 minutes
+         ```bash
+         git checkout v1.1.0  # Last stable tag
+         npm install
+         npm run build
+         npm run ota "Rollback to v1.1.0 stable"
+         ```
+      
+      3. **Disaster Rollback** - If above fails
+         ```bash
+         git checkout stable-v1.1  # Sealed branch (immutable)
+         # Manual deployment from stable branch
+         ```
+      
+      **Monitoring Post-Deployment** (24h window):
+      - Monitor console errors in deployed app
+      - Check realtime latency metrics (target: <300ms sync)
+      - Verify no infinite reconnect loops (CPU usage normal)
+      - Check fetchMembers call frequency (should be 1 per 300ms max)
+      
+      **If issue found**:
+      - Log detailed issue (scenario, error stack, timing)
+      - Execute Quick Rollback (OTA)
+      - Create new plan for fix (v2)
+      - Re-test before re-deploy
+    wave: 4
+    agent: gem-implementer
+    prototype: false
+    covers: ["verification", "deployment readiness", "rollback procedures"]
+    priority: high
+    status: pending
+    dependencies: ["T8-integration-testing"]
+    conflicts_with: []
+    context_files:
+      - path: "docs/VERSION-CONTROL.md"
+        description: "Git tags + stable branches"
+      - path: "scripts/restore_ota.mjs"
+        description: "OTA rollback script"
+      - path: "CHANGELOG.md"
+        description: "Update with fixes"
+    estimated_effort: small
+    estimated_files: 3
+    estimated_lines: 50
+    verification:
+      - "Pre-deployment checklist 100% complete"
+      - "Rollback script tested (at least once)"
+      - "OTA tag created for current stable"
+    acceptance_criteria:
+      - "All pre-deployment checks pass"
+      - "Rollback plan documented + tested"
+      - "Monitoring strategy defined"
+      - "Ready for production deployment"
+    failure_modes:
+      - scenario: "Rollback script fails (OTA restoration issue)"
+        likelihood: low
+        impact: critical
+        mitigation: "Test script before deployment; keep manual deployment procedure ready"

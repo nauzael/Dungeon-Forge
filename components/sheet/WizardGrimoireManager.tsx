@@ -11,6 +11,7 @@ import {
   getWizardMaxPreparedSpells,
   getWizardSpellbookByLevel,
   getWizardMaxSpellLevel,
+  getWizardMaxCantrips,
   validateWizardPreparedSpells,
   getFinalStats,
   formatModifier,
@@ -42,13 +43,39 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLevel, setSelectedLevel] = useState(0);
   const [selectedSpellDetail, setSelectedSpellDetail] = useState<string | null>(null);
+  const [cantripToChange, setCantripToChange] = useState<string | null>(null);
 
   // Wizard data (with safe fallbacks)
   const spellbook = useMemo(() => character.wizard?.spellbook || [], [character.wizard?.spellbook]);
   const prepared = useMemo(() => character.preparedSpells || [], [character.preparedSpells]);
   const maxPrepared = useMemo(() => getWizardMaxPreparedSpells(character), [character]);
+  
+  // Count only non-cantrip prepared spells
+  const preparedNonCantripCount = useMemo(() => {
+    return prepared.filter(s => {
+      const detail = SPELL_DETAILS[s];
+      return detail && detail.level > 0;
+    }).length;
+  }, [prepared]);
   const maxSpellbook = useMemo(() => getWizardSpellbookByLevel(character.level), [character.level]);
   const maxSpellLevel = useMemo(() => getWizardMaxSpellLevel(character.level), [character.level]);
+  const maxCantrips = useMemo(() => getWizardMaxCantrips(character.level), [character.level]);
+  
+  // Count cantrips separately
+  const cantripCount = useMemo(() => {
+    return spellbook.filter(spellName => {
+      const detail = SPELL_DETAILS[spellName];
+      return detail && detail.level === 0;
+    }).length;
+  }, [spellbook]);
+
+  // Count non-cantrip spells
+  const nonCantripCount = useMemo(() => {
+    return spellbook.filter(spellName => {
+      const detail = SPELL_DETAILS[spellName];
+      return detail && detail.level > 0;
+    }).length;
+  }, [spellbook]);
   
   // Available spells for learning
   const availableToLearn = useMemo(() => {
@@ -62,10 +89,10 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
     if (activeTab === 'learn') {
       spells = availableToLearn;
     } else if (activeTab === 'prepare') {
-      // Show ALL spells from spellbook (including cantrips - Wizards can prepare any spell)
+      // Show all spells from spellbook including cantrips (Wizards prepare during long rest)
       spells = spellbook.filter(s => {
         const detail = SPELL_DETAILS[s];
-        return detail && detail.level >= 0; // Include cantrips and all spell levels
+        return detail && detail.level >= 0; // Include cantrips and spells
       });
     } else if (activeTab === 'rituals') {
       spells = spellbook.filter(s => {
@@ -97,7 +124,7 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
     if (activeTab === 'learn') {
       spells = availableToLearn;
     } else if (activeTab === 'prepare') {
-      // Show ALL spell levels including cantrips (Wizards can prepare any spell)
+      // Show all spell levels including cantrips (Wizards prepare during long rest)
       spells = spellbook.filter(s => {
         const detail = SPELL_DETAILS[s];
         return detail && detail.level >= 0;
@@ -134,8 +161,18 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
         return;
       }
 
-      if (spellbook.length >= maxSpellbook) {
-        alert(`Your spellbook is full (${maxSpellbook} spells)`);
+      const detail = SPELL_DETAILS[spellName];
+      const isCantrip = detail && detail.level === 0;
+
+      // Check cantrip limit
+      if (isCantrip && cantripCount >= maxCantrips) {
+        alert(`You know the maximum number of cantrips (${maxCantrips}). You must forget a cantrip to learn a new one.`);
+        return;
+      }
+
+      // Check spell limit (only for non-cantrip spells)
+      if (!isCantrip && nonCantripCount >= maxSpellbook) {
+        alert(`Your spellbook is full (${maxSpellbook} spells). You must forget a spell to learn a new one.`);
         return;
       }
 
@@ -156,7 +193,7 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
       console.error('Error learning spell:', error);
       alert('Failed to learn spell. Check console for details.');
     }
-  }, [character, spellbook, maxSpellbook, onUpdate]);
+  }, [character, spellbook, maxSpellbook, cantripCount, maxCantrips, onUpdate]);
 
   // Handle remove spell from spellbook
   const handleRemoveSpell = useCallback((spellName: string) => {
@@ -195,6 +232,28 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
     });
   }, [character, prepared, onUpdate]);
 
+  // Handle change cantrip (Arcane Formulae at Level 3+)
+  const handleChangeCantrip = useCallback((oldCantrip: string, newCantrip: string) => {
+    if (!oldCantrip || !newCantrip) return;
+    
+    // Replace old cantrip with new one in spellbook
+    const newSpellbook = spellbook.map(s => s === oldCantrip ? newCantrip : s);
+    
+    // If old cantrip was prepared, replace it in prepared list too
+    const newPrepared = prepared.map(s => s === oldCantrip ? newCantrip : s);
+
+    onUpdate({
+      ...character,
+      wizard: {
+        ...character.wizard,
+        spellbook: newSpellbook
+      },
+      preparedSpells: newPrepared
+    });
+    
+    setCantripToChange(null);
+  }, [character, spellbook, prepared, onUpdate]);
+
   // Helper: Get school color for spell card
   const getSchoolColor = (school?: string) => {
     const schoolMap: Record<string, { light: string; dark: string; border: string }> = {
@@ -224,36 +283,45 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
       <div
         key={spellName}
         onClick={() => setSelectedSpellDetail(spellName)}
-        className={`flex items-center justify-between gap-4 p-4 rounded-xl border-2 ${schoolColor.light} ${schoolColor.dark} ${schoolColor.border} 
+        className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 p-4 sm:p-4 rounded-lg sm:rounded-xl border-2 ${schoolColor.light} ${schoolColor.dark} ${schoolColor.border} 
                      hover:shadow-md transition-all duration-200 backdrop-blur-xs cursor-pointer hover:scale-[1.01]`}
       >
         {/* School Icon & Spell Info */}
-        <div className="flex items-start gap-3 flex-1 min-w-0">
-          <span className="material-symbols-outlined text-lg flex-shrink-0 mt-0.5 text-slate-600 dark:text-slate-300">
+        <div className="flex items-start gap-3 sm:gap-3 flex-1 min-w-0">
+          <span className="material-symbols-outlined text-lg sm:text-lg flex-shrink-0 mt-0.5 text-slate-600 dark:text-slate-300">
             {detail.level === 0 ? 'stars' : 'auto_awesome'}
           </span>
           <div className="flex-1 min-w-0">
-            <div className="font-semibold text-base text-slate-900 dark:text-white leading-tight">{spellName}</div>
-            <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-              {detail.level === 0 ? 'Cantrip' : `Level ${detail.level}`} • {detail.school || 'Unknown'} {detail.ritual ? '• Ritual' : ''}
+            <div className="font-semibold text-base sm:text-base text-slate-900 dark:text-white leading-tight">{spellName}</div>
+            <div className="text-xs sm:text-xs text-slate-600 dark:text-slate-400 mt-1 sm:mt-1">
+              {detail.level === 0 ? 'Cantrip' : `Lvl ${detail.level}`} • {detail.school || 'Unknown'} {detail.ritual ? '• Ritual' : ''}
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 flex-shrink-0 flex-wrap sm:flex-nowrap justify-end">
+        <div className="flex gap-2 sm:gap-2 flex-shrink-0 w-full sm:w-auto">
           {activeTab === 'learn' && (
             <button
               onClick={() => handleLearnSpell(spellName)}
-              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap ${
-                isLearned || spellbook.length >= maxSpellbook
+              className={`flex-1 sm:flex-none px-3.5 sm:px-4 py-2.5 sm:py-2 text-xs sm:text-xs font-bold rounded-lg sm:rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap ${
+                isLearned || (detail.level > 0 && nonCantripCount >= maxSpellbook) || (detail.level === 0 && cantripCount >= maxCantrips)
                   ? 'bg-slate-200 text-slate-400 dark:bg-slate-700 dark:text-slate-500 cursor-not-allowed'
                   : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md hover:shadow-lg'
               }`}
-              disabled={isLearned || spellbook.length >= maxSpellbook}
-              title={isLearned ? 'Already learned' : spellbook.length >= maxSpellbook ? 'Spellbook full' : 'Learn spell'}
+              disabled={isLearned || (detail.level > 0 && nonCantripCount >= maxSpellbook) || (detail.level === 0 && cantripCount >= maxCantrips)}
+              title={
+                isLearned 
+                  ? 'Already learned' 
+                  : detail.level === 0 && cantripCount >= maxCantrips
+                  ? `Cantrip limit reached (${maxCantrips})`
+                  : detail.level > 0 && nonCantripCount >= maxSpellbook
+                  ? 'Spellbook full' 
+                  : 'Learn spell'
+              }
             >
-              📖 Learn
+              <span className="hidden sm:inline">📖 Learn</span>
+              <span className="sm:hidden">Learn</span>
             </button>
           )}
 
@@ -261,7 +329,7 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
             <>
               <button
                 onClick={() => handleTogglePrepare(spellName)}
-                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap ${
+                className={`flex-1 sm:flex-none px-3.5 sm:px-4 py-2.5 sm:py-2 text-xs sm:text-xs font-bold rounded-lg sm:rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap ${
                   isPrepared
                     ? 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-md hover:shadow-lg'
                     : !isInBook
@@ -271,15 +339,28 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
                 disabled={!isInBook}
                 title={!isInBook ? 'Learn spell first' : isPrepared ? 'Prepared' : 'Prepare spell'}
               >
-                {isPrepared ? '✓ Ready' : '✨ Prepare'}
+                {isPrepared ? '✓' : '✨'}
+                <span className="hidden sm:inline">{isPrepared ? ' Ready' : ' Prepare'}</span>
               </button>
-              <button
-                onClick={() => handleRemoveSpell(spellName)}
-                className="px-4 py-2 text-xs font-bold rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md hover:shadow-lg"
-                title="Remove spell from spellbook"
-              >
-                🗑️ Delete
-              </button>
+              {detail.level === 0 && character.level >= 3 ? (
+                <button
+                  onClick={() => setCantripToChange(spellName)}
+                  className="flex-1 sm:flex-none px-3.5 sm:px-4 py-2.5 sm:py-2 text-xs sm:text-xs font-bold rounded-lg sm:rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md hover:shadow-lg"
+                  title="Change this cantrip to another (Arcane Formulae)"
+                >
+                  <span className="hidden sm:inline">🔄 Change</span>
+                  <span className="sm:hidden">Chg</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleRemoveSpell(spellName)}
+                  className="flex-1 sm:flex-none px-3.5 sm:px-4 py-2.5 sm:py-2 text-xs sm:text-xs font-bold rounded-lg sm:rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md hover:shadow-lg"
+                  title="Remove spell from spellbook"
+                >
+                  <span className="hidden sm:inline">🗑️ Delete</span>
+                  <span className="sm:hidden">Del</span>
+                </button>
+              )}
             </>
           )}
         </div>
@@ -289,22 +370,25 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
 
   return (
     <div className="fixed inset-0 z-[110] bg-slate-900/80 dark:bg-black/60 flex items-end sm:items-center justify-center animate-fadeIn backdrop-blur-sm">
-      <div className="w-full sm:max-w-2xl bg-white dark:bg-[#0f1525] rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[95vh] sm:max-h-[85vh] flex flex-col animate-slideUp overflow-hidden">
+      <div className="w-[calc(100%-1rem)] sm:w-full sm:max-w-2xl bg-white dark:bg-[#0f1525] rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[96vh] sm:max-h-[88vh] flex flex-col animate-slideUp overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-slate-200 dark:border-white/10 shrink-0 bg-white dark:bg-[#0f1525]">
+        <div className="flex items-center justify-between px-3 py-3.5 sm:px-4 sm:py-4 border-b border-slate-200 dark:border-white/10 shrink-0 bg-white dark:bg-[#0f1525]">
           <button
             onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex-shrink-0"
+            className="w-10 h-10 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg sm:rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex-shrink-0"
           >
-            <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">close</span>
+            <span className="material-symbols-outlined text-lg sm:text-lg text-slate-600 dark:text-slate-300">close</span>
           </button>
-          <div className="flex flex-col items-center flex-1 px-4">
-            <h2 className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white">Wizard Spellbook</h2>
-            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
-              Grimoire: {spellbook.length}/{maxSpellbook} | Prepared: {prepared.length}/{maxPrepared}
+          <div className="flex flex-col items-center flex-1 px-2 sm:px-4">
+            <h2 className="text-sm sm:text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white">Wizard Spellbook</h2>
+            <div className="text-xs sm:text-xs text-slate-500 dark:text-slate-400 mt-1 sm:mt-1.5 space-y-1">
+              <div>
+                <span className="hidden sm:inline">Cantrips: {cantripCount}/{maxCantrips} | Spells: {nonCantripCount}/{maxSpellbook} | Prepared: {preparedNonCantripCount}/{maxPrepared}</span>
+                <span className="sm:hidden text-[9px]">{cantripCount}/{maxCantrips} • {nonCantripCount}/{maxSpellbook} • {preparedNonCantripCount}/{maxPrepared}</span>
+              </div>
             </div>
           </div>
-          <div className="w-10 flex-shrink-0"></div>
+          <div className="w-9 sm:w-10 flex-shrink-0"></div>
         </div>
 
         {/* Tabs */}
@@ -316,15 +400,15 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
                 setActiveTab(tab);
                 setSelectedLevel(0);
               }}
-              className={`flex-1 py-3 px-4 text-center text-xs font-bold uppercase tracking-widest transition-all ${
+              className={`flex-1 py-3.5 sm:py-3 px-2 sm:px-4 text-center text-xs sm:text-xs font-bold uppercase tracking-wider sm:tracking-widest transition-all ${
                 activeTab === tab
                   ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-white dark:bg-white/5'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
               }`}
             >
               {tab === 'learn' && '📚 Learn'}
-              {tab === 'prepare' && '✨ Prepare'}
-              {tab === 'rituals' && '🔮 Rituals'}
+              {tab === 'prepare' && '✨ Prep'}
+              {tab === 'rituals' && '🔮 Rit'}
             </button>
           ))}
         </div>
@@ -332,28 +416,28 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto grimoire-scroll">
           {/* Filters */}
-          <div className="border-b border-slate-200 dark:border-white/10 p-4 bg-white dark:bg-[#0f1525] space-y-3 sticky top-0 z-10">
+          <div className="border-b border-slate-200 dark:border-white/10 p-4 sm:p-4 bg-white dark:bg-[#0f1525] space-y-3 sm:space-y-3 sticky top-0 z-10">
             <input
               type="text"
-              placeholder="🔍 Search spells..."
+              placeholder="🔍 Search..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-white/10 text-slate-900 dark:text-white text-sm rounded-lg border-2 border-slate-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition placeholder-slate-500 dark:placeholder-slate-400"
+              className="w-full px-4 sm:px-4 py-3 sm:py-3 bg-slate-50 dark:bg-white/10 text-slate-900 dark:text-white text-sm sm:text-sm rounded-lg border-2 border-slate-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition placeholder-slate-500 dark:placeholder-slate-400"
             />
 
             {activeTab !== 'rituals' && (
-              <div className="flex gap-2 overflow-x-auto pb-2">
+              <div className="flex gap-2 sm:gap-2 overflow-x-auto pb-2 sm:pb-2">
                 {availableLevels.map(level => (
                   <button
                     key={level}
                     onClick={() => setSelectedLevel(level === selectedLevel ? 0 : level)}
-                    className={`px-4 py-2.5 text-xs font-bold rounded-lg whitespace-nowrap transition-all duration-200 flex-shrink-0 ${
+                    className={`px-3.5 sm:px-4 py-2.5 sm:py-2.5 text-xs sm:text-xs font-bold rounded-lg sm:rounded-lg whitespace-nowrap transition-all duration-200 flex-shrink-0 ${
                       selectedLevel === level
                         ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
                         : 'bg-white dark:bg-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/20 border border-slate-200 dark:border-white/10'
                     }`}
                   >
-                    {level === 0 ? 'All' : `Lvl ${level}`}
+                    {level === 0 ? 'All' : `L${level}`}
                   </button>
                 ))}
               </div>
@@ -362,8 +446,8 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
 
           {/* Spell List */}
           {filteredSpells.length === 0 ? (
-            <div className="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">
-              <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600 block mb-3">spell_check</span>
+            <div className="p-4 sm:p-8 text-center text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
+              <span className="material-symbols-outlined text-3xl sm:text-4xl text-slate-300 dark:text-slate-600 block mb-2 sm:mb-3">spell_check</span>
               <div className="font-medium">
                 {activeTab === 'learn' && 'All available spells learned!'}
                 {activeTab === 'prepare' && 'No spells to prepare.'}
@@ -371,19 +455,19 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
               </div>
             </div>
           ) : (
-            <div className="space-y-3 p-4">
+            <div className="space-y-3 sm:space-y-3 p-4 sm:p-4">
               {filteredSpells.map(renderSpellRow)}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="border-t border-slate-200 dark:border-white/10 p-4 bg-white dark:bg-white/5 shrink-0">
+        <div className="border-t border-slate-200 dark:border-white/10 p-4 sm:p-4 bg-white dark:bg-white/5 shrink-0">
           <button
             onClick={onClose}
-            className="w-full px-4 py-3 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-white/10 dark:to-white/20 hover:from-slate-300 hover:to-slate-400 dark:hover:from-white/20 dark:hover:to-white/30 text-slate-900 dark:text-white rounded-xl text-sm font-bold uppercase tracking-widest transition-all active:scale-[0.98] duration-200"
+            className="w-full px-4 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-white/10 dark:to-white/20 hover:from-slate-300 hover:to-slate-400 dark:hover:from-white/20 dark:hover:to-white/30 text-slate-900 dark:text-white rounded-lg sm:rounded-xl text-sm sm:text-sm font-bold uppercase tracking-widest transition-all active:scale-[0.98] duration-200"
           >
-            Close Grimoire
+            Close
           </button>
         </div>
       </div>
@@ -399,7 +483,7 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
 
         return (
           <div className="fixed inset-0 z-[120] bg-slate-900/80 dark:bg-black/60 flex items-end sm:items-center justify-center animate-fadeIn backdrop-blur-sm">
-            <div className="w-full sm:max-w-lg bg-white dark:bg-[#0f1525] rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col animate-slideUp overflow-hidden">
+            <div className="w-full sm:max-w-lg bg-white dark:bg-[#0f1525] rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] sm:max-h-[88vh] flex flex-col animate-slideUp overflow-hidden">
               {/* Detail Modal Header */}
               <div className={`px-4 py-4 border-b border-slate-200 dark:border-white/10 shrink-0 ${schoolColor.light} ${schoolColor.dark}`}>
                 <div className="flex items-start justify-between gap-4">
@@ -462,12 +546,19 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
                       handleLearnSpell(selectedSpellDetail!);
                       setSelectedSpellDetail(null);
                     }}
-                    disabled={spellbook.length >= maxSpellbook}
+                    disabled={spellbook.length >= maxSpellbook || (detail.level === 0 && cantripCount >= maxCantrips)}
                     className={`w-full px-4 py-3 text-sm font-bold uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] ${
-                      spellbook.length >= maxSpellbook
+                      spellbook.length >= maxSpellbook || (detail.level === 0 && cantripCount >= maxCantrips)
                         ? 'bg-slate-200 text-slate-400 dark:bg-slate-700 dark:text-slate-500 cursor-not-allowed'
                         : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md hover:shadow-lg'
                     }`}
+                    title={
+                      detail.level === 0 && cantripCount >= maxCantrips
+                        ? `Cantrip limit reached (${maxCantrips})`
+                        : spellbook.length >= maxSpellbook
+                        ? 'Spellbook full'
+                        : 'Learn spell'
+                    }
                   >
                     📖 Learn Spell
                   </button>
@@ -505,6 +596,81 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
                   className="w-full px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 transition-all"
                 >
                   Close
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Change Cantrip Modal */}
+      {cantripToChange && (() => {
+        const availableCantrips = availableToLearn.filter(s => {
+          const detail = SPELL_DETAILS[s];
+          return detail && detail.level === 0;
+        });
+
+        return (
+          <div className="fixed inset-0 z-[130] bg-slate-900/80 dark:bg-black/60 flex items-end sm:items-center justify-center animate-fadeIn backdrop-blur-sm">
+            <div className="w-full sm:max-w-lg bg-white dark:bg-[#0f1525] rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] sm:max-h-[88vh] flex flex-col animate-slideUp overflow-hidden">
+              {/* Header */}
+              <div className="px-4 py-4 border-b border-slate-200 dark:border-white/10 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <h2 className="text-lg font-black uppercase tracking-tight text-slate-900 dark:text-white">Change Cantrip</h2>
+                    <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                      Replace <span className="font-bold">{cantripToChange}</span> with another cantrip
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setCantripToChange(null)}
+                    className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex-shrink-0"
+                  >
+                    <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">close</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto grimoire-scroll p-3 sm:p-4 space-y-2 sm:space-y-3">
+                {availableCantrips.length === 0 ? (
+                  <div className="p-4 text-center text-slate-500 dark:text-slate-400 text-sm">
+                    <span className="material-symbols-outlined text-2xl block mb-2 text-slate-300 dark:text-slate-600">search_off</span>
+                    No cantrips available to learn
+                  </div>
+                ) : (
+                  availableCantrips.map(cantripName => {
+                    const detail = SPELL_DETAILS[cantripName];
+                    if (!detail) return null;
+
+                    return (
+                      <button
+                        key={cantripName}
+                        onClick={() => {
+                          handleChangeCantrip(cantripToChange, cantripName);
+                        }}
+                        className="w-full flex items-center justify-between gap-3 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-2 border-slate-200 dark:border-white/10 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 text-left"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-sm sm:text-base text-slate-900 dark:text-white">{cantripName}</div>
+                          <div className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                            {detail.school || 'Unknown'} {detail.ritual ? '• Ritual' : ''}
+                          </div>
+                        </div>
+                        <span className="material-symbols-outlined text-base sm:text-lg text-blue-600 dark:text-blue-400 flex-shrink-0">check_circle</span>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="border-t border-slate-200 dark:border-white/10 p-3 sm:p-4 bg-white dark:bg-white/5">
+                <button
+                  onClick={() => setCantripToChange(null)}
+                  className="w-full px-4 py-2 sm:py-3 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-slate-700 dark:text-slate-300 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold uppercase tracking-widest transition-all active:scale-[0.98]"
+                >
+                  Cancel
                 </button>
               </div>
             </div>

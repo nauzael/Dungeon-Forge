@@ -1282,7 +1282,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                 <div className="mb-6">
                     <div className="flex items-center gap-2 mb-3 px-1">
                         <span className="material-symbols-outlined text-xs text-slate-400">auto_awesome</span>
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Spells</h3>
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Spell slots</h3>
                     </div>
                     <div className="grid grid-cols-1 gap-2">
                         {Object.entries(spellSlotSummary).map(([level, slots]) => {

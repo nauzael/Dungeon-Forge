@@ -3,6 +3,7 @@ import { Character, InventoryItem, Ability, ItemData, ArmorData, WeaponData } fr
 import { ALL_ITEMS, MAGIC_ITEMS } from '../Data/items';
 import { CLASS_SAVING_THROWS, SPECIES_DETAILS, HIT_DIE } from '../Data/characterOptions';
 import { SKILL_ABILITY_MAP } from '../Data/skills';
+import { SPELL_DETAILS } from '../Data/spells';
 import { isBarbarian, getRageDamage, getDivineFuryDamage, getFrenzyBonusDamage } from './rageUtils';
 
 export const SCHOOL_THEMES: Record<string, { text: string, bg: string, border: string, icon: string }> = {
@@ -1115,6 +1116,20 @@ export const getWizardMaxSpellLevel = (level: number): number => {
 };
 
 /**
+ * Calculate maximum number of cantrips a Wizard can know at a given level.
+ * D&D 5e 2024 Wizard Cantrips Progression (OFFICIAL):
+ * Level 1-3: 3 cantrips
+ * Level 4-9: 4 cantrips
+ * Level 10+: 5 cantrips
+ */
+export const getWizardMaxCantrips = (level: number): number => {
+    if (level < 1) return 0;
+    if (level <= 3) return 3;    // Levels 1-3: 3 cantrips
+    if (level <= 9) return 4;    // Levels 4-9: 4 cantrips
+    return 5;                     // Levels 10+: 5 cantrips
+};
+
+/**
  * Calculate how many new spells a Wizard can learn when leveling up.
  * Returns available slots and current spellbook size.
  */
@@ -1141,10 +1156,16 @@ export const validateWizardPreparedSpells = (
     }
 
     const maxPrepared = getWizardMaxPreparedSpells(character);
-    if (prepared.length > maxPrepared) {
+    // Only count non-cantrip spells (level 1+) - cantrips are always available
+    const preparedNonCantripCount = prepared.filter(s => {
+        const detail = SPELL_DETAILS[s];
+        return detail && detail.level > 0;
+    }).length;
+    
+    if (preparedNonCantripCount > maxPrepared) {
         return {
             valid: false,
-            reason: `Cannot prepare ${prepared.length} spells (max: ${maxPrepared})`
+            reason: `Cannot prepare ${preparedNonCantripCount} spells (max: ${maxPrepared})`
         };
     }
 

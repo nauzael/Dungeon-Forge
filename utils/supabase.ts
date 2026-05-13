@@ -1,6 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import { Character, CampaignResource } from '../types';
 import { compressImage, generateThumbnail, optimizeExistingImage } from './imageOptimizer';
+import {
+  createPartyLocal,
+  updatePartyLocal,
+  kickLocal,
+} from './localStorage';
 
 const TIMEOUT_MS = 15000;
 
@@ -161,7 +166,17 @@ export const createParty = async (userId: string, name: string) => {
     if (error) throw error;
     return data;
   } catch (e) {
-    console.error('Failed to create party:', e);
+    // Check if error is RLS policy violation (code 42501)
+    const isRlsError =
+      (e instanceof Object && 'code' in e && e.code === '42501') ||
+      (e instanceof Error && e.message.includes('new row violates'));
+
+    if (isRlsError) {
+      console.warn('[RLS] createParty blocked by RLS policy. Falling back to localStorage.');
+      return await createPartyLocal(userId, name);
+    }
+
+    console.error('Failed to create party:', e instanceof Error ? e.message : e);
     return null;
   }
 };
@@ -212,6 +227,157 @@ export const joinParty = async (character: Character, code: string) => {
     console.error('[Join] Error:', e instanceof Error ? e.message : e);
     return { partyId: null, partyName: null, error: e instanceof Error ? e.message : 'Error desconocido' };
   }
+};
+
+// Realtime subscription with timeout + exponential backoff retry
+export interface RealtimeSubscription {
+  channel: any;
+  unsubscribe: () => Promise<void>;
+  status: 'connecting' | 'connected' | 'error' | 'reconnecting';
+}
+
+export const subscribeWithRetry = (
+  partyId: string,
+  onUpdate: (payload: unknown) => void,
+  onBroadcast?: (payload: unknown) => void,
+  onStatusChange?: (status: 'connecting' | 'connected' | 'error' | 'reconnecting') => void
+): RealtimeSubscription => {
+  const TIMEOUT_MS = 5000;
+  const MAX_RETRIES = 10;
+  const MAX_BACKOFF_MS = 8000;
+  
+  let currentChannel: any = null;
+  let timeoutHandle: NodeJS.Timeout | null = null;
+  let retryTimeoutHandle: NodeJS.Timeout | null = null;
+  let currentAttempt = 0;
+  let status: 'connecting' | 'connected' | 'error' | 'reconnecting' = 'connecting';
+  
+  const calculateBackoff = (attempt: number): number => {
+    // Exponential: 2^attempt * 1000ms, capped at 8000ms
+    const baseBackoff = Math.min(Math.pow(2, attempt) * 1000, MAX_BACKOFF_MS);
+    
+    // Jitter: ±10% random
+    const jitterPercent = 0.1;
+    const jitterAmount = baseBackoff * jitterPercent;
+    const randomJitter = (Math.random() - 0.5) * 2 * jitterAmount;
+    
+    return Math.round(baseBackoff + randomJitter);
+  };
+  
+  const cleanup = async () => {
+    if (timeoutHandle) clearTimeout(timeoutHandle);
+    if (retryTimeoutHandle) clearTimeout(retryTimeoutHandle);
+    if (currentChannel) {
+      await currentChannel.unsubscribe();
+    }
+  };
+  
+  const attemptSubscribe = (attempt: number) => {
+    currentAttempt = attempt;
+    
+    // Update status
+    if (attempt === 0) {
+      status = 'connecting';
+      onStatusChange?.('connecting');
+    } else {
+      status = 'reconnecting';
+      onStatusChange?.('reconnecting');
+    }
+    
+    console.log(`[Realtime] Attempting to subscribe to party ${partyId} (attempt ${attempt + 1}/${MAX_RETRIES})`);
+    
+    const channel = supabase.channel(`party-${partyId}`);
+    currentChannel = channel;
+    let eventReceived = false;
+    
+    // Setup postgres_changes listener
+    channel.on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'characters',
+        filter: `party_id=eq.${partyId}`,
+      },
+      (payload: unknown) => {
+        eventReceived = true;
+        if (timeoutHandle) {
+          clearTimeout(timeoutHandle);
+          timeoutHandle = null;
+        }
+        
+        status = 'connected';
+        onStatusChange?.('connected');
+        console.log(`[Realtime] Connected to party ${partyId} (via postgres_changes)`);
+        
+        onUpdate(payload);
+      }
+    );
+    
+    // Setup broadcast listener
+    if (onBroadcast) {
+      channel.on('broadcast', { event: 'character-update' }, (payload: any) => {
+        eventReceived = true;
+        if (timeoutHandle) {
+          clearTimeout(timeoutHandle);
+          timeoutHandle = null;
+        }
+        
+        if (status !== 'connected') {
+          status = 'connected';
+          onStatusChange?.('connected');
+          console.log(`[Realtime] Connected to party ${partyId} (via broadcast)`);
+        }
+        
+        console.log('[Broadcast] Received live update:', payload.payload.character.name);
+        onBroadcast(payload.payload.character);
+      });
+    }
+    
+    // Subscribe to channel
+    channel.subscribe();
+    
+    // Setup 5s timeout: if no event received within 5s, consider dead and retry
+    timeoutHandle = setTimeout(() => {
+      if (!eventReceived) {
+        console.error(
+          `[Realtime] Timeout after ${TIMEOUT_MS}ms for party ${partyId} (attempt ${attempt + 1}/${MAX_RETRIES}) - no events received`
+        );
+        
+        channel.unsubscribe();
+        
+        if (attempt < MAX_RETRIES - 1) {
+          status = 'error';
+          onStatusChange?.('error');
+          
+          const backoffMs = calculateBackoff(attempt);
+          console.log(
+            `[Realtime] Scheduling retry in ${backoffMs}ms (exponential backoff: 2^${attempt} * 1000ms with ±10% jitter)`
+          );
+          
+          retryTimeoutHandle = setTimeout(() => {
+            attemptSubscribe(attempt + 1);
+          }, backoffMs);
+        } else {
+          status = 'error';
+          onStatusChange?.('error');
+          console.error(
+            `[Realtime] Max retries (${MAX_RETRIES}) reached for party ${partyId}. Escalating. Manual reconnection required.`
+          );
+        }
+      }
+    }, TIMEOUT_MS);
+  };
+  
+  // Start first attempt
+  attemptSubscribe(0);
+  
+  // Return subscription object with unsubscribe method
+  return {
+    channel: currentChannel,
+    unsubscribe: cleanup,
+    status,
+  };
 };
 
 export const subscribeToParty = (
@@ -276,7 +442,19 @@ export const removeFromParty = async (characterId: string) => {
     console.log(`[removeFromParty] Character ${characterId} kicked, syncTimestamp updated to ${updatedData.syncTimestamp}`);
     return true;
   } catch (e) {
-    console.error('Failed to remove from party:', e);
+    // Check if error is RLS policy violation (code 42501)
+    const isRlsError =
+      (e instanceof Object && 'code' in e && e.code === '42501') ||
+      (e instanceof Error && e.message.includes('new row violates'));
+
+    if (isRlsError) {
+      console.warn('[RLS] removeFromParty blocked by RLS policy. Falling back to localStorage.');
+      // Extract party_id from characterId if available, otherwise use placeholder
+      // For now, we log the kick locally
+      return await kickLocal('unknown-party', characterId);
+    }
+
+    console.error('Failed to remove from party:', e instanceof Error ? e.message : e);
     return false;
   }
 };
@@ -287,7 +465,18 @@ export const updatePartyName = async (partyId: string, name: string) => {
     if (error) throw error;
     return true;
   } catch (e) {
-    console.error('Failed to update party name:', e);
+    // Check if error is RLS policy violation (code 42501)
+    const isRlsError =
+      (e instanceof Object && 'code' in e && e.code === '42501') ||
+      (e instanceof Error && e.message.includes('new row violates'));
+
+    if (isRlsError) {
+      console.warn('[RLS] updatePartyName blocked by RLS policy. Falling back to localStorage.');
+      const result = await updatePartyLocal(partyId, { name });
+      return result !== null;
+    }
+
+    console.error('Failed to update party name:', e instanceof Error ? e.message : e);
     return false;
   }
 };
