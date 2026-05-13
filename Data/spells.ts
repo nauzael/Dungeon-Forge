@@ -258,3 +258,58 @@ export const SPELL_DETAILS: Record<string, SpellDetail> = {
   ...LEVEL8,
   ...LEVEL9
 };
+
+// ===== WIZARD SPELLBOOK HELPERS (D&D 5e 2024) =====
+
+/**
+ * Get all Wizard spells available for learning (filtered by criteria).
+ * Useful for the Grimoire modal when a Wizard is adding new spells.
+ */
+export const getWizardAvailableSpells = (
+    filterByLevel?: number,
+    excludeSpells?: string[]
+): string[] => {
+    const excluded = new Set(excludeSpells || []);
+
+    return ARCANE_SPELLS.filter(spellName => {
+        // Skip already learned spells
+        if (excluded.has(spellName)) return false;
+
+        // Filter by level if specified
+        if (filterByLevel !== undefined) {
+            const detail = SPELL_DETAILS[spellName];
+            if (!detail || detail.level !== filterByLevel) return false;
+        }
+
+        return true;
+    });
+};
+
+/**
+ * Get Wizard spells filtered by school of magic.
+ * Useful for subclass features like School Savant.
+ */
+export const getWizardSpellsBySchool = (
+    schoolName: string,
+    maxLevel?: number,
+    excludeSpells?: string[]
+): string[] => {
+    const excluded = new Set(excludeSpells || []);
+    const schoolLower = schoolName.toLowerCase();
+
+    return ARCANE_SPELLS.filter(spellName => {
+        // Skip excluded spells
+        if (excluded.has(spellName)) return false;
+
+        const detail = SPELL_DETAILS[spellName];
+        if (!detail) return false;
+
+        // Check school match
+        if (!detail.school?.toLowerCase().includes(schoolLower)) return false;
+
+        // Check level if specified
+        if (maxLevel !== undefined && detail.level > maxLevel) return false;
+
+        return true;
+    });
+};

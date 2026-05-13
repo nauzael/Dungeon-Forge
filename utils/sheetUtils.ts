@@ -1076,3 +1076,105 @@ export const getAllHpBonusesPerLevel = (character: Character): number => {
 export const getToughRetroactiveBonus = (levelWhenTaken: number): number => {
     return levelWhenTaken * 2;
 };
+
+// ===== WIZARD SPELLBOOK MECHANICS (D&D 5e 2024) =====
+
+/**
+ * Calculate maximum number of spells a Wizard can prepare today.
+ * Formula: INT modifier + Wizard level (minimum 1)
+ */
+export const getWizardMaxPreparedSpells = (character: Character): number => {
+    if (character.class !== 'Wizard') return 0;
+    const stats = getFinalStats(character);
+    const intMod = Math.floor((stats.INT - 10) / 2);
+    return Math.max(1, intMod + character.level);
+};
+
+/**
+ * Calculate total spells a Wizard can have in their spellbook at a given level.
+ * Formula: 6 at level 1, +2 per level thereafter
+ */
+export const getWizardSpellbookByLevel = (level: number): number => {
+    if (level < 1) return 0;
+    if (level === 1) return 6;
+    return 6 + (level - 1) * 2;
+};
+
+/**
+ * Calculate how many new spells a Wizard can learn when leveling up.
+ * Returns available slots and current spellbook size.
+ */
+export const getWizardSpellsToLearnOnLevelUp = (
+    currentLevel: number,
+    newLevel: number,
+    currentSpellbookSize: number
+): { available: number; current: number; max: number } => {
+    const maxAtNewLevel = getWizardSpellbookByLevel(newLevel);
+    const available = Math.max(0, maxAtNewLevel - currentSpellbookSize);
+    return { available, current: currentSpellbookSize, max: maxAtNewLevel };
+};
+
+/**
+ * Validate that a Wizard's prepared spells list is legal.
+ * Checks: count does not exceed max, all spells are in spellbook.
+ */
+export const validateWizardPreparedSpells = (
+    character: Character,
+    prepared: string[]
+): { valid: boolean; reason?: string } => {
+    if (character.class !== 'Wizard') {
+        return { valid: true }; // Not applicable to other classes
+    }
+
+    const maxPrepared = getWizardMaxPreparedSpells(character);
+    if (prepared.length > maxPrepared) {
+        return {
+            valid: false,
+            reason: `Cannot prepare ${prepared.length} spells (max: ${maxPrepared})`
+        };
+    }
+
+    // Verify all prepared spells are in spellbook
+    const spellbook = new Set(character.wizard?.spellbook || []);
+    const notInBook = prepared.filter(s => !spellbook.has(s));
+    if (notInBook.length > 0) {
+        return {
+            valid: false,
+            reason: `Spells not in spellbook: ${notInBook.join(', ')}`
+        };
+    }
+
+    return { valid: true };
+};
+
+/**
+ * One-time migration: convert existing wizard data structure to new spellbook format.
+ * Only applies to Wizard class, only runs if wizard property doesn't exist yet.
+ */
+export const migrateWizardSpellbookOnceIfNeeded = (character: Character): Character => {
+    // Not a Wizard, or already migrated
+    if (character.class !== 'Wizard' || character.wizard) {
+        return character;
+    }
+
+    // First time: create spellbook from existing prepared/innate spells
+    const existingPrepared = character.preparedSpells || [];
+    const existingInnate = character.innateSpells || [];
+
+    // Combine into initial spellbook
+    const initialSpellbook = Array.from(new Set([...existingPrepared, ...existingInnate]));
+
+    // Ensure prepared doesn't exceed the new max
+    const maxPrepared = getWizardMaxPreparedSpells(character);
+    const adjustedPrepared = existingPrepared.slice(0, maxPrepared);
+
+    return {
+        ...character,
+        wizard: {
+            spellbook: initialSpellbook,
+            spellebookSources: {} // Optional: can track where each spell came from
+        },
+        preparedSpells: adjustedPrepared,
+        innateSpells: [] // Clear innate spells - they're now in spellbook
+    };
+};
