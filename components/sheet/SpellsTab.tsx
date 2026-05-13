@@ -5,6 +5,7 @@ import { Character } from '../../types';
 import { SPELL_DETAILS, SPELL_LIST_BY_CLASS, CANTRIPS_KNOWN_BY_LEVEL, SPELLS_KNOWN_BY_LEVEL, MAX_SPELL_LEVEL, SPELLCASTING_ABILITY, ARCANE_SPELLS, THIRD_CASTER_SLOTS } from '../../Data/spells';
 import { SUBCLASS_OPTIONS } from '../../Data/characterOptions';
 import { SCHOOL_THEMES, formatModifier, getFinalStats, getSpellSummary, FULL_CASTER_SLOTS } from '../../utils/sheetUtils';
+import WizardGrimoireManager from './WizardGrimoireManager';
 
 interface SpellsTabProps {
     character: Character;
@@ -99,6 +100,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
     };
     const [activeSpellLevel, setActiveSpellLevel] = useState<number>(1);
     const [showGrimoire, setShowGrimoire] = useState(false);
+    const [showWizardGrimoire, setShowWizardGrimoire] = useState(false);
     const [grimoireSearch, setGrimoireSearch] = useState('');
     const [grimoireLevel, setGrimoireLevel] = useState(0);
     const [grimoireSource, setGrimoireSource] = useState<string>('All');
@@ -354,6 +356,7 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
     }, [activeSpellLevel]);
 
     const isSorcerer = character.class === 'Sorcerer';
+    const isWizard = character.class === 'Wizard';
 
     const spellStat = useMemo(() => {
         if (SPELLCASTING_ABILITY[character.class]) return SPELLCASTING_ABILITY[character.class];
@@ -521,6 +524,18 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                        <button onClick={() => onUpdate({ ...character, sorceryPoints: { ...sorceryPoints, current: sorceryPoints.max } })} className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-white hover:bg-purple-500/40 active:scale-90 transition-all ml-1"><span className="material-symbols-outlined text-base">refresh</span></button>
                    </div>
                </div>
+           </div>
+       )}
+
+       {isWizard && (
+           <div className="relative overflow-hidden bg-white/5 border border-blue-500/20 rounded-2xl p-3 shadow-sm animate-fadeIn">
+               <button
+                   onClick={() => setShowWizardGrimoire(true)}
+                   className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
+               >
+                   <span className="material-symbols-outlined text-lg">library_books</span>
+                   Open Grimoire
+               </button>
            </div>
        )}
 
@@ -928,6 +943,14 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
                 </div>
             </div>,
             document.body
+        )}
+
+        {showWizardGrimoire && (
+            <WizardGrimoireManager
+                character={character}
+                onUpdate={onUpdate}
+                onClose={() => setShowWizardGrimoire(false)}
+            />
         )}
     </div>
   );
