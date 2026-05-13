@@ -11,6 +11,7 @@ interface SpellsTabProps {
     character: Character;
     onUpdate: (char: Character) => void;
     isReadOnly?: boolean;
+    onGrimoireStateChange?: (isOpen: boolean) => void;
 }
 
 const getWarlockSlots = (level: number): { count: number, level: number } => {
@@ -72,7 +73,7 @@ const renderDescriptionWithBold = (text: string): React.ReactNode => {
     });
 };
 
-const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }) => {
+const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly, onGrimoireStateChange }) => {
     const t = {
         save_dc: 'Save DC',
         attack_bonus: 'Attack Bonus',
@@ -129,6 +130,13 @@ const SpellsTab: React.FC<SpellsTabProps> = ({ character, onUpdate, isReadOnly }
     useEffect(() => {
         // Translation effect removed - all content now in English
     }, [selectedSpellName, expandedGrimoireId]);
+
+    // Notify parent when Wizard Grimoire state changes
+    useEffect(() => {
+        if (onGrimoireStateChange) {
+            onGrimoireStateChange(showWizardGrimoire);
+        }
+    }, [showWizardGrimoire, onGrimoireStateChange]);
 
     const tabsRef = useRef<HTMLDivElement>(null);
     const grimoireTabsRef = useRef<HTMLDivElement>(null);

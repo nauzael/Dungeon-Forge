@@ -110,6 +110,25 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
     });
   }, [character, spellbook, maxSpellbook, onUpdate]);
 
+  // Handle remove spell from spellbook
+  const handleRemoveSpell = useCallback((spellName: string) => {
+    if (!window.confirm(`Remove ${spellName} from your spellbook?`)) {
+      return;
+    }
+
+    const newSpellbook = spellbook.filter(s => s !== spellName);
+    const newPrepared = prepared.filter(s => s !== spellName); // Also remove from prepared if it was there
+
+    onUpdate({
+      ...character,
+      wizard: {
+        ...character.wizard,
+        spellbook: newSpellbook
+      },
+      preparedSpells: newPrepared
+    });
+  }, [character, spellbook, prepared, onUpdate]);
+
   // Handle prepare/unprepare spell
   const handleTogglePrepare = useCallback((spellName: string) => {
     let newPrepared = prepared.includes(spellName)
@@ -160,17 +179,26 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
         )}
 
         {(activeTab === 'prepare' || activeTab === 'rituals') && (
-          <button
-            onClick={() => handleTogglePrepare(spellName)}
-            className={`px-3 py-1 text-xs rounded transition ${
-              isPrepared
-                ? 'bg-green-600 hover:bg-green-700 text-white'
-                : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-            }`}
-            disabled={!isInBook}
-          >
-            {isPrepared ? 'Prepared' : 'Prepare'}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleTogglePrepare(spellName)}
+              className={`px-3 py-1 text-xs rounded transition ${
+                isPrepared
+                  ? 'bg-green-600 hover:bg-green-700 text-white'
+                  : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+              }`}
+              disabled={!isInBook}
+            >
+              {isPrepared ? 'Prepared' : 'Prepare'}
+            </button>
+            <button
+              onClick={() => handleRemoveSpell(spellName)}
+              className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded transition"
+              title="Remove spell from spellbook"
+            >
+              Delete
+            </button>
+          </div>
         )}
       </div>
     );
