@@ -3,7 +3,7 @@ import { Character, Ability } from '../../../types';
 import { CLASS_PROGRESSION, SUBCLASS_OPTIONS, HIT_DIE, CLASS_SKILL_DATA } from '../../../Data/characterOptions';
 import { SKILL_LIST } from '../../../Data/skills';
 import { FEAT_OPTIONS } from '../../../Data/feats/index';
-import { getFinalStats, getAllHpBonusesPerLevel, getItemHpBonusesPerLevel, getItemHpBonusesOneTime } from '../../../utils/sheetUtils';
+import { getFinalStats, getAllHpBonusesPerLevel, getItemHpBonusesPerLevel, getItemHpBonusesOneTime, getWizardSpellsToLearnOnLevelUp } from '../../../utils/sheetUtils';
 import { UI } from '../../../constants/ui';
 import { logLevelUp, type LevelUpLogEntry } from '../../../utils/logger';
 import HPStep from './steps/HPStep';
@@ -15,6 +15,7 @@ import SummaryStep from './steps/SummaryStep';
 import FightingStyleStep from './steps/FightingStyleStep';
 import SchoolSavantStep from './steps/SchoolSavantStep';
 import DeftExplorerStep from './steps/DeftExplorerStep';
+import WizardSpellbookStep from './steps/WizardSpellbookStep';
 
 interface LevelUpWizardProps {
     character: Character;
@@ -46,6 +47,7 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
     const [savantSpells, setSavantSpells] = useState<string[]>([]);
     const [deftExplorerSkill, setDeftExplorerSkill] = useState('');
     const [deftExplorerLanguages, setDeftExplorerLanguages] = useState<string[]>([]);
+    const [newSpellsLearned, setNewSpellsLearned] = useState<string[]>([]);
     
     const nextLevel = character.level + 1;
     const stats = getFinalStats(character);
@@ -111,6 +113,11 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
     // Deft Explorer: Ranger Level 2
     const needsDeftExplorer = character.class === 'Ranger' && nextLevel === 2 && !character.feats?.includes('Deft Explorer');
 
+    // Wave 5: Wizard Spellbook Learning
+    // Wizards learn 2 new spells when leveling up (except level 1)
+    const isWizard = character.class === 'Wizard';
+    const needsWizardSpellLearning = isWizard && nextLevel > 1;
+
     const SAVANT_SUBCLASSES: Record<string, { school: string; featureName: string }> = {
         'Abjurer': { school: 'abjuration', featureName: 'Abjuration Savant' },
         'Diviner': { school: 'divination', featureName: 'Divination Savant' },
@@ -144,6 +151,7 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
     if (character.class !== 'Barbarian' && character.class !== 'Fighter' && character.class !== 'Monk' && character.class !== 'Rogue') {
         activeSteps.push('spells');
     }
+    if (needsWizardSpellLearning) activeSteps.push('wizardSpellbook');
     if (needsAsi) activeSteps.push('asiFeat');
     activeSteps.push('summary');
 
@@ -172,6 +180,11 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
                 return savantSpells.length === savantSpellCount;
             case 'spells':
                 return !needsMetamagic || pendingMetamagics.length === metamagicCount;
+            case 'wizardSpellbook':
+                // For Wizard spellbook step, must learn available spells (can be 0)
+                const spellbook = character.wizard?.spellbook || [];
+                const { available: maxNewSpells } = getWizardSpellsToLearnOnLevelUp(character.level, nextLevel, spellbook.length);
+                return newSpellsLearned.length <= maxNewSpells; // Can proceed with 0 or more (up to max)
             case 'asiFeat':
                 if (asiType === 'stat') {
                     return !!stat1;
@@ -446,7 +459,7 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
             updatedChar.hunterMarkUses = { current: hmUses, max: hmUses };
         }
 
-        // WIZARD: Arcane Recovery (Lv2+), Spell Mastery (Lv18), Signature Spells (Lv20)
+        // WIZARD: Arcane Recovery (Lv2+), Spell Mastery (Lv18), Signature Spells (Lv20), Wave 5: Spellbook Learning
         if (character.class === 'Wizard') {
             // Arcane Recovery: Can recover spell slots on short rest (level/2 rounded up)
             const recoveryUses = Math.ceil(nextLevel / 2);
@@ -458,6 +471,14 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
             // Signature Spells at Lv20: Choose 2 lv3 spells to cast without slot
             if (nextLevel >= 20 && !updatedChar.signatureSpells) {
                 updatedChar.signatureSpells = [];
+            }
+            // Wave 5: Learn new spells for spellbook
+            if (needsWizardSpellLearning && newSpellsLearned.length > 0) {
+                const currentSpellbook = updatedChar.wizard?.spellbook || [];
+                updatedChar.wizard = {
+                    ...updatedChar.wizard,
+                    spellbook: [...new Set([...currentSpellbook, ...newSpellsLearned])]
+                };
             }
         }
 
@@ -639,6 +660,16 @@ const LevelUpWizard: React.FC<LevelUpWizardProps> = ({ character, onComplete, on
                         onStat2Change={(v) => setStat2(v)}
                         onFeatChange={(v) => { setFeat(v); setFeatStat(null); }}
                         onFeatStatChange={setFeatStat}
+                    />
+                );
+            case 'wizardSpellbook':
+                return (
+                    <WizardSpellbookStep
+                        character={character}
+                        currentLevel={character.level}
+                        nextLevel={nextLevel}
+                        newSpellsLearned={newSpellsLearned}
+                        onSpellsChange={setNewSpellsLearned}
                     />
                 );
             case 'summary':
