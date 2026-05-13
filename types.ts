@@ -13,6 +13,12 @@ export interface NoteItem {
   date: string;
 }
 
+// Wizard (2024 D&D 5e): Spellbook + daily preparation mechanics
+export interface WizardSpecifics {
+  spellbook: string[];                              // All spells learned (permanent collection)
+  spellebookSources?: Record<string, 'learned' | 'leveled' | 'rituals'>; // Track spell origin
+}
+
 export interface InitiativeCombatant {
   id: string;
   name: string;
@@ -121,6 +127,7 @@ export interface Character {
   savantSpellsAdded?: boolean; // Wizard Savant: ya seleccionó hechizos gratuitos
   savantSpellsAddedAt?: number[];
   savantSpells?: string[]; // Wizard Savant: hechizos gratuitos de la escuela
+  wizard?: WizardSpecifics; // Wizard 2024: Spellbook mechanics (only if class === 'Wizard')
   featureUsages?: Record<string, FeatureUsage>; // Feature usage tracking (generic system)
   snapshots?: any[]; // For Cloud sync of level snapshots
   auditLog?: any[];  // For Cloud sync of audit logs

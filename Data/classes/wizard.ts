@@ -16,11 +16,11 @@ export const wizard = {
   statPriorities: ['INT', 'CON', 'DEX'] as Ability[],
   skillData: { count: 2, options: ['Arcana', 'History', 'Insight', 'Investigation', 'Medicine', 'Nature', 'Religion'] as Skill[] },
   progression: { 
-    1: ['Spellcasting', 'Ritual Adept', 'Arcane Recovery'], 
+    1: ['Spellcasting (6 spells in spellbook)', 'Ritual Adept', 'Arcane Recovery'], 
     2: ['Scholar'], 
     3: ['Wizard Subclass'], 
     4: ['Ability Score Improvement'], 
-    5: ['Memorize Spell'], 
+    5: ['Memorize Spell', 'Learn 2 new spells'], 
     6: ['Subclass Feature'], 
     8: ['Ability Score Improvement'], 
     10: ['Subclass Feature'], 
@@ -31,6 +31,29 @@ export const wizard = {
     19: ['Epic Boon Feat'], 
     20: ['Signature Spells'] 
   } as Record<number, string[]>,
+  // Wizard Spellbook Progression (2024 D&D 5e)
+  spellbookProgression: {
+    1: 6,    // Start with 6 spells
+    2: 8,    // +2 spells
+    3: 10,   // +2 spells
+    4: 12,   // +2 spells
+    5: 14,   // +2 spells
+    6: 16,   // +2 spells
+    7: 18,   // +2 spells
+    8: 20,   // +2 spells
+    9: 22,   // +2 spells
+    10: 24,  // +2 spells
+    11: 26,  // +2 spells
+    12: 28,  // +2 spells
+    13: 30,  // +2 spells
+    14: 32,  // +2 spells
+    15: 34,  // +2 spells
+    16: 36,  // +2 spells
+    17: 38,  // +2 spells
+    18: 40,  // +2 spells
+    19: 42,  // +2 spells
+    20: 44   // +2 spells
+  } as Record<number, number>,
   subclasses: [
       { 
         name: 'Abjurer', 
