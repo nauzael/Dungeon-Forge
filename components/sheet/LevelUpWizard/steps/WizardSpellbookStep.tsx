@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Character } from '../../../../types';
 import { SPELL_DETAILS, getWizardAvailableSpells } from '../../../../Data/spells';
-import { getWizardSpellbookByLevel, getWizardSpellsToLearnOnLevelUp } from '../../../../utils/sheetUtils';
+import { getWizardSpellbookByLevel, getWizardSpellsToLearnOnLevelUp, getWizardMaxSpellLevel } from '../../../../utils/sheetUtils';
 import { UI } from '../../../../constants/ui';
 
 interface WizardSpellbookStepProps {
@@ -27,12 +27,13 @@ const WizardSpellbookStep: React.FC<WizardSpellbookStepProps> = ({
     const currentSpellbook = character.wizard?.spellbook || [];
     const maxAtCurrentLevel = getWizardSpellbookByLevel(currentLevel);
     const maxAtNextLevel = getWizardSpellbookByLevel(nextLevel);
+    const maxSpellLevelAtNextLevel = getWizardMaxSpellLevel(nextLevel);
     const spellSlots = getWizardSpellsToLearnOnLevelUp(currentLevel, nextLevel, currentSpellbook.length);
 
     // Available spells for learning
     const availableToLearn = useMemo(() => {
-        return getWizardAvailableSpells(undefined, [...currentSpellbook, ...newSpellsLearned]);
-    }, [currentSpellbook, newSpellsLearned]);
+        return getWizardAvailableSpells(undefined, [...currentSpellbook, ...newSpellsLearned], maxSpellLevelAtNextLevel);
+    }, [currentSpellbook, newSpellsLearned, maxSpellLevelAtNextLevel]);
 
     // Filter spells for display
     const filteredSpells = useMemo(() => {

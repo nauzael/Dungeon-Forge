@@ -10,6 +10,7 @@ import {
 import {
   getWizardMaxPreparedSpells,
   getWizardSpellbookByLevel,
+  getWizardMaxSpellLevel,
   validateWizardPreparedSpells,
   getFinalStats,
   formatModifier,
@@ -46,11 +47,12 @@ const WizardGrimoireManager: React.FC<WizardGrimoireManagerProps> = ({
   const prepared = useMemo(() => character.preparedSpells || [], [character.preparedSpells]);
   const maxPrepared = useMemo(() => getWizardMaxPreparedSpells(character), [character]);
   const maxSpellbook = useMemo(() => getWizardSpellbookByLevel(character.level), [character.level]);
+  const maxSpellLevel = useMemo(() => getWizardMaxSpellLevel(character.level), [character.level]);
   
   // Available spells for learning
   const availableToLearn = useMemo(() => {
-    return getWizardAvailableSpells(undefined, spellbook);
-  }, [spellbook]);
+    return getWizardAvailableSpells(undefined, spellbook, maxSpellLevel);
+  }, [spellbook, maxSpellLevel]);
 
   // Filter for display
   const filteredSpells = useMemo(() => {
