@@ -136,24 +136,37 @@ Ubicar en `.agents/skills/`:
 
 | Versión | Git Tag | OTA Version | Fecha | Estado |
 |---------|---------|-------------|-------|--------|
+| **v1.1.0** | `v1.1.0` | `1.1.0-2026.5.13-144500` | 2026-05-13 | ✅ ESTABLE |
 | **v1.0.0** | `v1.0.0` | `1.0.0-2026.4.16-182359` | 2026-04-16 | ✅ ESTABLE |
 | **v1.0.0-Beta** | `v1.0.0-beta` | `2026.4.16-123234` | 2026-04-16 | ⚠️ OBSOLETA |
 
 ### Procedimiento de Rollback a una Versión Estable
 
-**Rollback Solo OTA** (1 minuto — solo afecta lo que ven los usuarios):
+**Rollback Solo OTA a v1.1.0** (1 minuto — solo afecta lo que ven los usuarios):
 ```bash
-node scripts/restore_ota.mjs 2026.4.16-123234 "Rollback a v1.0 Stable"
+node scripts/restore_ota.mjs 1.1.0-2026.5.13-144500 "Rollback a v1.1 Stable"
 ```
 
-**Rollback Completo** (código + OTA):
+**Rollback Completo a v1.1.0** (código + OTA):
 ```bash
-git checkout v1.0.0
-node scripts/restore_ota.mjs 2026.4.16-123234 "Rollback completo a v1.0"
+git checkout v1.1.0
+node scripts/restore_ota.mjs 1.1.0-2026.5.13-144500 "Rollback completo a v1.1"
 npm install
 ```
 
-**Rama Archivada** (estado exacto sellado, nunca cambia):
+**Rollback a v1.0.0** (versión anterior):
+```bash
+git checkout v1.0.0
+node scripts/restore_ota.mjs 1.0.0-2026.4.16-182359 "Rollback a v1.0 Stable"
+npm install
+```
+
+**Rama Archivada v1.1** (estado exacto sellado, nunca cambia):
+```bash
+git checkout stable-v1.1
+```
+
+**Rama Archivada v1.0** (estado exacto sellado, nunca cambia):
 ```bash
 git checkout stable-v1.0
 ```
