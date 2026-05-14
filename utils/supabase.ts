@@ -327,10 +327,12 @@ export const subscribeWithRetry = (
           timeoutHandle = null;
         }
         
-        status = 'connected';
-        onStatusChange?.('connected');
-        debugLogger.log('[Realtime]', `Connected to party ${partyId} via postgres_changes`, 'info');
-        console.log(`[Realtime] Connected to party ${partyId} (via postgres_changes)`);
+        if (status !== 'connected') {
+          status = 'connected';
+          onStatusChange?.('connected');
+        }
+        debugLogger.log('[Realtime]', `Received postgres_changes event for party ${partyId}`, 'info');
+        console.log(`[Realtime] postgres_changes event received for party ${partyId}`);
         
         onUpdate(payload);
       }
@@ -357,15 +359,27 @@ export const subscribeWithRetry = (
     }
     
     // Subscribe to channel with error handling
+    let subscriptionStatusReceived = false;
     try {
-      channel.subscribe((status: string, err?: any) => {
-        if (status === 'SUBSCRIBED') {
-          debugLogger.log('[Realtime]', `Channel subscribed successfully for party ${partyId}`, 'info');
-          console.log(`[Realtime] Channel subscribed: party-${partyId}`);
-        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-          const errMsg = `Channel error: ${status}${err ? ' - ' + err.message : ''}`;
+      channel.subscribe((subStatus: string, err?: any) => {
+        if (subStatus === 'SUBSCRIBED') {
+          subscriptionStatusReceived = true;
+          // Mark as connected immediately when channel is subscribed
+          // (no need to wait for first event)
+          if (status !== 'connected') {
+            status = 'connected';
+            onStatusChange?.('connected');
+            if (timeoutHandle) {
+              clearTimeout(timeoutHandle);
+              timeoutHandle = null;
+            }
+          }
+          debugLogger.log('[Realtime]', `Channel subscribed successfully for party ${partyId} - CONNECTED`, 'info');
+          console.log(`[Realtime] Channel subscribed: party-${partyId} - Status changed to CONNECTED`);
+        } else if (subStatus === 'CHANNEL_ERROR' || subStatus === 'TIMED_OUT') {
+          const errMsg = `Channel error: ${subStatus}${err ? ' - ' + err.message : ''}`;
           console.error(`[Realtime] ${errMsg}`);
-          debugLogger.log('[Realtime]', errMsg, 'error', { partyId, status, error: err?.message });
+          debugLogger.log('[Realtime]', errMsg, 'error', { partyId, status: subStatus, error: err?.message });
           channel.unsubscribe();
           if (attempt < MAX_RETRIES - 1) {
             const backoffMs = calculateBackoff(attempt);
@@ -390,10 +404,10 @@ export const subscribeWithRetry = (
       return;
     }
     
-    // Setup timeout: if no event received within TIMEOUT_MS, consider dead and retry
+    // Setup timeout: if subscription status not received within TIMEOUT_MS, consider dead and retry
     timeoutHandle = setTimeout(() => {
-      if (!eventReceived) {
-        const timeoutMsg = `Timeout after ${TIMEOUT_MS}ms for party ${partyId} (attempt ${attempt + 1}/${MAX_RETRIES}) - no events received`;
+      if (!subscriptionStatusReceived) {
+        const timeoutMsg = `Timeout after ${TIMEOUT_MS}ms for party ${partyId} (attempt ${attempt + 1}/${MAX_RETRIES}) - no subscription status received`;
         console.error(`[Realtime] ${timeoutMsg}`);
         debugLogger.log('[Realtime]', timeoutMsg, 'error', { 
           partyId, 
@@ -478,48 +492,140 @@ export const broadcastCharacterUpdate = (partyId: string, character: Character) 
 
 export const removeFromParty = async (characterId: string) => {
   try {
+    console.log(`[removeFromParty] Starting removal for character ${characterId}`);
+    debugLogger.log('[RemoveFromParty]', `Starting removal for character ${characterId}`, 'info');
+    
     const { data: char, error: fError } = await supabase
       .from('characters')
-      .select('data')
+      .select('data, party_id')
       .eq('id', characterId)
       .single();
 
-    if (fError || !char) throw new Error('Personaje no encontrado');
+    if (fError) {
+      const errMsg = `Select error: ${fError.message} (code: ${fError.code})`;
+      console.error(`[removeFromParty] ${errMsg}`);
+      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId, code: fError.code, message: fError.message });
+      throw fError;
+    }
+    
+    if (!char) {
+      const errMsg = 'Character not found';
+      console.error(`[removeFromParty] ${errMsg}`);
+      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId });
+      throw new Error(errMsg);
+    }
+
+    console.log(`[removeFromParty] Found character, current party_id: ${char.party_id}`);
+    debugLogger.log('[RemoveFromParty]', `Found character, current party_id: ${char.party_id}`, 'info', { characterId });
 
     // ✅ FIX: Actualizar syncTimestamp cuando se cambia party_id
     const updatedData = { ...char.data, party_id: null, syncTimestamp: Date.now() };
+    const updateTimestamp = Date.now();
 
-    const { data: updated, error: uError } = await supabase
+    debugLogger.log('[RemoveFromParty]', `Attempting UPDATE for character ${characterId}`, 'info', { 
+      partyIdBefore: char.party_id, 
+      updateTimestamp
+    });
+
+    const { error: uError } = await supabase
       .from('characters')
       .update({
         party_id: null,
         data: updatedData,
-        updated_at: new Date().toISOString(),
       })
-      .eq('id', characterId)
-      .select();  // Esperar confirmación UPDATE
-    
-    if (!updated || updated.length === 0) {
-      throw new Error('UPDATE confirmation failed - character not removed from party');
+      .eq('id', characterId);
+
+    if (uError) {
+      const errMsg = `Update error: ${uError.message} (code: ${uError.code})`;
+      console.error(`[removeFromParty] ${errMsg}`);
+      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId, code: uError.code, message: uError.message });
+      throw uError;
     }
 
-    if (uError) throw uError;
-    console.log(`[removeFromParty] Character ${characterId} kicked, syncTimestamp updated to ${updatedData.syncTimestamp}`);
+    // ✅ VERIFY: Check that party_id was actually set to null
+    // Supabase may silently fail UPDATEs due to RLS - we must verify
+    const { data: verified, error: vError } = await supabase
+      .from('characters')
+      .select('party_id, data')
+      .eq('id', characterId)
+      .single();
+
+    if (vError) {
+      const errMsg = `Verification failed: ${vError.message}`;
+      console.error(`[removeFromParty] ${errMsg}`);
+      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId, code: vError.code });
+      throw vError;
+    }
+
+    // Check 1: party_id must be null
+    if (verified?.party_id !== null) {
+      const errMsg = `UPDATE blocked: party_id is still ${verified?.party_id} (expected null) - RLS policy likely denied the change`;
+      console.error(`[removeFromParty] ${errMsg}`);
+      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { 
+        characterId, 
+        partyIdAfter: verified?.party_id,
+        expectedNull: true 
+      });
+      throw new Error(errMsg);
+    }
+
+    // Check 2: data.syncTimestamp must match our update
+    const dataAfter = verified?.data as any;
+    if (!dataAfter?.syncTimestamp || dataAfter.syncTimestamp !== updateTimestamp) {
+      const errMsg = `UPDATE partially failed: party_id changed but data.syncTimestamp wasn't updated correctly`;
+      console.error(`[removeFromParty] ${errMsg}`);
+      debugLogger.log('[RemoveFromParty]', errMsg, 'warn', { 
+        characterId,
+        expectedTimestamp: updateTimestamp,
+        actualTimestamp: dataAfter?.syncTimestamp
+      });
+      // Don't throw - party_id is null which is what we need
+    }
+
+    const successMsg = `Character ${characterId} successfully removed from party (verified)`;
+    console.log(`[removeFromParty] ${successMsg}`);
+    debugLogger.log('[RemoveFromParty]', successMsg, 'info', { characterId, verified: true });
     return true;
-  } catch (e) {
+  } catch (e: any) {
     // Check if error is RLS policy violation (code 42501)
     const isRlsError =
-      (e instanceof Object && 'code' in e && e.code === '42501') ||
-      (e instanceof Error && e.message.includes('new row violates'));
+      e?.code === '42501' ||
+      e?.message?.includes('new row violates') ||
+      e?.message?.includes('RLS');
 
     if (isRlsError) {
-      console.warn('[RLS] removeFromParty blocked by RLS policy. Falling back to localStorage.');
-      // Extract party_id from characterId if available, otherwise use placeholder
-      // For now, we log the kick locally
-      return await kickLocal('unknown-party', characterId);
+      const warnMsg = `RLS policy blocked removal: ${e?.message}. Trying localStorage fallback.`;
+      console.warn(`[removeFromParty] ${warnMsg}`);
+      debugLogger.log('[RemoveFromParty]', warnMsg, 'warn', { characterId, code: e?.code });
+      // Try localStorage fallback as last resort
+      try {
+        const charsStr = localStorage.getItem('dnd-characters');
+        if (charsStr) {
+          const allChars = JSON.parse(charsStr) as Character[];
+          const updated = allChars.map(c => 
+            c.id === characterId ? { ...c, party_id: null, syncTimestamp: Date.now() } : c
+          );
+          localStorage.setItem('dnd-characters', JSON.stringify(updated));
+          const fallbackMsg = 'localStorage fallback successful';
+          console.log(`[removeFromParty] ${fallbackMsg}`);
+          debugLogger.log('[RemoveFromParty]', fallbackMsg, 'info', { characterId, fallback: true });
+          return true;
+        }
+      } catch (localErr: any) {
+        const localErrMsg = `localStorage fallback failed: ${localErr.message}`;
+        console.error(`[removeFromParty] ${localErrMsg}`);
+        debugLogger.log('[RemoveFromParty]', localErrMsg, 'error', { characterId, fallback: false, error: localErr.message });
+      }
+    } else {
+      // Non-RLS error - log it explicitly
+      const errorMsg = e instanceof Error ? e.message : String(e);
+      const fullMsg = `Unexpected error: ${errorMsg}`;
+      console.error(`[removeFromParty] ${fullMsg}`);
+      debugLogger.log('[RemoveFromParty]', fullMsg, 'error', { characterId, error: errorMsg, code: e?.code });
     }
 
-    console.error('Failed to remove from party:', e instanceof Error ? e.message : e);
+    const errorMsg = e instanceof Error ? e.message : String(e);
+    console.error(`[removeFromParty] Failed: ${errorMsg}`);
     return false;
   }
 };
