@@ -7,6 +7,7 @@ import Controls from './DMDashboard/Controls';
 import PartySelector from './DMDashboard/PartySelector';
 import TabContent from './DMDashboard/TabContent';
 import BottomNav from './DMDashboard/BottomNav';
+import ConnectionDebugPanel from './DMDashboard/ConnectionDebugPanel';
 
 interface DMDashboardProps {
   onBack: () => void;
@@ -101,6 +102,11 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
             initiativeCombatants={initiativeCombatants}
             onCombatantsChange={setInitiativeCombatants}
           />
+        )}
+
+        {/* 🔍 Debug Panel - Solo en party selector */}
+        {!party && (
+          <ConnectionDebugPanel realtimeStatus={realtimeStatus} />
         )}
       </main>
 
