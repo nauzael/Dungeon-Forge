@@ -1,0 +1,267 @@
+plan_id: fix-realtime-race-conditions
+objective: "Resolver 3 race conditions y timeouts críticos en sincronización realtime: subscribeWithRetry timeout agresivo, ghost players que reaparecen, y race condition en removeFromParty"
+created_at: "2026-05-13T16:30:00Z"
+created_by: "gem-planner"
+status: pending
+research_confidence: high
+
+plan_metrics:
+  wave_1_task_count: 2
+  total_dependencies: 1
+  risk_score: medium
+
+tldr: |
+  3 bugs en realtime sync:
+  1. subscribeWithRetry(5000ms) timeout → "connecting" indefinido
+  2. fetchMembers carga deleted_at≠null → ghost players reaparecen
+  3. removeFromParty UPDATE async sin confirmación → race condition
+  
+  Fixes: ↑timeout (5→15s), add deleted_at filter, esperar UPDATE confirmation.
+  Cambios: 2 archivos, Wave 1 (críticos), Wave 2 (optimización).
+
+open_questions: []
+
+gaps: []
+
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "Timeout aumentado de 5s a 15s causa reconexiones lentas"
+      likelihood: medium
+      impact: medium
+      mitigation: "Mantener MAX_RETRIES en 10. Implementar exponential backoff con jitter (ya existe). Monitorear logs en producción."
+    
+    - scenario: "Filtro deleted_at en fetchMembers causa que se pierdan players válidos si RLS bloquea la query"
+      likelihood: low
+      impact: high
+      mitigation: "Agregar try/catch + fallback a localStorage. Loguear RLS errors específicamente."
+    
+    - scenario: "Esperar confirmación de UPDATE en removeFromParty crea delays visibles en UI"
+      likelihood: low
+      impact: medium
+      mitigation: "Mantener optimistic update en useDMParty. La confirmación es para cleanup flag, no para UI. Agregar timeout de 3s en removeFromParty."
+  
+  assumptions:
+    - "RLS policies están en place y funcionan (verificado en T8)"
+    - "localStorage fallback existe y funciona para RLS errors"
+    - "React 19 + unstable_batchedUpdates minimiza renders"
+    - "Supabase realtime está en producción y accesible"
+
+implementation_specification:
+  code_structure: |
+    Cambios localizados en 2 utilidades principales:
+    
+    1. utils/supabase.ts - Dos cambios:
+       - subscribeWithRetry: aumentar TIMEOUT_MS de 5000 → 15000
+       - removeFromParty: agregar await para confirmación de UPDATE
+    
+    2. hooks/useDMParty.ts - Un cambio:
+       - fetchMembers: agregar .is('deleted_at', null) al query
+  
+  affected_areas:
+    - "Real-time synchronization (useDMParty.ts)"
+    - "Supabase connection management (utils/supabase.ts)"
+    - "Character deletion/soft-delete flows"
+    - "DM panel member display (indirectamente)"
+  
+  component_details:
+    - component: "subscribeWithRetry()"
+      responsibility: "Manejar reconexión a channel party con timeout + exponential backoff"
+      interfaces: ["TIMEOUT_MS constant", "attemptSubscribe() function"]
+      dependencies:
+        - component: "supabase.channel()"
+          relationship: "Supabase realtime channel creation"
+      integration_points: ["useDMParty.ts useEffect", "App.tsx player sheet"]
+    
+    - component: "fetchMembers()"
+      responsibility: "Cargar characters para DM panel, filtrando soft-deleted"
+      interfaces: ["SELECT data FROM characters WHERE party_id=? AND deleted_at IS NULL"]
+      dependencies:
+        - component: "supabase.from('characters').select()"
+          relationship: "Base query"
+      integration_points: ["useDMParty.ts handleCreateParty()", "selectParty()"]
+    
+    - component: "removeFromParty()"
+      responsibility: "Remover character de party (soft-delete via party_id=null), esperar confirmación"
+      interfaces: ["UPDATE characters SET party_id=null, data={...}, updated_at=? WHERE id=?"]
+      dependencies:
+        - component: "supabase.from('characters').update()"
+          relationship: "Database mutation"
+      integration_points: ["useDMParty.ts handleKickCharacter()", "JoinPartyModal.tsx"]
+
+contracts:
+  - from_task: "T1-IncreaseSubscriptionTimeout"
+    to_task: "T2-AddDeletedAtFilter"
+    interface: "realtimeStatus signal"
+    format: "string ('connecting' | 'connected' | 'error' | 'reconnecting')"
+    notes: "T2 depende de que T1 establezca timeout estable para evitar reconexiones durante initial load"
+  
+  - from_task: "T2-AddDeletedAtFilter"
+    to_task: "T3-ConfirmRemoveFromParty"
+    interface: "Character.party_id (null cuando removido)"
+    format: "string | null"
+    notes: "T3 depende de que T2 filtre correctamente deleted_at para no recargar ghosts"
+
+tasks:
+  - id: "T1-IncreaseSubscriptionTimeout"
+    title: "Aumentar timeout de subscribeWithRetry (5s → 15s) + validación de partyId"
+    description: |
+      **Root Cause**: TIMEOUT_MS = 5000ms es demasiado agresivo para conexiones lentas. 
+      Síntoma: Panel DM dice "connecting" indefinidamente si la conexión tarda >5s.
+      
+      **Cambios**:
+      - utils/supabase.ts línea ~267: cambiar `const TIMEOUT_MS = 5000;` → `const TIMEOUT_MS = 15000;`
+      - Agregar validación defensiva: si partyId es inválido, rechazar inmediatamente
+      - Mantener exponential backoff + jitter (ya implementado)
+      
+      **Resultado**: Timeout más tolerante (15s), reconexiones menos frecuentes para conexiones lentas.
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Timeout agresivo en subscribeWithRetry"
+      - "Panel DM 'connecting' indefinido"
+    priority: high
+    status: pending
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "utils/supabase.ts"
+        description: "subscribeWithRetry() function (lines 248-380), TIMEOUT_MS constant"
+      - path: "hooks/useDMParty.ts"
+        description: "useEffect subscribeWithRetry call (lines 201-290), status display"
+    estimated_effort: small
+    estimated_files: 1
+    estimated_lines: 5
+    verification:
+      - "TIMEOUT_MS es 15000 en supabase.ts"
+      - "subscribeWithRetry corre sin errores (compilación)"
+      - "useDMParty panel muestra 'reconnecting' → 'connected' dentro de 15s"
+    acceptance_criteria:
+      - "Timeout aumentado de 5000 a 15000 ms"
+      - "Exponential backoff mantiene su lógica sin cambios"
+      - "No hay breaking changes en la interfaz de subscribeWithRetry"
+      - "Logs muestran timeout actualizado en attemptSubscribe()"
+    failure_modes:
+      - scenario: "Aumentar timeout causa reconexiones lentas en conexiones rápidas"
+        likelihood: low
+        impact: low
+        mitigation: "Timeout es solo para 'sin eventos'. En conexiones rápidas, postgres_changes llega antes del timeout."
+      - scenario: "RLS policy bloquea postgres_changes y nunca llega evento → espera 15s innecesarios"
+        likelihood: medium
+        impact: medium
+        mitigation: "Ya existe fallback a localStorage en createParty/removeFromParty. Aumentar timeout permite que RLS errors se detecten sin reconexión prematura."
+
+  - id: "T2-AddDeletedAtFilter"
+    title: "Agregar filtro deleted_at=null en fetchMembers()"
+    description: |
+      **Root Cause**: fetchMembers() carga todas las characters con party_id=X, incluyendo soft-deleted (deleted_at ≠ null).
+      Síntoma: Character kicked → reload → reaparece en panel.
+      
+      **Cambios**:
+      - hooks/useDMParty.ts línea ~90: agregar `.is('deleted_at', null)` a la query
+      - Current: `.select('data').eq('party_id', partyId);`
+      - New: `.select('data').eq('party_id', partyId).is('deleted_at', null);`
+      
+      **Resultado**: fetchMembers solo retorna characters activos (no soft-deleted).
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Ghost players que reaparecen después de reload"
+      - "fetchMembers cargando deleted_at ≠ null"
+    priority: high
+    status: pending
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "hooks/useDMParty.ts"
+        description: "fetchMembers() function (lines 85-105), Supabase query"
+      - path: "utils/supabase.ts"
+        description: "fetchCharactersFromCloud() for reference (line 64-72, ya tiene .is('deleted_at', null))"
+    estimated_effort: small
+    estimated_files: 1
+    estimated_lines: 2
+    verification:
+      - "Query en fetchMembers incluye .is('deleted_at', null)"
+      - "Compilación sin errores"
+      - "No se regresa characters con deleted_at ≠ null en logs"
+    acceptance_criteria:
+      - "fetchMembers query incluye .is('deleted_at', null) filter"
+      - "Characters soft-deleted no aparecen en panel DM después de reload"
+      - "Patrón es consistente con fetchCharactersFromCloud (line 64)"
+    failure_modes:
+      - scenario: "RLS policy bloquea el query con deleted_at filter"
+        likelihood: low
+        impact: medium
+        mitigation: "Agregar try/catch específico, loguear RLS error, fallback a localStorage si aplica."
+      - scenario: "Filter ralentiza query significativamente con muchos characters"
+        likelihood: low
+        impact: low
+        mitigation: "Índice en (party_id, deleted_at) debería existir en DB. Si hay performance issue, agregar .order() para aprovechar índice."
+
+  - id: "T3-ConfirmRemoveFromParty"
+    title: "Esperar confirmación de UPDATE en removeFromParty antes de resolver promise"
+    description: |
+      **Root Cause**: removeFromParty() retorna true inmediatamente después de .update(), 
+      pero no espera confirmación. Si reload durante los 100-500ms del UPDATE, 
+      se carga la versión vieja del character (party_id aún no actualizado en DB).
+      
+      Síntoma: Race condition durante reload inmediato post-kick.
+      
+      **Cambios**:
+      - utils/supabase.ts línea ~419-445 (removeFromParty):
+        * Cambiar estructura de .update() para esperar confirmación de que el UPDATE fue procesado
+        * Agregar timeout de 3s en caso de que Supabase no responda
+        * Loguear confirmación cuando succeed
+      
+      - useDMParty.ts línea ~160 (handleKickCharacter):
+        * Mantener optimistic update (setMembers filter) - ya existe
+        * removeFromParty ahora espera confirmación antes de resolver
+      
+      **Resultado**: removeFromParty espera confirmación de UPDATE antes de retornar. 
+      Race condition eliminada.
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Race condition en removeFromParty"
+      - "Character reloading con party_id viejo"
+    priority: medium
+    status: pending
+    dependencies:
+      - "T1-IncreaseSubscriptionTimeout"
+      - "T2-AddDeletedAtFilter"
+    conflicts_with: []
+    context_files:
+      - path: "utils/supabase.ts"
+        description: "removeFromParty() function (lines 419-445), UPDATE structure"
+      - path: "hooks/useDMParty.ts"
+        description: "handleKickCharacter() (lines 150-170), optimistic update pattern"
+    estimated_effort: medium
+    estimated_files: 1
+    estimated_lines: 20
+    verification:
+      - "removeFromParty await completa antes de retornar success"
+      - "Logs muestran confirmación de UPDATE completion"
+      - "No race condition observable si reload durante kick"
+      - "Timeout de 3s previene indefinite wait si Supabase falla"
+    acceptance_criteria:
+      - "removeFromParty espera .update() confirmation antes de resolver"
+      - "Timeout máximo de 3s en removeFromParty si UPDATE falla"
+      - "Logs mostran 'UPDATE confirmed' o 'UPDATE timeout'"
+      - "Optimistic update en handleKickCharacter mantiene su lógica"
+      - "No hay breaking changes en la interfaz de removeFromParty"
+    failure_modes:
+      - scenario: "Esperar confirmación causa delays visibles en UI (3s+ en conexión lenta)"
+        likelihood: low
+        impact: medium
+        mitigation: "Optimistic update en useDMParty ya remover character de UI inmediatamente. Confirmación es background async. UI responde al toque."
+      - scenario: "RLS policy bloquea UPDATE, timeout ocurre, removeFromParty retorna false"
+        likelihood: medium
+        impact: medium
+        mitigation: "Ya existe fallback a localStorage en removeFromParty. Loguear RLS error específicamente."
+      - scenario: "Broadcast event del character removido arrive durante timeout espera"
+        likelihood: low
+        impact: low
+        mitigation: "useDMParty ya filtra broadcast si isRemoving===char.id. Ghost prevention está en place."

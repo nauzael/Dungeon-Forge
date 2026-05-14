@@ -1,0 +1,600 @@
+plan_id: "production-auth-investigation"
+objective: "Investigate why app in production (APK/iOS) fails to connect to Supabase and remains in local mode"
+focus_area: "Production Authentication & Supabase Connection in Capacitor Mobile Build"
+created_at: "2026-05-13"
+created_by: "RESEARCHER Agent"
+status: "completed"
+
+tldr: |
+  - App detects isMockMode=true when VITE_SUPABASE_URL is empty/default
+  - Variables de entorno se cargan EN BUILD TIME via Vite (no runtime)
+  - Si .env no tenía credenciales correctas durante `npm run build`, app transpilado tendrá URLs vacías
+  - App luego activa local mode automáticamente por fallback seguro
+  - OTA updates contienen código transpilado CON variables de entorno incrustadas
+  - Login screen muestra "Local Mode" badge y fuerza local mode
+  - NO hay fallback a OAuth si credenciales faltan - es design intencional
+
+research_metadata:
+  methodology: "semantic_search + grep_search + detailed file examination"
+  scope: "Authentication flow, env var loading, build process, OTA deployment"
+  confidence: "high"
+  coverage: 95
+  decision_blockers: 3
+  research_blockers: 0
+
+files_analyzed:
+  # Core auth flow
+  - file: "components/Login.tsx"
+    path: "i:\\Apks\\Dungeon Forge\\components\\Login.tsx"
+    purpose: "OAuth login UI and local mode activation"
+    key_elements:
+      - element: "isMockMode detection"
+        type: "variable"
+        location: "Login.tsx:14"
+        description: |
+          Detecta mock mode cuando VITE_SUPABASE_URL está vacío o contiene 'TU_PROYECTO'
+          const isMockMode = !import.meta.env.VITE_SUPABASE_URL || 
+                            import.meta.env.VITE_SUPABASE_URL.includes('TU_PROYECTO');
+        language: "TypeScript"
+      - element: "handleGoogleLogin()"
+        type: "function"
+        location: "Login.tsx:32-90"
+        description: |
+          Inicia OAuth con Google via Supabase.auth.signInWithOAuth()
+          - Detecta plataforma (web vs Capacitor native)
+          - Establece redirectUrl según plataforma
+          - Si isMockMode=true, muestra alert y retorna
+          - Capacitor: abre browser con OAuth URL
+        language: "TypeScript"
+      - element: "handleLocalModeClick()"
+        type: "function"
+        location: "Login.tsx:16-30"
+        description: |
+          Activa local mode manualmente
+          - Setea localStorage df_local_mode = 'true'
+          - Setea df_session con local developer info
+          - Recarga página
+        language: "TypeScript"
+    lines: 150
+
+  - file: "App.tsx"
+    path: "i:\\Apks\\Dungeon Forge\\App.tsx"
+    purpose: "Main app component, authentication initialization, Supabase session management"
+    key_elements:
+      - element: "Local mode check"
+        type: "logic"
+        location: "App.tsx:62-71"
+        description: |
+          En useEffect, primer check es localStorage df_local_mode
+          if (localModeStr === 'true') {
+            setIsLocalMode(true)
+            setUser({ name: 'Local Developer', id: devUUID })
+            setIsAuthenticated(true)
+            return; // Skip Supabase auth
+          }
+          CRÍTICO: Si local mode está activo, NO intenta conectar a Supabase
+        language: "TypeScript"
+      - element: "supabase.auth.getSession()"
+        type: "function"
+        location: "App.tsx:78-90"
+        description: |
+          Intenta obtener session existente de Supabase
+          - Solo ejecuta si df_local_mode !== 'true'
+          - Si session existe, setea user y authenticated
+          - Si no hay session, user permanece null
+        language: "TypeScript"
+      - element: "Capacitor deeplink handler"
+        type: "listener"
+        location: "App.tsx:93-125"
+        description: |
+          Maneja OAuth callback deeplinks en Capacitor
+          - Escucha 'appUrlOpen' event
+          - Busca access_token en URL
+          - Setea window.location.hash con tokens
+          - Espera 2 segundos (CRITICAL FIX) antes de reload
+          - Supabase onAuthStateChange debe procesar tokens durante ese tiempo
+        language: "TypeScript"
+      - element: "OTA update check"
+        type: "logic"
+        location: "App.tsx:127-165"
+        description: |
+          Chequea version.json desde Supabase storage bucket
+          - Fetch desde ${VITE_SUPABASE_URL}/storage/v1/object/public/updates/version.json
+          - Si versión nueva, descarga y notifica
+          - Espera confirmación del usuario antes de aplicar
+        language: "TypeScript"
+    lines: 600+
+
+  - file: "utils/supabase.ts"
+    path: "i:\\Apks\\Dungeon Forge\\utils\\supabase.ts"
+    purpose: "Supabase client initialization and cloud sync operations"
+    key_elements:
+      - element: "Environment variable loading"
+        type: "variable"
+        location: "supabase.ts:20-21"
+        description: |
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+          const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+          
+          CRÍTICO: import.meta.env es una feature de Vite
+          - Se resuelve EN BUILD TIME (transpilación)
+          - Los valores se incrustan en el código transpilado
+          - NO se reemplazan dinámicamente en runtime
+          - Si .env no tenía valores durante build, serán strings vacías
+        language: "TypeScript"
+      - element: "Supabase initialization logging"
+        type: "logging"
+        location: "supabase.ts:24-27"
+        description: |
+          console.log('[Supabase Init] URL:', supabaseUrl ? 'SET ✓' : 'MISSING ✗');
+          console.log('[Supabase Init] Key: ', supabaseAnonKey ? 'SET ✓' : 'MISSING ✗');
+          
+          Estos logs indican al startup si variables están presentes
+          Si ves "MISSING ✗" en ambas, credenciales no se cargaron
+        language: "TypeScript"
+    lines: 80+
+
+  # Build configuration
+  - file: "vite.config.ts"
+    path: "i:\\Apks\\Dungeon Forge\\vite.config.ts"
+    purpose: "Vite build configuration - controls how environment variables are processed"
+    key_elements:
+      - element: "vite.config.ts content"
+        type: "configuration"
+        location: "vite.config.ts:1-40"
+        description: |
+          defineConfig({
+            plugins: [react()],
+            base: './',
+            build: { outDir: 'dist' }
+          })
+          
+          NO incluye configuración especial para variables de entorno
+          Vite por defecto:
+          - Carga .env file
+          - Expone VITE_* prefixed vars via import.meta.env
+          - Variables se incrustan en transpilación
+          - NO hay reemplazo runtime
+        language: "TypeScript"
+    lines: 36
+
+  - file: "capacitor.config.json"
+    path: "i:\\Apks\\Dungeon Forge\\capacitor.config.json"
+    purpose: "Capacitor native app configuration for Android/iOS"
+    key_elements:
+      - element: "appId"
+        type: "configuration"
+        location: "capacitor.config.json:2"
+        description: "com.tupaquete.dndcompanion - usado para deeplinks OAuth"
+        language: "JSON"
+      - element: "webDir"
+        type: "configuration"
+        location: "capacitor.config.json:3"
+        description: "'dist' - Capacitor copia archivos de dist/ a app nativa"
+        language: "JSON"
+      - element: "OAuth deeplink"
+        type: "configuration"
+        location: "Login.tsx:47"
+        description: |
+          const redirectUrl = 'com.tupaquete.dndcompanion://login-callback'
+          Este deeplink DEBE estar registrado en Supabase OAuth settings
+          Si NO está registrado, OAuth fallará silenciosamente
+        language: "TypeScript"
+    lines: 20
+
+  # Deployment/Build scripts
+  - file: ".env.example"
+    path: "i:\\Apks\\Dungeon Forge\\.env.example"
+    purpose: "Template para variables de entorno"
+    key_elements:
+      - element: "VITE_SUPABASE_URL"
+        type: "variable"
+        location: ".env.example:5"
+        description: "https://your-project.supabase.co - debe ser seteado en .env real"
+        language: "Shell"
+      - element: "VITE_SUPABASE_ANON_KEY"
+        type: "variable"
+        location: ".env.example:6"
+        description: "your-anon-key - público (anon) key de Supabase"
+        language: "Shell"
+    lines: 20
+
+  - file: "scripts/build_ota.mjs"
+    path: "i:\\Apks\\Dungeon Forge\\scripts\\build_ota.mjs"
+    purpose: "OTA (Over-The-Air) update script - builds and uploads to Supabase"
+    key_elements:
+      - element: "dotenv.config()"
+        type: "function"
+        location: "build_ota.mjs:10"
+        description: |
+          Carga .env PERO SOLO para el script Node
+          NO afecta `npm run build` que ya fue ejecutado
+          El dist/ ya tiene variables incrustadas de CUANDO se ejecutó build
+        language: "JavaScript"
+      - element: "Build flow"
+        type: "process"
+        location: "build_ota.mjs:1-100"
+        description: |
+          npm run ota = npm run build && node build_ota.mjs
+          
+          1. npm run build
+             - Lee .env
+             - Vite transpila con variables incrustadas
+             - Genera dist/ con VITE_SUPABASE_URL hardcodeado
+          
+          2. node build_ota.mjs
+             - Lee .env
+             - Zipea dist/
+             - Sube a Supabase bucket 'updates'
+             - Genera version.json con URL del ZIP
+          
+          IMPORTANTE: Si .env cambió entre steps, OTA contiene código VIEJO
+        language: "JavaScript"
+    lines: 150
+
+  # Package.json scripts
+  - file: "package.json"
+    path: "i:\\Apks\\Dungeon Forge\\package.json"
+    purpose: "NPM scripts and dependencies"
+    key_elements:
+      - element: "scripts.build"
+        type: "script"
+        location: "package.json:7"
+        description: '"vite build" - transpila con variables de entorno del momento'
+        language: "JSON"
+      - element: "scripts.ota"
+        type: "script"
+        location: "package.json:8"
+        description: '"npm run build && node scripts/build_ota.mjs" - full OTA workflow'
+        language: "JSON"
+    lines: 50
+
+patterns_found:
+  - category: "environment variable loading"
+    pattern: "Vite build-time substitution"
+    description: |
+      VITE_* variables se cargan desde .env DURANTE build
+      - import.meta.env.VITE_X es transpilado a literal value
+      - Si .env no existe o está vacío, value = undefined/empty string
+      - NO hay runtime substitution o dynamic loading
+      - Cambiar .env DESPUÉS de build no afecta transpilado
+    examples:
+      - file: "utils/supabase.ts:20-21"
+        location: "utils/supabase.ts"
+        snippet: "const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''"
+      - file: "Login.tsx:14"
+        location: "Login.tsx"
+        snippet: "const isMockMode = !import.meta.env.VITE_SUPABASE_URL"
+    prevalence: "common"
+
+  - category: "authentication flow"
+    pattern: "Local mode bypass on empty credentials"
+    description: |
+      Si VITE_SUPABASE_URL está vacío:
+      1. Login.tsx: isMockMode detección
+      2. User no puede hacer OAuth (botón dice "set VITE_SUPABASE_URL")
+      3. User debe clickear logo para Local Mode
+      4. localStorage setea df_local_mode = 'true'
+      5. App recarga y salta Supabase auth completamente
+      6. App funciona offline con localStorage solo
+    examples:
+      - file: "Login.tsx:14"
+        location: "Login.tsx"
+        snippet: "const isMockMode = !import.meta.env.VITE_SUPABASE_URL"
+      - file: "App.tsx:62-71"
+        location: "App.tsx"
+        snippet: "if (localModeStr === 'true') { ... return; }"
+    prevalence: "common"
+
+  - category: "production build"
+    pattern: "OTA embedding + env vars"
+    description: |
+      OTA update process:
+      - `npm run build` embeds env vars
+      - `build_ota.mjs` zips dist/ con variables ya incrustadas
+      - APK descarga OTA, pero código ya tiene vars
+      - Cambiar .env NO afecta APK en producción sin rebuild
+    examples:
+      - file: "scripts/build_ota.mjs:1-100"
+        location: "build_ota.mjs"
+        snippet: "npm run build && archiver(dist)"
+    prevalence: "occasional"
+
+  - category: "error handling"
+    pattern: "Graceful degradation to localStorage"
+    description: |
+      utils/supabase.ts checks:
+      - Si ambas vars están vacías, logs "MISSING ✗"
+      - Crea Supabase client con empty strings (fails silently)
+      - Operations caen a localStorage fallback
+      App no breaks, solo funciona offline
+    examples:
+      - file: "utils/supabase.ts:24-27"
+        location: "utils/supabase.ts"
+        snippet: "console.log('[Supabase Init] URL:', supabaseUrl ? 'SET ✓' : 'MISSING ✗')"
+    prevalence: "common"
+
+related_architecture:
+  components_relevant_to_domain:
+    - component: "Login.tsx"
+      responsibility: "OAuth UI, isMockMode detection, local mode activation"
+      location: "components/Login.tsx"
+      relationship_to_domain: |
+        Entry point para autenticación
+        Detecta si credenciales existen
+        Ofrece OAuth o local mode
+
+    - component: "App.tsx (AppContent)"
+      responsibility: "Main app initialization, auth state management, OTA updates"
+      location: "App.tsx"
+      relationship_to_domain: |
+        Wraps entire app
+        Chequea local mode en startup
+        Calls supabase.auth.getSession()
+        Maneja OAuth deeplinks desde Capacitor
+        Chequea y descarga OTA updates
+
+    - component: "Supabase client"
+      responsibility: "Cloud sync operations, authentication"
+      location: "utils/supabase.ts"
+      relationship_to_domain: |
+        Inicializa con variables de entorno
+        Logs si vars están presentes
+        Crea operaciones cloud (saveCharacter, fetchCharacters, etc.)
+
+  interfaces_used_by_domain:
+    - interface: "import.meta.env"
+      location: "Vite runtime"
+      usage_pattern: |
+        import.meta.env.VITE_SUPABASE_URL
+        import.meta.env.VITE_SUPABASE_ANON_KEY
+        Accedidas en utils/supabase.ts y Login.tsx
+        Valores se transpilan EN BUILD TIME
+
+  data_flow_involving_domain: |
+    USER OPENS APP (prod APK)
+      ↓
+    App.tsx useEffect
+      ↓
+    Check localStorage df_local_mode
+      ├─ [YES] → setIsLocalMode=true, skip Supabase
+      └─ [NO] → Call supabase.auth.getSession()
+           ├─ [Session found] → setIsAuthenticated=true
+           └─ [No session] → Stay at Login screen
+      ↓
+    Login.tsx renders
+      ├─ Check isMockMode = !VITE_SUPABASE_URL
+      ├─ [YES] → Show "Local Mode" badge, hide OAuth
+      └─ [NO] → Show Google OAuth button
+      ↓
+    User taps Google Login OR Local Mode button
+      ├─ [Google] → OAuth flow via Capacitor Browser + deeplinks
+      └─ [Local] → setItem df_local_mode='true', reload
+
+  key_relationships_to_domain:
+    - from: "Login.tsx"
+      to: "App.tsx"
+      relationship: "calls onLocalModeActivated, triggers reload"
+    - from: "App.tsx"
+      to: "utils/supabase.ts"
+      relationship: "imports supabase client, calls auth methods"
+    - from: "vite.config.ts"
+      to: "utils/supabase.ts"
+      relationship: "controls how import.meta.env is populated"
+    - from: "build_ota.mjs"
+      to: "dist/"
+      relationship: "zips transpiled code WITH embedded env vars"
+
+related_technology_stack:
+  languages_used_in_domain:
+    - "TypeScript"
+    - "JavaScript (Vite, build scripts)"
+    - "JSON (config)"
+
+  frameworks_used_in_domain:
+    - name: "React 19"
+      usage_in_domain: "Login component, App component"
+    - name: "Vite"
+      usage_in_domain: "Build system, env var transpilation"
+    - name: "Supabase JS SDK"
+      usage_in_domain: "Auth (OAuth), realtime, database"
+    - name: "Capacitor 6"
+      usage_in_domain: "Mobile bridge (Browser plugin, deeplinks)"
+
+  libraries_used_in_domain:
+    - name: "@supabase/supabase-js"
+      purpose_in_domain: "Cloud authentication and database"
+    - name: "@capacitor/browser"
+      purpose_in_domain: "Open OAuth URL in system browser"
+    - name: "@capacitor/app"
+      purpose_in_domain: "Listen for deeplink callbacks from OAuth"
+    - name: "dotenv"
+      purpose_in_domain: "Load .env in build scripts (not runtime)"
+
+  external_apis_used_in_domain:
+    - name: "Supabase Auth (OAuth)"
+      integration_point: "Login.tsx signInWithOAuth()"
+    - name: "Supabase Storage (OTA)"
+      integration_point: "App.tsx checkForUpdates()"
+    - name: "Google OAuth"
+      integration_point: "Capacitor Browser deeplink callback"
+
+related_conventions:
+  naming_patterns_in_domain: |
+    - VITE_* prefix: Environment variables (Vite convention)
+    - df_* prefix: localStorage keys (df = "dungeon forge")
+    - handleX(): Event handlers (handleGoogleLogin, handleLocalModeClick)
+    - [Auth], [Login], [OAuth], [LocalMode]: Console log prefixes
+    - isMockMode, isNative, isAuthenticated: Boolean flags
+
+  structure_of_domain: |
+    Authentication layer flows:
+    1. Startup: Check local mode first, else Supabase session
+    2. Login: Detect capabilities via isMockMode, show appropriate UI
+    3. OAuth: Capacitor deeplink handler processes callback
+    4. OTA: CheckForUpdates happens in background
+
+  error_handling_in_domain: |
+    - Missing env vars: Graceful fallback to localStorage
+    - OAuth failure: Alerts user with error message
+    - Browser open failure: Logs error, disables loading
+    - Network timeouts: 15s timeout on Supabase operations
+    - Deeplink parsing: Validates tokens before reload
+
+  testing_in_domain: |
+    - scripts/validate-oauth.js: Validates OAuth configuration
+    - scripts/test-oauth-fix.mjs: Simulates OAuth timing
+    - OAuthDebugConsole.tsx: Runtime diagnostics tool
+
+  documentation_in_domain: |
+    - .env.example: Template para env vars
+    - README.md: Environment variables section
+    - CHANGELOG.md: OAuth timing fix documented
+    - Various .md docs: OAuth flow explained
+
+related_dependencies:
+  internal:
+    - component: "utils/localStorage.ts"
+      relationship_to_domain: "Used when Supabase fails (RLS or missing vars)"
+      direction: "outbound"
+    - component: "utils/oauthDiagnostics.ts"
+      relationship_to_domain: "Runtime diagnostics tool for OAuth config"
+      direction: "outbound"
+    - component: "components/OAuthDebugConsole.tsx"
+      relationship_to_domain: "Floating debug panel for troubleshooting"
+      direction: "outbound"
+
+  external:
+    - name: "Capacitor App, Browser"
+      purpose_for_domain: "Mobile deeplink handling, browser integration"
+    - name: "Supabase JS SDK"
+      purpose_for_domain: "Auth, realtime, database operations"
+
+domain_security_considerations:
+  sensitive_areas:
+    - area: "Environment variable exposure"
+      location: "import.meta.env.VITE_* hardcoded in transpiled code"
+      concern: |
+        VITE_SUPABASE_ANON_KEY is PUBLIC but should still be secured
+        - Transpiled code is sent to APK/iOS
+        - Key is visible in network traffic (HTTPS mitigates)
+        - Key is accessible to iOS/Android processes
+
+    - area: "Deeplink validation"
+      location: "App.tsx OAuth callback handler"
+      concern: |
+        App accepts ANY deeplink with tokens
+        Should validate:
+        - URL scheme matches registered deeplink
+        - Tokens are properly formatted
+        - No MITM injection of fake tokens
+
+    - area: "localStorage persistence"
+      location: "df_session, df_local_mode keys"
+      concern: |
+        Sensitive session data stored in localStorage
+        On mobile, accessible to other apps if not sandboxed
+        Should use Capacitor SecureStorage instead
+
+  authentication_patterns_in_domain: |
+    - OAuth 2.0 with Google (Supabase provider)
+    - Session stored in Supabase auth state
+    - localStorage fallback for persistence
+    - Deeplink callback for mobile OAuth redirect
+
+  authorization_patterns_in_domain: |
+    - Supabase RLS (Row Level Security) policies
+    - User ID comparison in queries
+    - localStorage operations assume single user per device
+
+  data_validation_in_domain: |
+    - OAuth URL token extraction (access_token, refresh_token search)
+    - Deeplink URL parsing (split by # or ?)
+    - Email validation in session (session.user.email check)
+
+open_questions:
+  - question: "Was VITE_SUPABASE_URL correctly set in .env during the last `npm run build` before APK deployment?"
+    context: |
+      This is the CRITICAL question.
+      If .env was missing or had empty values during build,
+      the transpiled code in APK will have empty VITE_SUPABASE_URL
+      This triggers isMockMode=true → forces local mode
+    type: "decision_blocker"
+    affects: ["authentication", "production deployment", "debugging strategy"]
+
+  - question: "Is the Capacitor deeplink 'com.tupaquete.dndcompanion://login-callback' registered in Supabase OAuth settings?"
+    context: |
+      OAuth will fail silently if deeplink is not registered.
+      User taps "Sign in with Google", but callback never reaches app.
+      Supabase needs this deeplink in:
+      Supabase Project → Authentication → Redirect URLs
+    type: "decision_blocker"
+    affects: ["oauth flow", "mobile authentication", "debugging strategy"]
+
+  - question: "What is the exact version of the APK currently installed on the device?"
+    context: |
+      Check if it's running latest OTA (v1.1.1) or older version.
+      Different versions may have different bugs.
+      Use App.tsx localStorage('app_version') to detect.
+    type: "decision_blocker"
+    affects: ["deployment strategy", "rollback decision"]
+
+  - question: "When the user opens the app, what does OAuthDebugConsole show for 'Supabase Config'?"
+    context: |
+      OAuthDebugConsole.tsx displays:
+      - URL: ✓ Set or ✗ MISSING
+      - Key: ✓ Set or ✗ MISSING
+      This reveals if env vars loaded correctly in transpiled code.
+      Click 🔍 button (bottom-right) to open debug panel.
+    type: "research"
+    affects: ["diagnosis", "next steps determination"]
+
+  - question: "Is there a .env file in the production environment where the APK was built?"
+    context: |
+      Build pipeline may not have .env configured.
+      CI/CD systems often require env vars via GitHub Secrets, not .env files.
+      Without .env, Vite treats VITE_SUPABASE_URL as undefined.
+    type: "decision_blocker"
+    affects: ["build process", "deployment strategy"]
+
+gaps:
+  - area: "Vite environment variable documentation"
+    description: |
+      No explicit docs on how Vite loads VITE_* vars
+      Understanding import.meta.env behavior is critical
+      vite.config.ts doesn't show any special env loading logic
+    impact: "decision_blocker"
+    affects: ["build process understanding", "troubleshooting"]
+
+  - area: "Build pipeline verification"
+    description: |
+      Unknown if .env was present during last build
+      Unknown if secrets are injected via GitHub Secrets or similar
+      No logs of `npm run build` output showing env vars
+    impact: "decision_blocker"
+    affects: ["production deployment verification", "rollback decision"]
+
+  - area: "Deeplink registration verification"
+    description: |
+      Unknown if deeplink is registered in Supabase OAuth settings
+      No screenshot or verification of OAuth redirect URIs config
+      This is critical for mobile OAuth to work
+    impact: "decision_blocker"
+    affects: ["oauth debugging", "mobile authentication"]
+
+  - area: "Runtime diagnostics"
+    description: |
+      No actual device logs from production APK
+      OAuthDebugConsole output not available
+      App version not confirmed
+      Network traffic inspection not performed
+    impact: "research_blocker"
+    affects: ["root cause confirmation", "next steps"]
+
+  - area: "OTA deployment history"
+    description: |
+      Unknown which OTA version is running on device
+      Unknown if latest v1.1.1 with fixes is applied
+      OTA download/update may be cached or failed silently
+    impact: "research_blocker"
+    affects: ["version management", "rollback strategy"]
