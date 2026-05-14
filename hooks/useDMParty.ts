@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { unstable_batchedUpdates } from 'react-dom';
 import { supabase, createParty, subscribeWithRetry, removeFromParty, updatePartyName, deleteParty } from '../utils/supabase';
+import { debugLogger } from '../utils/debugLogger';
 import { Character } from '../types';
 
 interface Party {
@@ -199,16 +200,33 @@ export const useDMParty = (userId: string | null) => {
       setIsRemoving(id);
       setIsLoading(true);
     });
-    const success = await removeFromParty(id);
-    unstable_batchedUpdates(() => {
-      if (success) {
-        setMembers(prev => prev.filter(c => c.id !== id));
-        console.log(`[handleKickCharacter] ${name} successfully kicked`);
-      }
-      setIsLoading(false);
-      setIsRemoving(null);
-    });
-    return success;
+    
+    try {
+      const success = await removeFromParty(id);
+      unstable_batchedUpdates(() => {
+        if (success) {
+          setMembers(prev => prev.filter(c => c.id !== id));
+          debugLogger.log('[DM-Kick]', `Character ${name} (${id}) successfully kicked`, 'info');
+          console.log(`[handleKickCharacter] ${name} successfully kicked`);
+        } else {
+          const errorMsg = `Failed to kick ${name} - removeFromParty returned false`;
+          debugLogger.log('[DM-Kick]', errorMsg, 'error', { characterId: id, characterName: name });
+          console.error(`[handleKickCharacter] ${errorMsg}`);
+        }
+        setIsLoading(false);
+        setIsRemoving(null);
+      });
+      return success;
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      debugLogger.log('[DM-Kick]', `Exception kicking ${name}: ${errorMsg}`, 'error', { characterId: id, characterName: name, error: errorMsg });
+      console.error(`[handleKickCharacter] Exception:`, err);
+      unstable_batchedUpdates(() => {
+        setIsLoading(false);
+        setIsRemoving(null);
+      });
+      return false;
+    }
   }, []);
 
   // Update party name
@@ -309,7 +327,7 @@ export const useDMParty = (userId: string | null) => {
         subscription.unsubscribe();
       };
     }
-  }, [party, isRemoving, deduplicateAndMerge]);
+  }, [party?.id, isRemoving, deduplicateAndMerge]);
 
   // Cleanup debounce timer on unmount
   useEffect(() => {

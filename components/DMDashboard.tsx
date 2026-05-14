@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Character } from '../types';
 import { useDMParty } from '../hooks/useDMParty';
 import { useInitiativeTracker } from '../hooks/useInitiativeTracker';
+import { debugLogger } from '../utils/debugLogger';
 import Controls from './DMDashboard/Controls';
 import PartySelector from './DMDashboard/PartySelector';
 import TabContent from './DMDashboard/TabContent';
@@ -61,7 +62,10 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
     if (window.confirm(`Are you sure you want to kick ${name} from your table?`)) {
       const success = await handleKickCharacter(id, name);
       if (!success) {
-        alert("Error removing character from the Nexus.");
+        debugLogger.log('[DMDashboard]', `Kick operation failed for ${name}`, 'error', { characterId: id });
+        alert(`❌ Error removing ${name} from the Nexus.\n\nOpen the Debug Panel (🔍 Diagnóstico) to see more details about what went wrong.`);
+      } else {
+        alert(`✅ ${name} has been removed from your table.`);
       }
     }
   };
