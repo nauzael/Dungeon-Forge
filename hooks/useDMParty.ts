@@ -82,10 +82,29 @@ export const useDMParty = (userId: string | null) => {
     unstable_batchedUpdates(() => {
       setIsLoading(true);
     });
-    const { data } = await supabase
-      .from('parties')
-      .select('*')
-      .eq('creator_id', userId);
+    
+    // 🔧 FIX LOCAL MODE: Detectar modo local y cargar desde localStorage
+    const isLocalMode = localStorage.getItem('df_local_mode') === 'true';
+    let data: Party[] | null = null;
+    
+    if (isLocalMode) {
+      console.log('[DM-LocalMode] Loading parties from localStorage');
+      const partiesStr = localStorage.getItem('dnd-parties-local');
+      if (partiesStr) {
+        try {
+          data = JSON.parse(partiesStr) as Party[];
+        } catch (e) {
+          console.error('[DM-LocalMode] Failed to parse localStorage parties:', e);
+        }
+      }
+    } else {
+      const result = await supabase
+        .from('parties')
+        .select('*')
+        .eq('creator_id', userId);
+      data = result.data;
+    }
+    
     unstable_batchedUpdates(() => {
       if (data) setParties(data);
       setIsLoading(false);
@@ -98,14 +117,37 @@ export const useDMParty = (userId: string | null) => {
     unstable_batchedUpdates(() => {
       setIsLoading(true);
     });
-    const { data } = await supabase
-      .from('characters')
-      .select('data')
-      .eq('party_id', partyId);
+    
+    // 🔧 FIX LOCAL MODE: Detectar modo local y cargar desde localStorage
+    const isLocalMode = localStorage.getItem('df_local_mode') === 'true';
+    let data: any = null;
+    
+    if (isLocalMode) {
+      console.log('[DM-LocalMode] Loading members from localStorage');
+      const charsStr = localStorage.getItem('dnd-characters');
+      if (charsStr) {
+        try {
+          const allChars = JSON.parse(charsStr) as Character[];
+          // Filtrar solo characters de esta party
+          data = allChars
+            .filter(c => c.party_id === partyId && !c.deleted_at)
+            .map(c => ({ data: c }));
+        } catch (e) {
+          console.error('[DM-LocalMode] Failed to parse localStorage characters:', e);
+        }
+      }
+    } else {
+      const result = await supabase
+        .from('characters')
+        .select('data')
+        .eq('party_id', partyId)
+        .is('deleted_at', null);  // Filtrar soft-deleted para evitar reaparición
+      data = result.data;
+    }
     
     unstable_batchedUpdates(() => {
       if (data) {
-        const loadedChars = data.map(item => item.data as Character);
+        const loadedChars = data.map((item: any) => item.data as Character);
         const deduplicated = removeDuplicates(loadedChars);
         console.log(`[DM] Loaded ${loadedChars.length} characters, deduplicated to ${deduplicated.length}`);
         setMembers(deduplicated);

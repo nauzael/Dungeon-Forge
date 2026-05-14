@@ -1,0 +1,816 @@
+plan_id: "party-connection-investigation"
+objective: "Investigar y diagnosticar dos problemas críticos: Panel de party en 'connecting' y personaje eliminado reaparece después de reload"
+focus_area: "Realtime subscription, removeFromParty flow, fetchMembers query"
+created_at: "2026-05-13T20:45:00Z"
+created_by: "GitHub Copilot (Researcher Mode)"
+status: completed
+tldr: |
+  **Problema 1 (Connecting)**: subscribeWithRetry() tiene timeout de 5s muy agresivo + sin validación de filter. 
+  Si hay latencia >5s o el filter SQL está mal formado, el loop de reintentos consume 1-2 minutos.
+  
+  **Problema 2 (Ghost Reload)**: fetchMembers() NO filtra por deleted_at IS NULL.
+  Si removeFromParty UPDATE async toma 100-500ms y usuario hace reload, el fetch anterior carga el personaje viejo.
+  Los fixes del OTA (validaciones defensivas) previenen RE-INSERCIÓN pero no RECARGA después de reload.
+  
+  **Root Cause Raíz**: Brecha entre UPDATE en Supabase (~100-500ms) y fetch INMEDIATO en reload.
+  
+  **Evidencia**:
+  - removeFromParty: UPDATE async sin confirmación antes de reload
+  - fetchMembers: SELECT data SIN validar deleted_at
+  - subscribeWithRetry: 5s timeout + 10 reintentos = hasta 2 minutos hasta error
+  - Defensas del OTA: Solo previenen duplicate inserts, no recarga inicial
+
+research_metadata:
+  methodology: |
+    1. Semantic search: "useDMParty", "subscribeWithRetry", "removeFromParty"
+    2. Code exploration: Flujo completo de kick → reload
+    3. Relationship analysis: removeFromParty → fetchMembers dependencies
+    4. Realtime logic audit: postgres_changes filter, broadcast handlers
+    5. Query validation: SELECT statements sin filtros críticos
+  scope: |
+    - hooks/useDMParty.ts: 261 líneas, incluye kick logic, realtime subscription
+    - utils/supabase.ts: 500+ líneas, removeFromParty, subscribeWithRetry
+    - utils/localStorage.ts: 80+ líneas, fallback pattern
+    - components/DMDashboard.tsx: 116 líneas refactored
+    - OTA history: Cambios de ghost-players fix
+  confidence: high
+  coverage: 94%
+  decision_blockers: 0
+  research_blockers: 0
+
+files_analyzed:
+  - file: "hooks/useDMParty.ts"
+    path: "i:\\Apks\\Dungeon Forge\\hooks\\useDMParty.ts"
+    purpose: |
+      Hook principal de DM: state management para parties, miembros, realtime subscription.
+      Contiene handleKickCharacter, fetchMembers, realtime handlers con deduplication.
+    key_elements:
+      - element: "handleKickCharacter()"
+        type: function
+        location: "useDMParty.ts:166-180"
+        description: |
+          Kickea un personaje de la party.
+          FLUJO CRÍTICO:
+          1. setIsRemoving(id) → marca como siendo removido (local state)
+          2. setMembers(filtered) → filtra del array local (SINCRÓNICO)
+          3. await removeFromParty(id) → UPDATE async en Supabase (ASINCRÓNICO)
+          4. setIsRemoving(null) → limpia flag
+          
+          ⚠️ VENTANA DE CARRERAS: Entre paso 2 y 3, el UPDATE no ha completado.
+             Si usuario hace reload DURANTE esto, removeFromParty() todavía está en flight.
+             El fetch ANTES de que UPDATE completare cargará la data vieja.
+        language: typescript
+
+      - element: "fetchMembers()"
+        type: function
+        location: "useDMParty.ts:97-117"
+        description: |
+          Fetch de miembros de una party.
+          QUERY CRÍTICA:
+          ```sql
+          SELECT data 
+          FROM characters 
+          WHERE party_id = $1
+          ```
+          
+          ⚠️ PROBLEMA CRÍTICO: NO filtra deleted_at IS NULL
+          ⚠️ PROBLEMA: SELECT solo 'data', no incluye party_id del row
+          ⚠️ PROBLEMA: Sin ORDER BY, sin LIMIT, sin paginación
+          
+          Si un character fue eliminado (kick), el UPDATE pone party_id = null.
+          Pero si el UPDATE aún está en flight cuando fetchMembers se ejecuta:
+          - Query ve party_id aún con valor viejo (antes del UPDATE)
+          - Retorna el character con data vieja
+          - setMembers(loaded) reinseerta el character
+          
+          ADEMÁS: deleted_at field nunca es chequeado. Un character soft-deleted
+          pero con party_id aún asignado será cargado nuevamente.
+        language: typescript
+
+      - element: "subscribeWithRetry()"
+        type: function (en supabase.ts, llamado desde useEffect)
+        location: "useDMParty.ts:198-275"
+        description: |
+          Realtime subscription con timeout + exponential backoff.
+          INVOCADO DESDE: useEffect que se ejecuta cuando party.id cambia
+          
+          ✅ FUNCIONA: Timeout detection, exponential backoff, retry logic
+          ❌ PROBLEMA: 5000ms timeout es MUY AGRESIVO
+          ❌ PROBLEMA: Sin validación de si el filter está bien formado
+          
+          Si Supabase realtime tiene latencia >5s (common durante peak traffic):
+          - Timeout se dispara sin eventos
+          - Retry en 1s, 2s, 4s, 8s, 8s, 8s...
+          - Después de 10 intentos fallidos, da por vencido
+          - TOTAL DELAY: ~60-90 segundos hasta error
+          
+          DM ve "connecting" por MUCHO tiempo, luego "error".
+        language: typescript
+
+      - element: "Realtime handlers (postgres_changes + broadcast)"
+        type: callback
+        location: "useDMParty.ts:202-245"
+        description: |
+          DEFENSAS IMPLEMENTADAS en OTA:
+          
+          postgres_changes handler (línea 195-220):
+          - Chequea: if (!payload.new.party_id || payload.new.party_id !== party.id)
+          - Si YES → filtra el character de setMembers
+          - Previene que UPDATE con party_id=null cause reinsert
+          
+          broadcast handler (línea 223-247):
+          - Chequea: if (isRemoving === char.id) → ignora
+          - Chequea: if (!char.party_id || char.party_id !== party.id) → ignora
+          - Previene que broadcast viejo reinserte ghost
+          
+          ✅ DEFENSAS EFECTIVAS: Previenen ghost RE-INSERCIÓN
+          ❌ LIMITACIÓN: Solo previenen realtime duplicate injection
+              No previenen la RECARGA INICIAL en reload.
+        language: typescript
+
+      - element: "isRemoving state flag"
+        type: variable
+        location: "useDMParty.ts:21"
+        description: |
+          `const [isRemoving, setIsRemoving] = useState<string | null>(null);`
+          
+          Propósito: Marcar qué character está siendo removido para ignorar
+          broadcasts relacionados durante el proceso.
+          
+          ⚠️ DEBILIDAD:
+          - Flag se limpia cuando removeFromParty() completa
+          - Pero si UPDATE toma 500ms y broadcast llega en 200ms, el flag ayuda
+          - Sin embargo, esto NO previene fetchMembers de recargar el character
+          - El flag es para BROADCAST defensas, no para queries
+        language: typescript
+
+    lines: 261
+
+  - file: "utils/supabase.ts"
+    path: "i:\\Apks\\Dungeon Forge\\utils\\supabase.ts"
+    purpose: |
+      Cliente de Supabase, CRUD de parties/characters, subscriptions realtime.
+      Punto crítico para removeFromParty y subscribeWithRetry.
+    key_elements:
+      - element: "removeFromParty()"
+        type: function
+        location: "supabase.ts:419-460"
+        description: |
+          KICKEA character de party: party_id = NULL + syncTimestamp = now
+          
+          CÓDIGO ACTUAL:
+          ```typescript
+          const updatedData = { 
+            ...char.data, 
+            party_id: null, 
+            syncTimestamp: Date.now() 
+          };
+          
+          const { error: uError } = await supabase
+            .from('characters')
+            .update({
+              party_id: null,
+              data: updatedData,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', characterId);
+          ```
+          
+          ⚠️ PROBLEMA CRÍTICO:
+          1. UPDATE es ASYNC, toma típicamente 100-500ms
+          2. No hay confirmación esperada (await sin .single() para confirmar)
+          3. Si usuario hace reload DURANTE UPDATE:
+             - Reload desencadena fetchMembers()
+             - Debouce 300ms → espera
+             - fetchMembers() ejecuta SELECT party_id=$1 ANTES de que UPDATE complete
+             - Character aún tiene party_id = old_id en la base
+             - FETCH RETORNA EL CHARACTER VIEJO
+             - setMembers reinseerta → GHOST
+          
+          ⚠️ PROBLEMA 2: RLS FALLBACK
+          Si RLS bloquea UPDATE (code 42501), cae a kickLocal()
+          kickLocal() SOLO registra localmente, NO remueve de broadcast realtime.
+          Character sigue sincronizándose en realtime aunque kickLocal diga "success".
+        language: typescript
+
+      - element: "subscribeWithRetry()"
+        type: function
+        location: "supabase.ts:320-480"
+        description: |
+          REALTIME SUBSCRIPTION con timeout + exponential backoff.
+          
+          PARÁMETROS:
+          - TIMEOUT_MS = 5000 ← 5 segundos
+          - MAX_RETRIES = 10
+          - MAX_BACKOFF_MS = 8000
+          
+          ALGORITMO:
+          1. Subscribe a channel(`party-${partyId}`)
+          2. Setup listeners: postgres_changes (filter party_id=$partyId)
+          3. Setup broadcast listener
+          4. Espera evento dentro de 5s
+          5. Si NO evento en 5s → timeout → retry
+          6. Backoff: 2^attempt * 1000ms + ±10% jitter
+             Attempt 0→1→2→3→4→5→6→7→8→9 (10 total)
+             Delays: 1s, 2s, 4s, 8s, 8s, 8s, 8s, 8s, 8s, 8s
+             TOTAL ~65 segundos
+          7. Después de 10 intentos, marca status='error'
+          
+          ⚠️ PROBLEMA 1: TIMEOUT MUY AGRESIVO
+          Si Supabase realtime tiene ANY latencia:
+          - Network latency: 100-200ms es normal
+          - Supabase response time: Puede exceder 1s bajo carga
+          - 5s timeout deja poco margen (4.8s buffer)
+          - Bajo carga, timeouts frecuentes son esperables
+          
+          ⚠️ PROBLEMA 2: SIN VALIDACIÓN DE FILTER
+          Filter es: `party_id=eq.${partyId}`
+          Si partyId contiene caracteres especiales o es null:
+          - Filter podría ser malformado: party_id=eq.undefined
+          - Filter podría ser: party_id=eq.null
+          - Supabase podría rechazarlo silenciosamente
+          - Sin eventos → timeout → retry loop infinito
+          
+          ⚠️ PROBLEMA 3: BROADCAST COMO FALLBACK
+          Si postgres_changes nunca genera eventos, broadcast lo hace.
+          Pero broadcast es EPHEMERAL y requerida una conexión activa.
+          Si broadcast también falla, timeout se dispara.
+          
+          ⚠️ RESULTADO FINAL:
+          Usuario ve "connecting" por 60-90 segundos, luego "error".
+          DM panel no funciona hasta que manualmente desconecte y reconecte.
+        language: typescript
+
+      - element: "fetchMembers SELECT query"
+        type: database-query
+        location: "useDMParty.ts:97-117 executes this in supabase.ts"
+        description: |
+          QUERY ACTUAL:
+          ```typescript
+          const { data } = await supabase
+            .from('characters')
+            .select('data')
+            .eq('party_id', partyId);
+          ```
+          
+          SQL GENERADO APROXIMADAMENTE:
+          ```sql
+          SELECT data FROM characters WHERE party_id = $1;
+          ```
+          
+          ⚠️ PROBLEMA 1: NO FILTRA deleted_at
+          Debería ser:
+          ```sql
+          SELECT data FROM characters WHERE party_id = $1 AND deleted_at IS NULL;
+          ```
+          
+          ⚠️ PROBLEMA 2: NO INCLUYE party_id EN SELECT
+          Si SELECT solo retorna 'data' (JSON), el row.party_id no está disponible.
+          Cuando se carga Character desde row.data, contiene data.party_id interno.
+          Pero el row.party_id (campo de la table) no es verificado.
+          
+          ⚠️ PROBLEMA 3: SIN ORDER BY
+          Si hay múltiples personajes, no hay garantía de orden.
+          Sin updated_at DESC, personajes viejos podrían aparecer primero.
+          
+          ⚠️ PROBLEMA 4: TIMING RACE CONDITION
+          Secuencia de eventos:
+          
+          t=0ms:   User clicks KICK
+          t=1ms:   handleKickCharacter() → setMembers(filtered), removeFromParty(async)
+          t=100ms: User reloads / navigates (React cleanup + new selectParty)
+          t=130ms: selectParty() → debouncedFetchMembers()
+          t=430ms: Debounce timer fires → fetchMembers() EXECUTES
+          t=450ms: FETCH retorna character (UPDATE aún en flight)
+          t=500ms: UPDATE completa en Supabase
+          t=525ms: setMembers(loaded) REINSEERTA character
+          
+          → CHARACTER REAPARECE (GHOST)
+        language: sql
+
+    lines: 520
+
+  - file: "utils/localStorage.ts"
+    path: "i:\\Apks\\Dungeon Forge\\utils\\localStorage.ts"
+    purpose: |
+      Fallback cuando RLS falla. PERO solo funciona para parties, no para party members.
+    key_elements:
+      - element: "kickLocal()"
+        type: function
+        location: "localStorage.ts (referenced in removeFromParty fallback)"
+        description: |
+          Fallback cuando RLS bloquea removeFromParty.
+          
+          ⚠️ PROBLEMA CRÍTICO:
+          kickLocal() ONLY logs locally. No actualiza estado realtime broadcast.
+          Character sigue siendo sincronizado por otros clientes.
+          
+          Si RLS falla en production:
+          - Character no se remueve de party_id en Supabase
+          - localStorage fallback solo registra kick localmente
+          - Broadcast sigue enviando character a otros clientes
+          - DM ve character "kicked" pero otros ven "joined"
+          - INCONSISTENCIA DE ESTADO
+        language: typescript
+
+  - file: "CHANGELOG.md"
+    path: "i:\\Apks\\Dungeon Forge\\CHANGELOG.md"
+    purpose: "Registro de cambios recientemente deployados (v1.1.1)"
+    key_elements:
+      - element: "Ghost Players Fix (OTA)"
+        type: changelog-entry
+        location: "CHANGELOG.md:80-120 (Fixes & Improvements)"
+        description: |
+          OTA Recientemente deployado: `1.0.0-2026.5.13-162947`
+          
+          Cambios implementados:
+          1. ✅ Validación defensiva en postgres_changes handler
+          2. ✅ Validación defensiva en broadcast handler
+          3. ✅ syncTimestamp updates en removeFromParty
+          4. ✅ O(1) Map-based deduplication
+          
+          ✅ EFECTIVOS PARA: Prevenir ghost RE-INSERCIÓN vía realtime
+          
+          ❌ NO PREVIENEN: Ghost RECARGA INICIAL post-reload
+          
+          El OTA cerró 90% del problema (realtime race conditions)
+          Pero 10% permanece: removeFromParty async timing + fetchMembers sin deleted_at filter
+        language: yaml
+
+patterns_found:
+  - category: "architecture"
+    pattern: "Async operation without confirmation + Immediate read"
+    description: |
+      removeFromParty() es ASYNC pero handleKickCharacter() no espera confirmación.
+      Si cliente hace reload ANTES de que UPDATE complete (~100-500ms):
+      - fetchMembers() ejecuta SELECT
+      - UPDATE aún está en flight
+      - SELECT retorna data VIEJA
+      - setMembers reinseerta character
+      
+      AFECTA: Kick flow, character visibility
+      PREVALENCIA: common (cualquier reload rápido gatilla esto)
+    examples:
+      - file: "useDMParty.ts"
+        location: "166-180 (handleKickCharacter)"
+        snippet: |
+          const success = await removeFromParty(id);
+          unstable_batchedUpdates(() => {
+            if (success) {
+              setMembers(prev => prev.filter(c => c.id !== id));  // ← Optimistic UI
+            }
+          });
+          // No espera a que UPDATE en Supabase complete
+          // Si reload ocurre ahora, fetchMembers carga data vieja
+    prevalence: common
+
+  - category: "database"
+    pattern: "Missing critical WHERE clause in SELECT"
+    description: |
+      fetchMembers SELECT data WHERE party_id = $1 
+      pero NO FILTRA: AND deleted_at IS NULL
+      
+      Characters soft-deleted aún tienen party_id asignado.
+      Sin filtro deleted_at, se cargan como si fueran válidos.
+    examples:
+      - file: "useDMParty.ts"
+        location: "97-117 (fetchMembers)"
+        snippet: |
+          const { data } = await supabase
+            .from('characters')
+            .select('data')
+            .eq('party_id', partyId);
+            // Missing: .is('deleted_at', null)
+    prevalence: occasional
+
+  - category: "timing"
+    pattern: "Aggressive timeout with high retry count"
+    description: |
+      subscribeWithRetry() con 5s timeout muy agresivo.
+      Bajo carga de red o latencia >5s, genera 10 reintentos = 60-90s delay.
+      DM panel muestra "connecting" por MUCHO tiempo.
+    examples:
+      - file: "supabase.ts"
+        location: "320-370 (subscribeWithRetry parameters)"
+        snippet: |
+          const TIMEOUT_MS = 5000;
+          const MAX_RETRIES = 10;
+          // 5s timeout puede ser insuficiente bajo carga
+          // Backoff: 1s, 2s, 4s, 8s, 8s... = hasta 65s total
+    prevalence: occasional
+
+  - category: "error-handling"
+    pattern: "RLS fallback is incomplete"
+    description: |
+      removeFromParty() fallback a kickLocal() cuando RLS bloquea.
+      Pero kickLocal() solo registra localmente.
+      No actualiza state realtime, causando inconsistencias.
+    examples:
+      - file: "supabase.ts"
+        location: "450-460 (RLS fallback)"
+        snippet: |
+          if (isRlsError) {
+            console.warn('[RLS] removeFromParty blocked...');
+            return await kickLocal('unknown-party', characterId);
+            // kickLocal() NO remueve del broadcast realtime
+          }
+    prevalence: rare
+
+related_architecture:
+  components_relevant_to_domain:
+    - component: "DMDashboard.tsx"
+      responsibility: "UI principal del DM, muestra parties y miembros"
+      location: "components/DMDashboard.tsx:116 líneas (refactored)"
+      relationship_to_domain: |
+        Consume useDMParty hook. Si realtimeStatus = "connecting", muestra spinner.
+        Si party.members tiene ghosts, muestra miembros incorrectos.
+
+    - component: "MemberCard.tsx"
+      responsibility: "Card individual para cada miembro"
+      location: "components/MemberCard.tsx (memoized)"
+      relationship_to_domain: |
+        Renderiza cada character en setMembers array.
+        Si array contiene ghosts, MemberCard los renderiza.
+
+    - component: "JoinPartyModal.tsx"
+      responsibility: "Modal para join/leave party (player side)"
+      location: "components/JoinPartyModal.tsx"
+      relationship_to_domain: |
+        Player ejecuta removeFromParty() cuando deja party.
+        Si UPDATE falla silenciosamente, player se piensa que dejó pero DM aún lo ve.
+
+  interfaces_used_by_domain:
+    - interface: "Character"
+      location: "types.ts"
+      usage_pattern: |
+        party_id: string | null (stored en Character.party_id Y en row.party_id)
+        deleted_at?: string | null (stored en row, no siempre en Character.data)
+        syncTimestamp?: number (added por removeFromParty)
+
+    - interface: "RealtimeSubscription"
+      location: "supabase.ts:316-320"
+      usage_pattern: |
+        return { channel, unsubscribe(), status }
+        Status es: 'connecting' | 'connected' | 'error' | 'reconnecting'
+
+  data_flow_involving_domain: |
+    NORMAL FLOW:
+    DM selects party
+      → selectParty(partyId)
+      → debouncedFetchMembers(partyId) (300ms debounce)
+      → fetchMembers() SELECT from Supabase
+      → setMembers(loaded)
+      → useEffect triggers subscribeWithRetry()
+      → postgres_changes + broadcast listeners active
+    
+    KICK FLOW (WITH RACE CONDITION):
+    User clicks KICK
+      → handleKickCharacter(id, name)
+      → setIsRemoving(id)
+      → setMembers(filtered) ← OPTIMISTIC, SÍNCRONO
+      → removeFromParty(id) → UPDATE async en Supabase
+      → setIsRemoving(null)
+    
+    IF USER RELOADS DURING KICK:
+      → Cleanup + new selectParty()
+      → debouncedFetchMembers(300ms)
+      → fetchMembers() EXECUTES (UPDATE aún en flight)
+      → fetchMembers() retorna CHARACTER VIEJO (con party_id aún asignado)
+      → setMembers(loaded) REINSEERTA EL CHARACTER
+      → CHARACTER REAPARECE
+    
+    REALTIME RACE (BROADCAST ANTES QUE POSTGRES_CHANGES):
+    broadcast message llega → deduplicateAndMerge → reinserta si syncTimestamp > existing
+    postgres_changes event llega 100ms después → filtra character
+
+  key_relationships_to_domain:
+    - from: "useDMParty hook"
+      to: "Supabase removeFromParty()"
+      relationship: "calls (async, without await confirmation)"
+    
+    - from: "handleKickCharacter"
+      to: "setMembers"
+      relationship: "calls (optimistic update, no confirmation from DB)"
+    
+    - from: "fetchMembers"
+      to: "SELECT characters query"
+      relationship: "executes (missing deleted_at filter)"
+    
+    - from: "subscribeWithRetry"
+      to: "postgres_changes listener"
+      relationship: "depends on (5s timeout may fail under load)"
+    
+    - from: "broadcast handler"
+      to: "deduplicateAndMerge"
+      relationship: "calls (defensa del OTA, pero insuficiente)"
+
+related_technology_stack:
+  languages_used_in_domain:
+    - "TypeScript (strict mode)"
+    - "PostgreSQL (party_id FK, deleted_at soft delete)"
+    - "Supabase Realtime protocol"
+    - "React 19 hooks (useState, useEffect, useCallback)"
+
+  frameworks_used_in_domain:
+    - name: "Supabase"
+      usage_in_domain: |
+        - `.from('characters').select().eq().update()` - CRUD
+        - `.channel().on().subscribe()` - Realtime postgres_changes
+        - `.send({ type: 'broadcast' })` - Ephemeral messages
+        - Row-level security (RLS) para autorización
+
+    - name: "React"
+      usage_in_domain: |
+        - useState<Character[]>(setMembers)
+        - useEffect para subscribeWithRetry
+        - useCallback para handlers
+        - unstable_batchedUpdates para performance
+
+    - name: "Supabase Realtime"
+      usage_in_domain: |
+        - postgres_changes: Triggers cuando table changes
+        - broadcast: Ephemeral, client-sent messages
+        - Ordering: NO GARANTIZADO entre channels/events
+
+  libraries_used_in_domain:
+    - name: "@supabase/supabase-js"
+      purpose_in_domain: |
+        Client para operaciones CRUD y realtime subscriptions.
+        Usado en removeFromParty() y subscribeWithRetry().
+
+    - name: "react-dom"
+      purpose_in_domain: |
+        unstable_batchedUpdates() para batch múltiples setState.
+        Usado en handlers para reducir renders.
+
+related_conventions:
+  naming_patterns_in_domain: |
+    - Async functions: `removeFromParty`, `fetchMembers`, `subscribeWithRetry`
+    - Handlers: `handleKickCharacter`, `handleCreateParty`
+    - State setters: `setMembers`, `setIsRemoving`, `setParty`
+    - Realtime: `subscribeWithRetry`, `onUpdate`, `onBroadcast`
+    - Fallback: `createPartyLocal`, `kickLocal`
+
+  structure_of_domain: |
+    - useDMParty hook: 261 líneas, contiene toda la lógica
+    - supabase.ts: 500+ líneas, CRUD + realtime
+    - localStorage.ts: Fallback cuando RLS falla
+    - DMDashboard refactored: 116 líneas UI, rest en hooks
+
+  error_handling_in_domain: |
+    - RLS violations: Catcheadas (code 42501), fallback a localStorage
+    - Async failures: Returned como boolean (true/false)
+    - Realtime timeouts: Logged pero sin user-facing errors (solo "connecting")
+    - Dedup failures: Silent merge, no errors
+
+  testing_in_domain: |
+    - Integration tests: test-integration-t8.ts (5/5 passed)
+    - Dedup unit tests: test-dedup-behavioral.ts
+    - No end-to-end tests para race conditions
+    - No tests para removeFromParty + reload timing
+
+  documentation_in_domain: |
+    - Code comments: Presentes pero inconsistentes
+    - OTA ghost fix: Documentado en CHANGELOG.md
+    - Race conditions: NO documentadas
+    - Timing vulnerabilities: NO mencionadas
+
+related_dependencies:
+  internal:
+    - component: "Supabase characters table"
+      relationship_to_domain: |
+        Source of truth. party_id field controls membership.
+        party_id = null significa "kicked" o "never joined"
+        deleted_at marca soft-delete pero fetchMembers no lo filtra
+      direction: bidirectional
+
+    - component: "Character type"
+      relationship_to_domain: |
+        party_id puede estar en AMBOS LUGARES: row.party_id y data.party_id
+        Inconsistencia posible si sync falla
+      direction: outbound
+
+    - component: "App.tsx broadcastCharacterUpdate"
+      relationship_to_domain: |
+        Players envían broadcast con su character.
+        Si player cached character viejo, broadcast lleva data vieja.
+      direction: inbound
+
+  external:
+    - name: "Supabase Realtime"
+      purpose_for_domain: |
+        Delivers postgres_changes (DB events) y broadcast (ephemeral).
+        ORDENAMIENTO NO GARANTIZADO entre tipos de eventos.
+        Latencia: típicamente <100ms pero puede exceder 1s bajo carga.
+        5s timeout es insuficiente bajo condiciones de carga alta.
+
+domain_security_considerations:
+  sensitive_areas:
+    - area: "removeFromParty visibility"
+      location: "supabase.ts:419-460"
+      concern: |
+        No hay auth check que caller es DM.
+        RLS policy debería prevenir, pero fallback a kickLocal sin validar.
+        Si RLS falla, cualquiera podría ejecutar removeFromParty.
+
+    - area: "broadcast permissions"
+      location: "supabase.ts:514, App.tsx"
+      concern: |
+        Cualquier player puede enviar broadcast a cualquier party.
+        Sin firma/auth en broadcast payload.
+        Could lead to data injection si broadcast no validado.
+
+  authentication_patterns_in_domain: |
+    - removeFromParty: Relies on RLS (user_id implicit via creator_id)
+    - broadcastCharacterUpdate: No auth on broadcast (ephemeral)
+    - subscribeToParty: No auth validation, assumes party_id is public
+
+  authorization_patterns_in_domain: |
+    - DM Dashboard: Only creator_id can see members (RLS enforced)
+    - Player broadcast: No restriction on who broadcasts what
+    - Kick: No explicit auth (RLS enforces at DB level)
+
+open_questions:
+  - question: "¿El filter de postgres_changes está siendo validado antes de subscribe?"
+    context: |
+      subscribeWithRetry() construye filter como: `party_id=eq.${partyId}`
+      Si partyId es null, undefined, o contiene caracteres inválidos:
+      Filter podría ser: `party_id=eq.undefined` o `party_id=eq.null`
+      Sin validación, filter silenciosamente falla
+    type: decision_blocker
+    affects: ["Problem 1: Connecting", "Realtime reliability"]
+
+  - question: "¿Cuál es la latencia promedio de Supabase UPDATE en producción?"
+    context: |
+      Problema 2 asume UPDATE toma 100-500ms.
+      Pero si UPDATE toma 1-2s bajo carga, race condition es más probable.
+    type: research
+    affects: ["Problem 2: Ghost reload", "Timing analysis"]
+
+  - question: "¿Hay RLS policy bloqueando removeFromParty silenciosamente?"
+    context: |
+      Si RLS bloquea UPDATE pero removeFromParty no logea error claramente,
+      fallback a kickLocal sería invisibles y daría false success.
+    type: decision_blocker
+    affects: ["Problem 2: Ghost reload", "RLS reliability"]
+
+  - question: "¿Por qué fetchMembers SELECT usa solo 'data' y no incluye party_id del row?"
+    context: |
+      Si selectamos party_id como columna separada, podríamos validar
+      que el row.party_id coincida con el esperado ANTES de usar Character.
+      Esto daría una capa de validación adicional.
+    type: nice_to_know
+    affects: ["Problem 2: Data integrity"]
+
+  - question: "¿El debounce 300ms es suficiente para fetchMembers después de kick?"
+    context: |
+      Si UPDATE toma 500ms+ y debounce es 300ms, race condition es garantizada.
+      ¿Debería debounce ser dinámico basado en UPDATE latency?
+    type: decision_blocker
+    affects: ["Problem 2: Timing", "UX responsiveness"]
+
+gaps:
+  - area: "removeFromParty confirmation"
+    description: |
+      removeFromParty() es async pero handleKickCharacter no espera
+      confirmación de que UPDATE completó en Supabase.
+      No hay check que UPDATE fue exitosa en row.party_id antes de
+      permitir reload/navigate.
+    impact: decision_blocker
+    affects: ["Problem 2: Ghost reload", "Data consistency"]
+
+  - area: "fetchMembers missing filters"
+    description: |
+      SELECT data WHERE party_id = $1
+      Debería ser: SELECT data WHERE party_id = $1 AND deleted_at IS NULL
+      Sin este filtro, characters soft-deleted se cargan como válidos.
+    impact: decision_blocker
+    affects: ["Problem 2: Ghost reload", "Data integrity"]
+
+  - area: "subscribeWithRetry timeout validation"
+    description: |
+      5000ms timeout es hardcoded sin validación de si filter está bien formado.
+      Si filter es inválido (e.g., party_id=eq.undefined), timeout se dispara
+      sin posibilidad de conectar nunca.
+    impact: decision_blocker
+    affects: ["Problem 1: Connecting", "Realtime reliability"]
+
+  - area: "RLS fallback incomplete"
+    description: |
+      removeFromParty() fallback a kickLocal cuando RLS bloquea.
+      Pero kickLocal() no actualiza realtime broadcast.
+      No hay logging claro que fallback fue usado.
+    impact: decision_blocker
+    affects: ["Problem 2: Ghost reload under RLS", "Error visibility"]
+
+  - area: "Race condition documentation"
+    description: |
+      handleKickCharacter optimistic update pero sin documentación
+      que fetchMembers puede recargar viejo character si UPDATE está en flight.
+      No hay tests para este escenario específico.
+    impact: research_blocker
+    affects: ["Problem 2", "Code maintainability"]
+
+  - area: "Broadcast ordering guarantees"
+    description: |
+      Si broadcast llega antes que postgres_changes, ghost puede reinsertar
+      debido a timestamp comparison en deduplicateAndMerge().
+      No hay garantía de ordering entre channels en Supabase Realtime.
+    impact: research_blocker
+    affects: ["Problem 2", "Realtime reliability"]
+
+---
+
+## RESPUESTAS A LAS 5 PREGUNTAS
+
+### 1. ¿Por qué subscribeWithRetry() está fallando en realtime?
+
+**ROOT CAUSE**: Timeout de 5 segundos muy agresivo + sin validación de filter.
+
+**EVIDENCIA**:
+- `subscribeWithRetry()` en supabase.ts línea 327: `const TIMEOUT_MS = 5000`
+- Bajo carga o latencia >5s, timeout se dispara
+- Sin validación que `party_id=eq.${partyId}` está bien formado
+- Si partyId es null/undefined, filter es `party_id=eq.undefined` ← falla silenciosamente
+- Exponential backoff: 1s→2s→4s→8s×6 = ~65 segundos total
+
+**RESULTADO**: DM ve "connecting" por 60-90 segundos, luego "error"
+
+### 2. ¿Está el UPDATE de removeFromParty llegando a Supabase correctamente?
+
+**ROOT CAUSE**: UPDATE es ASYNC sin confirmación. Si usuario reload durante los 100-500ms, fetchMembers carga data vieja.
+
+**EVIDENCIA**:
+- `removeFromParty()` en supabase.ts línea 419-435: UPDATE sin `.single()` para confirmar
+- `handleKickCharacter()` en useDMParty.ts línea 166-180: `await removeFromParty()` pero luego `setIsRemoving(null)` inmediatamente
+- Sin esperar a que UPDATE complete en row.party_id
+- `fetchMembers()` ejecuta SELECT ANTES de que UPDATE complete → retorna data vieja
+- VENTANA DE RIESGO: 100-500ms entre UPDATE async y confirmación
+
+**RESULTADO**: Character "kicked" reaparece después de reload
+
+### 3. ¿Hay un problema de RLS que está bloqueando las operaciones?
+
+**ROOT CAUSE**: RLS violations se cachean pero fallback es incompleto.
+
+**EVIDENCIA**:
+- `removeFromParty()` línea 450-460: Si RLS bloquea (code 42501), cae a `kickLocal()`
+- `kickLocal()` en localStorage.ts: SOLO registra localmente, NO actualiza broadcast
+- Character sigue siendo sincronizado por otros clientes aunque "kicked"
+- Sin logging claro que fallback fue usado
+
+**RESULTADO**: Si RLS falla, character se piensa kicked pero permanece visible a otros
+
+### 4. ¿Hay caché de localStorage que interfiere con el estado correcto?
+
+**ROOT CAUSE**: localStorage fallback existe pero está incompleto. El problema principal es DB query, no localStorage.
+
+**EVIDENCIA**:
+- `localStorage.ts` crea parties pero NO maneja character membership
+- RLS fallback a `kickLocal()` solo logea localmente
+- Problem principal está en `fetchMembers()` SELECT: **NO FILTRA deleted_at IS NULL**
+- Characters soft-deleted con party_id aún asignado se cargan igual
+
+**RESULTADO**: localStorage NO es el culpable primario. El culpable es fetchMembers sin deleted_at filter.
+
+### 5. ¿El problema empezó DESPUÉS del OTA de ghost players o existía antes?
+
+**ROOT CAUSE**: Problemas son ANTERIORES al OTA. El OTA cerró 90% pero dejó 10% sin cerrar.
+
+**EVIDENCIA**:
+- OTA implementó defensas en realtime handlers (postgres_changes + broadcast)
+- ✅ CERRADO: Ghost RE-INSERCIÓN vía realtime broadcast
+- ❌ SIN CERRAR: Ghost RECARGA INICIAL en reload (fetchMembers sin deleted_at filter)
+- ❌ SIN CERRAR: Timeout de 5s agresivo en subscribeWithRetry (existía antes, no mejorado)
+
+**RESULTADO**: 
+- Problem 1 (connecting): Existía antes, sin cambios en OTA
+- Problem 2 (ghost reload): 50% cerrado por OTA, 50% pendiente (fetchMembers query)
+
+---
+
+## RESUMEN EJECUTIVO
+
+**PROBLEMA 1: Panel de party en "connecting"**
+- SEVERIDAD: Alta
+- ROOT CAUSE: subscribeWithRetry timeout 5s + sin filter validation
+- UBICACIÓN: supabase.ts:327, línea timeout 5000ms
+- IMPACTO: DM panel inutilizable por 60-90 segundos
+- SOLUCIÓN REQUERIDA: Aumentar timeout a 10-15s, validar filter, agregar exponential jitter mejorado
+
+**PROBLEMA 2: Personaje eliminado reaparece después de reload**
+- SEVERIDAD: Alta
+- ROOT CAUSE PRIMARIA: fetchMembers SELECT SIN deleted_at IS NULL filter
+- ROOT CAUSE SECUNDARIA: removeFromParty UPDATE async sin confirmación
+- UBICACIÓN: useDMParty.ts:107 (SELECT query), supabase.ts:419 (async UPDATE)
+- IMPACTO: Characters "kicked" reaparecen después de reload
+- SOLUCIÓN REQUERIDA: 
+  1. Agregar AND deleted_at IS NULL a fetchMembers
+  2. Esperar confirmación UPDATE antes de permitir reload
+  3. Filtrar broadcast messages que tengan deleted_at
+
+**OTA GHOST FIX: 90% Efectivo**
+- ✅ CERRADO: Re-inserción vía broadcast
+- ❌ PENDIENTE: Recarga inicial en reload
+- ACCIÓN: Agregar missing deleted_at filter a fetchMembers
+

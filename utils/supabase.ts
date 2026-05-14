@@ -242,7 +242,21 @@ export const subscribeWithRetry = (
   onBroadcast?: (payload: unknown) => void,
   onStatusChange?: (status: 'connecting' | 'connected' | 'error' | 'reconnecting') => void
 ): RealtimeSubscription => {
-  const TIMEOUT_MS = 5000;
+  // 🔧 FIX LOCAL MODE: Si estamos en local mode, retornar subscription noop
+  const isLocalMode = localStorage.getItem('df_local_mode') === 'true';
+  if (isLocalMode) {
+    console.log('[Realtime] Local mode detected - skipping realtime subscription');
+    // Callback inicial para indicar "connected" en modo local
+    onStatusChange?.('connected');
+    return {
+      unsubscribe: async () => {
+        console.log('[Realtime] Local mode - no subscription to clean up');
+      },
+      status: 'connected',
+    };
+  }
+  
+  const TIMEOUT_MS = 15000;  // Aumentado de 5s a 15s para conexiones lentas
   const MAX_RETRIES = 10;
   const MAX_BACKOFF_MS = 8000;
   
@@ -429,14 +443,19 @@ export const removeFromParty = async (characterId: string) => {
     // ✅ FIX: Actualizar syncTimestamp cuando se cambia party_id
     const updatedData = { ...char.data, party_id: null, syncTimestamp: Date.now() };
 
-    const { error: uError } = await supabase
+    const { data: updated, error: uError } = await supabase
       .from('characters')
       .update({
         party_id: null,
         data: updatedData,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', characterId);
+      .eq('id', characterId)
+      .select();  // Esperar confirmación UPDATE
+    
+    if (!updated || updated.length === 0) {
+      throw new Error('UPDATE confirmation failed - character not removed from party');
+    }
 
     if (uError) throw uError;
     console.log(`[removeFromParty] Character ${characterId} kicked, syncTimestamp updated to ${updatedData.syncTimestamp}`);
