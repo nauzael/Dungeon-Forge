@@ -6,6 +6,7 @@ import {
   updatePartyLocal,
   kickLocal,
 } from './localStorage';
+import { debugLogger } from './debugLogger';
 
 const TIMEOUT_MS = 15000;
 
@@ -245,16 +246,20 @@ export const subscribeWithRetry = (
   // 🔧 FIX LOCAL MODE: Si estamos en local mode, retornar subscription noop
   const isLocalMode = localStorage.getItem('df_local_mode') === 'true';
   if (isLocalMode) {
+    debugLogger.log('[Realtime]', `Local mode detected - skipping realtime subscription for party ${partyId}`, 'info');
     console.log('[Realtime] Local mode detected - skipping realtime subscription');
     // Callback inicial para indicar "connected" en modo local
     onStatusChange?.('connected');
     return {
       unsubscribe: async () => {
+        debugLogger.log('[Realtime]', 'Local mode - no subscription to clean up', 'info');
         console.log('[Realtime] Local mode - no subscription to clean up');
       },
       status: 'connected',
     };
   }
+  
+  debugLogger.log('[Realtime]', `Starting subscription to party ${partyId}`, 'info', { timeout: 15000, maxRetries: 10 });
   
   const TIMEOUT_MS = 15000;  // Aumentado de 5s a 15s para conexiones lentas
   const MAX_RETRIES = 10;
@@ -293,9 +298,11 @@ export const subscribeWithRetry = (
     if (attempt === 0) {
       status = 'connecting';
       onStatusChange?.('connecting');
+      debugLogger.log('[Realtime]', `Attempting to subscribe to party ${partyId} (attempt ${attempt + 1}/${MAX_RETRIES})`, 'info');
     } else {
       status = 'reconnecting';
       onStatusChange?.('reconnecting');
+      debugLogger.log('[Realtime]', `Reconnecting to party ${partyId} (attempt ${attempt + 1}/${MAX_RETRIES})`, 'warn');
     }
     
     console.log(`[Realtime] Attempting to subscribe to party ${partyId} (attempt ${attempt + 1}/${MAX_RETRIES})`);
@@ -322,6 +329,7 @@ export const subscribeWithRetry = (
         
         status = 'connected';
         onStatusChange?.('connected');
+        debugLogger.log('[Realtime]', `Connected to party ${partyId} via postgres_changes`, 'info');
         console.log(`[Realtime] Connected to party ${partyId} (via postgres_changes)`);
         
         onUpdate(payload);
@@ -348,15 +356,51 @@ export const subscribeWithRetry = (
       });
     }
     
-    // Subscribe to channel
-    channel.subscribe();
+    // Subscribe to channel with error handling
+    try {
+      channel.subscribe((status: string, err?: any) => {
+        if (status === 'SUBSCRIBED') {
+          debugLogger.log('[Realtime]', `Channel subscribed successfully for party ${partyId}`, 'info');
+          console.log(`[Realtime] Channel subscribed: party-${partyId}`);
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          const errMsg = `Channel error: ${status}${err ? ' - ' + err.message : ''}`;
+          console.error(`[Realtime] ${errMsg}`);
+          debugLogger.log('[Realtime]', errMsg, 'error', { partyId, status, error: err?.message });
+          channel.unsubscribe();
+          if (attempt < MAX_RETRIES - 1) {
+            const backoffMs = calculateBackoff(attempt);
+            retryTimeoutHandle = setTimeout(() => {
+              attemptSubscribe(attempt + 1);
+            }, backoffMs);
+          }
+        }
+      });
+      debugLogger.log('[Realtime]', `channel.subscribe() called for party ${partyId}`, 'info');
+      console.log(`[Realtime] channel.subscribe() called successfully`);
+    } catch (err: any) {
+      const errMsg = `Error calling channel.subscribe(): ${err?.message || 'Unknown error'}`;
+      console.error(`[Realtime] ${errMsg}`);
+      debugLogger.log('[Realtime]', errMsg, 'error', { partyId, error: err?.message });
+      if (attempt < MAX_RETRIES - 1) {
+        const backoffMs = calculateBackoff(attempt);
+        retryTimeoutHandle = setTimeout(() => {
+          attemptSubscribe(attempt + 1);
+        }, backoffMs);
+      }
+      return;
+    }
     
-    // Setup 5s timeout: if no event received within 5s, consider dead and retry
+    // Setup timeout: if no event received within TIMEOUT_MS, consider dead and retry
     timeoutHandle = setTimeout(() => {
       if (!eventReceived) {
-        console.error(
-          `[Realtime] Timeout after ${TIMEOUT_MS}ms for party ${partyId} (attempt ${attempt + 1}/${MAX_RETRIES}) - no events received`
-        );
+        const timeoutMsg = `Timeout after ${TIMEOUT_MS}ms for party ${partyId} (attempt ${attempt + 1}/${MAX_RETRIES}) - no events received`;
+        console.error(`[Realtime] ${timeoutMsg}`);
+        debugLogger.log('[Realtime]', timeoutMsg, 'error', { 
+          partyId, 
+          attempt: attempt + 1,
+          totalAttempts: MAX_RETRIES,
+          timeoutMs: TIMEOUT_MS 
+        });
         
         channel.unsubscribe();
         
@@ -365,9 +409,9 @@ export const subscribeWithRetry = (
           onStatusChange?.('error');
           
           const backoffMs = calculateBackoff(attempt);
-          console.log(
-            `[Realtime] Scheduling retry in ${backoffMs}ms (exponential backoff: 2^${attempt} * 1000ms with ±10% jitter)`
-          );
+          const backoffMsg = `Scheduling retry in ${backoffMs}ms (exponential backoff: 2^${attempt} * 1000ms with ±10% jitter)`;
+          console.log(`[Realtime] ${backoffMsg}`);
+          debugLogger.log('[Realtime]', backoffMsg, 'warn', { attempt: attempt + 1, backoffMs });
           
           retryTimeoutHandle = setTimeout(() => {
             attemptSubscribe(attempt + 1);
@@ -378,9 +422,11 @@ export const subscribeWithRetry = (
           console.error(
             `[Realtime] Max retries (${MAX_RETRIES}) reached for party ${partyId}. Escalating. Manual reconnection required.`
           );
+          debugLogger.log('[Realtime]', `Max retries (${MAX_RETRIES}) reached. Manual reconnection required.`, 'error', { partyId });
         }
       }
     }, TIMEOUT_MS);
+    debugLogger.log('[Realtime]', `Timeout handler configured for ${TIMEOUT_MS}ms`, 'info', { partyId, timeoutMs: TIMEOUT_MS });
   };
   
   // Start first attempt
