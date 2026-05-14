@@ -494,97 +494,28 @@ export const removeFromParty = async (characterId: string) => {
   try {
     console.log(`[removeFromParty] Starting removal for character ${characterId}`);
     debugLogger.log('[RemoveFromParty]', `Starting removal for character ${characterId}`, 'info');
-    
-    const { data: char, error: fError } = await supabase
-      .from('characters')
-      .select('data, party_id')
-      .eq('id', characterId)
-      .single();
 
-    if (fError) {
-      const errMsg = `Select error: ${fError.message} (code: ${fError.code})`;
+    // ✅ Usar función SECURITY DEFINER que bypasea RLS con validación propia
+    const { data: result, error: rpcError } = await supabase
+      .rpc('remove_character_from_party', { char_id: characterId });
+
+    if (rpcError) {
+      const errMsg = `RPC error: ${rpcError.message} (code: ${rpcError.code})`;
       console.error(`[removeFromParty] ${errMsg}`);
-      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId, code: fError.code, message: fError.message });
-      throw fError;
+      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId, code: rpcError.code, message: rpcError.message });
+      throw rpcError;
     }
-    
-    if (!char) {
-      const errMsg = 'Character not found';
+
+    if (result !== true) {
+      const errMsg = `RPC returned false - user may not be the party creator or character not in party`;
       console.error(`[removeFromParty] ${errMsg}`);
-      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId });
+      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId, rpcResult: result });
       throw new Error(errMsg);
     }
 
-    console.log(`[removeFromParty] Found character, current party_id: ${char.party_id}`);
-    debugLogger.log('[RemoveFromParty]', `Found character, current party_id: ${char.party_id}`, 'info', { characterId });
-
-    // ✅ FIX: Actualizar syncTimestamp cuando se cambia party_id
-    const updatedData = { ...char.data, party_id: null, syncTimestamp: Date.now() };
-    const updateTimestamp = Date.now();
-
-    debugLogger.log('[RemoveFromParty]', `Attempting UPDATE for character ${characterId}`, 'info', { 
-      partyIdBefore: char.party_id, 
-      updateTimestamp
-    });
-
-    const { error: uError } = await supabase
-      .from('characters')
-      .update({
-        party_id: null,
-        data: updatedData,
-      })
-      .eq('id', characterId);
-
-    if (uError) {
-      const errMsg = `Update error: ${uError.message} (code: ${uError.code})`;
-      console.error(`[removeFromParty] ${errMsg}`);
-      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId, code: uError.code, message: uError.message });
-      throw uError;
-    }
-
-    // ✅ VERIFY: Check that party_id was actually set to null
-    // Supabase may silently fail UPDATEs due to RLS - we must verify
-    const { data: verified, error: vError } = await supabase
-      .from('characters')
-      .select('party_id, data')
-      .eq('id', characterId)
-      .single();
-
-    if (vError) {
-      const errMsg = `Verification failed: ${vError.message}`;
-      console.error(`[removeFromParty] ${errMsg}`);
-      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId, code: vError.code });
-      throw vError;
-    }
-
-    // Check 1: party_id must be null
-    if (verified?.party_id !== null) {
-      const errMsg = `UPDATE blocked: party_id is still ${verified?.party_id} (expected null) - RLS policy likely denied the change`;
-      console.error(`[removeFromParty] ${errMsg}`);
-      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { 
-        characterId, 
-        partyIdAfter: verified?.party_id,
-        expectedNull: true 
-      });
-      throw new Error(errMsg);
-    }
-
-    // Check 2: data.syncTimestamp must match our update
-    const dataAfter = verified?.data as any;
-    if (!dataAfter?.syncTimestamp || dataAfter.syncTimestamp !== updateTimestamp) {
-      const errMsg = `UPDATE partially failed: party_id changed but data.syncTimestamp wasn't updated correctly`;
-      console.error(`[removeFromParty] ${errMsg}`);
-      debugLogger.log('[RemoveFromParty]', errMsg, 'warn', { 
-        characterId,
-        expectedTimestamp: updateTimestamp,
-        actualTimestamp: dataAfter?.syncTimestamp
-      });
-      // Don't throw - party_id is null which is what we need
-    }
-
-    const successMsg = `Character ${characterId} successfully removed from party (verified)`;
+    const successMsg = `Character ${characterId} successfully removed from party via RPC`;
     console.log(`[removeFromParty] ${successMsg}`);
-    debugLogger.log('[RemoveFromParty]', successMsg, 'info', { characterId, verified: true });
+    debugLogger.log('[RemoveFromParty]', successMsg, 'info', { characterId });
     return true;
   } catch (e: any) {
     // Check if error is RLS policy violation (code 42501)
