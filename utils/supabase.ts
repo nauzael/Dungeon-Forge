@@ -495,34 +495,66 @@ export const removeFromParty = async (characterId: string) => {
     console.log(`[removeFromParty] Starting removal for character ${characterId}`);
     debugLogger.log('[RemoveFromParty]', `Starting removal for character ${characterId}`, 'info');
 
-    // ✅ Usar función SECURITY DEFINER que bypasea RLS con validación propia
-    const { data: result, error: rpcError } = await supabase
-      .rpc('remove_character_from_party', { char_id: characterId });
+    // Fetch character to get current party_id
+    const { data: characterData, error: fetchError } = await supabase
+      .from('characters')
+      .select('party_id, data')
+      .eq('id', characterId)
+      .single();
 
-    if (rpcError) {
-      const errMsg = `RPC error: ${rpcError.message} (code: ${rpcError.code})`;
+    if (fetchError || !characterData) {
+      const errMsg = `Failed to fetch character: ${fetchError?.message || 'Not found'}`;
       console.error(`[removeFromParty] ${errMsg}`);
-      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId, code: rpcError.code, message: rpcError.message });
-      throw rpcError;
-    }
-
-    if (result !== true) {
-      const errMsg = `RPC returned false - user may not be the party creator or character not in party`;
-      console.error(`[removeFromParty] ${errMsg}`);
-      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId, rpcResult: result });
+      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId });
       throw new Error(errMsg);
     }
 
-    const successMsg = `Character ${characterId} successfully removed from party via RPC`;
+    if (!characterData.party_id) {
+      const warnMsg = `Character ${characterId} is not in a party`;
+      console.warn(`[removeFromParty] ${warnMsg}`);
+      debugLogger.log('[RemoveFromParty]', warnMsg, 'warn', { characterId });
+      return true; // Already not in a party, consider it success
+    }
+
+    // Update character: remove from party by setting party_id = null
+    // Also update the character data JSON to keep it in sync
+    const updatedData = { 
+      ...characterData.data as Record<string, any>,
+      party_id: null,
+      syncTimestamp: Date.now() 
+    };
+
+    const { error: updateError } = await supabase
+      .from('characters')
+      .update({
+        party_id: null,
+        data: updatedData,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', characterId);
+
+    if (updateError) {
+      const errMsg = `UPDATE error: ${updateError.message} (code: ${updateError.code})`;
+      console.error(`[removeFromParty] ${errMsg}`);
+      debugLogger.log('[RemoveFromParty]', errMsg, 'error', { characterId, code: updateError.code });
+      
+      // Check if RLS blocked it
+      if (updateError.code === '42501') {
+        throw new Error(`RLS policy blocked removal. You may not be the party creator.`);
+      }
+      throw updateError;
+    }
+
+    const successMsg = `Character ${characterId} successfully removed from party`;
     console.log(`[removeFromParty] ${successMsg}`);
     debugLogger.log('[RemoveFromParty]', successMsg, 'info', { characterId });
     return true;
   } catch (e: any) {
-    // Check if error is RLS policy violation (code 42501)
+    // Check if error is RLS policy violation
     const isRlsError =
       e?.code === '42501' ||
-      e?.message?.includes('new row violates') ||
-      e?.message?.includes('RLS');
+      e?.message?.includes('RLS') ||
+      e?.message?.includes('policy');
 
     if (isRlsError) {
       const warnMsg = `RLS policy blocked removal: ${e?.message}. Trying localStorage fallback.`;

@@ -1,9 +1,9 @@
 
 import { createPortal } from 'react-dom';
-import React, { useState, useMemo, useEffect, memo } from 'react';
+import React, { useState, useMemo, useEffect, memo, useRef, useLayoutEffect } from 'react';
 import { useModalScrollLock } from '../../hooks/useModalScrollLock';
 import { useResponsive } from '../../hooks/useResponsive';
-import { Character, Ability, WeaponData } from '../../types';
+import { Character, Ability, WeaponData, InventoryItem } from '../../types';
 import { SKILL_ABILITY_MAP, SKILL_DESCRIPTIONS } from '../../Data/skills';
 import { useSkills } from '../../Data/skills/index';
 import { MASTERY_DESCRIPTIONS } from '../../Data/items';
@@ -31,7 +31,8 @@ import {
     getSpellSlotSummary,
     isProficientInSave,
     getAbilityModifier,
-    getAbilityBreakdown
+    getAbilityBreakdown,
+    calculateExtraAttacks
 } from '../../utils/sheetUtils';
 import { 
     transformIntoBeast, 
@@ -71,10 +72,30 @@ const CombatTab: React.FC<CombatTabProps> = ({
     const [hpAmount, setHpAmount] = useState('');
     const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
     const [inspectedStat, setInspectedStat] = useState<'AC' | 'Init' | 'Spd' | 'Prof' | 'Insp' | 'HP' | 'Save_STR' | 'Save_DEX' | 'Save_CON' | 'Save_INT' | 'Save_WIS' | 'Save_CHA' | 'Ability_STR' | 'Ability_DEX' | 'Ability_CON' | 'Ability_INT' | 'Ability_WIS' | 'Ability_CHA' | null>(null);
-    const [weaponStatModal, setWeaponStatModal] = useState<{ item: any; weapon: any; type: 'toHit' | 'damage'; isSpell?: boolean } | null>(null);
+    
+    type EldritchSpell = {
+      id: string;
+      name: string;
+      isSpell: true;
+      scale: number;
+      die: string;
+      isEB: boolean;
+      properties: string[];
+      toHit: number;
+      damageBonus: number;
+      displayDamage: string;
+    };
+    
+    type WeaponStatModalState = 
+      | { item: InventoryItem; weapon: WeaponData; type: 'toHit' | 'damage'; isSpell: false }
+      | { item: EldritchSpell; weapon: EldritchSpell; type: 'toHit' | 'damage'; isSpell: true }
+      | null;
+    
+    const [weaponStatModal, setWeaponStatModal] = useState<WeaponStatModalState>(null);
     const [showWildShapeModal, setShowWildShapeModal] = useState(false);
     const [wildShapeState, setWildShapeState] = useState<WildShapeState | null>(null);
     const [ammoSpent, setAmmoSpent] = useState<Record<string, number>>({}); // Track ammo spent during combat
+    const wildShapeInitRef = useRef(false); // Track if wildShape has been initialized
     const { lockScroll, unlockScroll } = useModalScrollLock();
 
     useEffect(() => {
@@ -97,28 +118,38 @@ const CombatTab: React.FC<CombatTabProps> = ({
         else unlockScroll();
     }, [inspectedStat, lockScroll, unlockScroll]);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
+        if (wildShapeInitRef.current && character.id) return; // Skip if already initialized for this character
+        
         let char = character;
         if (char.class === 'Druid' && !char.wildShape) {
             char = initializeWildShapeUses(char);
+            wildShapeInitRef.current = true;
             onUpdate(char);
+            return; // Don't set state on initialization
         }
         
+        wildShapeInitRef.current = true;
         const saved = getWildShapeFromLocalStorage(char.id);
         if (saved && char.activeWildShape) {
             const beast = getBeastByName(saved.form);
             if (beast) {
-                setWildShapeState({
-                    form: saved.form,
-                    originalStats: saved.originalStats || (char.stats as Record<Ability, number>),
-                    originalHP: saved.originalHP || { ...char.hp },
-                    originalAC: saved.originalAC || char.ac,
-                    thpGained: saved.thpGained || (char.class === 'Druid' && char.subclass === 'Circle of the Moon'
-                        ? char.level * 3
-                        : char.level),
-                    startedAt: saved.timestamp,
-                    isLunarRadiance: false,
-                    attacks: []
+                // eslint-disable-next-line react-hooks/set-state-in-effect
+                setWildShapeState(prev => {
+                    // Only update if different to avoid cascading renders
+                    if (prev?.form === saved.form) return prev;
+                    return {
+                        form: saved.form,
+                        originalStats: saved.originalStats || (char.stats as Record<Ability, number>),
+                        originalHP: saved.originalHP || { ...char.hp },
+                        originalAC: saved.originalAC || char.ac,
+                        thpGained: saved.thpGained || (char.class === 'Druid' && char.subclass === 'Circle of the Moon'
+                            ? char.level * 3
+                            : char.level),
+                        startedAt: saved.timestamp,
+                        isLunarRadiance: false,
+                        attacks: []
+                    };
                 });
             }
         }
@@ -128,6 +159,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
     const armorClass = useMemo(() => getArmorClass(character, finalStats), [character, finalStats]);
     const initiativeTotal = useMemo(() => getTotalInitiative(character, finalStats), [character, finalStats]);
     const speedTotal = useMemo(() => getTotalSpeed(character, finalStats), [character, finalStats]);
+    const extraAttackInfo = useMemo(() => calculateExtraAttacks(character), [character]);
     
     const chaMod = Math.floor(((finalStats.CHA || 10) - 10) / 2);
     const wisMod = Math.floor(((finalStats.WIS || 10) - 10) / 2);
@@ -194,7 +226,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
         return 'd6';
     }, [character.level]);
 
-    const useFocusPoint = (count: number = 1) => {
+    const handleFocusPoint = (count: number = 1) => {
         if (!isReadOnly && currentFocus >= count) {
             onUpdate({ ...character, focus: { current: currentFocus - count, max: maxFocus } });
         }
@@ -220,16 +252,6 @@ const CombatTab: React.FC<CombatTabProps> = ({
     };
 
     // ── Barbarian Rage ──────────────────────────────────────────────────
-    const rageMax = useMemo(() => {
-        const lvl = character.level;
-        if (lvl >= 20) return 99; // Unlimited
-        if (lvl >= 17) return 6;
-        if (lvl >= 12) return 5;
-        if (lvl >= 6) return 4;
-        if (lvl >= 3) return 3;
-        return 2;
-    }, [character.level]);
-    const rageUnlimited = character.level >= 20;
 
     // ── Bard Bardic Inspiration ─────────────────────────────────────────
     const bardicInspirationDie = useMemo(() => {
@@ -392,7 +414,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
         if (isReadOnly) return;
         const amount = parseInt(hpAmount);
         if (isNaN(amount) || amount <= 0 || hpAmount === '') {
-            setHpModal({ ...hpModal, show: false });
+            setHpModal(prev => ({ ...prev, show: false }));
             return;
         }
         let newCurrent = character.hp.current;
@@ -413,7 +435,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
             newCurrent = Math.max(0, newCurrent - remainingDamage);
         }
         onUpdate({ ...character, hp: { ...character.hp, current: newCurrent, temp: newTemp } });
-        setHpModal({ ...hpModal, show: false });
+        setHpModal(prev => ({ ...prev, show: false }));
     };
 
     // Detectar si un arma necesita municiones
@@ -467,35 +489,31 @@ const CombatTab: React.FC<CombatTabProps> = ({
         }));
     };
 
-    // Restaurar municiones (para un descanso corto)
-    const restoreAmmo = () => {
-        setAmmoSpent({});
-    };
-
     const renderWeapons = () => {
-        const physicalWeapons = character.inventory.filter(i => {
-            if (!i.equipped) return false;
+        const physicalWeapons = character.inventory.flatMap(i => {
+            if (!i.equipped) return [];
             const itemData = getItemData(i.name);
-            return itemData && itemData.type === 'Weapon';
-        }).map(item => ({
-            id: item.id,
-            name: item.name,
-            data: getItemData(item.name) as WeaponData,
-            item: item,
-            isSpell: false
-        }));
+            if (!(itemData && itemData.type === 'Weapon')) return [];
+            return [{
+                id: i.id,
+                name: i.name,
+                data: itemData as WeaponData,
+                item: i,
+                isSpell: false as const
+            }];
+        });
 
-        const eldritchWeapons = (character.agonizingBlastCantrips || []).map(name => {
+        const eldritchWeapons = (character.agonizingBlastCantrips || []).flatMap(name => {
             const spell = SPELL_DETAILS[name];
-            if (!spell) return null;
+            if (!spell) return [];
             const scale = character.level >= 17 ? 4 : character.level >= 11 ? 3 : character.level >= 5 ? 2 : 1;
             const isEB = name === 'Eldritch Blast';
             const dieMatch = spell.description.match(/(\d?d\d+)/);
             const die = dieMatch ? dieMatch[1] : '1d10';
-            return {
+            return [{
                 id: `spell-${name}`,
                 name: name,
-                isSpell: true,
+                isSpell: true as const,
                 scale: scale,
                 die: die,
                 isEB: isEB,
@@ -503,12 +521,16 @@ const CombatTab: React.FC<CombatTabProps> = ({
                 toHit: character.profBonus + spellcastingStats.mod,
                 damageBonus: spellcastingStats.mod,
                 displayDamage: isEB ? `${die}${spellcastingStats.mod >= 0 ? '+' : ''}${spellcastingStats.mod} (x${scale})` : `${scale}${die.startsWith('d') ? die : die.substring(1)}${spellcastingStats.mod >= 0 ? '+' : ''}${spellcastingStats.mod}`
-            };
-        }).filter(Boolean);
+            }];
+        });
 
         const allWeapons = [...physicalWeapons, ...eldritchWeapons];
         
-        return allWeapons.map((entry: any) => {
+        type WeaponEntry = 
+          | { id: string; name: string; data: WeaponData; item: InventoryItem; isSpell: false }
+          | { id: string; name: string; isSpell: true; scale: number; die: string; isEB: boolean; properties: string[]; toHit: number; damageBonus: number; displayDamage: string };
+        
+        return allWeapons.map((entry: WeaponEntry) => {
             if (!entry.isSpell) {
                 const { item, data: weapon } = entry;
                 const toHitItems = getWeaponToHitBreakdown(character, item, weapon, finalStats);
@@ -518,12 +540,12 @@ const CombatTab: React.FC<CombatTabProps> = ({
                 const damageDie = dmgItems.find(i => typeof i.value === 'string')?.value || weapon.damage;
 
                 return (
-                    <div key={entry.id} className="rounded-2xl bg-white dark:bg-surface-dark p-4 shadow-sm ring-1 ring-slate-200 dark:ring-white/5 hover:ring-primary/50 transition-all">
+                    <div key={entry.id} className="rounded-2xl bg-white dark:bg-surface-dark p-4 shadow-sm ring-1 ring-zinc-200 dark:ring-white/5 hover:ring-primary/50 transition-all">
                         <div className="flex justify-between items-start mb-3">
                             <div className="flex gap-3">
                                 <div className="flex size-12 items-center justify-center rounded-xl bg-slate-100 dark:bg-black/30 text-slate-600 dark:text-slate-300"><span className="material-symbols-outlined text-[24px]">swords</span></div>
                                 <div>
-                                    <h4 className="font-bold text-slate-900 dark:text-white">{entry.name}</h4>
+                                    <h4 className="font-semibold text-slate-900 dark:text-white">{entry.name}</h4>
                                     <div className="flex gap-1 mt-1 flex-wrap">
                                         {weapon.properties.map((p: string) => (<span key={p} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-300">{p}</span>))}
                                         {weapon.mastery && (character.weaponMasteries || []).includes(weapon.name) && (
@@ -536,11 +558,11 @@ const CombatTab: React.FC<CombatTabProps> = ({
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <button onClick={() => setWeaponStatModal({ item, weapon, type: 'toHit' })} className="flex flex-col items-center justify-center py-2 px-4 rounded-xl bg-slate-50 dark:bg-black/20 group">
+                            <button onClick={() => setWeaponStatModal({ item, weapon, type: 'toHit', isSpell: false })} className="flex flex-col items-center justify-center py-2 px-4 rounded-xl bg-slate-50 dark:bg-black/20 group">
                                 <span className="text-xs font-bold text-slate-400 group-hover:text-primary uppercase tracking-wider mb-1">To Hit</span>
                                 <span className="text-lg font-bold text-slate-900 dark:text-white">{formatModifier(toHit)}</span> 
                             </button>
-                            <button onClick={() => setWeaponStatModal({ item, weapon, type: 'damage' })} className="flex flex-col items-center justify-center py-2 px-4 rounded-xl bg-slate-50 dark:bg-black/20 group">
+                            <button onClick={() => setWeaponStatModal({ item, weapon, type: 'damage', isSpell: false })} className="flex flex-col items-center justify-center py-2 px-4 rounded-xl bg-slate-50 dark:bg-black/20 group">
                                 <span className="text-xs font-bold text-slate-400 group-hover:text-primary uppercase tracking-wider mb-1">Damage</span>
                                 <span className="text-lg font-bold text-slate-900 dark:text-white">{damageDie}{dmgMod >= 0 ? '+' : ''}{dmgMod}</span>
                                 {weapon.mastery === 'Graze' && (character.weaponMasteries || []).includes(weapon.name) && (
@@ -610,7 +632,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                 </div>
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
-                                        <h4 className="font-bold text-slate-900 dark:text-white truncate">{entry.name}</h4>
+                                        <h4 className="font-semibold text-slate-900 dark:text-white truncate">{entry.name}</h4>
                                         <span className="text-[8px] font-black bg-fuchsia-500 text-white px-1 rounded uppercase tracking-tighter shadow-sm">EB</span>
                                     </div>
                                     <div className="flex gap-1 mt-1 flex-wrap">
@@ -645,7 +667,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                     { id: 'Prof' as const, icon: "school", label: "Prof", value: `+${character.profBonus}`, color: "text-purple-400", noModal: true },
                     { id: 'Insp' as const, icon: "military_tech", label: "Insp", value: `${inspCurrent}/${inspMax}`, color: "text-cyan-400" },
                 ].map(stat => (
-                    <button key={stat.label} onClick={() => !stat.noModal && setInspectedStat(stat.id)} className="flex flex-col items-center justify-center rounded-2xl bg-white dark:bg-surface-dark p-2 shadow-sm ring-1 ring-slate-200 dark:ring-white/5 active:scale-95 transition-all">
+                    <button key={stat.label} onClick={() => !stat.noModal && setInspectedStat(stat.id)} className="flex flex-col items-center justify-center rounded-2xl bg-white dark:bg-surface-dark p-2 shadow-sm ring-1 ring-zinc-200 dark:ring-white/5 active:scale-95 transition-all">
                         <span className={`material-symbols-outlined mb-1 ${stat.color} text-[18px]`}>{stat.icon}</span>
                         <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{stat.label}</span>
                         <span className="text-lg font-bold dark:text-white text-slate-900 leading-none mt-1">{stat.value}</span>
@@ -709,7 +731,12 @@ const CombatTab: React.FC<CombatTabProps> = ({
                 )}
                 <div className="flex flex-col gap-4 rounded-3xl bg-white dark:bg-surface-dark p-6 shadow-lg border border-slate-200 dark:border-white/5 overflow-hidden relative group/hp">
                     <div className="flex justify-between items-end">
-                        <div className="flex flex-col cursor-pointer" onClick={() => setInspectedStat('HP')}>
+                    <button 
+                        className="flex flex-col cursor-pointer text-left bg-transparent border-none p-0 hover:no-underline focus:outline-none focus:ring-2 focus:ring-primary rounded-lg"
+                        onClick={() => setInspectedStat('HP')}
+                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setInspectedStat('HP')}
+                        title="Click to see HP breakdown"
+                    >
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1">
                                 Max Hit Points
                                 <span className="material-symbols-outlined text-[12px] opacity-0 group-hover/hp:opacity-100 transition-opacity">info</span>
@@ -724,7 +751,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                             {character.hp.temp > 0 && character.class === 'Barbarian' && character.isRaging && character.subclass === 'Path of the World Tree' && (
                                 <span className="text-xs text-blue-400 font-medium mt-1">🌳 Vitality of the Tree</span>
                             )}
-                        </div>
+                        </button>
                         {!isReadOnly && (
                             <div className="flex gap-2">
                                 <button onClick={() => openHpModal('damage')} className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white dark:bg-black/20 border border-red-500/30 text-red-500 active:scale-90 transition-all"><span className="material-symbols-outlined font-bold">heart_broken</span></button>
@@ -786,7 +813,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                 <div className="flex gap-2">
                                     {Array.from({ length: luckyMax }).map((_, i) => (
                                         <button 
-                                            key={i} 
+                                            key={`${character.id}-lucky-${i}`} 
                                             onClick={() => {
                                                 if (i < luckyCurrent) spendLuckyPoint();
                                             }}
@@ -880,7 +907,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                 ].map(skill => (
                                     <button 
                                         key={skill.id}
-                                        onClick={() => useFocusPoint(skill.cost)} 
+                                        onClick={() => handleFocusPoint(skill.cost)} 
                                         disabled={currentFocus < skill.cost} 
                                         className={`flex flex-col items-center justify-center py-2 rounded-xl border transition-all active:scale-90 ${currentFocus >= skill.cost ? 'bg-cyan-500/5 border-cyan-500/20 hover:bg-cyan-500/10' : 'opacity-20 grayscale cursor-not-allowed'}`}
                                     >
@@ -897,7 +924,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button 
-                                            onClick={() => useFocusPoint(1)}
+                                            onClick={() => handleFocusPoint(1)}
                                             disabled={currentFocus < 1}
                                             className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all active:scale-95 ${currentFocus >= 1 ? 'bg-emerald-500/5 border-emerald-500/20 hover:bg-emerald-500/10' : 'opacity-20 cursor-not-allowed'}`}
                                         >
@@ -908,7 +935,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                             </div>
                                         </button>
                                         <button 
-                                            onClick={() => useFocusPoint(1)}
+                                            onClick={() => handleFocusPoint(1)}
                                             disabled={currentFocus < 1}
                                             className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all active:scale-95 ${currentFocus >= 1 ? 'bg-rose-500/5 border-rose-500/20 hover:bg-rose-500/10' : 'opacity-20 cursor-not-allowed'}`}
                                         >
@@ -920,7 +947,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                         </button>
                                         {character.level >= 17 && (
                                             <button 
-                                                onClick={() => useFocusPoint(5)}
+                                                onClick={() => handleFocusPoint(5)}
                                                 disabled={currentFocus < 5}
                                                 className={`col-span-2 flex items-center justify-center gap-3 py-2 rounded-xl border transition-all active:scale-95 ${currentFocus >= 5 ? 'bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10' : 'opacity-20 cursor-not-allowed'}`}
                                             >
@@ -960,7 +987,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                     </div>
                     <div className="flex gap-1.5">
                         {Array.from({ length: bardicMax }, (_, i) => (
-                            <div key={i} className={`flex-1 h-2 rounded-full transition-colors ${i < bardicCurrent ? 'bg-purple-500' : 'bg-slate-200 dark:bg-white/10'}`} />
+                            <div key={`${character.id}-bardic-${i}`} className={`flex-1 h-2 rounded-full transition-colors ${i < bardicCurrent ? 'bg-purple-500' : 'bg-slate-200 dark:bg-white/10'}`} />
                         ))}
                     </div>
                     <div className="text-xs text-slate-400 text-center font-medium">Die: {bardicInspirationDie} • Uses = CHA Mod</div>
@@ -991,7 +1018,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                     </div>
                     <div className="flex gap-2 justify-center">
                         {Array.from({ length: channelDivinityMax }, (_, i) => (
-                            <div key={i} className={`size-5 rounded-full border-2 transition-colors ${i < channelDivinityCurrent ? 'bg-yellow-500 border-yellow-500' : 'bg-transparent border-slate-300 dark:border-slate-600'}`} />
+                            <div key={`${character.id}-channel-${i}`} className={`size-5 rounded-full border-2 transition-colors ${i < channelDivinityCurrent ? 'bg-yellow-500 border-yellow-500' : 'bg-transparent border-slate-300 dark:border-slate-600'}`} />
                         ))}
                     </div>
                     <div className="text-xs text-slate-400 text-center font-medium">Restores on Short or Long Rest</div>
@@ -1048,7 +1075,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                     </div>
                     <div className="flex gap-4 justify-center">
                         {[0, 1].map(i => (
-                            <div key={i} className={`size-6 rounded-full border-2 transition-colors ${i < wildShapeCurrent ? 'bg-emerald-500 border-emerald-500' : 'bg-transparent border-slate-300 dark:border-slate-600'}`} />
+                            <div key={`${character.id}-wildshape-${i}`} className={`size-6 rounded-full border-2 transition-colors ${i < wildShapeCurrent ? 'bg-emerald-500 border-emerald-500' : 'bg-transparent border-slate-300 dark:border-slate-600'}`} />
                         ))}
                     </div>
                     <div className="text-xs text-slate-400 text-center font-medium">Restores on Short or Long Rest</div>
@@ -1093,7 +1120,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                             <span className="text-[9px] font-black text-red-500 uppercase tracking-widest">Action Surge</span>
                             <div className="flex gap-1.5">
                                 {Array.from({ length: actionSurgeMax }, (_, i) => (
-                                    <div key={i} className={`size-4 rounded-full border-2 ${i < actionSurgeCurrent ? 'bg-red-500 border-red-500' : 'bg-transparent border-slate-300 dark:border-slate-600'}`} />
+                                    <div key={`${character.id}-surge-${i}`} className={`size-4 rounded-full border-2 ${i < actionSurgeCurrent ? 'bg-red-500 border-red-500' : 'bg-transparent border-slate-300 dark:border-slate-600'}`} />
                                 ))}
                             </div>
                             <div className="flex gap-1">
@@ -1278,6 +1305,68 @@ const CombatTab: React.FC<CombatTabProps> = ({
                 </div>
             )}
 
+            {/* ── EXTRA ATTACKS PANEL ── */}
+            {extraAttackInfo.attacks > 1 && (
+                <div className="mb-6 rounded-3xl bg-gradient-to-br from-red-600/10 to-orange-600/10 dark:bg-surface-dark p-6 shadow-lg border-2 border-red-500/30 dark:border-red-500/20 overflow-hidden relative group/extra">
+                    {/* Decorative animated background */}
+                    <div className="absolute inset-0 opacity-0 group-hover/extra:opacity-10 bg-gradient-to-r from-red-500 to-orange-500 transition-opacity duration-300"></div>
+                    
+                    <div className="relative z-10">
+                        <div className="flex justify-between items-start mb-5">
+                            <div className="flex items-center gap-3">
+                                <div className="size-14 rounded-2xl bg-red-500/20 flex items-center justify-center border border-red-500/30">
+                                    <span className="material-symbols-outlined text-3xl text-red-500 font-bold">swords</span>
+                                </div>
+                                <div>
+                                    <h3 className="text-xs font-black text-red-500 uppercase tracking-widest">Extra Attack</h3>
+                                    <p className="text-[10px] text-slate-400 font-medium mt-1">{extraAttackInfo.source}</p>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-5xl font-black text-red-500 leading-none">{extraAttackInfo.attacks}</div>
+                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">Attacks / Turn</div>
+                            </div>
+                        </div>
+
+                        {/* Attack visualization */}
+                        <div className="flex gap-2 mb-5">
+                            {Array.from({ length: extraAttackInfo.attacks }).map((_, i) => (
+                                <div key={`${character.id}-attack-${i}`} className="flex-1 h-12 rounded-xl bg-gradient-to-b from-red-500 to-orange-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-red-500/30 relative group/attack">
+                                    <span>{i + 1}</span>
+                                    <div className="absolute -top-1 -right-1 size-4 rounded-full bg-white/20 opacity-0 group-hover/attack:opacity-100 transition-opacity"></div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Info box */}
+                        <div className="p-3 rounded-xl bg-white/5 dark:bg-black/20 border border-red-500/20">
+                            <ul className="text-[11px] text-slate-600 dark:text-slate-300 space-y-1.5">
+                                <li className="flex items-start gap-2">
+                                    <span className="text-red-500 font-black mt-0.5">•</span>
+                                    <span>You can attack <strong className="text-red-500">{extraAttackInfo.attacks} times</strong> when you take the Attack action.</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-red-500 font-black mt-0.5">•</span>
+                                    <span>Each attack uses the same to-hit and damage bonus.</span>
+                                </li>
+                                {character.class === 'Fighter' && (
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-red-500 font-black mt-0.5">•</span>
+                                        <span><strong>Fighter Advantage:</strong> You can combine attacks with abilities like Action Surge.</span>
+                                    </li>
+                                )}
+                                {character.class === 'Monk' && (
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-red-500 font-black mt-0.5">•</span>
+                                        <span><strong>Flurry of Blows:</strong> Use Focus points to make <strong>bonus action</strong> attacks in addition to these.</span>
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {Object.keys(spellSlotSummary).length > 0 && (
                 <div className="mb-6">
                     <div className="flex items-center gap-2 mb-3 px-1">
@@ -1458,8 +1547,14 @@ const CombatTab: React.FC<CombatTabProps> = ({
 
             {/* Stat Breakdowns */}
             {inspectedStat && createPortal(
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setInspectedStat(null)}>
-                    <div className="w-full max-w-[320px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()}>
+                <div 
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn" 
+                    onClick={() => setInspectedStat(null)}
+                    onKeyDown={(e) => e.key === 'Escape' && setInspectedStat(null)}
+                    role="presentation"
+                    tabIndex={-1}
+                >
+                    <div className="w-full max-w-[320px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.preventDefault()} role="presentation">
                         <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-widest mb-6">
                             {inspectedStat === 'HP' ? 'Hit Points' 
                              : inspectedStat?.startsWith('Save_') 
@@ -1521,7 +1616,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                     
                                     <div className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
                                         {Array.from({ length: Math.max(inspMax, 1) }).map((_, i) => (
-                                            <div key={i} className={`h-3 flex-1 rounded-full transition-all duration-300 ${i < inspCurrent ? 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.5)]' : 'bg-slate-200 dark:bg-white/10'}`}></div>
+                                            <div key={`${character.id}-insp-${i}`} className={`h-3 flex-1 rounded-full transition-all duration-300 ${i < inspCurrent ? 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.5)]' : 'bg-slate-200 dark:bg-white/10'}`}></div>
                                         ))}
                                     </div>
 
@@ -1570,13 +1665,18 @@ const CombatTab: React.FC<CombatTabProps> = ({
 
             {/* HP Modal */}
             {hpModal.show && createPortal(
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setHpModal({ ...hpModal, show: false })}>
-                    <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()}>
-                        {/* Type Tabs */}
+                <div 
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn" 
+                    onClick={() => setHpModal(prev => ({ ...prev, show: false }))}
+                    onKeyDown={(e) => e.key === 'Escape' && setHpModal(prev => ({ ...prev, show: false }))}
+                    role="presentation"
+                    tabIndex={-1}
+                >
+                    <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.preventDefault()} role="presentation">
                         <div className="flex gap-1 mb-6 bg-slate-100 dark:bg-black/20 p-1 rounded-xl">
-                            <button onClick={() => setHpModal({ ...hpModal, type: 'damage' })} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'damage' ? 'bg-red-500 text-white shadow-red-500/30' : 'text-slate-500'}`}>Damage</button>
-                            <button onClick={() => setHpModal({ ...hpModal, type: 'heal' })} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'heal' ? 'bg-emerald-500 text-white shadow-emerald-500/30' : 'text-slate-500'}`}>Heal</button>
-                            <button onClick={() => setHpModal({ ...hpModal, type: 'temp' })} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'temp' ? 'bg-blue-500 text-white shadow-blue-500/30' : 'text-slate-500'}`}>Temp</button>
+                            <button onClick={() => setHpModal(prev => ({ ...prev, type: 'damage' }))} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'damage' ? 'bg-red-500 text-white shadow-red-500/30' : 'text-slate-500'}`}>Damage</button>
+                            <button onClick={() => setHpModal(prev => ({ ...prev, type: 'heal' }))} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'heal' ? 'bg-emerald-500 text-white shadow-emerald-500/30' : 'text-slate-500'}`}>Heal</button>
+                            <button onClick={() => setHpModal(prev => ({ ...prev, type: 'temp' }))} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'temp' ? 'bg-blue-500 text-white shadow-blue-500/30' : 'text-slate-500'}`}>Temp</button>
                         </div>
                         
                         {/* Title */}
@@ -1585,7 +1685,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                         </p>
                         
                         {/* Input */}
-                        <input type="number" value={hpAmount} onChange={(e) => setHpAmount(e.target.value)} autoFocus className={`w-full text-center text-5xl font-black bg-transparent border-b-2 py-3 mb-6 outline-none text-slate-900 dark:text-white ${hpModal.type === 'damage' ? 'border-red-500/50' : hpModal.type === 'heal' ? 'border-emerald-500/50' : 'border-blue-500/50'}`} placeholder="0"/>
+                        <input type="number" value={hpAmount} onChange={(e) => setHpAmount(e.target.value)} className={`w-full text-center text-5xl font-black bg-transparent border-b-2 py-3 mb-6 outline-none text-slate-900 dark:text-white ${hpModal.type === 'damage' ? 'border-red-500/50' : hpModal.type === 'heal' ? 'border-emerald-500/50' : 'border-blue-500/50'}`} placeholder="0"/>
                         
                         {/* Info for temp HP */}
                         {hpModal.type === 'temp' && (
@@ -1614,7 +1714,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                         
                         {/* Actions */}
                         <div className="grid grid-cols-2 gap-3">
-                            <button onClick={() => setHpModal({ ...hpModal, show: false })} className="py-3 rounded-2xl font-bold text-sm text-slate-500 bg-slate-100 dark:bg-white/5">Cancel</button>
+                            <button onClick={() => setHpModal(prev => ({ ...prev, show: false }))} className="py-3 rounded-2xl font-bold text-sm text-slate-500 bg-slate-100 dark:bg-white/5">Cancel</button>
                             <button onClick={applyHpChange} className={`py-3 rounded-2xl font-bold text-sm text-white shadow-lg ${hpModal.type === 'heal' ? 'bg-emerald-500 shadow-emerald-500/30' : hpModal.type === 'temp' ? 'bg-blue-500 shadow-blue-500/30' : 'bg-red-500 shadow-red-500/30'}`}>Confirm</button>
                         </div>
                     </div>
@@ -1624,11 +1724,17 @@ const CombatTab: React.FC<CombatTabProps> = ({
 
             {/* Skill Modal */}
             {selectedSkill && createPortal(
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setSelectedSkill(null)}>
-                    <div className="w-full max-sm bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()}>
+                <div 
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn" 
+                    onClick={() => setSelectedSkill(null)}
+                    onKeyDown={(e) => e.key === 'Escape' && setSelectedSkill(null)}
+                    role="presentation"
+                    tabIndex={-1}
+                >
+                    <div className="w-full max-sm bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.preventDefault()} role="presentation">
                         <div className="flex justify-between items-start mb-4">
                             <div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{selectedSkill}</h3>
+                                <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{selectedSkill}</h3>
                                 <p className="text-xs font-bold text-primary uppercase tracking-widest">{SKILL_ABILITY_MAP[selectedSkill]} based</p>
                             </div>
                             <button onClick={() => setSelectedSkill(null)} className="size-8 rounded-full bg-slate-100 dark:bg-white/5 text-slate-400"><span className="material-symbols-outlined">close</span></button>
@@ -1662,11 +1768,14 @@ const CombatTab: React.FC<CombatTabProps> = ({
 
             {/* Weapon Stat Breakdowns */}
             {weaponStatModal && createPortal(
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn" onClick={() => setWeaponStatModal(null)}>
-                    <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()}>
-                        <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-widest mb-6">
-                            {weaponStatModal.type === 'toHit' ? 'Attack Bonus' : 'Damage Bonus'}
-                        </h3>
+                <div 
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn" 
+                    onClick={() => setWeaponStatModal(null)}
+                    onKeyDown={(e) => e.key === 'Escape' && setWeaponStatModal(null)}
+                    role="presentation"
+                    tabIndex={-1}
+                >
+                    <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.preventDefault()} role="presentation">
                         <div className="space-y-2">
                             {weaponStatModal.isSpell ? (
                                 <>
@@ -1695,7 +1804,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Spell Slot</span>
                                                 </div>
                                                 <span className="text-sm font-bold text-slate-900 dark:text-white">
-                                                    {weaponStatModal.item.isEB ? weaponStatModal.item.die : `${weaponStatModal.item.scale}${weaponStatModal.item.die.startsWith('d') ? weaponStatModal.item.die : weaponStatModal.item.die.substring(1)}`}
+                                                    {(weaponStatModal.item as EldritchSpell).isEB ? (weaponStatModal.item as EldritchSpell).die : `${(weaponStatModal.item as EldritchSpell).scale}${(weaponStatModal.item as EldritchSpell).die.startsWith('d') ? (weaponStatModal.item as EldritchSpell).die : (weaponStatModal.item as EldritchSpell).die.substring(1)}`}
                                                 </span>
                                             </div>
                                             <div className="flex items-center justify-between p-3 rounded-xl bg-fuchsia-500/5 dark:bg-black/20 border border-fuchsia-500/10">
@@ -1705,9 +1814,9 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                                 </div>
                                                 <span className="text-sm font-bold text-slate-900 dark:text-white">{formatModifier(chaMod)}</span>
                                             </div>
-                                            {weaponStatModal.item.isEB && (
+                                            {(weaponStatModal.item as EldritchSpell).isEB && (
                                                 <div className="p-2 text-[10px] text-fuchsia-400 font-bold uppercase text-center">
-                                                    You attack {weaponStatModal.item.scale} times with this spell
+                                                    You attack {(weaponStatModal.item as EldritchSpell).scale} times with this spell
                                                 </div>
                                             )}
                                         </>
@@ -1718,7 +1827,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                                     ? getWeaponToHitBreakdown(character, weaponStatModal.item, weaponStatModal.weapon, finalStats)
                                     : getWeaponDamageBreakdown(character, weaponStatModal.item, weaponStatModal.weapon, finalStats, character.isRaging ?? false)
                                 ).map((b, i) => (
-                                    <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
+                                    <div key={`${character.id}-spell-${b.label}-${i}`} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-white/5">
                                         <div className="flex items-center gap-2">
                                             <span className="material-symbols-outlined text-sm text-primary">{b.icon}</span>
                                             <span className="text-xs font-bold text-slate-500 dark:text-slate-400">{b.label}</span>

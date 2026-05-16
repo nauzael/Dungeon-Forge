@@ -1333,3 +1333,66 @@ export const calculateIntModifierImpact = (character: Character, oldStats: Recor
     
     return { oldMax, newMax, decreased: newMax < oldMax };
 };
+
+/**
+ * Calculate total number of attacks a character can make in one Attack action.
+ * This includes Extra Attack from classes and subclasses.
+ * D&D 5e 2024 progression.
+ */
+export const calculateExtraAttacks = (character: Character): { attacks: number; source: string } => {
+    const lvl = character.level;
+    let attacks = 1; // Base attack
+    let source = 'Base';
+
+    // Fighter: Extra Attack and Multiple Extra Attacks
+    if (character.class === 'Fighter') {
+        if (lvl >= 20) {
+            attacks = 4; // Three Extra Attacks (Lv20)
+            source = 'Fighter Capstone (Three Extra Attacks)';
+        } else if (lvl >= 11) {
+            attacks = 3; // Two Extra Attacks (Lv11)
+            source = 'Fighter (Two Extra Attacks)';
+        } else if (lvl >= 5) {
+            attacks = 2; // One Extra Attack (Lv5)
+            source = 'Fighter (Extra Attack)';
+        }
+    }
+    // Barbarian: Extra Attack at Lv5
+    else if (character.class === 'Barbarian' && lvl >= 5) {
+        attacks = 2;
+        source = 'Barbarian (Extra Attack)';
+    }
+    // Paladin: Extra Attack at Lv5
+    else if (character.class === 'Paladin' && lvl >= 5) {
+        attacks = 2;
+        source = 'Paladin (Extra Attack)';
+    }
+    // Ranger: Extra Attack at Lv5
+    else if (character.class === 'Ranger' && lvl >= 5) {
+        attacks = 2;
+        source = 'Ranger (Extra Attack)';
+    }
+    // Bard: College of Valor - Extra Attack at Lv6
+    else if (character.class === 'Bard' && character.subclass === 'College of Valor' && lvl >= 6) {
+        attacks = 2;
+        source = 'Bard: College of Valor (Extra Attack)';
+    }
+    // Monk: Flurry of Blows - Extra Attack at Lv5 (bonus action)
+    // Note: Flurry is bonus action, not same as Extra Attack, but it grants extra attacks
+    else if (character.class === 'Monk' && lvl >= 5) {
+        attacks = 2; // Base + Flurry
+        source = 'Monk (Flurry of Blows)';
+    }
+    // Artificer: Battle Smith or Armorer - Extra Attack at Lv5
+    else if (character.class === 'Artificer' && (character.subclass === 'Battle Smith' || character.subclass === 'Armorer') && lvl >= 5) {
+        attacks = 2;
+        source = `Artificer: ${character.subclass} (Extra Attack)`;
+    }
+    // Ranger: Hunter - Multiattack at Lv11
+    else if (character.class === 'Ranger' && character.subclass === 'Hunter' && lvl >= 11) {
+        attacks = 3; // Multiattack options
+        source = 'Ranger: Hunter (Multiattack - Volley/Whirlwind)';
+    }
+
+    return { attacks, source };
+};
