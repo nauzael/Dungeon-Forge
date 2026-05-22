@@ -106,23 +106,31 @@ export const supabase = {
         return { data: { session: null }, error: e };
       }
     },
-    onAuthStateChanged: (callback: (user: any) => void) => {
-      if (!authInstance) return () => {};
+    onAuthStateChange: (callback: (_event: string, session: any) => void) => {
+      if (!authInstance) {
+        return { data: { subscription: () => {} } };
+      }
       
-      return firebaseOnAuthStateChanged(authInstance, (user) => {
+      const unsubscribe = firebaseOnAuthStateChanged(authInstance, (user) => {
         if (user) {
-          callback({
-            id: user.uid,
-            email: user.email,
-            user_metadata: {
-              avatar_url: user.photoURL,
-              full_name: user.displayName,
+          // Simulate Supabase event with session
+          callback('SIGNED_IN', {
+            user: {
+              id: user.uid,
+              email: user.email,
+              user_metadata: {
+                avatar_url: user.photoURL,
+                full_name: user.displayName,
+              },
             },
+            access_token: user.getIdToken ? 'firebase-token' : undefined,
           });
         } else {
-          callback(null);
+          callback('SIGNED_OUT', null);
         }
       });
+      
+      return { data: { subscription: unsubscribe } };
     },
     signOut: async () => {
       try {
