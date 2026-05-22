@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { joinParty, removeFromParty } from '../utils/supabase';
+import { joinParty, removeFromParty } from '../utils/firebase';
 import { Character } from '../types';
 
 interface JoinPartyModalProps {

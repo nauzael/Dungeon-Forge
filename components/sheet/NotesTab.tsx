@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useLayoutEffect, memo } from 'react
 import { createPortal } from 'react-dom';
 import { useImageZoom } from '../../hooks/useImageZoom';
 import { Character, NoteItem, CampaignResource } from '../../types';
-import { getPartyResources } from '../../utils/supabase';
+import { getPartyResources } from '../../utils/firebase';
 
 interface NotesTabProps {
     character: Character;

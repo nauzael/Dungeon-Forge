@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { unstable_batchedUpdates } from 'react-dom';
-import { supabase, createParty, subscribeWithRetry, removeFromParty, updatePartyName, deleteParty } from '../utils/supabase';
+import { supabase, createParty, subscribeWithRetry, removeFromParty, updatePartyName, deleteParty } from '../utils/firebase';
 import { debugLogger } from '../utils/debugLogger';
 import { Character } from '../types';
 

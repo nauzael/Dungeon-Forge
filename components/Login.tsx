@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../utils/supabase';
+import { supabase } from '../utils/firebase';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 

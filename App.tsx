@@ -14,7 +14,7 @@ import {
   subscribeWithRetry,
   broadcastCharacterUpdate,
   softDeleteCharacter
-} from './utils/supabase';
+} from './utils/firebase';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { CapacitorUpdater } from '@capgo/capacitor-updater';

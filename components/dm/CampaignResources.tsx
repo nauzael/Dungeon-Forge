@@ -12,7 +12,7 @@ import {
   updatePartyResourcePersistence,
   migrateExistingResourceImages,
   updateResourceThumbnail,
-} from '../../utils/supabase';
+} from '../../utils/firebase';
 
 const CampaignResources: React.FC<{ partyId: string }> = ({ partyId }) => {
   const [resources, setResources] = useState<CampaignResource[]>([]);
