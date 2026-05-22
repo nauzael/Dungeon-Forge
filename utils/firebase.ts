@@ -9,6 +9,8 @@ import {
   onAuthStateChanged as firebaseOnAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   User,
 } from 'firebase/auth';
 import {
@@ -38,6 +40,7 @@ import {
 import { Character, CampaignResource } from '../types';
 import { debugLogger } from './debugLogger';
 import { createPartyLocal, updatePartyLocal, kickLocal } from './localStorage';
+import { Capacitor } from '@capacitor/core';
 
 // Firebase Config
 const firebaseConfig = {
@@ -69,6 +72,19 @@ try {
   firestoreInstance = getFirestore(firebaseApp);
   databaseInstance = getDatabase(firebaseApp);
   console.log('[Firebase] Initialized successfully');
+  
+  // Handle redirect result from OAuth flow
+  if (authInstance) {
+    getRedirectResult(authInstance)
+      .then((result) => {
+        if (result?.user) {
+          console.log('[Firebase] Redirect OAuth completed:', result.user.email);
+        }
+      })
+      .catch((error) => {
+        console.error('[Firebase] Redirect result error:', error);
+      });
+  }
 } catch (e) {
   console.error('[Firebase] Initialization failed:', e);
 }
@@ -174,34 +190,49 @@ export const supabase = {
     },
     signInWithOAuth: async (options: { provider: string; options?: any }) => {
       // Supabase compatible OAuth sign-in
-      // For Firebase, we currently support Google OAuth only
+      // For Firebase, we support Google OAuth with platform-specific handling
       if (options.provider === 'google') {
         try {
           if (!authInstance) throw new Error('Auth not initialized');
           
           const provider = new GoogleAuthProvider();
-          // Set custom parameters for OAuth flow
-          if (options.options?.queryParams?.prompt) {
-            provider.setCustomParameters({ prompt: options.options.queryParams.prompt });
-          }
+          provider.setCustomParameters({ 
+            prompt: options.options?.queryParams?.prompt || 'select_account'
+          });
           
-          const result = await signInWithPopup(authInstance, provider);
-          const user = result.user;
+          const isNative = Capacitor.getPlatform() !== 'web';
           
-          return {
-            data: {
-              url: null, // Firebase popup flow, no URL needed
-              user: {
-                id: user.uid,
-                email: user.email,
-                user_metadata: {
-                  avatar_url: user.photoURL,
-                  full_name: user.displayName,
+          if (isNative) {
+            // Mobile/Capacitor: Use popup flow (more compatible than redirect)
+            console.log('[OAuth] Using popup flow for Capacitor');
+            const result = await signInWithPopup(authInstance, provider);
+            return {
+              data: {
+                url: null,
+                user: {
+                  id: result.user.uid,
+                  email: result.user.email,
+                  user_metadata: {
+                    avatar_url: result.user.photoURL,
+                    full_name: result.user.displayName,
+                  },
                 },
               },
-            },
-            error: null,
-          };
+              error: null,
+            };
+          } else {
+            // Web: Use redirect flow (standard OAuth approach)
+            console.log('[OAuth] Using redirect flow for web');
+            await signInWithRedirect(authInstance, provider);
+            
+            // Redirect will cause page navigation, so we return immediately
+            return {
+              data: {
+                url: null,
+              },
+              error: null,
+            };
+          }
         } catch (e) {
           console.error('[Auth] signInWithOAuth(google) failed:', e);
           return { data: null, error: { message: (e as Error).message } };

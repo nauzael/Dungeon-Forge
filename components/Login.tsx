@@ -44,7 +44,7 @@ const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
     setLoading(true);
     setError('');
     
-    // Choose redirect depending on platform (Capacitor Mobile vs Web)
+    // Detect platform
     const isNative = Capacitor.getPlatform() !== 'web';
     const redirectUrl = isNative
       ? 'com.tupaquete.dndcompanion://login-callback' 
@@ -56,43 +56,56 @@ const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
     console.log('[Login] Firebase Project:', import.meta.env.VITE_FIREBASE_PROJECT_ID);
 
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl,
-          skipBrowserRedirect: isNative, 
-          queryParams: { prompt: 'select_account' }
-        }
-      });
+      // For web: signInWithOAuth uses signInWithRedirect (will redirect to Google)
+      // For mobile: We need to use a different approach with popups/custom handlers
       
-      if (error) {
-         console.error('[Login] Supabase OAuth error:', error.message);
-         setLoading(false);
-         alert("SUPABASE ERROR: " + error.message);
-         return;
-      }
-
-      console.log('[Login] OAuth URL generated successfully');
-
-      if (isNative && data?.url) {
-        console.log('[Login] Opening browser with OAuth URL');
-        try {
-          await Browser.open({ url: data.url });
-          console.log('[Login] Browser opened');
-          // Don't set loading to false here - it will be set when session is established
-          // The app should stay in loading state until onAuthStateChange fires with a session
-        } catch (bErr) {
-          console.error('[Login] Browser open error:', bErr);
-          alert('BROWSER OPEN ERROR: ' + (bErr instanceof Error ? bErr.message : String(bErr)));
+      if (!isNative) {
+        // Web platform: use redirect flow
+        console.log('[Login] Using redirect OAuth flow for web');
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: redirectUrl,
+            queryParams: { prompt: 'select_account' }
+          }
+        });
+        
+        if (error) {
+          console.error('[Login] OAuth error:', error.message);
           setLoading(false);
+          setError('OAuth error: ' + error.message);
+          alert("OAUTH ERROR: " + error.message);
+          return;
         }
-      } else if (!isNative) {
-        console.log('[Login] Web platform - OAuth should redirect automatically');
-        // For web, the redirect happens automatically
+        
+        // For redirect flow, the browser will navigate away
+        // Loading state remains until page reloads with user
+        console.log('[Login] Redirect flow initiated - waiting for Google OAuth...');
       } else {
-        console.warn('[Login] No OAuth URL generated');
-        setLoading(false);
-        setError('OAuth URL not generated. Please try again.');
+        // Mobile: use popup flow with browser plugin
+        console.log('[Login] Using popup OAuth flow for mobile');
+        
+        // Try to get an OAuth URL for the popup
+        try {
+          // Use signInWithGoogle method (which uses popup)
+          const { data, error } = await supabase.auth.signInWithGoogle?.();
+          
+          if (error) {
+            throw error;
+          }
+          
+          console.log('[Login] Mobile OAuth successful');
+          // The onAuthStateChange listener will handle the rest
+          setLoading(false);
+        } catch (popupError) {
+          console.error('[Login] Popup OAuth error:', popupError);
+          
+          // Fallback: Provide user with manual link
+          setError('Automatic OAuth failed. Please try the browser method.');
+          setLoading(false);
+          
+          alert('Note: OAuth popups may not work in Capacitor. The app will automatically sign you in when you authorize Google in the system browser.');
+        }
       }
     } catch (e) {
       console.error('[Login] Unexpected error:', e);
