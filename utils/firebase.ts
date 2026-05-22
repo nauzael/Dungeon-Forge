@@ -12,6 +12,7 @@ import {
   signInWithRedirect,
   getRedirectResult,
   User,
+  signInWithCredential,
 } from 'firebase/auth';
 import {
   getFirestore,
@@ -41,6 +42,7 @@ import { Character, CampaignResource } from '../types';
 import { debugLogger } from './debugLogger';
 import { createPartyLocal, updatePartyLocal, kickLocal } from './localStorage';
 import { Capacitor } from '@capacitor/core';
+import { signInWithGoogleNative } from './googleSignInNative';
 
 // Firebase Config
 const firebaseConfig = {
@@ -124,12 +126,14 @@ export const supabase = {
     },
     onAuthStateChange: (callback: (_event: string, session: any) => void) => {
       if (!authInstance) {
-        return { data: { subscription: () => {} } };
+        return { data: { subscription: { unsubscribe: () => {} } } };
       }
       
       const unsubscribe = firebaseOnAuthStateChanged(authInstance, (user) => {
+        console.log('[Firebase Auth] State changed:', user?.email || 'signed out');
         if (user) {
           // Simulate Supabase event with session
+          console.log('[Firebase Auth] Firing SIGNED_IN callback for:', user.email);
           callback('SIGNED_IN', {
             user: {
               id: user.uid,
@@ -142,11 +146,13 @@ export const supabase = {
             access_token: user.getIdToken ? 'firebase-token' : undefined,
           });
         } else {
+          console.log('[Firebase Auth] Firing SIGNED_OUT callback');
           callback('SIGNED_OUT', null);
         }
       });
       
-      return { data: { subscription: unsubscribe } };
+      // Return object with unsubscribe method for Supabase compatibility
+      return { data: { subscription: { unsubscribe } } };
     },
     signOut: async () => {
       try {
@@ -195,43 +201,72 @@ export const supabase = {
         try {
           if (!authInstance) throw new Error('Auth not initialized');
           
+          const platform = Capacitor.getPlatform();
+          console.log('[OAuth] Platform detected:', platform);
+          
+          // For Android: Use NATIVE Google Sign-In with Google Play Services
+          if (platform === 'android') {
+            console.log('[Login] Using NATIVE GOOGLE SIGN-IN for Android');
+            return await signInWithGoogleNativeFirebase();
+          }
+          
           const provider = new GoogleAuthProvider();
           provider.setCustomParameters({ 
             prompt: options.options?.queryParams?.prompt || 'select_account'
           });
           
-          const isNative = Capacitor.getPlatform() !== 'web';
-          
-          if (isNative) {
-            // Mobile/Capacitor: Use popup flow (more compatible than redirect)
-            console.log('[OAuth] Using popup flow for Capacitor');
-            const result = await signInWithPopup(authInstance, provider);
-            return {
-              data: {
-                url: null,
-                user: {
-                  id: result.user.uid,
-                  email: result.user.email,
-                  user_metadata: {
-                    avatar_url: result.user.photoURL,
-                    full_name: result.user.displayName,
+          // For web: Use redirect flow (navigates away, returns with callback)
+          // For other Capacitor (native): Use popup flow (opens within app context)
+          if (platform === 'web') {
+            console.log('[OAuth] Using REDIRECT flow for web');
+            
+            try {
+              // signInWithRedirect navigates away and Firebase handles the callback
+              await signInWithRedirect(authInstance, provider);
+              
+              // This code will not execute immediately - page will redirect
+              // But we need to return something for TypeScript
+              return {
+                data: null,
+                error: null,
+              };
+            } catch (redirectErr) {
+              console.error('[OAuth] Redirect flow error:', (redirectErr as Error).message);
+              return {
+                data: null,
+                error: { message: (redirectErr as Error).message },
+              };
+            }
+          } else {
+            // Capacitor (native): Use popup flow
+            // In Capacitor, popup opens within app WebView context, not separate browser
+            console.log('[OAuth] Using POPUP flow for Capacitor');
+            
+            try {
+              const result = await signInWithPopup(authInstance, provider);
+              console.log('[OAuth] Popup completed with user:', result.user.email);
+              
+              return {
+                data: {
+                  url: null,
+                  user: {
+                    id: result.user.uid,
+                    email: result.user.email,
+                    user_metadata: {
+                      avatar_url: result.user.photoURL,
+                      full_name: result.user.displayName,
+                    },
                   },
                 },
-              },
-              error: null,
-            };
-          } else {
-            // Web: Use redirect flow (standard OAuth approach)
-            console.log('[OAuth] Using redirect flow for web');
-            await signInWithRedirect(authInstance, provider);
-            
-            // Redirect will cause page navigation, so we return immediately
-            return {
-              data: {
-                url: null,
-              },
-              error: null,
-            };
+                error: null,
+              };
+            } catch (popupErr) {
+              console.warn('[OAuth] Popup error:', (popupErr as Error).message);
+              return {
+                data: null,
+                error: { message: (popupErr as Error).message },
+              };
+            }
           }
         } catch (e) {
           console.error('[Auth] signInWithOAuth(google) failed:', e);
@@ -246,6 +281,55 @@ export const supabase = {
     },
   },
 };
+
+/**
+ * Native Google Sign-In for Android using Google Play Services
+ * Exchanges ID token from native plugin for Firebase credential
+ */
+async function signInWithGoogleNativeFirebase() {
+  try {
+    if (!authInstance) throw new Error('Auth not initialized');
+    
+    console.log('[Firebase Auth] Calling native Google Sign-In plugin');
+    
+    // Step 1: Get ID token from native Android plugin
+    const nativeResult = await signInWithGoogleNative();
+    console.log('[Firebase Auth] Native plugin returned token for:', nativeResult.email);
+    
+    if (!nativeResult.idToken) {
+      throw new Error('No ID token returned from native plugin');
+    }
+    
+    // Step 2: Create Firebase credential from ID token
+    const credential = GoogleAuthProvider.credential(nativeResult.idToken);
+    console.log('[Firebase Auth] Created Firebase credential from token');
+    
+    // Step 3: Sign in with credential
+    const result = await signInWithCredential(authInstance, credential);
+    console.log('[Firebase Auth] Credential exchange successful, user:', result.user.email);
+    
+    return {
+      data: {
+        url: null,
+        user: {
+          id: result.user.uid,
+          email: result.user.email,
+          user_metadata: {
+            avatar_url: result.user.photoURL,
+            full_name: result.user.displayName,
+          },
+        },
+      },
+      error: null,
+    };
+  } catch (error) {
+    console.error('[Firebase Auth] Native Google Sign-In failed:', error);
+    return {
+      data: null,
+      error: { message: (error as Error).message },
+    };
+  }
+}
 
 // Character Management
 export const saveCharacterToCloud = async (character: Character, userId: string) => {
