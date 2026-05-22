@@ -11,7 +11,11 @@ const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const isMockMode = !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('TU_PROYECTO');
+  // Check if Firebase is properly configured (not mock/placeholder values)
+  const isMockMode = !import.meta.env.VITE_FIREBASE_PROJECT_ID || 
+                     import.meta.env.VITE_FIREBASE_PROJECT_ID.includes('TU_PROYECTO') ||
+                     !import.meta.env.VITE_FIREBASE_API_KEY ||
+                     import.meta.env.VITE_FIREBASE_API_KEY.includes('TU_API_KEY');
 
   const handleLocalModeClick = () => {
     try {
@@ -33,7 +37,7 @@ const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
 
   const handleGoogleLogin = async () => {
     if (isMockMode) {
-      alert("Google Login is not available in Mock Mode. Please set VITE_SUPABASE_URL in .env");
+      alert("Google Login is not available in Mock Mode. Please set VITE_FIREBASE_PROJECT_ID and VITE_FIREBASE_API_KEY in .env");
       return;
     }
     
@@ -49,7 +53,7 @@ const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
     console.log('[Login] Starting OAuth flow');
     console.log('[Login] Platform:', isNative ? 'native (Capacitor)' : 'web');
     console.log('[Login] Redirect URL:', redirectUrl);
-    console.log('[Login] Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+    console.log('[Login] Firebase Project:', import.meta.env.VITE_FIREBASE_PROJECT_ID);
 
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({

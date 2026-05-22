@@ -172,6 +172,47 @@ export const supabase = {
         return { data: null, error: e };
       }
     },
+    signInWithOAuth: async (options: { provider: string; options?: any }) => {
+      // Supabase compatible OAuth sign-in
+      // For Firebase, we currently support Google OAuth only
+      if (options.provider === 'google') {
+        try {
+          if (!authInstance) throw new Error('Auth not initialized');
+          
+          const provider = new GoogleAuthProvider();
+          // Set custom parameters for OAuth flow
+          if (options.options?.queryParams?.prompt) {
+            provider.setCustomParameters({ prompt: options.options.queryParams.prompt });
+          }
+          
+          const result = await signInWithPopup(authInstance, provider);
+          const user = result.user;
+          
+          return {
+            data: {
+              url: null, // Firebase popup flow, no URL needed
+              user: {
+                id: user.uid,
+                email: user.email,
+                user_metadata: {
+                  avatar_url: user.photoURL,
+                  full_name: user.displayName,
+                },
+              },
+            },
+            error: null,
+          };
+        } catch (e) {
+          console.error('[Auth] signInWithOAuth(google) failed:', e);
+          return { data: null, error: { message: (e as Error).message } };
+        }
+      } else {
+        return {
+          data: null,
+          error: { message: `OAuth provider '${options.provider}' not supported` },
+        };
+      }
+    },
   },
 };
 
