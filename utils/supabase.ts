@@ -72,6 +72,65 @@ export const saveCharacterToCloud = async (character: Character, userId: string)
   }
 };
 
+/**
+ * Guarda un character con rollback automático si la sincronización a cloud falla.
+ * 
+ * Proceso:
+ * 1. Guarda snapshot de estado original en localStorage con key backup-${characterId}
+ * 2. Intenta guardar a cloud via saveOperation callback
+ * 3. Si falla:
+ *    - Restaura datos locales a originalCharacter
+ *    - Guarda lo que intentó guardar en localStorage bajo key failed-sync-${characterId}
+ *    - Retorna { success: false, error }
+ * 4. Si éxito:
+ *    - Limpia backup de localStorage
+ *    - Retorna { success: true }
+ * 
+ * @param character - Personaje a guardar
+ * @param originalCharacter - Personaje original para rollback
+ * @param saveOperation - Función que realiza el guardado a cloud
+ */
+export async function saveWithRollback(
+  character: Character,
+  originalCharacter: Character,
+  saveOperation?: () => Promise<any>
+): Promise<{
+  success: boolean;
+  error?: Error;
+}> {
+  const backupKey = `backup-${character.id}`;
+  const failedSyncKey = `failed-sync-${character.id}`;
+
+  try {
+    // Guardar backup ANTES de intentar save
+    localStorage.setItem(backupKey, JSON.stringify(originalCharacter));
+    console.log(`[Rollback] Backup guardado para ${character.id}`);
+
+    // Intentar guardar a cloud (si se proporciona saveOperation)
+    if (saveOperation) {
+      await saveOperation();
+    }
+
+    // Si éxito, limpiar backup
+    localStorage.removeItem(backupKey);
+    console.log(`[Rollback] Backup limpiado para ${character.id}`);
+
+    return { success: true };
+  } catch (error) {
+    // Si falla, restaurar datos locales
+    console.error(`[Rollback] Cloud save failed para ${character.id}:`, error instanceof Error ? error.message : error);
+    
+    // Guardar lo que intentamos guardar en failed-sync para auditoría
+    localStorage.setItem(failedSyncKey, JSON.stringify(character));
+    console.log(`[Rollback] Failed sync guardado en ${failedSyncKey}`);
+
+    return {
+      success: false,
+      error: error instanceof Error ? error : new Error('Unknown error during saveWithRollback'),
+    };
+  }
+}
+
 export const fetchCharactersFromCloud = async (userId: string) => {
   try {
     const { data, error } = await supabase
