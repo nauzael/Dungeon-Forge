@@ -7,6 +7,7 @@ import {
   kickLocal,
 } from './localStorage';
 import { debugLogger } from './debugLogger';
+import { isValidCharacter } from './validators';
 
 const TIMEOUT_MS = 15000;
 
@@ -41,6 +42,14 @@ export const supabase = createClient(
 // Helpers to handle character sync
 export const saveCharacterToCloud = async (character: Character, userId: string) => {
   try {
+    // VALIDAR PRIMERO
+    const validation = isValidCharacter(character);
+    if (!validation.valid) {
+      console.error('Character validation failed:', validation.errors);
+      throw new Error(`Invalid character: ${validation.errors.join(', ')}`);
+    }
+
+    // Si es válido, guardar
     const { data, error } = await supabase.from('characters').upsert(
       {
         id: character.id,
@@ -59,7 +68,7 @@ export const saveCharacterToCloud = async (character: Character, userId: string)
     return data;
   } catch (e) {
     console.error(`[Sync] Cloud save failed for ${character.name}:`, e instanceof Error ? e.message : e);
-    return null;
+    throw e; // Re-throw para que Wave 3 lo maneje con rollback
   }
 };
 
