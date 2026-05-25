@@ -4,6 +4,7 @@ import { Character, ViewState, SharedResourceEvent, OTAUpdate, VersionJsonRespon
 import { MOCK_CHARACTERS } from './constants';
 import CharacterList from './components/CharacterList';
 import Login from './components/Login';
+import Toast, { ToastType } from './src/components/Toast';
 import { migrateCharacters } from './utils/characterMigrations';
 import { generateUUID } from './utils/uuid';
 import { useResponsive } from './hooks/useResponsive';
@@ -44,6 +45,8 @@ const AppContent: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLocalMode, setIsLocalMode] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState<OTAUpdate | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [downloadProgress, setDownloadProgress] = useState<number>(0);
   const [showMigrationTool, setShowMigrationTool] = useState(false);
 
   // Responsive hook for landscape/portrait detection
@@ -149,33 +152,99 @@ const AppContent: React.FC = () => {
       const checkForUpdates = async () => {
         try {
           const storageBucket = import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'dungeon-forge-prod.firebasestorage.app';
-          // Fetch the version.json from our public Firebase Storage bucket
-          const resp = await fetch(`https://storage.googleapis.com/${storageBucket}/version.json?t=${Date.now()}`);
           
-          if (resp.ok) {
-            const data: VersionJsonResponse = await resp.json();
-            
-            // Log local stored version
-            const currentVersion = localStorage.getItem('app_version') || '1.0.0';
-            
-            if (data.version && data.version !== currentVersion && data.url) {
-              console.log(`Downloading new OTA update: ${data.version}`);
+          // Fetch the version.json from our public Firebase Storage bucket
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+          
+          try {
+            const resp = await fetch(`https://storage.googleapis.com/${storageBucket}/version.json?t=${Date.now()}`, {
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (resp.ok) {
+              const data: VersionJsonResponse = await resp.json();
               
-              const update = await CapacitorUpdater.download({
-                url: data.url,
-                version: data.version
-              });
+              // Log local stored version
+              const currentVersion = localStorage.getItem('app_version') || '1.0.0';
               
-              // Instead of setting instantly, wait for user confirmation
-              setUpdateAvailable({
-                version: data.version,
-                message: data.message || "New improvements have been forged for your adventure.",
-                payload: update
-              });
+              if (data.version && data.version !== currentVersion && data.url) {
+                console.log(`[OTA] Downloading new OTA update: ${data.version}`);
+                
+                try {
+                  // Set downloading state and reset progress
+                  setDownloadProgress(0);
+                  setUpdateError(null);
+                  
+                  const update = await CapacitorUpdater.download({
+                    url: data.url,
+                    version: data.version
+                  });
+                  
+                  // Update progress to 100% on success
+                  setDownloadProgress(100);
+                  
+                  // Instead of setting instantly, wait for user confirmation
+                  setUpdateAvailable({
+                    version: data.version,
+                    message: data.message || "New improvements have been forged for your adventure.",
+                    payload: update,
+                    downloading: false,
+                    progress: 100,
+                    available: true
+                  });
+                } catch (downloadErr) {
+                  // Handle download-specific errors
+                  const errorMsg = downloadErr instanceof Error ? downloadErr.message : String(downloadErr);
+                  console.error("[OTA] Download failed:", errorMsg);
+                  
+                  // Categorize error
+                  let displayError = "Error al descargar actualización";
+                  
+                  if (errorMsg.includes('quota') || errorMsg.includes('storage')) {
+                    displayError = "Almacenamiento insuficiente para descargar la actualización";
+                  } else if (errorMsg.includes('signature') || errorMsg.includes('invalid')) {
+                    displayError = "Archivo de actualización inválido o corrupto";
+                  } else if (errorMsg.includes('network') || errorMsg.includes('timeout')) {
+                    displayError = "Error de conexión. Reintentará automáticamente.";
+                  } else if (errorMsg.includes('CORS') || errorMsg.includes('cross-origin')) {
+                    displayError = "Error de conectividad al descargar la actualización";
+                  }
+                  
+                  setUpdateError(displayError);
+                  setDownloadProgress(0);
+                  setUpdateAvailable(null);
+                }
+              }
+            } else {
+              console.warn(`[OTA] Failed to fetch version.json: ${resp.status}`);
             }
+          } catch (fetchErr) {
+            clearTimeout(timeoutId);
+            
+            // Handle fetch-specific errors
+            const errorMsg = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
+            
+            if (errorMsg.includes('abort')) {
+              console.warn("[OTA] Version check timeout (>10s)");
+              setUpdateError("Tiempo de espera agotado al verificar actualizaciones");
+            } else if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+              console.warn("[OTA] Network error while checking updates:", errorMsg);
+              setUpdateError("Sin conexión de red para verificar actualizaciones");
+            } else {
+              console.error("[OTA] Fetch error:", errorMsg);
+              setUpdateError("Error al verificar si hay actualizaciones disponibles");
+            }
+            
+            setDownloadProgress(0);
           }
         } catch (e) {
-          console.error("Failed to fetch OTA update:", e);
+          // Catch-all for any unexpected errors
+          const errorMsg = e instanceof Error ? e.message : String(e);
+          console.error("[OTA] Unexpected error in checkForUpdates:", errorMsg);
+          setUpdateError("Error inesperado al verificar actualizaciones");
+          setDownloadProgress(0);
         }
       };
 
@@ -709,7 +778,7 @@ const AppContent: React.FC = () => {
     <div className="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
           <div className={`mx-auto ${isLandscape ? 'max-w-none' : 'max-w-md'} bg-background-light dark:bg-background-dark shadow-2xl min-h-screen relative overflow-hidden`}>
             
-            {/* OTA Update Spinner / Modal */}
+            {/* OTA Update Modal with Progress */}
             {updateAvailable && (
               <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
                 <div className="bg-white dark:bg-surface-dark rounded-3xl p-6 w-full max-w-xs shadow-2xl border border-primary/20 text-center animate-slideUp">
@@ -720,12 +789,50 @@ const AppContent: React.FC = () => {
                   <p className="text-slate-600 dark:text-slate-300 text-sm mb-6 font-medium">
                     {updateAvailable.message}
                   </p>
-                  <div className="w-full bg-slate-100 dark:bg-white/5 h-2 rounded-full overflow-hidden">
-                      <div className="bg-primary h-full w-full animate-pulse"></div>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-full bg-slate-100 dark:bg-white/5 h-2 rounded-full overflow-hidden mb-2">
+                    <div 
+                      className="bg-primary h-full transition-all duration-300"
+                      style={{ width: `${downloadProgress}%` }}
+                    ></div>
                   </div>
-                  <p className="text-xs text-slate-400 mt-4 uppercase tracking-widest font-bold">Reiniciando automáticamente...</p>
+                  
+                  {/* Progress Percentage */}
+                  <p className="text-xs text-slate-400 mb-2">
+                    {downloadProgress === 0 ? 'Verificando...' : `${Math.round(downloadProgress)}%`}
+                  </p>
+                  
+                  <p className="text-xs text-slate-400 uppercase tracking-widest font-bold">
+                    {downloadProgress === 100 ? 'Descarga completada. Reiniciando...' : 'Descargando actualización...'}
+                  </p>
                 </div>
               </div>
+            )}
+
+            {/* Error Toast */}
+            {updateError && (
+              <Toast
+                type="error"
+                message={updateError}
+                duration={0}
+                onClose={() => setUpdateError(null)}
+                action={{
+                  label: 'Reintentar',
+                  onClick: () => {
+                    setUpdateError(null);
+                    setDownloadProgress(0);
+                    // Trigger update check again
+                    if (Capacitor.getPlatform() !== 'web') {
+                      CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+                        if (isActive) {
+                          // checkForUpdates will be called in the interval
+                        }
+                      });
+                    }
+                  }
+                }}
+              />
             )}
 
             {/* Sync Indicator */}

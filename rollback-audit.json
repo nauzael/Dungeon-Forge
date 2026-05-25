@@ -1,0 +1,12 @@
+[
+  {
+    "timestamp": "2026-05-25T19:45:34.818Z",
+    "action": "restore_ota",
+    "targetVersion": "1.0.0-2026.5.25-000000",
+    "previousVersion": "1.0.0-2026.5.25-000000",
+    "message": "Test rollback",
+    "user": "unknown",
+    "status": "failed",
+    "error": "ZIP verification failed: ZIP file \"app-update-1.0.0-2026.5.25-000000.zip\" not found in Firebase Storage bucket"
+  }
+]
