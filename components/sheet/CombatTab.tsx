@@ -1554,7 +1554,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                     role="presentation"
                     tabIndex={-1}
                 >
-                    <div className="w-full max-w-[320px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.preventDefault()} role="presentation">
+                    <div className="w-full max-w-[320px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} role="presentation">
                         <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-widest mb-6">
                             {inspectedStat === 'HP' ? 'Hit Points' 
                              : inspectedStat?.startsWith('Save_') 
@@ -1672,7 +1672,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                     role="presentation"
                     tabIndex={-1}
                 >
-                    <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.preventDefault()} role="presentation">
+                    <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} role="presentation">
                         <div className="flex gap-1 mb-6 bg-slate-100 dark:bg-black/20 p-1 rounded-xl">
                             <button onClick={() => setHpModal(prev => ({ ...prev, type: 'damage' }))} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'damage' ? 'bg-red-500 text-white shadow-red-500/30' : 'text-slate-500'}`}>Damage</button>
                             <button onClick={() => setHpModal(prev => ({ ...prev, type: 'heal' }))} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'heal' ? 'bg-emerald-500 text-white shadow-emerald-500/30' : 'text-slate-500'}`}>Heal</button>
@@ -1685,7 +1685,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                         </p>
                         
                         {/* Input */}
-                        <input type="number" value={hpAmount} onChange={(e) => setHpAmount(e.target.value)} className={`w-full text-center text-5xl font-black bg-transparent border-b-2 py-3 mb-6 outline-none text-slate-900 dark:text-white ${hpModal.type === 'damage' ? 'border-red-500/50' : hpModal.type === 'heal' ? 'border-emerald-500/50' : 'border-blue-500/50'}`} placeholder="0"/>
+                        <input type="number" value={hpAmount} onChange={(e) => setHpAmount(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && applyHpChange()} className={`w-full text-center text-5xl font-black bg-transparent border-b-2 py-3 mb-6 outline-none text-slate-900 dark:text-white ${hpModal.type === 'damage' ? 'border-red-500/50' : hpModal.type === 'heal' ? 'border-emerald-500/50' : 'border-blue-500/50'}`} placeholder="0"/>
                         
                         {/* Info for temp HP */}
                         {hpModal.type === 'temp' && (
@@ -1731,7 +1731,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                     role="presentation"
                     tabIndex={-1}
                 >
-                    <div className="w-full max-sm bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.preventDefault()} role="presentation">
+                    <div className="w-full max-sm bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()} role="presentation">
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{selectedSkill}</h3>
@@ -1775,7 +1775,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                     role="presentation"
                     tabIndex={-1}
                 >
-                    <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.preventDefault()} role="presentation">
+                    <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} role="presentation">
                         <div className="space-y-2">
                             {weaponStatModal.isSpell ? (
                                 <>

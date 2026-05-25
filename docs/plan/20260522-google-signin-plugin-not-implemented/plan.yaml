@@ -1,0 +1,490 @@
+plan_id: 20260522-google-signin-plugin-not-implemented
+objective: Resolver "GoogleSignIn plugin is not implemented on android" y dejar validacion completa por ADB
+created_at: "2026-05-22T00:00:00Z"
+created_by: GPT-5.3-Codex (gem-planner)
+status: pending
+research_confidence: high
+plan_metrics:
+  wave_1_task_count: 2
+  total_dependencies: 4
+  risk_score: medium
+tldr: |
+  Se planifica un fix acotado en Android nativo para registrar el plugin en MainActivity y exponer
+  metodos mediante @PluginMethod en GoogleSignInPlugin, seguido de pipeline de sync/build/install y
+  validacion runtime via ADB/logcat con criterios de exito/fallo observables.
+requirements_reference:
+  canonical_prd: docs/PRD.yaml
+  requirement_ids: [RQ-001, RQ-002, RQ-003, RQ-004, RQ-005]
+requirement_task_map:
+  - requirement_id: RQ-001
+    task_ids: [T1_plugin_registration_and_methods]
+  - requirement_id: RQ-002
+    task_ids: [T1_plugin_registration_and_methods]
+  - requirement_id: RQ-003
+    task_ids: [T3_sync_build_install]
+  - requirement_id: RQ-004
+    task_ids: [T2_adb_validation_matrix, T4_runtime_adb_validation]
+  - requirement_id: RQ-005
+    task_ids: [T5_quality_gate_review]
+requirements_sources:
+  - id: RS-AGENTS-INCIDENT
+    type: operational_requirements
+    path: AGENTS.md
+    sections:
+      - 'Incidente: "GoogleSignIn plugin is not implemented on android"'
+      - "Fix minimo"
+      - "Checklist de validacion rapida"
+    rationale: "Define problema, root cause, fix minimo y checklist operativo cuando no existe docs/PRD.yaml."
+  - id: RS-RESEARCH-FINDINGS
+    type: technical_evidence
+    path: docs/plan/20260522-google-signin-plugin-not-implemented/research_findings_android_google_signin_plugin.yaml
+    sections:
+      - "tldr"
+      - "research_metadata"
+      - "recommendations"
+    rationale: "Aporta evidencia verificable de contrato JS/Java, comandos de validacion y señales de exito/fallo."
+acceptance_traceability:
+  - criterion_id: AC-01
+    criterion: "MainActivity registra GoogleSignInPlugin en onCreate."
+    source_refs: [RS-AGENTS-INCIDENT, RS-RESEARCH-FINDINGS]
+    satisfied_by_tasks: [T1_plugin_registration_and_methods]
+  - criterion_id: AC-02
+    criterion: "GoogleSignInPlugin expone signInWithGoogle y signOut mediante @PluginMethod."
+    source_refs: [RS-AGENTS-INCIDENT, RS-RESEARCH-FINDINGS]
+    satisfied_by_tasks: [T1_plugin_registration_and_methods]
+  - criterion_id: AC-03
+    criterion: "Pipeline npm build + cap sync + gradle debug + adb install completa sin errores bloqueantes."
+    source_refs: [RS-AGENTS-INCIDENT, RS-RESEARCH-FINDINGS]
+    satisfied_by_tasks: [T3_sync_build_install]
+  - criterion_id: AC-04
+    criterion: "En runtime no aparece 'plugin is not implemented', se abre selector de cuenta y login completa."
+    source_refs: [RS-AGENTS-INCIDENT, RS-RESEARCH-FINDINGS]
+    satisfied_by_tasks: [T2_adb_validation_matrix, T4_runtime_adb_validation]
+  - criterion_id: AC-05
+    criterion: "Sign-out nativo ejecuta sin errores ni crash."
+    source_refs: [RS-AGENTS-INCIDENT, RS-RESEARCH-FINDINGS]
+    satisfied_by_tasks: [T4_runtime_adb_validation]
+  - criterion_id: AC-06
+    criterion: "Se emite dictamen final PASS/FAIL con evidencia y control de riesgo de logs sensibles."
+    source_refs: [RS-RESEARCH-FINDINGS]
+    satisfied_by_tasks: [T5_quality_gate_review]
+open_questions:
+  - question: "Se requiere compatibilidad con una version de Capacitor donde @PluginMethod no sea obligatorio?"
+    context: "El bug actual sugiere problema de exposicion de metodos; confirmar matriz de versiones reduce riesgo de regresion."
+    type: research
+    affects: [T1_plugin_registration_and_methods]
+  - question: "Se mantiene la version actual de play-services-auth sin upgrade para este fix?"
+    context: "El plan no cambia dependencias, pero se valida que compile y ejecute sin conflicto."
+    type: nice_to_know
+    affects: [T3_sync_build_install]
+gaps:
+  - description: "Sin gaps bloqueantes para este incidente: PRD canónico creado y enlazado en trazabilidad de plan."
+    refinement_requests: []
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "Plugin registrado pero metodos no expuestos correctamente al bridge JS"
+      likelihood: medium
+      impact: high
+      mitigation: "Agregar @PluginMethod en signInWithGoogle/signOut y verificar invocacion real por logcat."
+    - scenario: "Build Android exitoso pero app instalada no contiene cambios por sync incompleto"
+      likelihood: medium
+      impact: high
+      mitigation: "Forzar secuencia npm run build -> npx cap sync android -> gradlew clean assembleDebug antes de install."
+    - scenario: "Flujo inicia pero falla en runtime (crash o token nulo)"
+      likelihood: low
+      impact: critical
+      mitigation: "Ejecutar matriz ADB con filtros AndroidRuntime/FATAL y señales [GoogleSignIn]/[Firebase Auth]."
+  assumptions:
+    - "El nombre del plugin se mantiene como GoogleSignIn en JS y Java."
+    - "Existe dispositivo Android conectado y autorizado por ADB."
+    - "No se requiere modificar firebase.ts para este bug puntual."
+implementation_specification:
+  code_structure: "Cambio vertical minimo en capa nativa Android (MainActivity + GoogleSignInPlugin), seguido de validacion operativa ADB sin ampliar alcance funcional."
+  affected_areas:
+    - "android/app/src/main/java/com/tupaquete/dndcompanion/MainActivity.java"
+    - "android/app/src/main/java/com/tupaquete/dndcompanion/GoogleSignInPlugin.java"
+    - "android build/sync/install pipeline"
+    - "evidencia runtime en logcat"
+  component_details:
+    - component: "MainActivity"
+      responsibility: "Registrar plugin local durante bootstrap de BridgeActivity."
+      interfaces:
+        - "onCreate(Bundle savedInstanceState)"
+        - "registerPlugin(GoogleSignInPlugin.class)"
+      dependencies:
+        - component: "GoogleSignInPlugin"
+          relationship: "registration-time binding"
+      integration_points:
+        - "Capacitor bridge startup"
+    - component: "GoogleSignInPlugin"
+      responsibility: "Exponer metodos invocables desde JS para login/logout nativo."
+      interfaces:
+        - "@PluginMethod signInWithGoogle(PluginCall call)"
+        - "@PluginMethod signOut(PluginCall call)"
+      dependencies:
+        - component: "@capacitor/core bridge"
+          relationship: "runtime method dispatch"
+      integration_points:
+        - "utils/googleSignInNative.ts registerPlugin('GoogleSignIn')"
+    - component: "ADB validation harness"
+      responsibility: "Validar build, install y flujo runtime con evidencias reproducibles."
+      interfaces:
+        - "adb install -r <apk>"
+        - "adb logcat -v threadtime | Select-String <patterns>"
+      dependencies:
+        - component: "Debug APK output"
+          relationship: "runtime artifact"
+      integration_points:
+        - "Google chooser open"
+        - "Firebase credential exchange logs"
+contracts:
+  - from_task: T1_plugin_registration_and_methods
+    to_task: T3_sync_build_install
+    interface: "Native Android patch set"
+    format: "2-file code diff (MainActivity.java + GoogleSignInPlugin.java)"
+  - from_task: T2_adb_validation_matrix
+    to_task: T4_runtime_adb_validation
+    interface: "Validation matrix and log filters"
+    format: "Command checklist + expected success/failure log patterns"
+  - from_task: T3_sync_build_install
+    to_task: T4_runtime_adb_validation
+    interface: "Runnable debug artifact"
+    format: "Installed debug APK + package launch command"
+  - from_task: T4_runtime_adb_validation
+    to_task: T5_quality_gate_review
+    interface: "Execution evidence bundle"
+    format: "Log excerpts + pass/fail checklist"
+tasks:
+  - id: T1_plugin_registration_and_methods
+    title: "Aplicar parche nativo de registro y exposicion de metodos"
+    description: |
+      Implementar el fix minimo en Android nativo:
+      1) registrar GoogleSignInPlugin en MainActivity durante onCreate,
+      2) agregar @PluginMethod en signInWithGoogle y signOut para el bridge JS.
+    wave: 1
+    agent: gem-implementer-mobile
+    prototype: false
+    covers:
+      - "Registro de plugin en MainActivity"
+      - "Exposicion de metodos JS->Java"
+    requirement_ids: [RQ-001, RQ-002]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: android/app/src/main/java/com/tupaquete/dndcompanion/MainActivity.java
+        description: "Entry point Android; actualmente sin registerPlugin."
+      - path: android/app/src/main/java/com/tupaquete/dndcompanion/GoogleSignInPlugin.java
+        description: "Plugin nativo con metodos no anotados para bridge."
+      - path: utils/googleSignInNative.ts
+        description: "Contrato JS que invoca signInWithGoogle/signOut."
+    diagnosis:
+      root_cause: "Falta de registro en MainActivity y ausencia de @PluginMethod en metodos expuestos."
+      fix_recommendations: "Registrar plugin en onCreate + anotar metodos publicos invocados por JS."
+      injected_at: "2026-05-22T00:00:00Z"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: "Fix puntual definido por evidencia previa de AGENTS + research findings"
+        timestamp: "2026-05-22T00:00:00Z"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 40
+    focus_area: android_plugin_bridge
+    verification:
+      - "Compila codigo Java sin errores de anotaciones/imports"
+      - "No cambia contrato TS existente de registerPlugin('GoogleSignIn')"
+    acceptance_criteria:
+      - "MainActivity contiene onCreate con registerPlugin(GoogleSignInPlugin.class)"
+      - "GoogleSignInPlugin tiene @PluginMethod en signInWithGoogle y signOut"
+      - "No se agregan cambios fuera del alcance del bug"
+    failure_modes:
+      - scenario: "Firma de metodo onCreate incorrecta o faltan imports"
+        likelihood: low
+        impact: medium
+        mitigation: "Usar firma estandar Android y validar compilacion Gradle."
+      - scenario: "Anotaciones @PluginMethod no aplicadas a ambos metodos"
+        likelihood: medium
+        impact: high
+        mitigation: "Checklist estatico sobre ambos metodos antes de build."
+    tech_stack: ["Java", "Capacitor Android"]
+    test_coverage: null
+
+  - id: T2_adb_validation_matrix
+    title: "Definir matriz de validacion ADB y señales logcat"
+    description: |
+      Preparar secuencia reproducible para validacion runtime:
+      build/sync, install, launch, y filtros de log para exito/fallo.
+      Incluye patrones de error explicitos: not implemented, AndroidRuntime, FATAL.
+    wave: 1
+    agent: gem-mobile-tester
+    prototype: false
+    covers:
+      - "Checklist ADB"
+      - "Matriz de señales de exito/fallo"
+    requirement_ids: [RQ-004]
+    priority: medium
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: docs/plan/20260522-google-signin-plugin-not-implemented/research_findings_android_google_signin_plugin.yaml
+        description: "Fuente de comandos y patrones de log validados."
+      - path: AGENTS.md
+        description: "Checklist oficial de troubleshooting OAuth Android."
+    diagnosis:
+      root_cause: "Validaciones ad-hoc pueden omitir señales criticas y producir falsos positivos."
+      fix_recommendations: "Estandarizar pipeline ADB y filtros de logcat antes de ejecutar pruebas."
+      injected_at: "2026-05-22T00:00:00Z"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: "Reducir riesgo de validacion incompleta en runtime"
+        timestamp: "2026-05-22T00:00:00Z"
+    estimated_effort: small
+    estimated_files: 1
+    estimated_lines: 80
+    focus_area: validation_protocol
+    verification:
+      - "Incluye comandos PowerShell ejecutables en Windows"
+      - "Define al menos 5 señales de exito y 5 de fallo"
+    acceptance_criteria:
+      - "Matriz define pasos build/sync/install/launch/logcat"
+      - "Se establece criterio de PASS/FAIL para bug original"
+    failure_modes:
+      - scenario: "Filtro logcat demasiado estrecho y pierde errores"
+        likelihood: medium
+        impact: medium
+        mitigation: "Agregar patrones AndroidRuntime, FATAL y texto literal del bug."
+    validation_matrix:
+      - scenario: "App arranca tras install"
+        steps: ["adb install -r apk", "adb shell am start -n package/.MainActivity"]
+        expected_result: "MainActivity abre sin crash"
+      - scenario: "Llamada a plugin de login"
+        steps: ["Tap login", "observar logcat filtrado"]
+        expected_result: "Aparecen logs [GoogleSignIn] y no aparece not implemented"
+    flows:
+      - flow_id: oauth-native-android
+        description: "Flujo login con plugin nativo y exchange Firebase"
+        setup: ["Dispositivo conectado", "APK debug instalado"]
+        steps: ["Abrir app", "Iniciar Google login", "Seleccionar cuenta"]
+        expected_state: { signed_in: true, plugin_error: false }
+        teardown: ["Cerrar app"]
+    fixtures: {}
+    test_data: ["Cuenta Google valida", "Dispositivo con Google Play Services"]
+    cleanup: true
+    visual_regression: {}
+
+  - id: T3_sync_build_install
+    title: "Ejecutar sync, build Android e instalacion en dispositivo"
+    description: |
+      Ejecutar pipeline tecnico tras aplicar parche:
+      npm run build, npx cap sync android, gradlew clean assembleDebug, adb install -r.
+      Verificar artefacto debug y arranque de actividad principal.
+    wave: 2
+    agent: gem-implementer-mobile
+    prototype: false
+    covers:
+      - "Build reproducible"
+      - "Artefacto instalable"
+    requirement_ids: [RQ-003]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T1_plugin_registration_and_methods]
+    conflicts_with: []
+    context_files:
+      - path: package.json
+        description: "Script build web."
+      - path: android/gradlew.bat
+        description: "Build Android debug."
+      - path: android/app/build/outputs/apk/debug/app-debug.apk
+        description: "Artefacto esperado para install."
+    diagnosis:
+      root_cause: "Sin sync/build completo, el dispositivo puede ejecutar binario sin el fix."
+      fix_recommendations: "Pipeline limpio con clean assembleDebug e instalacion forzada."
+      injected_at: "2026-05-22T00:00:00Z"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: "Asegurar trazabilidad entre parche y binario probado"
+        timestamp: "2026-05-22T00:00:00Z"
+    estimated_effort: medium
+    estimated_files: 3
+    estimated_lines: 120
+    focus_area: android_build_pipeline
+    verification:
+      - "Gradle finaliza BUILD SUCCESSFUL"
+      - "adb install retorna exito"
+      - "La app arranca via adb shell am start"
+    acceptance_criteria:
+      - "APK debug generado e instalado en dispositivo objetivo"
+      - "No hay errores de compilacion relacionados con plugin"
+    failure_modes:
+      - scenario: "Sync de Capacitor no actualiza proyecto Android"
+        likelihood: medium
+        impact: high
+        mitigation: "Ejecutar npx cap sync android luego de npm run build y antes de gradle."
+      - scenario: "Falla instalacion por paquete en conflicto"
+        likelihood: low
+        impact: medium
+        mitigation: "Usar adb uninstall previo si install -r falla."
+    tech_stack: ["Node", "Capacitor", "Gradle", "ADB"]
+    test_coverage: null
+
+  - id: T4_runtime_adb_validation
+    title: "Validar runtime de login/logout por ADB con evidencia"
+    description: |
+      Ejecutar validacion funcional en dispositivo real con logcat filtrado.
+      Confirmar desaparicion del error "plugin is not implemented", apertura de account chooser,
+      retorno de token y exchange Firebase exitoso.
+    wave: 3
+    agent: gem-mobile-tester
+    prototype: false
+    covers:
+      - "Flujo login nativo"
+      - "Flujo signOut nativo"
+      - "Evidencia logcat"
+    requirement_ids: [RQ-004]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T2_adb_validation_matrix, T3_sync_build_install]
+    conflicts_with: []
+    context_files:
+      - path: utils/googleSignInNative.ts
+        description: "Logs [GoogleSignInNative] esperados durante invocacion."
+      - path: utils/firebase.ts
+        description: "Logs [Firebase Auth] esperados durante credential exchange."
+      - path: android/app/src/main/java/com/tupaquete/dndcompanion/GoogleSignInPlugin.java
+        description: "Logs [GoogleSignIn] esperados del plugin."
+    diagnosis:
+      root_cause: "El bug es runtime; solo queda cerrado con evidencia en dispositivo real."
+      fix_recommendations: "Ejecutar matriz ADB completa y capturar extractos de logs en orden cronologico."
+      injected_at: "2026-05-22T00:00:00Z"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: "Objetivo del usuario exige validacion ADB completa"
+        timestamp: "2026-05-22T00:00:00Z"
+    estimated_effort: medium
+    estimated_files: 2
+    estimated_lines: 180
+    focus_area: runtime_verification
+    verification:
+      - "No aparece mensaje literal 'GoogleSignIn plugin is not implemented on android'"
+      - "Aparecen señales de exito del chooser y exchange"
+      - "Sign-out ejecuta sin reject"
+    acceptance_criteria:
+      - "Login Android abre selector de cuenta y autentica correctamente"
+      - "Logs confirman credential exchange exitoso"
+      - "SignOut finaliza sin error y sin crash"
+    failure_modes:
+      - scenario: "No se reproduce error pero tampoco se completa auth (falso verde)"
+        likelihood: medium
+        impact: high
+        mitigation: "Exigir evidencia de evento de exito Firebase ademas de ausencia de error."
+      - scenario: "Intermitencia del dispositivo/ADB"
+        likelihood: medium
+        impact: medium
+        mitigation: "Reintentar flujo completo hasta 3 veces y registrar intento valido."
+    validation_matrix:
+      - scenario: "Bug original no reaparece"
+        steps: ["Iniciar login nativo", "seguir logs en vivo"]
+        expected_result: "No aparece 'plugin is not implemented'"
+      - scenario: "Auth completa"
+        steps: ["Seleccionar cuenta", "esperar callback firebase"]
+        expected_result: "Log de credential exchange exitoso"
+      - scenario: "Sign out"
+        steps: ["Invocar logout", "verificar logs plugin"]
+        expected_result: "Sign-out complete sin crash"
+    flows:
+      - flow_id: native-login-success
+        description: "Login nativo Android y autenticacion Firebase"
+        setup: ["APK parcheado instalado", "logcat limpio"]
+        steps: ["Tap login", "elige cuenta", "espera callback"]
+        expected_state: { login_success: true, plugin_dispatch_ok: true, fatal_errors: false }
+        teardown: ["Guardar evidencia de logs"]
+      - flow_id: native-signout-success
+        description: "Cierre de sesion nativo"
+        setup: ["Sesion iniciada"]
+        steps: ["Tap sign out"]
+        expected_state: { signout_success: true, fatal_errors: false }
+        teardown: ["Cerrar app"]
+    fixtures: {}
+    test_data: ["Usuario Google valido con acceso", "Red disponible"]
+    cleanup: true
+    visual_regression: {}
+
+  - id: T5_quality_gate_review
+    title: "Cierre de calidad y riesgo con dictamen de release"
+    description: |
+      Revisar evidencia tecnica final y emitir dictamen pass/fail para cierre del incidente.
+      Verifica que el fix no introduzca riesgos de seguridad (token logging) ni regresiones obvias.
+    wave: 4
+    agent: gem-reviewer
+    prototype: false
+    covers:
+      - "Riesgo de regresion"
+      - "Riesgo de seguridad en logs"
+      - "Criterio de cierre del incidente"
+    requirement_ids: [RQ-005]
+    priority: medium
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T4_runtime_adb_validation]
+    conflicts_with: []
+    context_files:
+      - path: docs/plan/20260522-google-signin-plugin-not-implemented/research_findings_android_google_signin_plugin.yaml
+        description: "Contexto tecnico y riesgos conocidos."
+      - path: android/app/src/main/java/com/tupaquete/dndcompanion/GoogleSignInPlugin.java
+        description: "Verificar manejo de token y logs."
+      - path: utils/firebase.ts
+        description: "Verificar logs de credential exchange sin exponer secreto."
+    diagnosis:
+      root_cause: "Sin quality gate, el fix puede cerrarse sin validar riesgos secundarios."
+      fix_recommendations: "Emitir dictamen con checklist de seguridad y operacion basado en evidencia ADB."
+      injected_at: "2026-05-22T00:00:00Z"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: "Agregar control final de calidad para cierre confiable"
+        timestamp: "2026-05-22T00:00:00Z"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 100
+    focus_area: release_gate
+    verification:
+      - "Evidencia suficiente para reproducibilidad del fix"
+      - "No hay tokens sensibles en logs"
+      - "Se documenta decision release-ready o blocked"
+    acceptance_criteria:
+      - "Dictamen final con PASS/FAIL y razones"
+      - "Checklist de seguridad/logging completado"
+      - "Si FAIL, incluye acciones correctivas concretas"
+    failure_modes:
+      - scenario: "Evidencia incompleta para afirmar cierre"
+        likelihood: medium
+        impact: high
+        mitigation: "Marcar blocked y pedir rerun de casos faltantes con logs."
+      - scenario: "Exposicion accidental de datos sensibles en logs"
+        likelihood: low
+        impact: high
+        mitigation: "Enmascarar identificadores y prohibir volcado de idToken."
+    requires_review: true
+    review_depth: full
+    review_security_sensitive: true

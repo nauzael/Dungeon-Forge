@@ -8,8 +8,12 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
+  // 🚀 V1.6 VERIFICATION - OAuth popup flow
+  console.log('[V1.6] 🚀 Login component loaded - NEW POPUP FLOW');
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // Check if Firebase is properly configured (not mock/placeholder values)
   const isMockMode = !import.meta.env.VITE_FIREBASE_PROJECT_ID || 
@@ -19,6 +23,7 @@ const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
 
   const handleLocalModeClick = () => {
     try {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       localStorage.setItem('df_local_mode', 'true');
       localStorage.setItem('df_session', JSON.stringify({ 
         user: 'Local Developer', 
@@ -82,26 +87,49 @@ const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
         // Loading state remains until page reloads with user
         console.log('[Login] Redirect flow initiated - waiting for Google OAuth...');
       } else {
-        // Mobile: use popup flow with browser plugin
-        console.log('[Login] Using popup OAuth flow for mobile');
+        // Mobile: use popup flow for Capacitor (NO redirectTo, so firebase uses popup)
+        console.log('[Login] Using POPUP OAuth flow for mobile');
         
-        // Try to get an OAuth URL for the popup
         try {
-          // Use signInWithGoogle method (which uses popup)
-          const { data, error } = await supabase.auth.signInWithGoogle?.();
+          // Use signInWithOAuth WITHOUT redirectTo for Capacitor
+          // This triggers popup flow in firebase.ts
+          const result = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+              // NO redirectTo for mobile - let firebase.ts use popup flow
+              queryParams: { prompt: 'select_account' }
+            }
+          });
+          
+          const { error, data } = result as any;
           
           if (error) {
-            throw error;
+            console.error('[Login] OAuth error:', error.message);
+            setLoading(false);
+            setError('OAuth error: ' + error.message);
+            return;
           }
           
-          console.log('[Login] Mobile OAuth successful');
-          // The onAuthStateChange listener will handle the rest
-          setLoading(false);
+          // SUCCESS path: Credential exchange completed
+          if (data?.user) {
+            console.log('[Login] OAuth succeeded for:', data.user.email);
+            setLoading(false);  // ← CRITICAL: Clear loading state immediately
+            // App.tsx onAuthStateChange will fire and navigate to CharacterSelect
+          } else {
+            console.log('[Login] OAuth response with no user, waiting for auth state change...');
+          }
+          
+          // Safety timeout - if auth doesn't complete in 15 seconds, show error
+          timeoutRef.current = setTimeout(() => {
+            console.error('[Login] OAuth timeout - auth did not complete');
+            setLoading(false);
+            setError('Authentication timeout. Please try again.');
+          }, 15000);
         } catch (popupError) {
-          console.error('[Login] Popup OAuth error:', popupError);
+          console.error('[Login] Redirect OAuth error:', popupError);
           
           // Fallback: Provide user with manual link
-          setError('Automatic OAuth failed. Please try the browser method.');
+          setError('Automatic OAuth failed. Please try again.');
           setLoading(false);
           
           alert('Note: OAuth popups may not work in Capacitor. The app will automatically sign you in when you authorize Google in the system browser.');
@@ -114,7 +142,14 @@ const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
       setLoading(false);
     }
   };
-
+  // Cleanup timeout on unmount or when navigating away
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
   return (
     <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden">
       {/* Background with parallax effect */}

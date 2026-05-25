@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-js';
+import admin from 'firebase-admin';
 
 // Load env vars
 dotenv.config();
@@ -11,15 +11,29 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.join(__dirname, '..');
 const otaDir = path.join(projectRoot, 'ota-release');
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const serviceKey = process.env.SUPABASE_SERVICE_KEY;
+const bucketName = process.env.VITE_FIREBASE_STORAGE_BUCKET || 'dungeon-forge-prod.firebasestorage.app';
 
-if (!serviceKey) {
-  console.error("\n❌ ERROR: SUPABASE_SERVICE_KEY was not found in your .env file!");
+const serviceAccountPath = path.join(projectRoot, 'dungeon-forge-prod-firebase-adminsdk-fbsvc-08adfe3b9a.json');
+
+if (!fs.existsSync(serviceAccountPath)) {
+  console.error(`\n❌ ERROR: Firebase Service Account JSON not found at ${serviceAccountPath}!`);
   process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, serviceKey);
+// Initialize Firebase Admin
+let adminApp;
+try {
+  const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+  adminApp = admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    storageBucket: bucketName
+  });
+} catch (e) {
+  console.error("❌ Failed to initialize Firebase Admin:", e.message);
+  process.exit(1);
+}
+
+const bucket = admin.storage().bucket();
 
 // Arg 1: Version to restore (e.g. 2026.4.16-123234)
 // Arg 2: Optional message
@@ -44,7 +58,7 @@ async function restoreOTA() {
   const versionJsonPath = path.join(otaDir, 'version.json');
   const versionData = {
     version: targetVersion,
-    url: `${supabaseUrl}/storage/v1/object/public/updates/${zipFile}`,
+    url: `https://storage.googleapis.com/${bucketName}/${zipFile}`,
     message: customMessage
   };
   
@@ -55,29 +69,34 @@ async function restoreOTA() {
     fs.writeFileSync(versionJsonPath, JSON.stringify(versionData, null, 2));
     console.log(`✅ Updated local ota-release/version.json.`);
 
-    // Upload ZIP to Supabase (in case it's missing)
+    // Upload ZIP to Firebase Storage (in case it's missing)
     if (fs.existsSync(zipFilePath)) {
-      console.log(`🚀 Uploading ZIP payload to Supabase...`);
-      const zipBuffer = fs.readFileSync(zipFilePath);
-      const { error: zipErr } = await supabase.storage.from('updates').upload(zipFile, zipBuffer, {
+      console.log(`🚀 Uploading ZIP payload to Firebase Storage...`);
+      const [zipFileObj] = await bucket.upload(zipFilePath, {
+        destination: zipFile,
+        metadata: {
           contentType: 'application/zip',
-          upsert: true
+          cacheControl: 'public, max-age=31536000'
+        }
       });
-      if (zipErr) throw zipErr;
-      console.log(`✅ Uploaded ZIP payload.`);
+      console.log(`   Making ZIP public...`);
+      await zipFileObj.makePublic();
+      console.log(`✅ Uploaded and published ZIP payload.`);
     } else {
-      console.warn(`⚠️ ZIP file ${zipFile} not found locally. Skipping upload, assuming it exists in Supabase.`);
+      console.warn(`⚠️ ZIP file ${zipFile} not found locally. Skipping upload, assuming it exists in Firebase Storage.`);
     }
 
-    // Upload version.json to Supabase
-    console.log(`🚀 Uploading version.json...`);
-    const jsonBuffer = fs.readFileSync(versionJsonPath);
-    const { error: jsonErr } = await supabase.storage.from('updates').upload('version.json', jsonBuffer, {
+    // Upload version.json to Firebase Storage
+    console.log(`🚀 Uploading version.json to Firebase Storage...`);
+    const [jsonFileObj] = await bucket.upload(versionJsonPath, {
+      destination: 'version.json',
+      metadata: {
         contentType: 'application/json',
-        upsert: true
+        cacheControl: 'public, no-cache, no-store, must-revalidate, max-age=0'
+      }
     });
-    
-    if (jsonErr) throw jsonErr;
+    console.log(`   Making version.json public...`);
+    await jsonFileObj.makePublic();
     
     console.log(`\n===========================================`);
     console.log(`🎉 OTA RESTORATION SUCCESSFUL!`);

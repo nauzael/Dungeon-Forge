@@ -1,0 +1,324 @@
+plan_id: "20260522-google-signin-plugin-not-implemented"
+objective: "definir parche exacto para resolver plugin not implemented en Android"
+focus_area: "android_google_signin_plugin_registration"
+created_at: "2026-05-22"
+created_by: "GitHub Copilot (GPT-5.3-Codex, researcher mode)"
+status: completed
+tldr: |
+  - El error "plugin not implemented" se explica por falta de registro nativo en MainActivity: actualmente extiende BridgeActivity sin registerPlugin.
+  - El plugin Java ya tiene @CapacitorPlugin(name = "GoogleSignIn"), pero los métodos expuestos a JS no están anotados con @PluginMethod.
+  - El contrato JS está alineado con el nombre "GoogleSignIn" vía registerPlugin en googleSignInNative.ts.
+  - Se definió diff conceptual exacto para MainActivity.java y GoogleSignInPlugin.java, más secuencia PowerShell de validación y señales logcat.
+  - Falta docs/PRD.yaml en este workspace; se documenta como gap no bloqueante para este fix puntual.
+
+research_metadata:
+  methodology: "explore_subagent + grep_search + read_file + numbered file reads in PowerShell"
+  scope: "Registro de plugin Capacitor Android, puente JS TypeScript, y flujo de auth nativo en firebase.ts"
+  confidence: high
+  coverage: 95
+  decision_blockers: 0
+  research_blockers: 1
+
+files_analyzed:
+  - file: "MainActivity.java"
+    path: "android/app/src/main/java/com/tupaquete/dndcompanion/MainActivity.java"
+    purpose: "Entry point Android de Capacitor; define registro manual de plugins locales"
+    key_elements:
+      - element: "MainActivity extends BridgeActivity"
+        type: class
+        location: "MainActivity.java:5"
+        description: "No existe método onCreate ni llamada a registerPlugin; estado actual no registra GoogleSignInPlugin."
+        language: "java"
+    lines: 5
+
+  - file: "GoogleSignInPlugin.java"
+    path: "android/app/src/main/java/com/tupaquete/dndcompanion/GoogleSignInPlugin.java"
+    purpose: "Plugin nativo Android para Google Sign-In y retorno de idToken al bridge JS"
+    key_elements:
+      - element: "@CapacitorPlugin(name = \"GoogleSignIn\")"
+        type: pattern
+        location: "GoogleSignInPlugin.java:18"
+        description: "Nombre de plugin nativo, debe coincidir exactamente con registerPlugin en JS."
+        language: "java"
+      - element: "signInWithGoogle(PluginCall call)"
+        type: function
+        location: "GoogleSignInPlugin.java:68"
+        description: "Método invocado desde JS pero actualmente sin anotación @PluginMethod."
+        language: "java"
+      - element: "signOut(PluginCall call)"
+        type: function
+        location: "GoogleSignInPlugin.java:97"
+        description: "Método invocado desde JS pero actualmente sin anotación @PluginMethod."
+        language: "java"
+    lines: 161
+
+  - file: "googleSignInNative.ts"
+    path: "utils/googleSignInNative.ts"
+    purpose: "Contrato JS/TS del plugin nativo"
+    key_elements:
+      - element: "registerPlugin<GoogleSignInPlugin>('GoogleSignIn')"
+        type: pattern
+        location: "googleSignInNative.ts:20"
+        description: "Nombre final de plugin requerido por bridge JS: GoogleSignIn."
+        language: "typescript"
+      - element: "GoogleSignIn.signInWithGoogle()"
+        type: function
+        location: "googleSignInNative.ts:30"
+        description: "Invoca método nativo signInWithGoogle."
+        language: "typescript"
+      - element: "GoogleSignIn.signOut()"
+        type: function
+        location: "googleSignInNative.ts:48"
+        description: "Invoca método nativo signOut."
+        language: "typescript"
+    lines: 54
+
+  - file: "firebase.ts"
+    path: "utils/firebase.ts"
+    purpose: "Flujo auth que llama el plugin nativo en Android"
+    key_elements:
+      - element: "platform === 'android' -> signInWithGoogleNativeFirebase()"
+        type: pattern
+        location: "firebase.ts:206"
+        description: "En Android se fuerza flujo nativo y no redirect web."
+        language: "typescript"
+      - element: "const nativeResult = await signInWithGoogleNative()"
+        type: function
+        location: "firebase.ts:296"
+        description: "Consumidor directo del contrato del plugin JS."
+        language: "typescript"
+    lines: 620
+
+patterns_found:
+  - category: architecture
+    pattern: "Capacitor local plugin bridge"
+    description: "JS usa registerPlugin con nombre string, Java define @CapacitorPlugin(name=...)."
+    examples:
+      - file: "utils/googleSignInNative.ts"
+        location: "googleSignInNative.ts:20"
+        snippet: "registerPlugin<GoogleSignInPlugin>('GoogleSignIn')"
+      - file: "android/app/src/main/java/com/tupaquete/dndcompanion/GoogleSignInPlugin.java"
+        location: "GoogleSignInPlugin.java:18"
+        snippet: "@CapacitorPlugin(name = \"GoogleSignIn\")"
+    prevalence: common
+
+  - category: error_handling
+    pattern: "Instrumentación por prefijos de log"
+    description: "Se usan prefijos [GoogleSignIn], [GoogleSignInNative], [Firebase Auth], [Login] para trazabilidad del flujo OAuth."
+    examples:
+      - file: "android/app/src/main/java/com/tupaquete/dndcompanion/GoogleSignInPlugin.java"
+        location: "GoogleSignInPlugin.java:57"
+        snippet: "[GoogleSignIn] Initialized with webClientId"
+      - file: "utils/googleSignInNative.ts"
+        location: "googleSignInNative.ts:29"
+        snippet: "[GoogleSignInNative] Calling native plugin..."
+      - file: "utils/firebase.ts"
+        location: "firebase.ts:293"
+        snippet: "[Firebase Auth] Calling native Google Sign-In plugin"
+    prevalence: common
+
+  - category: structure
+    pattern: "Android branch in auth wrapper"
+    description: "signInWithOAuth enruta a native plugin sólo en Android, y a popup/redirect en otras plataformas."
+    examples:
+      - file: "utils/firebase.ts"
+        location: "firebase.ts:206"
+        snippet: "if (platform === 'android') { return await signInWithGoogleNativeFirebase(); }"
+    prevalence: common
+
+related_architecture:
+  components_relevant_to_domain:
+    - component: "MainActivity"
+      responsibility: "Bootstrap Android app + registro de plugins"
+      location: "android/app/src/main/java/com/tupaquete/dndcompanion/MainActivity.java"
+      relationship_to_domain: "Punto crítico para que Capacitor encuentre el plugin local"
+    - component: "GoogleSignInPlugin"
+      responsibility: "Abrir account chooser nativo y devolver idToken"
+      location: "android/app/src/main/java/com/tupaquete/dndcompanion/GoogleSignInPlugin.java"
+      relationship_to_domain: "Implementación nativa del bridge"
+    - component: "googleSignInNative.ts"
+      responsibility: "Wrapper JS del plugin"
+      location: "utils/googleSignInNative.ts"
+      relationship_to_domain: "Contrato runtime entre WebView y Android"
+    - component: "firebase.ts"
+      responsibility: "Intercambio idToken -> Firebase credential"
+      location: "utils/firebase.ts"
+      relationship_to_domain: "Consumidor funcional del plugin"
+
+  interfaces_used_by_domain:
+    - interface: "GoogleSignInPlugin (TS)"
+      location: "utils/googleSignInNative.ts:14"
+      usage_pattern: "Define métodos signInWithGoogle/signOut para registerPlugin"
+
+  data_flow_involving_domain: "Login -> firebase.signInWithOAuth(android) -> signInWithGoogleNativeFirebase -> googleSignInNative.registerPlugin('GoogleSignIn').signInWithGoogle -> GoogleSignInPlugin.java -> idToken -> Firebase signInWithCredential"
+
+  key_relationships_to_domain:
+    - from: "MainActivity"
+      to: "GoogleSignInPlugin"
+      relationship: "composes"
+    - from: "googleSignInNative.ts"
+      to: "GoogleSignInPlugin.java"
+      relationship: "calls"
+    - from: "firebase.ts"
+      to: "googleSignInNative.ts"
+      relationship: "imports"
+
+related_technology_stack:
+  languages_used_in_domain: ["java", "typescript"]
+  frameworks_used_in_domain:
+    - name: "Capacitor"
+      usage_in_domain: "Bridge entre WebView y plugin nativo Android"
+    - name: "Firebase Auth"
+      usage_in_domain: "Intercambio de credential con idToken nativo"
+  libraries_used_in_domain:
+    - name: "@capacitor/core"
+      purpose_in_domain: "registerPlugin en JS"
+    - name: "Google Play Services Auth"
+      purpose_in_domain: "GoogleSignInClient y account chooser"
+  external_apis_used_in_domain:
+    - name: "Google Sign-In"
+      integration_point: "GoogleSignInPlugin.java"
+
+related_conventions:
+  naming_patterns_in_domain: "Nombre plugin consistente: GoogleSignIn (JS) <-> @CapacitorPlugin(name=GoogleSignIn)"
+  structure_of_domain: "Plugin Java en android/app/src/main/java y wrapper TS en utils"
+  error_handling_in_domain: "try/catch con logs explícitos y reject(call)"
+  testing_in_domain: "Sin framework de tests; validación manual con adb/logcat"
+  documentation_in_domain: "Existe troubleshooting detallado en AGENTS.md y docs OAuth"
+
+related_dependencies:
+  internal:
+    - component: "utils/firebase.ts"
+      relationship_to_domain: "Invoca el plugin para login Android"
+      direction: inbound
+    - component: "components/Login.tsx"
+      relationship_to_domain: "Dispara signInWithOAuth que termina en plugin Android"
+      direction: inbound
+  external:
+    - name: "com.google.android.gms:play-services-auth"
+      purpose_for_domain: "SDK nativo de Google Sign-In"
+    - name: "Capacitor Android runtime"
+      purpose_for_domain: "Registro y dispatch de llamadas de plugin"
+
+domain_security_considerations:
+  sensitive_areas:
+    - area: "ID token handling"
+      location: "GoogleSignInPlugin.java:147-151, firebase.ts:301-305"
+      concern: "No loggear token en claro; solo metadatos/longitud."
+  authentication_patterns_in_domain: "Token nativo -> GoogleAuthProvider.credential -> signInWithCredential"
+  authorization_patterns_in_domain: "No aplica RBAC en este segmento; corresponde a backend"
+  data_validation_in_domain: "Chequeo de idToken no vacío antes del exchange"
+
+testing_patterns:
+  framework: "manual_adb_logcat"
+  coverage_areas: ["registro plugin", "invocación JS->Java", "flujo chooser", "credential exchange", "persistencia sesión"]
+  test_organization: "secuencia de comandos PowerShell + inspección de logcat"
+  mock_patterns: []
+
+requested_outputs:
+  diff_conceptual_exacto:
+    main_activity_java: |
+      --- a/android/app/src/main/java/com/tupaquete/dndcompanion/MainActivity.java
+      +++ b/android/app/src/main/java/com/tupaquete/dndcompanion/MainActivity.java
+      @@
+       package com.tupaquete.dndcompanion;
+       
+      +import android.os.Bundle;
+       import com.getcapacitor.BridgeActivity;
+       
+      -public class MainActivity extends BridgeActivity {}
+      +public class MainActivity extends BridgeActivity {
+      +    @Override
+      +    public void onCreate(Bundle savedInstanceState) {
+      +        super.onCreate(savedInstanceState);
+      +        registerPlugin(GoogleSignInPlugin.class);
+      +    }
+      +}
+
+    google_signin_plugin_java: |
+      --- a/android/app/src/main/java/com/tupaquete/dndcompanion/GoogleSignInPlugin.java
+      +++ b/android/app/src/main/java/com/tupaquete/dndcompanion/GoogleSignInPlugin.java
+      @@
+       import com.getcapacitor.Plugin;
+       import com.getcapacitor.PluginCall;
+      +import com.getcapacitor.PluginMethod;
+       import com.getcapacitor.annotation.CapacitorPlugin;
+      @@
+      +    @PluginMethod
+           public void signInWithGoogle(PluginCall call) {
+      @@
+      +    @PluginMethod
+           public void signOut(PluginCall call) {
+
+  contrato_js_confirmado:
+    archivo: "utils/googleSignInNative.ts"
+    evidencia:
+      - "googleSignInNative.ts:1 importa registerPlugin desde @capacitor/core"
+      - "googleSignInNative.ts:20 usa registerPlugin<GoogleSignInPlugin>('GoogleSignIn')"
+      - "googleSignInNative.ts:30 invoca GoogleSignIn.signInWithGoogle()"
+      - "googleSignInNative.ts:48 invoca GoogleSignIn.signOut()"
+    nombre_final_plugin: "GoogleSignIn"
+    nota_get_plugin: "No se encontró helper getPlugin en el código actual para este flujo; el contrato activo usa registerPlugin directamente."
+
+  secuencia_validacion_windows_powershell: |
+    # 0) Ir a raíz de proyecto
+    Set-Location 'i:\Apks\Dungeon Forge'
+
+    # 1) Sincronizar web assets + Android project
+    npm run build
+    npx cap sync android
+
+    # 2) Compilar APK debug limpio
+    Set-Location 'i:\Apks\Dungeon Forge\android'
+    .\gradlew.bat clean assembleDebug
+
+    # 3) Instalar APK en dispositivo
+    Set-Location 'i:\Apks\Dungeon Forge'
+    $pkg = 'com.tupaquete.dndcompanion'
+    $apk = 'android/app/build/outputs/apk/debug/app-debug.apk'
+    adb uninstall $pkg
+    adb install -r $apk
+
+    # 4) Limpiar logs y lanzar app
+    adb logcat -c
+    adb shell am start -n "$pkg/.MainActivity"
+
+    # 5) Observar logs relevantes (terminal dedicada)
+    adb logcat -v threadtime 2>&1 | Select-String "\[GoogleSignIn\]|\[GoogleSignInNative\]|\[Firebase Auth\]|\[Login\]|not implemented|Plugin|AndroidRuntime|FATAL"
+
+  senales_logcat:
+    exito:
+      - "[GoogleSignIn] Initialized with webClientId: SET"
+      - "[GoogleSignIn] signInWithGoogle called"
+      - "[GoogleSignIn] Account chooser opened"
+      - "[GoogleSignIn] Sign-in successful: <email>"
+      - "[GoogleSignIn] Returning token for: <email>"
+      - "[Firebase Auth] Native plugin returned token for: <email>"
+      - "[Firebase Auth] Credential exchange successful, user: <email>"
+    fallo:
+      - "GoogleSignIn plugin is not implemented on android"
+      - "[GoogleSignInNative] Native plugin error:"
+      - "Sign-in failed:"
+      - "[GoogleSignIn] Initialization error:"
+      - "AndroidRuntime" 
+      - "FATAL EXCEPTION"
+
+open_questions:
+  - question: "¿Se requiere mantener compatibilidad con una versión de Capacitor que no exija @PluginMethod?"
+    context: "El código actual no usa @PluginMethod en métodos invocados desde JS."
+    type: research
+    affects: ["GoogleSignInPlugin.java"]
+  - question: "¿La dependencia play-services-auth está fijada en una versión compatible con el SDK Android actual del proyecto?"
+    context: "No se auditó build.gradle en esta pasada enfocada en registro de plugin."
+    type: nice_to_know
+    affects: ["android build runtime"]
+
+gaps:
+  - area: "PRD fuente requerida"
+    description: "No existe docs/PRD.yaml en el workspace, aunque la guía de modo lo define como fuente primaria."
+    impact: research_blocker
+    affects: ["trazabilidad formal de alcance"]
+  - area: "Validación runtime post-parche"
+    description: "En esta tarea de investigación no se aplicó ni ejecutó el parche, por lo que no hay logcat de ejecución nueva tras fix."
+    impact: nice_to_know
+    affects: ["confirmación final en dispositivo"]

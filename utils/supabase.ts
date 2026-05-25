@@ -26,11 +26,17 @@ console.log('[Supabase Init] URL:', supabaseUrl ? 'SET ✓' : 'MISSING ✗');
 console.log('[Supabase Init] Key: ', supabaseAnonKey ? 'SET ✓' : 'MISSING ✗');
 console.log('[Supabase Init] App ID: com.tupaquete.dndcompanion');
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials missing. Local storage will be used as fallback.');
+export const isSupabaseEnabled = !!(supabaseUrl && supabaseAnonKey);
+
+if (!isSupabaseEnabled) {
+  console.warn('Supabase credentials missing. Cloud sync and party features will be unavailable.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Usar placeholder cuando no hay credenciales para evitar crash al crear el cliente
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
+);
 
 // Helpers to handle character sync
 export const saveCharacterToCloud = async (character: Character, userId: string) => {

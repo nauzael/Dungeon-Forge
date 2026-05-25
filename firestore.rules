@@ -1,0 +1,140 @@
+/**
+ * Firestore Security Rules for Dungeon Forge — Wave 1 Firebase Migration
+ *
+ * ⚠️ CRITICAL: Party Codes Injection vulnerability FIXED in this revision
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    function isOwner(userId) {
+      return uid() == userId;
+    }
+
+    function isPartyDM(partyId) {
+      return get(/databases/$(database)/documents/parties/$(partyId)).data.dm_uid == uid();
+    }
+
+    function isCreator(partyId) {
+      return get(/databases/$(database)/documents/parties/$(partyId)).data.creator_id == uid();
+    }
+
+    function partyExists(partyId) {
+      return exists(/databases/$(database)/documents/parties/$(partyId));
+    }
+
+    function isPartyMember(partyId) {
+      let partyDoc = get(/databases/$(database)/documents/parties/$(partyId)).data;
+      return partyDoc.members[uid()] != null;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // /characters/{charId}  ← Colección raíz (usada por la app)
+    // ════════════════════════════════════════════════════════════════════════
+    match /characters/{charId} {
+      // READ: solo el dueño puede leer sus personajes
+      allow read: if isAuth() && resource.data.user_id == uid();
+
+      // CREATE: user_id debe coincidir con uid del solicitante
+      allow create: if isAuth() &&
+        request.resource.data.user_id == uid() &&
+        request.resource.data.id == charId;
+
+      // UPDATE: user_id no puede cambiar
+      allow update: if isAuth() &&
+        resource.data.user_id == uid() &&
+        request.resource.data.user_id == uid();
+
+      // DELETE: solo el dueño
+      allow delete: if isAuth() && resource.data.user_id == uid();
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // /users/{uid}/characters/{charId}  ← Path nested (legacy / futuro)
+    // ════════════════════════════════════════════════════════════════════════
+    match /users/{userId}/characters/{charId} {
+      allow read: if isAuth() && isOwner(userId);
+
+      allow create: if isAuth() && isOwner(userId) &&
+        request.resource.data.user_id == userId &&
+        request.resource.data.id == charId;
+
+      allow update: if isAuth() && isOwner(userId) &&
+        request.resource.data.user_id == userId &&
+        request.resource.data.id == charId;
+
+      allow delete: if isAuth() && isOwner(userId);
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // /parties/{partyId}
+    // ════════════════════════════════════════════════════════════════════════
+    match /parties/{partyId} {
+      allow read: if isAuth();
+
+      allow create: if isAuth() &&
+        request.resource.data.dm_uid == uid() &&
+        request.resource.data.creator_id == uid();
+
+      allow update: if isAuth() && isPartyDM(partyId);
+
+      allow delete: if isAuth() && isCreator(partyId);
+
+      match /members/{memberId} {
+        allow read: if isAuth() && (
+          isPartyDM(partyId) ||
+          uid() == memberId
+        );
+        allow write: if isAuth() && isPartyDM(partyId);
+        allow delete: if isAuth() && isPartyDM(partyId);
+      }
+
+      match /resources/{resourceId} {
+        allow read: if isAuth() && (
+          isPartyDM(partyId) ||
+          isPartyMember(partyId)
+        );
+        allow write: if isAuth() && isPartyDM(partyId);
+        allow delete: if isAuth() && isPartyDM(partyId);
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // /party_codes/{code}
+    // ════════════════════════════════════════════════════════════════════════
+    match /party_codes/{code} {
+      allow read: if isAuth();
+
+      allow create: if isAuth() &&
+        partyExists(request.resource.data.party_id) &&
+        isPartyDM(request.resource.data.party_id) &&
+        request.resource.data.code == code;
+
+      allow update: if false;
+
+      allow delete: if isAuth() &&
+        isPartyDM(resource.data.party_id);
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // /campaigns/{campaignId}  [PLACEHOLDER]
+    // ════════════════════════════════════════════════════════════════════════
+    match /campaigns/{campaignId} {
+      allow read, write: if false;
+    }
+
+    // DEFAULT DENY
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -16,6 +16,7 @@ import {
 } from 'firebase/auth';
 import {
   getFirestore,
+  initializeFirestore,
   Firestore,
   collection,
   doc,
@@ -26,6 +27,7 @@ import {
   where,
   updateDoc,
   deleteDoc,
+  onSnapshot,
   Timestamp,
   QueryConstraint,
 } from 'firebase/firestore';
@@ -42,7 +44,7 @@ import { Character, CampaignResource } from '../types';
 import { debugLogger } from './debugLogger';
 import { createPartyLocal, updatePartyLocal, kickLocal } from './localStorage';
 import { Capacitor } from '@capacitor/core';
-import { signInWithGoogleNative } from './googleSignInNative';
+import { signInWithGoogleNative, signOutGoogleNative } from './googleSignInNative';
 
 // Firebase Config
 const firebaseConfig = {
@@ -71,7 +73,19 @@ let databaseInstance: Database | null = null;
 try {
   firebaseApp = initializeApp(firebaseConfig);
   authInstance = getAuth(firebaseApp);
-  firestoreInstance = getFirestore(firebaseApp);
+
+  // En Android WebView (Capacitor), Firestore puede fallar con WebChannel.
+  // Forzamos un transporte más estable para evitar "transport errored".
+  if (Capacitor.getPlatform() === 'android') {
+    firestoreInstance = initializeFirestore(firebaseApp, {
+      experimentalAutoDetectLongPolling: true,
+      useFetchStreams: false,
+    });
+    console.log('[Firebase] Firestore initialized with Android WebView settings');
+  } else {
+    firestoreInstance = getFirestore(firebaseApp);
+  }
+
   databaseInstance = getDatabase(firebaseApp);
   console.log('[Firebase] Initialized successfully');
   
@@ -280,6 +294,16 @@ export const supabase = {
       }
     },
   },
+  // Stub de compatibilidad — App.tsx usa subscribeToOwnCharacters/subscribeToPartyResources en su lugar
+  channel: (_name: string) => {
+    console.warn('[Firebase] supabase.channel() no implementado — usa subscribeToOwnCharacters o subscribeToPartyResources');
+    const noop: any = { on: () => noop, subscribe: () => {}, unsubscribe: () => {}, send: async () => {} };
+    return noop;
+  },
+  from: (_table: string) => ({
+    delete: () => ({ eq: () => ({ then: () => Promise.resolve() }) }),
+    select: () => ({ eq: () => ({ data: [], error: null }) }),
+  }),
 };
 
 /**
@@ -289,25 +313,93 @@ export const supabase = {
 async function signInWithGoogleNativeFirebase() {
   try {
     if (!authInstance) throw new Error('Auth not initialized');
+
+    const isStaleCredentialError = (error: unknown): boolean => {
+      const message = error instanceof Error ? error.message : String(error);
+      return message.includes('auth/invalid-credential') ||
+        message.toLowerCase().includes('stale to sign-in');
+    };
+
+    const exchangeWithFirebase = async (idToken: string) => {
+      const credential = GoogleAuthProvider.credential(idToken);
+      console.log('[Firebase Auth] ✓ Created Firebase credential from token');
+
+      console.log('[Firebase Auth] Attempting credential exchange with Firebase...');
+      const credentialPromise = signInWithCredential(authInstance, credential);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Credential exchange timeout after 10 seconds')), 10000)
+      );
+
+      return Promise.race([credentialPromise, timeoutPromise]);
+    };
     
+    console.log('[Firebase Auth] ====== NATIVE SIGN-IN START ======');
     console.log('[Firebase Auth] Calling native Google Sign-In plugin');
-    
-    // Step 1: Get ID token from native Android plugin
-    const nativeResult = await signInWithGoogleNative();
-    console.log('[Firebase Auth] Native plugin returned token for:', nativeResult.email);
-    
-    if (!nativeResult.idToken) {
-      throw new Error('No ID token returned from native plugin');
+
+    // Forzar sesión limpia para evitar reutilizar ID tokens viejos en Android.
+    try {
+      await signOutGoogleNative();
+      console.log('[Firebase Auth] ✓ Cleared previous native Google session');
+    } catch (signOutErr) {
+      console.warn('[Firebase Auth] Native sign-out skipped:', (signOutErr as Error).message);
     }
     
-    // Step 2: Create Firebase credential from ID token
-    const credential = GoogleAuthProvider.credential(nativeResult.idToken);
-    console.log('[Firebase Auth] Created Firebase credential from token');
+    // Step 1: Get ID token from native Android plugin
+    let nativeResult: any;
+    try {
+      nativeResult = await signInWithGoogleNative();
+      console.log('[Firebase Auth] ✓ Native plugin returned result');
+      console.log('[Firebase Auth]   - Email: ' + (nativeResult?.email || 'NULL'));
+      console.log('[Firebase Auth]   - Has idToken: ' + (nativeResult?.idToken ? 'YES (length=' + nativeResult.idToken.length + ')' : 'NO'));
+      console.log('[Firebase Auth]   - DisplayName: ' + (nativeResult?.displayName || 'NULL'));
+    } catch (nativeErr) {
+      console.error('[Firebase Auth] ❌ NATIVE PLUGIN ERROR!');
+      console.error('[Firebase Auth]   - Error message: ' + (nativeErr as Error).message);
+      console.error('[Firebase Auth]   - Error type: ' + (nativeErr as Error).constructor.name);
+      console.error('[Firebase Auth]   - Full error: ' + JSON.stringify(nativeErr));
+      throw nativeErr;
+    }
     
-    // Step 3: Sign in with credential
-    const result = await signInWithCredential(authInstance, credential);
-    console.log('[Firebase Auth] Credential exchange successful, user:', result.user.email);
+    if (!nativeResult.idToken) {
+      const errMsg = 'No ID token returned from native plugin - OAuth flow incomplete';
+      console.error('[Firebase Auth] ❌ ' + errMsg);
+      throw new Error(errMsg);
+    }
     
+    // Step 2: Exchange credential in Firebase (with one stale-token retry)
+    let result: any;
+    try {
+      result = await exchangeWithFirebase(nativeResult.idToken);
+      console.log('[Firebase Auth] ✓ Credential exchange successful!');
+      console.log('[Firebase Auth]   - User: ' + result.user.email);
+      console.log('[Firebase Auth]   - UID: ' + result.user.uid);
+    } catch (exchangeErr) {
+      if (!isStaleCredentialError(exchangeErr)) {
+        console.error('[Firebase Auth] ❌ Credential exchange failed!');
+        console.error('[Firebase Auth]   - Error: ' + (exchangeErr as Error).message);
+        throw exchangeErr;
+      }
+
+      console.warn('[Firebase Auth] ⚠️ Stale credential detected, retrying with fresh token...');
+
+      try {
+        await signOutGoogleNative();
+      } catch (retrySignOutErr) {
+        console.warn('[Firebase Auth] Retry sign-out skipped:', (retrySignOutErr as Error).message);
+      }
+
+      const retryNativeResult = await signInWithGoogleNative();
+      if (!retryNativeResult?.idToken) {
+        throw new Error('No fresh ID token returned during stale-token retry');
+      }
+
+      result = await exchangeWithFirebase(retryNativeResult.idToken);
+      console.log('[Firebase Auth] ✓ Credential exchange successful after stale-token retry');
+      console.log('[Firebase Auth]   - User: ' + result.user.email);
+      console.log('[Firebase Auth]   - UID: ' + result.user.uid);
+    }
+    
+    console.log('[Firebase Auth] ✓ SIGN-IN COMPLETE');
     return {
       data: {
         url: null,
@@ -323,7 +415,10 @@ async function signInWithGoogleNativeFirebase() {
       error: null,
     };
   } catch (error) {
-    console.error('[Firebase Auth] Native Google Sign-In failed:', error);
+    console.error('[Firebase Auth] ❌ NATIVE GOOGLE SIGN-IN FAILED!');
+    console.error('[Firebase Auth]   - Message: ' + (error as Error).message);
+    console.error('[Firebase Auth]   - Type: ' + (error as Error).constructor.name);
+    console.error('[Firebase Auth]   - Stack: ' + (error as Error).stack);
     return {
       data: null,
       error: { message: (error as Error).message },
@@ -359,17 +454,69 @@ export const saveCharacterToCloud = async (character: Character, userId: string)
 export const fetchCharactersFromCloud = async (userId: string) => {
   try {
     if (!firestoreInstance) throw new Error('Firestore not initialized');
+
+    const effectiveUserId = authInstance?.currentUser?.uid || userId;
+    if (effectiveUserId !== userId) {
+      console.log(`[Cloud] Using current auth uid=${effectiveUserId} instead of state uid=${userId}`);
+    }
+
+    const normalizeCharacter = (raw: Record<string, unknown>, docId: string): Character | null => {
+      const nested = raw.data;
+      if (nested && typeof nested === 'object') {
+        return nested as Character;
+      }
+
+      if (typeof nested === 'string') {
+        try {
+          return JSON.parse(nested) as Character;
+        } catch (e) {
+          console.warn('[Cloud] Failed to parse nested character JSON for doc:', docId);
+        }
+      }
+
+      // Compatibilidad: algunos documentos pueden tener el personaje plano en la raíz.
+      if (typeof raw.id === 'string' && typeof raw.name === 'string' && typeof raw.class === 'string') {
+        return raw as unknown as Character;
+      }
+
+      return null;
+    };
     
     const q = query(
       collection(firestoreInstance, 'characters'),
-      where('user_id', '==', userId),
-      where('deleted_at', '==', null)
+      where('user_id', '==', effectiveUserId)
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => doc.data().data);
+
+    const characters = snapshot.docs
+      .map((doc) => {
+        const raw = doc.data() as Record<string, unknown>;
+        const deletedAt = raw.deleted_at;
+
+        // Compatibilidad de soft-delete: null o undefined = activo
+        if (deletedAt !== null && deletedAt !== undefined) {
+          return null;
+        }
+
+        const character = normalizeCharacter(raw, doc.id);
+        if (!character) {
+          console.warn('[Cloud] Unsupported character document shape:', doc.id);
+          return null;
+        }
+
+        return {
+          ...character,
+          id: character.id || doc.id,
+          user_id: (character.user_id || raw.user_id || effectiveUserId) as string,
+        } as Character;
+      })
+      .filter((c): c is Character => c !== null);
+
+    console.log(`[Cloud] fetchCharactersFromCloud uid=${effectiveUserId} docs=${snapshot.size} active=${characters.length}`);
+    return characters;
   } catch (e) {
-    console.error('[Cloud] Fetch failed:', e);
+    console.error(`[Cloud] Fetch failed for uid=${userId}:`, e);
     return [];
   }
 };
@@ -818,6 +965,97 @@ export const broadcastResourceHide = (partyId: string) => {
   } catch (e) {
     console.error('[Resources] Failed to hide:', e);
   }
+};
+
+// --- Firebase Realtime Subscriptions (reemplazan Supabase channels) ---
+
+/**
+ * Suscribe a cambios en los personajes propios del usuario via Firestore onSnapshot.
+ * Reemplaza supabase.channel('my-characters-sync').on('postgres_changes', ...)
+ */
+export const subscribeToOwnCharacters = (
+  userId: string,
+  onCharacterChange: (char: Character, type: 'UPDATE' | 'DELETE') => void
+): (() => void) => {
+  if (!firestoreInstance) {
+    console.warn('[CharSync] Firestore not initialized');
+    return () => {};
+  }
+
+  const q = query(
+    collection(firestoreInstance, 'characters'),
+    where('user_id', '==', userId)
+  );
+
+  // Saltamos el primer snapshot (carga inicial ya manejada por fetchCharactersFromCloud)
+  let isInitialLoad = true;
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    if (isInitialLoad) {
+      isInitialLoad = false;
+      return;
+    }
+
+    snapshot.docChanges().forEach((change) => {
+      const data = change.doc.data();
+
+      if (change.type === 'removed') {
+        console.log('[CharSync] Character removed from cloud:', change.doc.id);
+        onCharacterChange({ id: change.doc.id } as Character, 'DELETE');
+        return;
+      }
+
+      if (change.type === 'modified') {
+        if (data.deleted_at) {
+          console.log('[CharSync] Character soft-deleted in cloud:', change.doc.id);
+          onCharacterChange({ id: change.doc.id } as Character, 'DELETE');
+          return;
+        }
+
+        if (data.data) {
+          const cloudChar = data.data as Character;
+          const cloudTime = cloudChar.syncTimestamp || (data.updated_at?.toMillis?.() || 0);
+          console.log('[CharSync] Character updated in cloud:', cloudChar.name);
+          onCharacterChange({ ...cloudChar, syncTimestamp: cloudTime }, 'UPDATE');
+        }
+      }
+    });
+  }, (error) => {
+    console.error('[CharSync] Snapshot error:', error);
+  });
+
+  return unsubscribe;
+};
+
+/**
+ * Suscribe a recursos compartidos en una fiesta via Firebase RTDB.
+ * Reemplaza supabase.channel(channelName).on('broadcast', ...)
+ */
+export const subscribeToPartyResources = (
+  partyId: string,
+  onResourceChange: (resource: CampaignResource | null) => void
+): (() => void) => {
+  if (!database) {
+    console.warn('[PartyResources] Database not initialized');
+    return () => {};
+  }
+
+  const shareRef = ref(database, `parties/${partyId}/resource-share`);
+
+  const unsubscribe = onValue(shareRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      console.log('[PartyResources] Resource received:', data?.resource?.name);
+      onResourceChange(data.resource || null);
+    } else {
+      console.log('[PartyResources] Resource cleared');
+      onResourceChange(null);
+    }
+  }, (error) => {
+    console.error('[PartyResources] Error:', error);
+  });
+
+  return () => unsubscribe();
 };
 
 export const updatePartyResourcePersistence = async (

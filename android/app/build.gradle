@@ -55,3 +55,31 @@ try {
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
+
+// Automatically register custom GoogleSignInPlugin in capacitor.plugins.json
+afterEvaluate {
+    def preBuildTask = tasks.findByName('preBuild')
+    if (preBuildTask) {
+        preBuildTask.doLast {
+            def pluginsFile = file('src/main/assets/capacitor.plugins.json')
+            if (pluginsFile.exists()) {
+                def pluginsText = pluginsFile.text
+                if (!pluginsText.contains('GoogleSignInPlugin')) {
+                    try {
+                        // Parse JSON and add plugin if not present
+                        def json = new groovy.json.JsonSlurper().parseText(pluginsText)
+                        def plugin = [
+                            "pkg": "com.tupaquete.dndcompanion",
+                            "classpath": "com.tupaquete.dndcompanion.GoogleSignInPlugin"
+                        ]
+                        json.add(plugin)
+                        pluginsFile.text = new groovy.json.JsonOutput().toJson(json)
+                        logger.info("✓ GoogleSignInPlugin registered in capacitor.plugins.json")
+                    } catch (Exception e) {
+                        logger.error("Failed to register GoogleSignInPlugin: " + e.message)
+                    }
+                }
+            }
+        }
+    }
+}

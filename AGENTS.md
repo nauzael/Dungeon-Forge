@@ -112,6 +112,36 @@ Data/
 2. **Español/English mixed** → UI en español, comentarios también
 3. **Mobile-first** → target principal es mobile web (PWA)
 4. **Context7** → usar para verificar APIs externas
+5. **Firebase OAuth Android (known issue)** → en Capacitor, evitar `redirectTo` hacia `localhost` en login nativo; priorizar flujo popup + verificación de retorno (deeplink/resume) para prevenir pantalla en blanco o sesión incompleta tras volver de Chrome.
+
+## Troubleshooting OAuth Android
+
+### Incidente: "GoogleSignIn plugin is not implemented on android"
+
+**Síntoma:** al invocar `GoogleSignIn.signInWithGoogle()` desde `utils/googleSignInNative.ts`, Capacitor responde que el plugin no está implementado en Android.
+
+**Causa raíz principal (confirmada):** plugin nativo no registrado en `MainActivity`.
+- Archivo afectado: `android/app/src/main/java/com/tupaquete/dndcompanion/MainActivity.java`
+- Estado problemático: `MainActivity` extiende `BridgeActivity` sin `registerPlugin(GoogleSignInPlugin.class)`.
+
+**Causa secundaria potencial:** métodos nativos expuestos sin `@PluginMethod`.
+- Archivo a revisar: `android/app/src/main/java/com/tupaquete/dndcompanion/GoogleSignInPlugin.java`
+- Métodos críticos: `signInWithGoogle(PluginCall call)` y `signOut(PluginCall call)`.
+
+### Fix mínimo
+
+1. Registrar el plugin en `MainActivity`.
+2. Anotar cada método invocado desde JavaScript con `@PluginMethod`.
+3. Ejecutar sincronización y recompilación Android (`npx cap sync android` + build debug).
+
+### Checklist de validación rápida
+
+- [ ] Build Android finaliza sin errores.
+- [ ] `adb install -r` instala APK correctamente.
+- [ ] En logs no aparece "plugin is not implemented on android".
+- [ ] El selector de cuenta de Google se abre en Android.
+- [ ] El flujo retorna a la app con sesión iniciada (sin pantalla en blanco).
+- [ ] Sign-out nativo funciona sin errores.
 
 ## Skills Disponibles
 

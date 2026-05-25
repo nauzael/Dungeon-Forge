@@ -6,7 +6,7 @@
 
 import https from 'https';
 
-const BUCKET_URL = 'storage.googleapis.com/dungeon-forge-prod.appspot.com';
+const BUCKET_URL = 'storage.googleapis.com/dungeon-forge-prod.firebasestorage.app';
 const VERSION_JSON_PATH = '/version.json';
 const FULL_URL = `https://${BUCKET_URL}${VERSION_JSON_PATH}`;
 
@@ -119,10 +119,10 @@ async function main() {
     const canGetData = await validateGETRequest();
     
     if (headStatus === 404) {
-      console.log('\n📝 Próximos pasos:');
-      console.log('1. Subir version.json a Firebase Storage');
-      console.log('   gsutil -m cp version.json gs://dungeon-forge-prod.appspot.com/');
-      console.log('2. Re-ejecutar este script para validar');
+console.log('📝 Próximos pasos:');
+        console.log('1. Subir version.json a Firebase Storage');
+        console.log('   gsutil -m cp version.json gs://dungeon-forge-prod.firebasestorage.app/');
+        console.log('2. Re-ejecutar este script para validar');
     }
   }
 }

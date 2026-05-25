@@ -13,7 +13,9 @@ import {
   fetchCharactersFromCloud,
   subscribeWithRetry,
   broadcastCharacterUpdate,
-  softDeleteCharacter
+  softDeleteCharacter,
+  subscribeToOwnCharacters,
+  subscribeToPartyResources
 } from './utils/firebase';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
@@ -23,8 +25,17 @@ import { ThemeProvider } from './src/contexts/ThemeContext';
 const CreatorSteps = lazy(() => import('./components/CreatorSteps'));
 const SheetTabs = lazy(() => import('./components/SheetTabs'));
 const DMDashboard = lazy(() => import('./components/DMDashboard'));
+const MigrationTool = lazy(() => import('./components/MigrationTool'));
+
+const isObsoleteSupabaseId = (id: string | undefined | null): boolean => {
+  if (!id) return false;
+  return id.includes('-') && id.length === 36;
+};
 
 const AppContent: React.FC = () => {
+  // 🚀 V1.6 VERIFICATION MARKER - New OAuth popup flow
+  console.log('[V1.6] 🚀 AppContent initialized - NEW POPUP FLOW ACTIVE');
+  
   const [view, setView] = useState<ViewState>('list');
   const [sharedResource, setSharedResource] = useState<SharedResourceEvent | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -33,6 +44,7 @@ const AppContent: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLocalMode, setIsLocalMode] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState<OTAUpdate | null>(null);
+  const [showMigrationTool, setShowMigrationTool] = useState(false);
 
   // Responsive hook for landscape/portrait detection
   const { orientation } = useResponsive();
@@ -58,6 +70,21 @@ const AppContent: React.FC = () => {
 
   // Monitor Auth Changes
   useEffect(() => {
+    // Limpieza preventiva de sesiones obsoletas de Supabase
+    try {
+      const storedSession = localStorage.getItem('df_session');
+      if (storedSession) {
+        const parsed = JSON.parse(storedSession);
+        if (parsed && parsed.id && isObsoleteSupabaseId(parsed.id)) {
+          console.warn('[Auth] Sesión obsoleta de Supabase detectada en localStorage. Limpiando para forzar login de Firebase.');
+          localStorage.removeItem('df_session');
+          localStorage.removeItem('df_local_mode');
+        }
+      }
+    } catch (e) {
+      console.error('Failed to validate initial df_session:', e);
+    }
+
     // Check if local mode is active
     try {
       const localModeStr = localStorage.getItem('df_local_mode');
@@ -121,9 +148,9 @@ const AppContent: React.FC = () => {
 
       const checkForUpdates = async () => {
         try {
-          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-          // Fetch the version.json from our public 'updates' bucket
-          const resp = await fetch(`${supabaseUrl}/storage/v1/object/public/updates/version.json?t=${Date.now()}`);
+          const storageBucket = import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'dungeon-forge-prod.firebasestorage.app';
+          // Fetch the version.json from our public Firebase Storage bucket
+          const resp = await fetch(`https://storage.googleapis.com/${storageBucket}/version.json?t=${Date.now()}`);
           
           if (resp.ok) {
             const data: VersionJsonResponse = await resp.json();
@@ -160,7 +187,30 @@ const AppContent: React.FC = () => {
 
       // Check when the app returns from background
       CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-        if (isActive) checkForUpdates();
+        if (isActive) {
+          console.log('[App] App resumed - checking for updates and auth state');
+          checkForUpdates();
+          
+          // Also trigger manual auth check in case user returned from OAuth popup
+          if (!isAuthenticated) {
+            try {
+              const storedSession = localStorage.getItem('df_session');
+              if (storedSession) {
+                const parsed = JSON.parse(storedSession);
+                if (parsed && parsed.id && !isObsoleteSupabaseId(parsed.id)) {
+                  console.log('[Auth] Resume check: Found stored session:', parsed.user);
+                  setUser({ name: parsed.user || 'Adventurer', id: parsed.id });
+                  setIsAuthenticated(true);
+                } else if (parsed && parsed.id && isObsoleteSupabaseId(parsed.id)) {
+                  console.warn('[Auth] Ignorando sesión obsoleta de Supabase al reanudar');
+                  localStorage.removeItem('df_session');
+                }
+              }
+            } catch (e) {
+              console.warn('[Auth] Resume check failed:', e);
+            }
+          }
+        }
       }).then(listener => {
         appStateListenerRef.current = listener;
       });
@@ -199,10 +249,42 @@ const AppContent: React.FC = () => {
         }
       }
     });
+    
+    // FALLBACK: If listener doesn't fire quickly from popup context, check localStorage periodically
+    // This handles the case where Firebase emits auth changes in popup context, not main app
+    let checkCount = 0;
+    const checkLocalStorageInterval = setInterval(() => {
+      try {
+        const storedSession = localStorage.getItem('df_session');
+        if (storedSession && !isAuthenticated) {
+          const parsed = JSON.parse(storedSession);
+          if (parsed && parsed.id && !isObsoleteSupabaseId(parsed.id)) {
+            console.log('[Auth] Fallback: Detected session in localStorage:', parsed.user);
+            setUser({ name: parsed.user || 'Adventurer', id: parsed.id });
+            setIsAuthenticated(true);
+            clearInterval(checkLocalStorageInterval);  // Stop polling once session found
+          } else if (parsed && parsed.id && isObsoleteSupabaseId(parsed.id)) {
+            console.warn('[Auth] Fallback: Sesión obsoleta de Supabase ignorada');
+            localStorage.removeItem('df_session');
+          }
+        }
+      } catch (e) {
+        // Silent fail
+      }
+      
+      // Prevent infinite polling - max 60 checks (30 seconds)
+      if (++checkCount > 60) {
+        console.warn('[Auth] Fallback polling exceeded max checks, stopping');
+        clearInterval(checkLocalStorageInterval);
+      }
+    }, 500); // Check every 500ms
+    
+    const cleanupCheckInterval = () => clearInterval(checkLocalStorageInterval);
 
     return () => {
       if (otaCleanup) otaCleanup();
       subscription.unsubscribe();
+      cleanupCheckInterval();
     };
   }, []);
   
@@ -261,11 +343,21 @@ const AppContent: React.FC = () => {
                     let updated = false;
                     
                     for (const cloudChar of cloudChars) {
-                        // Skip if this character was deleted locally
-                        if (deletedCharacterIds.has(cloudChar.id)) {
-                            console.log(`[Sync] Saltando personaje eliminado localmente: ${cloudChar.name}`);
-                            continue;
-                        }
+                      // Cloud es la fuente de verdad para personajes activos (deleted_at = null).
+                      // Si aparece aquí, eliminamos cualquier marca local obsoleta de borrado.
+                      if (deletedCharacterIds.has(cloudChar.id)) {
+                        console.log(`[Sync] Restaurando personaje activo desde cloud: ${cloudChar.name}`);
+                        setDeletedCharacterIds(prev => {
+                          const next = new Set(prev);
+                          next.delete(cloudChar.id);
+                          try {
+                            localStorage.setItem('df-deleted-characters', JSON.stringify([...next]));
+                          } catch (e) {
+                            console.error('Failed to sync deleted characters list:', e);
+                          }
+                          return next;
+                        });
+                      }
                         
                         const localIndex = merged.findIndex(c => c.id === cloudChar.id);
                         
@@ -452,91 +544,53 @@ const AppContent: React.FC = () => {
         };
     }, [observedCharacter?.id, view]);
     
-    // Real-time sync for own characters (from other devices)
+    // Real-time sync for own characters (from other devices) — Firebase Firestore onSnapshot
     useEffect(() => {
         if (isLocalMode || !isAuthenticated || !user?.id || user.id.includes('mock')) return;
 
-        const channel = supabase
-            .channel('my-characters-sync')
-            .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: 'characters',
-                filter: `user_id=eq.${user.id}`
-            }, (payload) => {
-                console.log('[Realtime] Character change from cloud:', payload);
-                
-                if (payload.eventType === 'DELETE') {
-                    const deletedId = payload.old?.id;
-                    if (deletedId) {
-                        console.log('[Realtime] Character deleted from cloud:', deletedId);
-                        setCharacters(prev => prev.filter(c => c.id !== deletedId));
-                        const newDeleted = new Set(deletedCharacterIds);
-                        newDeleted.add(deletedId);
-                        setDeletedCharacterIds(newDeleted);
-                        try {
-                          localStorage.setItem('df-deleted-characters', JSON.stringify([...newDeleted]));
-                        } catch (e) {}
+        const unsubscribe = subscribeToOwnCharacters(user.id, (char, type) => {
+            if (type === 'DELETE') {
+                console.log('[Realtime] Character deleted from cloud:', char.id);
+                setCharacters(prev => prev.filter(c => c.id !== char.id));
+                setDeletedCharacterIds(prev => {
+                    const newDeleted = new Set(prev);
+                    newDeleted.add(char.id);
+                    try {
+                        localStorage.setItem('df-deleted-characters', JSON.stringify([...newDeleted]));
+                    } catch (e) {}
+                    return newDeleted;
+                });
+            } else {
+                setCharacters(prev => {
+                    const localChar = prev.find(c => c.id === char.id);
+                    const localTime = localChar?.syncTimestamp || 0;
+                    if ((char.syncTimestamp || 0) > localTime) {
+                        console.log('[Realtime] Updating local with cloud version:', char.name);
+                        return prev.map(c => c.id === char.id ? char : c);
                     }
-                    return;
-                }
-                
-                if (payload.eventType === 'UPDATE' && payload.new?.data) {
-                    if (payload.new.deleted_at) {
-                        const deletedId = payload.new.id;
-                        console.log('[Realtime] Character marked as deleted in cloud:', deletedId);
-                        setCharacters(prev => prev.filter(c => c.id !== deletedId));
-                        const newDeleted = new Set(deletedCharacterIds);
-                        newDeleted.add(deletedId);
-                        setDeletedCharacterIds(newDeleted);
-                        try {
-                          localStorage.setItem('df-deleted-characters', JSON.stringify([...newDeleted]));
-                        } catch (e) {}
-                        return;
-                    }
-                    
-                    const cloudChar = payload.new.data as Character;
-                    const cloudTime = cloudChar.syncTimestamp || (payload.new.updated_at ? new Date(payload.new.updated_at).getTime() : 0);
-                    
-                    setCharacters(prev => {
-                        const localChar = prev.find(c => c.id === cloudChar.id);
-                        const localTime = localChar?.syncTimestamp || 0;
-                        
-                        if (cloudTime > localTime) {
-                            console.log('[Realtime] Updating local with cloud version:', cloudChar.name);
-                            return prev.map(c => c.id === cloudChar.id ? { ...cloudChar, syncTimestamp: Date.now() } : c);
-                        }
-                        return prev;
-                    });
-                }
-            })
-            .subscribe();
-
-        return () => {
-            channel.unsubscribe();
-        };
-    }, [isAuthenticated, user?.id]);
-    
-    // Manage broadcast channel for active character
-    useEffect(() => {
-        if (!activeCharacter?.party_id) return;
-        
-        const channelName = "party-" + activeCharacter.party_id;
-        const channel = supabase.channel(channelName);
-
-        channel.on('broadcast', { event: 'resource-share' }, (payload) => {
-            console.log("[Broadcast] Shared Resource received:", payload.payload.resource);
-            setSharedResource(payload.payload.resource);
-        }).on('broadcast', { event: 'resource-hide' }, () => {
-            console.log("[Broadcast] Resource Hide received");
-            setSharedResource(null);
+                    return prev;
+                });
+            }
         });
 
-        channel.subscribe();
-        
-        return () => {
-            channel.unsubscribe();
-        };
+        return unsubscribe;
+    }, [isAuthenticated, user?.id]);
+    
+    // Suscripción a recursos compartidos de la fiesta — Firebase RTDB
+    useEffect(() => {
+        if (!activeCharacter?.party_id) return;
+
+        const unsubscribe = subscribeToPartyResources(activeCharacter.party_id, (resource) => {
+            if (resource) {
+                console.log('[PartyResources] Shared Resource received:', resource.name);
+                setSharedResource(resource);
+            } else {
+                console.log('[PartyResources] Resource hidden');
+                setSharedResource(null);
+            }
+        });
+
+        return unsubscribe;
     }, [activeCharacter?.party_id]);
 
   const handleCharacterUpdate = useCallback((updatedChar: Partial<Character> | Character) => {
@@ -740,6 +794,33 @@ const AppContent: React.FC = () => {
                     />
                   )}
                 </Suspense>
+
+                {/* Botón de migración — solo visible en la lista de personajes */}
+                {view === 'list' && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+                    <button
+                      onClick={() => setShowMigrationTool(true)}
+                      className="text-[10px] text-white/20 hover:text-white/50 transition-colors flex items-center gap-1"
+                    >
+                      <span className="material-symbols-outlined" style={{fontSize: '10px'}}>sync_alt</span>
+                      Migrar datos de Supabase
+                    </button>
+                  </div>
+                )}
+
+                {/* Modal de migración Supabase → Firebase */}
+                {showMigrationTool && user && (
+                  <Suspense fallback={null}>
+                    <MigrationTool
+                      currentUserId={user.id}
+                      currentUserEmail={user.name?.includes('@') ? user.name : null}
+                      onClose={() => {
+                        setShowMigrationTool(false);
+                        if (typeof window !== 'undefined') window.location.reload();
+                      }}
+                    />
+                  </Suspense>
+                )}
               </>
             )}
           </div>
