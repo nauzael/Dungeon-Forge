@@ -131,6 +131,121 @@ export async function saveWithRollback(
   }
 }
 
+/**
+ * Agrupa múltiples saves de personajes en batches para reducir latencia.
+ * 
+ * Proceso:
+ * 1. Valida todos los characters con `isValidCharacter()`
+ * 2. Agrupa en chunks de 10 caracteres (límite de Supabase)
+ * 3. Ejecuta chunk 1, espera, ejecuta chunk 2, etc. (secuencial entre chunks)
+ * 4. Dentro de cada chunk, ejecución paralela con Promise.allSettled
+ * 5. Si un personaje falla, continúa con otros (no bloquea)
+ * 6. Retorna resumen con successful, failed, y totalTime
+ * 
+ * @param characters - Array de Character a guardar
+ * @param saveCallback - Función custom de guardado (opcional, usa saveCharacterToCloud si no se proporciona)
+ * @returns { successful: Character[], failed: {character, error}[], totalTime: number }
+ */
+export async function batchSaveCharacters(
+  characters: Character[],
+  saveCallback?: (character: Character) => Promise<any>
+): Promise<{
+  successful: Character[];
+  failed: { character: Character; error: Error }[];
+  totalTime: number;
+}> {
+  const successful: Character[] = [];
+  const failed: { character: Character; error: Error }[] = [];
+  const startTime = performance.now();
+
+  console.log(`[BatchSave] Starting batch save for ${characters.length} characters`);
+
+  // Validar todos primero
+  const validCharacters = characters.filter((char) => {
+    const validation = isValidCharacter(char);
+    if (!validation.valid) {
+      failed.push({
+        character: char,
+        error: new Error(validation.errors.join(', ')),
+      });
+      console.warn(
+        `[BatchSave] Validation failed for ${char.name}: ${validation.errors.join(', ')}`
+      );
+      return false;
+    }
+    return true;
+  });
+
+  console.log(
+    `[BatchSave] Validation complete: ${validCharacters.length} valid, ${failed.length} invalid`
+  );
+
+  // Batch en chunks de 10
+  const BATCH_SIZE = 10;
+  for (let i = 0; i < validCharacters.length; i += BATCH_SIZE) {
+    const chunk = validCharacters.slice(i, i + BATCH_SIZE);
+    const chunkNumber = Math.floor(i / BATCH_SIZE) + 1;
+    const totalChunks = Math.ceil(validCharacters.length / BATCH_SIZE);
+
+    console.log(
+      `[BatchSave] Processing chunk ${chunkNumber}/${totalChunks} (${chunk.length} characters)`
+    );
+
+    try {
+      // Ejecutar en paralelo dentro del chunk
+      const results = await Promise.allSettled(
+        chunk.map((char) =>
+          saveCallback ? saveCallback(char) : saveCharacterToCloud(char, char.user_id || 'guest')
+        )
+      );
+
+      // Procesar resultados
+      results.forEach((result, idx) => {
+        const character = chunk[idx];
+        if (result.status === 'fulfilled') {
+          successful.push(character);
+          console.log(`[BatchSave] ✓ Saved: ${character.name}`);
+        } else {
+          failed.push({
+            character,
+            error: result.reason instanceof Error ? result.reason : new Error(String(result.reason)),
+          });
+          console.error(`[BatchSave] ✗ Failed: ${character.name} - ${result.reason}`);
+        }
+      });
+    } catch (error) {
+      // Error en batch, agregar todos al failed
+      console.error(`[BatchSave] Chunk ${chunkNumber} error:`, error instanceof Error ? error.message : error);
+      chunk.forEach((char) => {
+        failed.push({
+          character: char,
+          error:
+            error instanceof Error ? error : new Error('Unknown error during batch save'),
+        });
+      });
+    }
+
+    // Pequeño delay entre chunks para no sobrecargar
+    if (i + BATCH_SIZE < validCharacters.length) {
+      const delayMs = 100;
+      await new Promise((r) => setTimeout(r, delayMs));
+      console.log(`[BatchSave] Waiting ${delayMs}ms before next chunk...`);
+    }
+  }
+
+  const totalTime = performance.now() - startTime;
+
+  console.log(
+    `[BatchSave] Complete: ${successful.length} successful, ${failed.length} failed in ${totalTime.toFixed(0)}ms`
+  );
+
+  return {
+    successful,
+    failed,
+    totalTime,
+  };
+}
+
 export const fetchCharactersFromCloud = async (userId: string) => {
   try {
     const { data, error } = await supabase
