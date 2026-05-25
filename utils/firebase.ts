@@ -737,7 +737,8 @@ export const subscribeWithRetry = (
   partyId: string,
   onUpdate: (payload: unknown) => void,
   onBroadcast?: (payload: unknown) => void,
-  onStatusChange?: (status: 'connecting' | 'connected' | 'error' | 'reconnecting') => void
+  onStatusChange?: (status: 'connecting' | 'connected' | 'error' | 'reconnecting') => void,
+  activeCharacterId?: string // WAVE 10: Selective document listener
 ): RealtimeSubscription => {
   // Check local mode
   const isLocalMode = localStorage.getItem('df_local_mode') === 'true';
@@ -762,7 +763,13 @@ export const subscribeWithRetry = (
     };
   }
 
-  debugLogger.log('[Realtime]', `Starting subscription to party ${partyId}`, 'info');
+  // WAVE 10: Use selective document listener if activeCharacterId provided
+  const listenerPath = activeCharacterId 
+    ? `parties/${partyId}/characters/${activeCharacterId}`
+    : `parties/${partyId}/characters`;
+  
+  debugLogger.log('[Realtime]', `Starting subscription to ${listenerPath}`, 'info');
+  console.log(`[Realtime] WAVE 10: Listening to ${activeCharacterId ? 'SPECIFIC character' : 'ALL characters'} at ${listenerPath}`);
   
   let unsubscribeFn: Unsubscribe | null = null;
   let status: 'connecting' | 'connected' | 'error' | 'reconnecting' = 'connecting';
@@ -770,26 +777,38 @@ export const subscribeWithRetry = (
   try {
     onStatusChange?.('connecting');
 
-    const partyRef = ref(database, `parties/${partyId}/characters`);
+    const listenerRef = ref(database, listenerPath);
 
     unsubscribeFn = onValue(
-      partyRef,
+      listenerRef,
       (snapshot) => {
         if (status !== 'connected') {
           status = 'connected';
           onStatusChange?.('connected');
-          debugLogger.log('[Realtime]', `Connected to party ${partyId}`, 'info');
-          console.log(`[Realtime] Connected to party ${partyId}`);
+          debugLogger.log('[Realtime]', `Connected to ${listenerPath}`, 'info');
+          console.log(`[Realtime] Connected to ${listenerPath}`);
         }
 
         if (snapshot.exists()) {
-          onUpdate(snapshot.val());
+          const data = snapshot.val();
+          
+          // WAVE 10: When listening to specific character, payload is the character object directly
+          // When listening to all characters, payload is a map of character objects
+          if (activeCharacterId) {
+            // Specific character: wrap in standard format for callback
+            onUpdate({ new: { id: activeCharacterId, data } });
+            console.log(`[Realtime] Specific character update: ${activeCharacterId}`);
+          } else {
+            // All characters: send the full map
+            onUpdate(data);
+            console.log(`[Realtime] All characters update received`);
+          }
         }
       },
       (error) => {
         status = 'error';
         onStatusChange?.('error');
-        debugLogger.log('[Realtime]', `Error subscribing to party ${partyId}`, 'error', { error: error.message });
+        debugLogger.log('[Realtime]', `Error subscribing to ${listenerPath}`, 'error', { error: error.message });
         console.error('[Realtime] Error:', error);
       }
     );
@@ -804,7 +823,7 @@ export const subscribeWithRetry = (
     unsubscribe: async () => {
       if (unsubscribeFn) {
         unsubscribeFn();
-        console.log(`[Realtime] Unsubscribed from party ${partyId}`);
+        console.log(`[Realtime] Unsubscribed from ${listenerPath}`);
       }
     },
     status,

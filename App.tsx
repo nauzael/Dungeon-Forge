@@ -755,7 +755,8 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
             (status) => {
                 // Log status changes (connecting, connected, error, reconnecting)
                 console.log(`[Observer] Realtime status: ${status}`);
-            }
+            },
+            observedCharacter.id // WAVE 10: Selective document listener
         );
 
         return () => {
