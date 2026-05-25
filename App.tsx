@@ -388,6 +388,31 @@ const AppContent: React.FC = () => {
   // Pending uploads queue for sync
   const pendingUploads = useRef<Character[]>([]);
 
+  // Deduplication of listener events (prevent processing same event from multiple listeners)
+  const recentEventIds = useRef<Set<string>>(new Set());
+  const DEDUP_WINDOW_MS = 100;
+
+  // Helper: Generate event ID from character data
+  const getEventId = (characterId: string, timestamp: number): string => {
+    return `${characterId}-${timestamp}`;
+  };
+
+  // Helper: Check if event is duplicate and mark it as processed
+  const isDuplicateEvent = (characterId: string, timestamp: number): boolean => {
+    const eventId = getEventId(characterId, timestamp);
+    const isDuplicate = recentEventIds.current.has(eventId);
+    
+    if (!isDuplicate) {
+      recentEventIds.current.add(eventId);
+      // Schedule cleanup of this event ID after dedup window
+      setTimeout(() => {
+        recentEventIds.current.delete(eventId);
+      }, DEDUP_WINDOW_MS);
+    }
+    
+    return isDuplicate;
+  };
+
   // Sync with Cloud on Login - Merge Inteligente
   useEffect(() => {
     // Skip sync if in local mode
@@ -594,11 +619,30 @@ const AppContent: React.FC = () => {
             observedCharacter.party_id || 'no-party',
             (payload: any) => {
                 if (payload.new?.id === observedCharacter.id) {
-                    setObservedCharacter(payload.new.data as Character);
+                    const char = payload.new.data as Character;
+                    const timestamp = char.syncTimestamp || Date.now();
+                    
+                    // Skip if this is a duplicate event from another listener
+                    if (isDuplicateEvent(char.id, timestamp)) {
+                        console.log(`[Observer] Postgres change - DUPLICATE IGNORED: ${char.id}`);
+                        return;
+                    }
+                    
+                    console.log(`[Observer] Postgres change processed: ${char.id}`);
+                    setObservedCharacter(char);
                 }
             },
             (broadcastChar: any) => {
                 if (broadcastChar && broadcastChar.id === observedCharacter.id) {
+                    const timestamp = broadcastChar.syncTimestamp || Date.now();
+                    
+                    // Skip if this is a duplicate event from another listener
+                    if (isDuplicateEvent(broadcastChar.id, timestamp)) {
+                        console.log(`[Observer] Broadcast - DUPLICATE IGNORED: ${broadcastChar.id}`);
+                        return;
+                    }
+                    
+                    console.log(`[Observer] Broadcast processed: ${broadcastChar.id}`);
                     setObservedCharacter(broadcastChar as Character);
                 }
             },
@@ -618,8 +662,16 @@ const AppContent: React.FC = () => {
         if (isLocalMode || !isAuthenticated || !user?.id || user.id.includes('mock')) return;
 
         const unsubscribe = subscribeToOwnCharacters(user.id, (char, type) => {
+            const timestamp = char.syncTimestamp || Date.now();
+            
+            // Skip if this is a duplicate event from another listener
+            if (isDuplicateEvent(char.id, timestamp)) {
+                console.log(`[Cloud Realtime] ${type} - DUPLICATE IGNORED: ${char.id}`);
+                return;
+            }
+            
             if (type === 'DELETE') {
-                console.log('[Realtime] Character deleted from cloud:', char.id);
+                console.log('[Cloud Realtime] Character deleted from cloud:', char.id);
                 setCharacters(prev => prev.filter(c => c.id !== char.id));
                 setDeletedCharacterIds(prev => {
                     const newDeleted = new Set(prev);
@@ -630,11 +682,12 @@ const AppContent: React.FC = () => {
                     return newDeleted;
                 });
             } else {
+                console.log('[Cloud Realtime] Update processed:', char.id);
                 setCharacters(prev => {
                     const localChar = prev.find(c => c.id === char.id);
                     const localTime = localChar?.syncTimestamp || 0;
                     if ((char.syncTimestamp || 0) > localTime) {
-                        console.log('[Realtime] Updating local with cloud version:', char.name);
+                        console.log('[Cloud Realtime] Updating local with cloud version:', char.name);
                         return prev.map(c => c.id === char.id ? char : c);
                     }
                     return prev;
