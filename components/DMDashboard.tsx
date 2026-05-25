@@ -4,7 +4,7 @@ import { Character } from '../types';
 import { useDMParty } from '../hooks/useDMParty';
 import { useInitiativeTracker } from '../hooks/useInitiativeTracker';
 import { debugLogger } from '../utils/debugLogger';
-import { subscribeWithRetry } from '../utils/supabase'; // WAVE 8: Lazy load listeners
+import { subscribeWithRetry } from '../utils/firebase'; // WAVE 8: Lazy load listeners - Firebase Realtime Database
 import Controls from './DMDashboard/Controls';
 import PartySelector from './DMDashboard/PartySelector';
 import TabContent from './DMDashboard/TabContent';

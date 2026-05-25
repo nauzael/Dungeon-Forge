@@ -15,7 +15,7 @@ import LevelResetModal from './sheet/LevelResetModal';
 import { getEffectiveCasterType, getFinalStats, migrateWizardSpellbookOnceIfNeeded, autoFixWizardSpellbook } from '../utils/sheetUtils';
 import { useLevelSnapshots } from '../hooks/useLevelSnapshots';
 import { logLevelUp, type LevelUpLogEntry } from '../utils/logger';
-import { subscribeWithRetry } from '../utils/supabase'; // WAVE 8: Lazy load listener
+import { subscribeWithRetry } from '../utils/firebase'; // WAVE 8: Lazy load listener - Firebase Realtime Database
 import {
   HIT_DIE,
   CLASS_PROGRESSION,
