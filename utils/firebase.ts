@@ -645,6 +645,15 @@ export const softDeleteCharacter = async (characterId: string) => {
 // Party Management
 export const createParty = async (userId: string, name: string) => {
   const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+  
+  // Wave 10: Force local mode if no Firestore credentials
+  const isLocalMode = localStorage.getItem('df_local_mode') === 'true' || !firestoreInstance;
+  if (isLocalMode) {
+    console.log(`[Party-LocalMode] Creating party ${name} in localStorage`);
+    const result = await createPartyLocal(userId, name);
+    return { data: result, error: null };
+  }
+  
   try {
     if (!firestoreInstance) throw new Error('Firestore not initialized');
     

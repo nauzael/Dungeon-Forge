@@ -84,9 +84,11 @@ export const useDMParty = (userId: string | null) => {
       setIsLoading(true);
     });
     
-    // 🔧 FIX LOCAL MODE: Detectar modo local y cargar desde localStorage
-    const isLocalMode = localStorage.getItem('df_local_mode') === 'true';
+    // 🔧 WAVE 10: Force local mode due to Firebase migration (Supabase credentials removed)
+    const isLocalMode = localStorage.getItem('df_local_mode') === 'true' || !import.meta.env.VITE_SUPABASE_URL;
     let data: Party[] | null = null;
+    
+    console.log(`[DM-LocalMode] Mode: ${isLocalMode ? 'LOCAL (localStorage)' : 'ATTEMPTING CLOUD'}, HasSupabaseConfig: ${!!import.meta.env.VITE_SUPABASE_URL}`);
     
     if (isLocalMode) {
       console.log('[DM-LocalMode] Loading parties from localStorage');
@@ -94,16 +96,30 @@ export const useDMParty = (userId: string | null) => {
       if (partiesStr) {
         try {
           data = JSON.parse(partiesStr) as Party[];
+          console.log(`[DM-LocalMode] Loaded ${data.length} parties from localStorage`);
         } catch (e) {
           console.error('[DM-LocalMode] Failed to parse localStorage parties:', e);
         }
       }
     } else {
-      const result = await supabase
-        .from('parties')
-        .select('*')
-        .eq('creator_id', userId);
-      data = result.data;
+      try {
+        const result = await supabase
+          .from('parties')
+          .select('*')
+          .eq('creator_id', userId);
+        data = result.data;
+      } catch (err) {
+        console.warn('[DM-Supabase] Cloud query failed, falling back to localStorage:', err);
+        // Fallback: try localStorage
+        const partiesStr = localStorage.getItem('dnd-parties-local');
+        if (partiesStr) {
+          try {
+            data = JSON.parse(partiesStr) as Party[];
+          } catch (e) {
+            console.error('[DM-LocalMode] Fallback failed:', e);
+          }
+        }
+      }
     }
     
     unstable_batchedUpdates(() => {
@@ -119,9 +135,11 @@ export const useDMParty = (userId: string | null) => {
       setIsLoading(true);
     });
     
-    // 🔧 FIX LOCAL MODE: Detectar modo local y cargar desde localStorage
-    const isLocalMode = localStorage.getItem('df_local_mode') === 'true';
+    // 🔧 WAVE 10: Force local mode due to Firebase migration
+    const isLocalMode = localStorage.getItem('df_local_mode') === 'true' || !import.meta.env.VITE_SUPABASE_URL;
     let data: any = null;
+    
+    console.log(`[DM-FetchMembers] Loading party ${partyId}, mode: ${isLocalMode ? 'LOCAL' : 'CLOUD'}`);
     
     if (isLocalMode) {
       console.log('[DM-LocalMode] Loading members from localStorage');
@@ -133,17 +151,34 @@ export const useDMParty = (userId: string | null) => {
           data = allChars
             .filter(c => c.party_id === partyId && !c.deleted_at)
             .map(c => ({ data: c }));
+          console.log(`[DM-LocalMode] Loaded ${data.length} members for party ${partyId}`);
         } catch (e) {
           console.error('[DM-LocalMode] Failed to parse localStorage characters:', e);
         }
       }
     } else {
-      const result = await supabase
-        .from('characters')
-        .select('data')
-        .eq('party_id', partyId)
-        .is('deleted_at', null);  // Filtrar soft-deleted para evitar reaparición
-      data = result.data;
+      try {
+        const result = await supabase
+          .from('characters')
+          .select('data')
+          .eq('party_id', partyId)
+          .is('deleted_at', null);
+        data = result.data;
+      } catch (err) {
+        console.warn('[DM-Supabase] Cloud members query failed, falling back to localStorage:', err);
+        // Fallback: try localStorage
+        const charsStr = localStorage.getItem('dnd-characters');
+        if (charsStr) {
+          try {
+            const allChars = JSON.parse(charsStr) as Character[];
+            data = allChars
+              .filter(c => c.party_id === partyId && !c.deleted_at)
+              .map(c => ({ data: c }));
+          } catch (e) {
+            console.error('[DM-LocalMode] Fallback failed:', e);
+          }
+        }
+      }
     }
     
     unstable_batchedUpdates(() => {
