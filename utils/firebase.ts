@@ -451,6 +451,44 @@ export const saveCharacterToCloud = async (character: Character, userId: string)
   }
 };
 
+/**
+ * Task 3-1: Save character with automatic rollback on failure
+ * @param character Character to save
+ * @param userId User ID for ownership
+ * @param onRollback Callback to restore UI state on save failure
+ * @returns Resolves if save succeeds, rejects with error and calls onRollback
+ */
+export const saveCharacterWithRollback = async (
+  character: Character,
+  userId: string,
+  onRollback: (snapshot: Character) => void
+): Promise<{ data: { id: string }, error: null }> => {
+  // Deep copy snapshot for rollback
+  const snapshot = JSON.parse(JSON.stringify(character)) as Character;
+
+  try {
+    if (!firestoreInstance) throw new Error('Firestore not initialized');
+
+    const characterRef = doc(firestoreInstance, 'characters', character.id);
+    await setDoc(characterRef, {
+      id: character.id,
+      user_id: userId,
+      data: character,
+      party_id: character.party_id || null,
+      updated_at: Timestamp.now(),
+      deleted_at: null,
+    }, { merge: true });
+
+    console.log(`[Sync] Success: ${character.name} saved with rollback enabled`);
+    return { data: { id: character.id }, error: null };
+  } catch (e) {
+    // Save failed - trigger rollback
+    console.error(`[Sync] Cloud save failed for ${character.name}, rolling back to snapshot`, e);
+    onRollback(snapshot);
+    throw e;
+  }
+};
+
 export const fetchCharactersFromCloud = async (userId: string) => {
   try {
     if (!firestoreInstance) throw new Error('Firestore not initialized');

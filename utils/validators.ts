@@ -1,117 +1,176 @@
 import { Character } from '../types';
+import { getClassList } from '../Data/classes';
 
 export interface ValidationResult {
   valid: boolean;
   errors: string[];
 }
 
+// Validaciones utilitarias (funciones privadas)
+const isValidNumber = (value: any): value is number => {
+  return typeof value === 'number' && !isNaN(value) && isFinite(value);
+};
+
 /**
- * Valida que un Character tenga todos los campos requeridos antes de guardar a cloud.
- * Esta validación es crítica para evitar corrupción de datos en la base de datos.
- *
- * Campos requeridos:
- * - id: UUID válido
- * - name: no vacío
- * - level: 1-20
- * - class: valor conocido
- * - species: valor conocido
- * - hp: objeto con current, max, temp válidos
- * - stats: objeto con STR, DEX, CON, INT, WIS, CHA (3-20 cada uno)
- * - ac: número 0-30
- * - init: número -5 a 10
- * - speed: número positivo
- * - profBonus: número 1-6
- * - inventory: array de items
- * - imageUrl: string (puede estar vacío)
+ * Valida que un Character tenga datos válidos sin corrupción.
+ * Acepta Character parcial (Partial<Character>) para validar solo los campos que existen.
+ * 
+ * Validaciones:
+ * - HP: current no NaN/Infinity, 0 <= current <= max, max >= 1
+ * - AC: 0-30, no NaN/Infinity
+ * - Stats: 3-20 por stat (si existen), no NaN/Infinity
+ * - Level: 1-20, no NaN/Infinity
+ * - Spell slots: no NaN/Infinity, >= 0
+ * - Resources: no NaN/Infinity, >= 0
+ * - Name: no vacío
+ * - Class: en lista de clases válidas
  */
-export function isValidCharacter(character: Character): ValidationResult {
+export function isValidCharacter(character: Partial<Character>): ValidationResult {
   const errors: string[] = [];
 
-  // Validaciones básicas
-  if (!character.id || typeof character.id !== 'string') {
-    errors.push('Missing or invalid id');
+  // Guard: character debe existir
+  if (!character || typeof character !== 'object') {
+    errors.push('Character must be an object');
+    return { valid: false, errors };
   }
 
-  if (!character.name || typeof character.name !== 'string' || character.name.trim().length === 0) {
-    errors.push('Missing or invalid name');
-  }
-
-  if (typeof character.level !== 'number' || character.level < 1 || character.level > 20) {
-    errors.push('Level must be between 1 and 20');
-  }
-
-  if (!character.class || typeof character.class !== 'string') {
-    errors.push('Missing or invalid class');
-  }
-
-  if (!character.species || typeof character.species !== 'string') {
-    errors.push('Missing or invalid species');
-  }
-
-  // Validar HP
-  if (!character.hp || typeof character.hp !== 'object') {
-    errors.push('Missing hp object');
-  } else {
-    const { current, max, temp } = character.hp;
-    if (typeof current !== 'number' || current < 0) {
-      errors.push('hp.current must be a non-negative number');
-    }
-    if (typeof max !== 'number' || max <= 0) {
-      errors.push('hp.max must be a positive number');
-    }
-    if (typeof temp !== 'number' || temp < 0) {
-      errors.push('hp.temp must be a non-negative number');
+  // Validar name si existe
+  if (character.name !== undefined) {
+    if (typeof character.name !== 'string' || character.name.trim().length === 0) {
+      errors.push('name must be a non-empty string');
     }
   }
 
-  // Validar Stats
-  if (!character.stats || typeof character.stats !== 'object') {
-    errors.push('Missing stats object');
-  } else {
-    const abilities = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
-    for (const ability of abilities) {
-      const value = character.stats[ability];
-      if (typeof value !== 'number' || value < 3 || value > 20) {
-        errors.push(`${ability} must be between 3 and 20, got ${value}`);
+  // Validar level si existe
+  if (character.level !== undefined) {
+    if (!isValidNumber(character.level) || character.level < 1 || character.level > 20) {
+      errors.push('level must be between 1 and 20');
+    }
+  }
+
+  // Validar class si existe
+  if (character.class !== undefined) {
+    if (typeof character.class !== 'string' || character.class.trim().length === 0) {
+      errors.push('class must be a non-empty string');
+    } else {
+      const validClasses = getClassList();
+      if (!validClasses.includes(character.class)) {
+        errors.push(`class '${character.class}' is not valid. Valid classes: ${validClasses.join(', ')}`);
       }
     }
   }
 
-  // Validar AC
-  if (typeof character.ac !== 'number' || character.ac < 0 || character.ac > 30) {
-    errors.push('AC must be between 0 and 30');
-  }
+  // Validar HP si existe
+  if (character.hp !== undefined) {
+    if (typeof character.hp === 'object' && character.hp !== null) {
+      const { current, max, temp } = character.hp as any;
 
-  // Validar Initiative
-  if (typeof character.init !== 'number' || character.init < -5 || character.init > 10) {
-    errors.push('Initiative must be between -5 and 10');
-  }
-
-  // Validar Speed
-  if (typeof character.speed !== 'number' || character.speed <= 0) {
-    errors.push('Speed must be a positive number');
-  }
-
-  // Validar Prof Bonus
-  if (typeof character.profBonus !== 'number' || character.profBonus < 1 || character.profBonus > 6) {
-    errors.push('Proficiency Bonus must be between 1 and 6');
-  }
-
-  // Validar Inventory
-  if (!Array.isArray(character.inventory)) {
-    errors.push('Inventory must be an array');
-  } else {
-    for (let i = 0; i < character.inventory.length; i++) {
-      const item = character.inventory[i];
-      if (!item.id || !item.name || typeof item.quantity !== 'number') {
-        errors.push(`Inventory item ${i} has invalid structure`);
+      // Validar HP current
+      if (current !== undefined) {
+        if (!isValidNumber(current) || current < 0) {
+          errors.push('HP current must be a non-negative number');
+        } else if (max !== undefined && isValidNumber(max) && current > max) {
+          errors.push(`HP current (${current}) > max (${max})`);
+        }
       }
+
+      // Validar HP max
+      if (max !== undefined) {
+        if (!isValidNumber(max) || max < 1) {
+          errors.push('HP max must be >= 1');
+        }
+      }
+
+      // Validar HP temp
+      if (temp !== undefined) {
+        if (!isValidNumber(temp) || temp < 0) {
+          errors.push('HP temp must be a non-negative number');
+        }
+      }
+    } else {
+      errors.push('hp must be an object');
     }
   }
 
-  // Validar imageUrl (puede estar vacío, pero debe ser string)
-  if (typeof character.imageUrl !== 'string') {
-    errors.push('imageUrl must be a string');
+  // Validar AC si existe
+  if (character.ac !== undefined) {
+    if (!isValidNumber(character.ac) || character.ac < 0 || character.ac > 30) {
+      errors.push('AC must be between 0 and 30');
+    }
+  }
+
+  // Validar Stats si existen
+  if (character.stats !== undefined) {
+    if (typeof character.stats === 'object' && character.stats !== null) {
+      const abilities = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+      for (const ability of abilities) {
+        const value = (character.stats as any)[ability];
+        if (value !== undefined) {
+          if (!isValidNumber(value) || value < 3 || value > 20) {
+            errors.push(`${ability} must be between 3 and 20`);
+          }
+        }
+      }
+    } else {
+      errors.push('stats must be an object');
+    }
+  }
+
+  // Validar Spell slots si existen
+  if (character.spellSlots !== undefined) {
+    if (typeof character.spellSlots === 'object' && character.spellSlots !== null) {
+      for (const [level, slot] of Object.entries(character.spellSlots as any)) {
+        if (typeof slot === 'object' && slot !== null) {
+          const { current, max } = slot;
+          if (current !== undefined && (!isValidNumber(current) || current < 0)) {
+            errors.push(`spell slot level ${level} current must be a non-negative number`);
+          }
+          if (max !== undefined && (!isValidNumber(max) || max < 0)) {
+            errors.push(`spell slot level ${level} max must be a non-negative number`);
+          }
+        }
+      }
+    } else {
+      errors.push('spellSlots must be an object');
+    }
+  }
+
+  // Validar Resources si existen (rageUses, bardicInspiration, sorceryPoints, etc.)
+  const resourceFields = [
+    'rageUses',
+    'bardicInspiration',
+    'channelDivinity',
+    'wildShape',
+    'layOnHands',
+    'actionSurge',
+    'secondWind',
+    'indomitable',
+    'sorceryPoints',
+    'innateSorcery',
+    'hunterMarkUses',
+    'magicalCunning',
+    'fontOfInspiration',
+    'focus',
+    'hitDice',
+    'lucky',
+    'inspiration'
+  ];
+
+  for (const field of resourceFields) {
+    const resource = (character as any)[field];
+    if (resource !== undefined) {
+      if (typeof resource === 'object' && resource !== null) {
+        const { current, max } = resource;
+        if (current !== undefined && (!isValidNumber(current) || current < 0)) {
+          errors.push(`${field} current must be a non-negative number`);
+        }
+        if (max !== undefined && (!isValidNumber(max) || max < 0)) {
+          errors.push(`${field} max must be a non-negative number`);
+        }
+      } else {
+        errors.push(`${field} must be an object`);
+      }
+    }
   }
 
   return {

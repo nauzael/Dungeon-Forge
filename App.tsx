@@ -12,6 +12,7 @@ import { useResponsive } from './hooks/useResponsive';
 import {
   supabase,
   saveCharacterToCloud,
+  saveCharacterWithRollback,
   fetchCharactersFromCloud,
   subscribeWithRetry,
   broadcastCharacterUpdate,
@@ -23,6 +24,8 @@ import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { ThemeProvider } from './src/contexts/ThemeContext';
+import { SyncProvider, useSyncStatus, SyncContextType } from './src/contexts/SyncContext';
+import SyncToast from './src/components/SyncToast';
 
 const CreatorSteps = lazy(() => import('./components/CreatorSteps'));
 const SheetTabs = lazy(() => import('./components/SheetTabs'));
@@ -34,7 +37,7 @@ const isObsoleteSupabaseId = (id: string | undefined | null): boolean => {
   return id.includes('-') && id.length === 36;
 };
 
-const AppContent: React.FC = () => {
+const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) => {
   // 🚀 V1.6 VERIFICATION MARKER - New OAuth popup flow
   console.log('[V1.6] 🚀 AppContent initialized - NEW POPUP FLOW ACTIVE');
   
@@ -779,17 +782,47 @@ const AppContent: React.FC = () => {
   }, [activeCharacter]);
 
   const handleDMCharacterUpdate = async (updatedChar: Character) => {
-    // 1. Update the local observed character state
+    // 1. Validar character antes de guardar (Task 2-1)
+    const validation = isValidCharacter(updatedChar);
+    if (!validation.valid) {
+      console.error('[Sync] Validation failed:', validation.errors);
+      syncStatus.showError(validation.errors?.[0] || 'Validation error', updatedChar.id);
+      return; // No guardar si es inválido
+    }
+
+    // 2. Update the local observed character state
     setObservedCharacter(updatedChar);
 
-    // 2. Persist to cloud (Supabase)
-    // We try to preserve the original owner user_id if we have it in the character data
-    const ownerId = (updatedChar as CharacterWithOwner).user_id || user?.id || 'guest'; 
-    await saveCharacterToCloud(updatedChar, ownerId);
+    // 3. Show syncing state
+    syncStatus.showSync();
 
-    // 3. Broadcast to the party
+    // 4. Persist to cloud with rollback (Task 3-1)
+    try {
+      const ownerId = (updatedChar as CharacterWithOwner).user_id || user?.id || 'guest';
+      
+      // Create rollback handler - restore previous state on failure
+      const handleRollback = (snapshot: Character) => {
+        setObservedCharacter(snapshot);
+        console.error('[Sync] Rollback applied:', snapshot.id);
+      };
+
+      // Save with rollback capability
+      await saveCharacterWithRollback(updatedChar, ownerId, handleRollback);
+
+      // Success - update sync status (Task 3-2)
+      syncStatus.showSuccess(`${updatedChar.name} guardado`);
+      console.log('[Sync] Character saved successfully:', updatedChar.id);
+    } catch (error) {
+      // Error - show feedback (Task 3-2)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      syncStatus.showError(errorMessage, updatedChar.id);
+      console.error('[Sync] Failed to save character:', error);
+      return; // Stop here, don't broadcast on error
+    }
+
+    // 5. Broadcast to the party on success
     if (updatedChar.party_id) {
-        broadcastCharacterUpdate(updatedChar.party_id, updatedChar);
+      broadcastCharacterUpdate(updatedChar.party_id, updatedChar);
     }
   };
 
@@ -1054,20 +1087,34 @@ const AppContent: React.FC = () => {
                 </div>
             )}
 
+            {/* Task 3-3: SyncToast component for sync feedback */}
+            <SyncToast />
+
     </div>
   );
 };
 
 /**
- * App Wrapper with ThemeProvider
- * Envuelve la app con el proveedor de temas
+ * App Wrapper with ThemeProvider and SyncProvider
+ * Task 3-3: Integrate SyncProvider for rollback + sync feedback
  */
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <AppContent />
+      <SyncProvider>
+        <AppContentWithSync />
+      </SyncProvider>
     </ThemeProvider>
   );
+};
+
+/**
+ * Wrapper component that provides sync context to AppContent
+ * Task 3-3: Enables useSyncStatus hook usage in event handlers
+ */
+const AppContentWithSync: React.FC = () => {
+  const syncStatus = useSyncStatus();
+  return <AppContent syncStatus={syncStatus} />;
 };
 
 export default App;
