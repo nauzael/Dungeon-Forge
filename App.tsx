@@ -6,6 +6,7 @@ import CharacterList from './components/CharacterList';
 import Login from './components/Login';
 import Toast, { ToastType } from './src/components/Toast';
 import { migrateCharacters } from './utils/characterMigrations';
+import { isValidCharacter } from './src/utils/validators';
 import { generateUUID } from './utils/uuid';
 import { useResponsive } from './hooks/useResponsive';
 import {
@@ -359,14 +360,60 @@ const AppContent: React.FC = () => {
   
   // Initialize characters from localStorage if available, otherwise use mocks
   // Apply migrations to existing characters on load
+  // Validate each character - filter corrupted ones, clean localStorage if needed
   const [characters, setCharacters] = useState<Character[]>(() => {
     try {
       const saved = localStorage.getItem('dnd-characters');
-      const loaded: Character[] = saved ? JSON.parse(saved) : MOCK_CHARACTERS;
-      const { characters: migratedChars } = migrateCharacters(loaded);
+      if (!saved) {
+        return MOCK_CHARACTERS;
+      }
+
+      const parsed = JSON.parse(saved) as unknown;
+
+      // Ensure it's an array
+      if (!Array.isArray(parsed)) {
+        console.warn('localStorage dnd-characters is not an array, clearing');
+        localStorage.removeItem('dnd-characters');
+        return MOCK_CHARACTERS;
+      }
+
+      // Validate each character
+      const validated: Character[] = [];
+      const corrupted: unknown[] = [];
+
+      for (const char of parsed) {
+        const validation = isValidCharacter(char);
+        if (!validation.valid) {
+          console.warn(`Removiendo personaje corrupto ${(char as any).name}:`, validation.errors);
+          corrupted.push(char);
+        } else {
+          validated.push(char as Character);
+        }
+      }
+
+      // If corrupted characters were found, save cleaned data back to localStorage
+      if (corrupted.length > 0) {
+        const percentage = Math.round((corrupted.length / parsed.length) * 100);
+        console.warn(`Limpiados ${corrupted.length} personajes corruptos (${percentage}%)`);
+        
+        // Save cleaned data
+        try {
+          localStorage.setItem('dnd-characters', JSON.stringify(validated));
+        } catch (storageErr) {
+          console.error('Failed to save cleaned characters back to localStorage:', storageErr);
+        }
+      }
+
+      // Apply migrations to valid characters
+      const { characters: migratedChars } = migrateCharacters(validated);
       return migratedChars;
     } catch (e) {
-      console.error("Failed to load characters from local storage", e);
+      console.error('localStorage corrupto, limpiando...', e);
+      try {
+        localStorage.removeItem('dnd-characters');
+      } catch (err) {
+        console.error('Failed to remove corrupted localStorage:', err);
+      }
       return MOCK_CHARACTERS;
     }
   });
