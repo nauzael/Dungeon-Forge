@@ -20,6 +20,7 @@ import {
   subscribeToOwnCharacters,
   subscribeToPartyResources
 } from './utils/firebase';
+import { batchSaveCharacters } from './utils/supabase';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
@@ -823,6 +824,92 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
     // 5. Broadcast to the party on success
     if (updatedChar.party_id) {
       broadcastCharacterUpdate(updatedChar.party_id, updatedChar);
+    }
+  };
+
+  /**
+   * Task 4-2: Batch save multiple characters efficiently
+   * Used when editing multiple characters simultaneously (e.g., DM editing all enemy stats)
+   * Instead of N individual requests, reduces to 1 batch operation
+   * 
+   * @param updates Array of characters to save
+   * @returns Promise that resolves when batch save completes
+   */
+  const handleBatchUpdateCharacters = async (updates: Character[]): Promise<void> => {
+    // Validación inicial
+    if (!updates || updates.length === 0) {
+      console.warn('[BatchSave] No characters to save');
+      return;
+    }
+
+    // Mostrar estado de sincronización
+    syncStatus.showSync();
+    console.log(`[BatchSave] Starting batch save for ${updates.length} characters`);
+
+    try {
+      // Crear callback para saveCharacterWithRollback
+      // Cada personaje se guarda individualmente dentro del batch
+      const saveCallback = async (character: Character): Promise<{ data: { id: string }, error: null }> => {
+        const ownerId = (character as CharacterWithOwner).user_id || user?.id || 'guest';
+        
+        // Crear handler para rollback si falla el save
+        const handleRollback = (snapshot: Character) => {
+          setCharacters(prev => 
+            prev.map(c => c.id === snapshot.id ? snapshot : c)
+          );
+          console.error('[BatchSave] Rollback applied for:', snapshot.id);
+        };
+
+        // Guardar con capacidad de rollback
+        return await saveCharacterWithRollback(character, ownerId, handleRollback);
+      };
+
+      // Ejecutar batch save con el callback
+      const result = await batchSaveCharacters(updates, saveCallback);
+
+      // Actualizar characters locales con los que se guardaron exitosamente
+      setCharacters(prev => {
+        let modified = [...prev];
+        for (const successful of result.successful) {
+          const idx = modified.findIndex(c => c.id === successful.id);
+          if (idx !== -1) {
+            modified[idx] = successful;
+          }
+        }
+        return modified;
+      });
+
+      // Mostrar resultado según éxito/fallos
+      if (result.failed.length === 0) {
+        // Todos exitosos
+        const message = `✅ ${result.successful.length} personaje${result.successful.length !== 1 ? 's' : ''} guardado${result.successful.length !== 1 ? 's' : ''} en ${result.totalTime}ms`;
+        syncStatus.showSuccess(message);
+        console.log('[BatchSave] All characters saved successfully:', { successful: result.successful.length, time: result.totalTime });
+      } else {
+        // Algunos fallaron
+        const message = `⚠️ ${result.successful.length} guardado${result.successful.length !== 1 ? 's' : ''}, ${result.failed.length} fallo${result.failed.length !== 1 ? 's' : ''}`;
+        syncStatus.showError(message);
+        console.warn('[BatchSave] Batch completed with failures:', { successful: result.successful.length, failed: result.failed.length });
+      }
+
+      // Broadcast updates to party members si existen
+      const partyIds = new Set<string>();
+      for (const char of result.successful) {
+        if (char.party_id) {
+          partyIds.add(char.party_id);
+        }
+      }
+      for (const partyId of partyIds) {
+        for (const char of result.successful) {
+          if (char.party_id === partyId) {
+            broadcastCharacterUpdate(partyId, char);
+          }
+        }
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      syncStatus.showError(`Error al guardar: ${errorMessage}`);
+      console.error('[BatchSave] Batch save failed:', error);
     }
   };
 
