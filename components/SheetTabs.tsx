@@ -15,6 +15,7 @@ import LevelResetModal from './sheet/LevelResetModal';
 import { getEffectiveCasterType, getFinalStats, migrateWizardSpellbookOnceIfNeeded, autoFixWizardSpellbook } from '../utils/sheetUtils';
 import { useLevelSnapshots } from '../hooks/useLevelSnapshots';
 import { logLevelUp, type LevelUpLogEntry } from '../utils/logger';
+import { subscribeWithRetry } from '../utils/supabase'; // WAVE 8: Lazy load listener
 import {
   HIT_DIE,
   CLASS_PROGRESSION,
@@ -136,6 +137,41 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
       }
     }
   }, [character.id]);
+
+  // WAVE 8: Lazy load listener only when SheetTabs mounts (on-demand)
+  const listenerRef = useRef<{ unsubscribe: () => Promise<void> } | null>(null);
+  
+  useEffect(() => {
+    const isLocalMode = localStorage.getItem('df_local_mode') === 'true';
+    
+    if (!isLocalMode && character.party_id) {
+      // Abrir listener SOLO cuando estamos viendo el sheet
+      const subscription = subscribeWithRetry(
+        character.party_id,
+        (payload: any) => {
+          if (payload.new?.id === character.id) {
+            onUpdate(payload.new.data as Character);
+            console.log('[SheetTabs] Received update via listener');
+          }
+        },
+        undefined,
+        undefined,
+        character.id // WAVE 7: Selective sync
+      );
+      
+      listenerRef.current = subscription;
+      console.log('[SheetTabs] Lazy loaded listener');
+    }
+
+    // ← Cleanup cuando salimos del sheet o component unmounts
+    return () => {
+      if (listenerRef.current) {
+        listenerRef.current.unsubscribe().then(() => {
+          console.log('[SheetTabs] Listener cleanup on unmount');
+        });
+      }
+    };
+  }, [character.id, character.party_id]);
 
   const handleSaveName = () => {
     if (tempName.trim() && tempName !== character.name) {

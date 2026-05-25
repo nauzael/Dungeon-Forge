@@ -430,7 +430,8 @@ export const subscribeWithRetry = (
   partyId: string,
   onUpdate: (payload: unknown) => void,
   onBroadcast?: (payload: unknown) => void,
-  onStatusChange?: (status: 'connecting' | 'connected' | 'error' | 'reconnecting') => void
+  onStatusChange?: (status: 'connecting' | 'connected' | 'error' | 'reconnecting') => void,
+  activeCharacterId?: string // WAVE 7: Selective sync - only listen to this character
 ): RealtimeSubscription => {
   // 🔧 FIX LOCAL MODE: Si estamos en local mode, retornar subscription noop
   const isLocalMode = localStorage.getItem('df_local_mode') === 'true';
@@ -501,13 +502,18 @@ export const subscribeWithRetry = (
     let eventReceived = false;
     
     // Setup postgres_changes listener
+    // WAVE 7: Build selective filter based on activeCharacterId
+    const characterFilter = activeCharacterId 
+      ? `party_id=eq.${partyId} AND id=eq.${activeCharacterId}`
+      : `party_id=eq.${partyId}`;
+    
     channel.on(
       'postgres_changes',
       {
         event: '*',
         schema: 'public',
         table: 'characters',
-        filter: `party_id=eq.${partyId}`,
+        filter: characterFilter, // WAVE 7: Only listen to activeCharacterId
       },
       (payload: unknown) => {
         eventReceived = true;

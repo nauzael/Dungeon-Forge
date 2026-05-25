@@ -436,6 +436,61 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
   const [activeCharacterId, setActiveCharacterId] = useState<string | null>(null);
   const activeCharacter = characters.find(c => c.id === activeCharacterId);
   
+  // WAVE 6: Listener cleanup on character switch
+  const listenerRef = useRef<{ unsubscribe: () => Promise<void> } | null>(null);
+
+  /**
+   * Subscribe to active character only - cleanup previous listener on switch
+   * WAVE 6: Selective listener management
+   */
+  const subscribeToActiveCharacter = async (characterId: string, partyId: string) => {
+    // Cleanup listener anterior
+    if (listenerRef.current) {
+      await listenerRef.current.unsubscribe();
+      console.log('[Listener] Cleaned up previous listener');
+    }
+
+    // Abrir listener SOLO para character activo (WAVE 7: selective sync)
+    if (!isLocalMode && isAuthenticated) {
+      const subscription = subscribeWithRetry(
+        partyId,
+        (payload: any) => {
+          // Solo procesar si es el character activo
+          if (payload.new?.id === characterId) {
+            const char = payload.new.data as Character;
+            setCharacters(prev => prev.map(c => c.id === characterId ? char : c));
+            console.log(`[App] Updated via listener: ${characterId}`);
+          }
+        },
+        (broadcastChar: any) => {
+          if (broadcastChar?.id === characterId) {
+            const char = broadcastChar as Character;
+            setCharacters(prev => prev.map(c => c.id === characterId ? char : c));
+            console.log(`[App] Updated via broadcast: ${characterId}`);
+          }
+        },
+        (status) => {
+          console.log(`[Listener] Party sync status: ${status}`);
+        },
+        characterId // WAVE 7: Pass activeCharacterId for selective sync
+      );
+      
+      listenerRef.current = subscription;
+      console.log(`[Listener] Opened listener for character: ${characterId}`);
+    }
+  };
+
+  // WAVE 6: useEffect to subscribe/cleanup when active character changes
+  useEffect(() => {
+    if (activeCharacter?.id && activeCharacter?.party_id) {
+      subscribeToActiveCharacter(activeCharacter.id, activeCharacter.party_id);
+    }
+
+    return () => {
+      // Cleanup on unmount or character change is handled in subscribeToActiveCharacter
+    };
+  }, [activeCharacter?.id, activeCharacter?.party_id, isLocalMode, isAuthenticated]);
+  
   // Pending uploads queue for sync
   const pendingUploads = useRef<Character[]>([]);
 

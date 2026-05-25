@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Character } from '../types';
 import { useDMParty } from '../hooks/useDMParty';
 import { useInitiativeTracker } from '../hooks/useInitiativeTracker';
 import { debugLogger } from '../utils/debugLogger';
+import { subscribeWithRetry } from '../utils/supabase'; // WAVE 8: Lazy load listeners
 import Controls from './DMDashboard/Controls';
 import PartySelector from './DMDashboard/PartySelector';
 import TabContent from './DMDashboard/TabContent';
@@ -39,6 +40,50 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
 
   // Initiative tracker hook
   const { initiativeCombatants, setInitiativeCombatants } = useInitiativeTracker(party?.id ?? null, members);
+
+  // WAVE 8: Lazy load listeners for multiple characters on edit
+  const listeners = useRef<Map<string, { unsubscribe: () => Promise<void> }>>(new Map());
+
+  // ← LAZY: Abre listener al hacer click en "editar"
+  const handleStartEditCharacter = (characterId: string) => {
+    if (!party || !listeners.current.has(characterId)) {
+      const subscription = subscribeWithRetry(
+        party?.id || '',
+        (payload: any) => {
+          if (payload.new?.id === characterId) {
+            // Update handled by parent component via context/props
+            console.log(`[DMDashboard] Received update for ${characterId}`);
+          }
+        },
+        undefined,
+        undefined,
+        characterId // WAVE 7: Selective sync
+      );
+      
+      listeners.current.set(characterId, subscription);
+      console.log(`[DMDashboard] Opened listener for character ${characterId}`);
+    }
+  };
+
+  // ← Cierra listener cuando dejas de editar
+  const handleStopEditCharacter = async (characterId: string) => {
+    const listener = listeners.current.get(characterId);
+    if (listener) {
+      await listener.unsubscribe();
+      listeners.current.delete(characterId);
+      console.log(`[DMDashboard] Closed listener for character ${characterId}`);
+    }
+  };
+
+  // Cleanup on unmount or party change
+  useEffect(() => {
+    return () => {
+      listeners.current.forEach((listener) => {
+        listener.unsubscribe();
+      });
+      listeners.current.clear();
+    };
+  }, [party?.id]);
 
   // Handlers
   const handleDeletePartyWithConfirm = async () => {
