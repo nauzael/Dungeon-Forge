@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import React, { useState, useMemo, useEffect, memo, useRef, useLayoutEffect } from 'react';
 import { useModalScrollLock } from '../../hooks/useModalScrollLock';
 import { useResponsive } from '../../hooks/useResponsive';
+import { useDebounce } from '../../hooks/useDebounce';
 import { Character, Ability, WeaponData, InventoryItem } from '../../types';
 import { SKILL_ABILITY_MAP, SKILL_DESCRIPTIONS } from '../../Data/skills';
 import { useSkills } from '../../Data/skills/index';
@@ -70,6 +71,8 @@ const CombatTab: React.FC<CombatTabProps> = ({
     const SKILL_LIST = skills.map(s => s.name);
     const [hpModal, setHpModal] = useState<{ show: boolean; type: 'damage' | 'heal' | 'temp' }>({ show: false, type: 'damage' });
     const [hpAmount, setHpAmount] = useState('');
+    const [pendingHpChange, setPendingHpChange] = useState<{ current: number; temp: number } | null>(null);
+    const debouncedHpChange = useDebounce(pendingHpChange, 500);
     const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
     const [inspectedStat, setInspectedStat] = useState<'AC' | 'Init' | 'Spd' | 'Prof' | 'Insp' | 'HP' | 'Save_STR' | 'Save_DEX' | 'Save_CON' | 'Save_INT' | 'Save_WIS' | 'Save_CHA' | 'Ability_STR' | 'Ability_DEX' | 'Ability_CON' | 'Ability_INT' | 'Ability_WIS' | 'Ability_CHA' | null>(null);
     
@@ -434,9 +437,21 @@ const CombatTab: React.FC<CombatTabProps> = ({
             }
             newCurrent = Math.max(0, newCurrent - remainingDamage);
         }
-        onUpdate({ ...character, hp: { ...character.hp, current: newCurrent, temp: newTemp } });
+        // Actualizar localmente INMEDIATO para UX, pero guardar a cloud solo después de debounce
+        setPendingHpChange({ current: newCurrent, temp: newTemp });
         setHpModal(prev => ({ ...prev, show: false }));
     };
+
+    // Guardar HP a cloud solo cuando debounce se resuelve (después de 500ms sin cambios)
+    useEffect(() => {
+        if (debouncedHpChange !== null) {
+            const currentChanged = debouncedHpChange.current !== character.hp.current;
+            const tempChanged = debouncedHpChange.temp !== character.hp.temp;
+            if (currentChanged || tempChanged) {
+                onUpdate({ ...character, hp: { ...character.hp, current: debouncedHpChange.current, temp: debouncedHpChange.temp } });
+            }
+        }
+    }, [debouncedHpChange, character, onUpdate]);
 
     // Detectar si un arma necesita municiones
     const getWeaponAmmoType = (weaponName: string): 'arrows' | 'bolts' | 'bullets' | 'needles' | null => {

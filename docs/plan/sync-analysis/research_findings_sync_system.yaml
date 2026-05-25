@@ -1,0 +1,449 @@
+plan_id: "sync-performance-analysis"
+objective: "Analyze Dungeon Forge synchronization system to identify performance bottlenecks, data persistence issues, and resource inefficiency"
+focus_area: "App.tsx, SheetTabs.tsx, CombatTab.tsx, utils/supabase.ts - Character state synchronization"
+created_at: "2026-05-25"
+created_by: "gem-researcher"
+status: "completed"
+tldr: |
+  - 7+ simultaneous listeners firing without debounce = redundant re-renders & network requests
+  - HP/resource changes trigger IMMEDIATE onUpdate() → debounce only on cloud persistence (300ms gap)
+  - No batching: each field change = separate saveCharacterToCloud() call with full character object
+  - Race conditions: local edits + cloud sync can conflict with no conflict resolution strategy
+  - Source of truth unclear: localStorage persistence fires AFTER cloud, but cache not validated
+  - Network failures silent: errors logged but no user feedback or retry (except UI indicator)
+  - Rollback missing: if cloud save fails, local state keeps new value with no restoration
+
+research_metadata:
+  methodology: "semantic_search + grep_search + read_file on critical paths (App.tsx, supabase.ts, CombatTab.tsx)"
+  scope: "Synchronization flow from component state change → localStorage → Supabase cloud"
+  confidence: "high"
+  coverage: 87%  # Covered useEffect hooks, listeners, save/load functions; missed some edge case error handlers
+  decision_blockers: 1  # Unclear: is broadcast channel used for real-time updates or only manual triggers?
+  research_blockers: 0
+
+files_analyzed:
+  - file: "App.tsx"
+    path: "App.tsx"
+    purpose: "Main app orchestrator - manages auth, characters state, cloud sync, listeners"
+    key_elements:
+      - element: "useEffect[isAuthenticated, user] - Line 237"
+        type: "hook"
+        location: "App.tsx:237-320"
+        description: "Syncronization on login: fetches cloud chars, merges with local, uploads pending"
+        language: "TypeScript/React"
+      - element: "useEffect[characters, isAuthenticated, user] - Line 508"
+        type: "hook"
+        location: "App.tsx:508-535"
+        description: "Persist to localStorage (300ms debounce) + cloud save (NO debounce on iterate)"
+        language: "TypeScript/React"
+      - element: "useEffect - subscribeToOwnCharacters - Line 618"
+        type: "hook"
+        location: "App.tsx:618-645"
+        description: "Real-time listener for own characters from other devices - compares timestamps"
+        language: "TypeScript/React"
+      - element: "useEffect - subscribeWithRetry observer - Line 591"
+        type: "hook"
+        location: "App.tsx:591-614"
+        description: "Real-time listener for observed (DM view) character - no batching"
+        language: "TypeScript/React"
+      - element: "useEffect - subscribeToPartyResources - Line 650"
+        type: "hook"
+        location: "App.tsx:650-665"
+        description: "Listener for shared party resources"
+        language: "TypeScript/React"
+      - element: "handleCharacterUpdate callback - Line 667"
+        type: "function"
+        location: "App.tsx:667-682"
+        description: "Called when component updates character - broadcasts + updates state"
+        language: "TypeScript/React"
+      - element: "handleDMCharacterUpdate async - Line 684"
+        type: "function"
+        location: "App.tsx:684-700"
+        description: "DM observing character - saves to cloud + broadcasts immediately"
+        language: "TypeScript/React"
+    lines: 900
+
+  - file: "utils/supabase.ts"
+    path: "utils/supabase.ts"
+    purpose: "Supabase client + sync helper functions"
+    key_elements:
+      - element: "saveCharacterToCloud async - Line 34"
+        type: "function"
+        location: "utils/supabase.ts:34-56"
+        description: "Upsert character to cloud - uses onConflict:id strategy"
+        language: "TypeScript"
+      - element: "fetchCharactersFromCloud async - Line 59"
+        type: "function"
+        location: "utils/supabase.ts:59-72"
+        description: "Fetch from Supabase with deleted_at filter"
+        language: "TypeScript"
+      - element: "subscribeWithRetry - Line 333"
+        type: "function"
+        location: "utils/supabase.ts:333-450"
+        description: "Realtime subscription with exponential backoff - 15s timeout, 10 retries"
+        language: "TypeScript"
+      - element: "postgres_changes listener - Line 365"
+        type: "event_handler"
+        location: "utils/supabase.ts:365-375"
+        description: "Listens for INSERT/UPDATE/DELETE on characters table"
+        language: "TypeScript"
+      - element: "broadcast listener - Line 376"
+        type: "event_handler"
+        location: "utils/supabase.ts:376-395"
+        description: "Listens for manual character-update broadcasts"
+        language: "TypeScript"
+      - element: "broadcastCharacterUpdate - Line 482"
+        type: "function"
+        location: "utils/supabase.ts:482-487"
+        description: "Send character update via broadcast channel (manual trigger)"
+        language: "TypeScript"
+    lines: 450
+
+  - file: "components/SheetTabs.tsx"
+    path: "components/SheetTabs.tsx"
+    purpose: "Main character sheet wrapper - tabs for combat/spells/inventory/etc"
+    key_elements:
+      - element: "SheetTabs component - Line 33"
+        type: "component"
+        location: "components/SheetTabs.tsx:33-55"
+        description: "Accepts onUpdate callback - passes to all sub-tabs"
+        language: "TypeScript/React"
+      - element: "CombatTab render - Line 705"
+        type: "element"
+        location: "components/SheetTabs.tsx:705"
+        description: "Renders CombatTab with onUpdate prop"
+        language: "TypeScript/React"
+    lines: 750
+
+  - file: "components/sheet/CombatTab.tsx"
+    path: "components/sheet/CombatTab.tsx"
+    purpose: "Combat mechanics - HP, armor class, resources, weapons"
+    key_elements:
+      - element: "applyHpChange function - Line 413"
+        type: "function"
+        location: "components/sheet/CombatTab.tsx:413-438"
+        description: "Applies damage/heal/temp HP - calls onUpdate IMMEDIATELY without debounce"
+        language: "TypeScript/React"
+      - element: "onUpdate calls - Multiple"
+        type: "pattern"
+        location: "components/sheet/CombatTab.tsx:231,242,247,251,266,268,279,281,286,288,295,297,303,305,323,326..."
+        description: "Every resource change (focus, hit dice, inspiration, etc) fires onUpdate immediately"
+        language: "TypeScript/React"
+      - element: "useEffect[character, onUpdate] - Line 156"
+        type: "hook"
+        location: "components/sheet/CombatTab.tsx:156"
+        description: "Updates wild shape state whenever character changes - can trigger extra re-renders"
+        language: "TypeScript/React"
+    lines: 1800
+
+patterns_found:
+  - category: "synchronization"
+    pattern: "Synchronization on Login (Merge Strategy)"
+    description: "App.tsx fetches cloud chars on auth, compares timestamps with local, merges, uploads pending. Strategy: cloudTime > localTime → use cloud, else → upload local"
+    examples:
+      - file: "App.tsx"
+        location: "237-320"
+        snippet: "if (cloudTime > localTime) { merged[localIndex] = cloudChar } else if (localTime > cloudTime) { pendingUploads.push(localChar) }"
+    prevalence: "occasional"
+
+  - category: "performance"
+    pattern: "Debounce Gap Between State Change & Persistence"
+    description: "CombatTab.applyHpChange() calls onUpdate() immediately (0ms), but localStorage/cloud persistence uses 300ms debounce. Gap allows UI to show stale data if component re-renders before save fires"
+    examples:
+      - file: "components/sheet/CombatTab.tsx"
+        location: "413-438"
+        snippet: "onUpdate({ ...character, hp: { ...character.hp, current: newCurrent, temp: newTemp } }); // No debounce"
+      - file: "App.tsx"
+        location: "508-535"
+        snippet: "const saveData = setTimeout(async () => { ... }, 300);"
+    prevalence: "common"
+
+  - category: "error_handling"
+    pattern: "Silent Failure on Cloud Save"
+    description: "saveCharacterToCloud() catches errors and logs to console, but no user feedback, no retry queue, no rollback. If cloud fails, local state keeps the new value"
+    examples:
+      - file: "utils/supabase.ts"
+        location: "34-56"
+        snippet: "catch (e) { console.error('[Sync] Cloud save failed...'); return null; }"
+    prevalence: "common"
+
+  - category: "architecture"
+    pattern: "Multiple Listeners Without Deduplication"
+    description: "Same character can trigger updates via: (1) postgres_changes, (2) broadcast, (3) subscribeToOwnCharacters. No deduplication - can cause 2-3 setState calls in rapid succession"
+    examples:
+      - file: "App.tsx"
+        location: "591-614, 618-645"
+        snippet: "subscribeWithRetry() + subscribeToOwnCharacters() both listening on same character_id"
+    prevalence: "common"
+
+  - category: "batching"
+    pattern: "No Batching of Changes"
+    description: "Each field change = separate onUpdate() call. In App.tsx, cloud save iterates over ALL characters and calls saveCharacterToCloud() for each one sequentially, no batch endpoint"
+    examples:
+      - file: "App.tsx"
+        location: "520-525"
+        snippet: "for (const char of characters) { await saveCharacterToCloud(charWithTimestamp, user.id); }"
+      - file: "components/sheet/CombatTab.tsx"
+        location: "242, 266, 279..."
+        snippet: "Multiple onUpdate() calls for different resources: focus, bardic, channel divinity, etc."
+    prevalence: "common"
+
+  - category: "validation"
+    pattern: "Validation After Save, Not Before"
+    description: "CombatTab calculates new values and calls onUpdate() immediately. No pre-validation. If calculation has NaN, it persists to cloud and localStorage"
+    examples:
+      - file: "components/sheet/CombatTab.tsx"
+        location: "413-438"
+        snippet: "const amount = parseInt(hpAmount); if (isNaN(amount)) { close modal } else { onUpdate(...) }"
+    prevalence: "occasional"
+
+  - category: "architecture"
+    pattern: "LocalStorage Source of Truth Unclear"
+    description: "App.tsx loads from localStorage on startup, but cloud fetch happens AFTER. If cloud has newer data, merge happens but localStorage isn't updated until NEXT persist call (300ms debounce)"
+    examples:
+      - file: "App.tsx"
+        location: "217-235, 237-320"
+        snippet: "Initial load from localStorage, then async syncFromCloud(), then setTimeout for persist"
+    prevalence: "occasional"
+
+related_architecture:
+  components_relevant_to_domain:
+    - component: "App.tsx (AppContent)"
+      responsibility: "State container for all characters, authentication, listeners, cloud sync orchestration"
+      location: "App.tsx:70-900"
+      relationship_to_domain: "Central orchestrator - all sync flows converge here"
+    
+    - component: "SheetTabs.tsx"
+      responsibility: "Character sheet UI wrapper - delegates to tab components"
+      location: "components/SheetTabs.tsx:33-750"
+      relationship_to_domain: "Passes onUpdate callback to all tabs (Combat, Spells, Inventory, etc)"
+    
+    - component: "CombatTab.tsx"
+      responsibility: "Combat mechanics UI - HP, armor, resources, weapons"
+      location: "components/sheet/CombatTab.tsx:1-1800"
+      relationship_to_domain: "Critical path for HP changes - fires onUpdate immediately on damage/heal"
+    
+    - component: "utils/supabase.ts"
+      responsibility: "Supabase client wrapper - save/load/subscribe functions"
+      location: "utils/supabase.ts:1-700"
+      relationship_to_domain: "Cloud persistence layer - handles realtime listeners"
+  
+  interfaces_used_by_domain:
+    - interface: "Character"
+      location: "types.ts"
+      usage_pattern: "Main data model - passed through every update cycle"
+    
+    - interface: "SheetTabsProps"
+      location: "components/SheetTabs.tsx:29"
+      usage_pattern: "onUpdate: (update: Character | Partial<Character>) => void"
+    
+    - interface: "CombatTabProps"
+      location: "components/sheet/CombatTab.tsx:48"
+      usage_pattern: "onUpdate: (update: Partial<Character>) => void"
+
+  data_flow_involving_domain: |
+    1. User action in CombatTab (click damage button)
+    2. applyHpChange() calculates new HP
+    3. onUpdate(partialChar) called IMMEDIATELY
+    4. SheetTabs receives update → calls App.tsx handleCharacterUpdate()
+    5. setCharacters() triggers useEffect[characters]
+    6. setTimeout 300ms debounce fires
+    7. localStorage.setItem() + saveCharacterToCloud() for ALL characters
+    8. Meanwhile: subscribeWithRetry listens for postgres_changes from cloud
+    9. If another user edited: conflict resolved by timestamp comparison
+    10. If cloud save fails: local state unchanged, console error logged only
+
+  key_relationships_to_domain:
+    - from: "CombatTab.applyHpChange()"
+      to: "App.handleCharacterUpdate()"
+      relationship: "calls onUpdate → merges state → triggers persist"
+    
+    - from: "App.useEffect[characters]"
+      to: "saveCharacterToCloud()"
+      relationship: "debounce wrapper → iterates characters"
+    
+    - from: "subscribeWithRetry()"
+      to: "setCharacters()"
+      relationship: "realtime listener → updates local state"
+    
+    - from: "localStorage"
+      to: "Supabase"
+      relationship: "fallback source → cloud is authoritative"
+
+related_technology_stack:
+  languages_used_in_domain:
+    - TypeScript
+    - React 19 (hooks)
+
+  frameworks_used_in_domain:
+    - name: "React"
+      usage_in_domain: "useState, useEffect, useCallback for state management"
+    - name: "Supabase"
+      usage_in_domain: "Real-time listeners (postgres_changes, broadcast) + upsert"
+
+  libraries_used_in_domain:
+    - name: "@supabase/supabase-js"
+      purpose_in_domain: "Client for realtime subscriptions and database operations"
+
+  external_apis_used_in_domain:
+    - name: "Supabase Realtime"
+      integration_point: "subscribeWithRetry() channel.on() listeners"
+    - name: "Supabase Database"
+      integration_point: "saveCharacterToCloud() upsert, fetchCharactersFromCloud() select"
+
+related_conventions:
+  naming_patterns_in_domain: |
+    - Listeners: subscribeWithRetry, subscribeToOwnCharacters, subscribeToPartyResources
+    - Handlers: handleCharacterUpdate, handleDMCharacterUpdate, applyHpChange
+    - Effects: useEffect[isAuthenticated, user], useEffect[characters, isAuthenticated, user]
+    - State: characters, activeCharacter, isSyncing, syncMessage
+
+  structure_of_domain: |
+    App.tsx (state orchestrator)
+    ├── useEffect[auth] → verify session, setup listeners
+    ├── useEffect[characters] → 300ms debounce → save to localStorage + Supabase
+    ├── useEffect[subscribeToOwnCharacters] → listen for cloud changes
+    ├── useEffect[subscribeWithRetry observer] → listen for observed char
+    └── handlers → handleCharacterUpdate → broadcast + state
+    
+    CombatTab.tsx (component)
+    ├── applyHpChange() → onUpdate() immediately
+    └── Other resources (focus, bardic, etc) → onUpdate() immediately
+
+  error_handling_in_domain: |
+    - localStorage.setItem() wrapped in try/catch
+    - saveCharacterToCloud() catches errors, logs console.error(), returns null
+    - subscribeWithRetry() has timeout (15s) + exponential backoff (2^attempt * 1000ms)
+    - No user-facing error toast for failed cloud saves
+    - No automatic retry queue for failed saves
+
+  testing_in_domain: "No tests exist (per project conventions)"
+
+  documentation_in_domain: |
+    - Console logs: [Sync], [Realtime], [Observer], [DM], [Broadcast]
+    - Comments: sparse on sync strategy
+    - No architecture document for sync flow
+
+related_dependencies:
+  internal:
+    - component: "Character type (types.ts)"
+      relationship_to_domain: "Core data model - passed through all sync operations"
+      direction: "outbound"
+    
+    - component: "CombatTab, InventoryTab, SpellsTab, etc"
+      relationship_to_domain: "Each tab can trigger onUpdate - all converge in App"
+      direction: "inbound"
+    
+    - component: "localStorage API"
+      relationship_to_domain: "Fallback persistence, initial load, session tracking"
+      direction: "bidirectional"
+
+  external:
+    - name: "@supabase/supabase-js"
+      purpose_for_domain: "Real-time subscriptions + PostgreSQL persistence"
+    
+    - name: "React 19"
+      purpose_for_domain: "State management via hooks, component lifecycle"
+
+domain_security_considerations:
+  sensitive_areas:
+    - area: "Cloud Save Failure"
+      location: "utils/supabase.ts:34-56"
+      concern: "If saveCharacterToCloud fails, local state keeps new value with no rollback. User sees 'Guardado' UI but cloud is stale"
+    
+    - area: "Realtime Listener Race Conditions"
+      location: "App.tsx:591-645"
+      concern: "If user edits local + cloud broadcasts simultaneously, last-write-wins based on timestamp. Can lose data if timestamps are equal or clock-skewed"
+    
+    - area: "Silent Error Logging"
+      location: "utils/supabase.ts:52, App.tsx:531"
+      concern: "Errors logged to console only. Users unaware if their saves failed"
+
+  authentication_patterns_in_domain: |
+    - Firebase Auth (popup flow) stored in localStorage as 'df_session'
+    - df_session contains: { user: email, id: userId }
+    - Fallback: polling localStorage every 500ms if auth listener doesn't fire (handles popup context issue)
+
+  authorization_patterns_in_domain: |
+    - Supabase RLS policies: user_id column matches logged-in user
+    - Fallback to localStorage if RLS blocks (e.g., createPartyLocal)
+    - DM Dashboard: can view party characters (READ) but onUpdate goes through saveCharacterToCloud (uses owner's user_id)
+
+  data_validation_in_domain: |
+    - CombatTab: parseInt(hpAmount), isNaN check, but proceeds if valid
+    - No schema validation before cloud save
+    - Timestamp comparison for conflict detection, but vulnerable to clock skew
+    - Character.syncTimestamp added locally before upload
+
+testing_patterns:
+  framework: "None (per project conventions)"
+  coverage_areas: []
+  test_organization: "N/A"
+  mock_patterns: []
+
+open_questions:
+  - question: "Is broadcast channel used for real-time updates in production or only for manual testing?"
+    context: "subscribeWithRetry() listens for 'broadcast' event with character-update, but broadcastCharacterUpdate() is called after handleCharacterUpdate(). Seems like dual mechanism (postgres_changes + broadcast)"
+    type: "decision_blocker"
+    affects: ["broadcast listener overhead", "duplicate updates from two sources"]
+  
+  - question: "Why does saveCharacterToCloud iterate over ALL characters instead of just the updated one?"
+    context: "App.tsx:520-525 saves every character in the array, not just the one that changed"
+    type: "research"
+    affects: ["performance", "network usage"]
+  
+  - question: "Should CombatTab changes be debounced at component level or only at App level?"
+    context: "Currently: no debounce at CombatTab → 300ms debounce at App → potential gaps"
+    type: "decision_blocker"
+    affects: ["data consistency", "perceived responsiveness"]
+  
+  - question: "Is the conflict resolution (timestamp-based last-write-wins) documented or intentional?"
+    context: "No comments explaining the choice over OT or CRDT"
+    type: "nice_to_know"
+    affects: ["team awareness", "future maintenance"]
+  
+  - question: "Does Capacitor app need special handling for Auth state changes from popup vs main context?"
+    context: "Code has fallback polling for localStorage at 500ms intervals (lines 190-220) due to popup context issue"
+    type: "nice_to_know"
+    affects: ["mobile auth reliability"]
+
+gaps:
+  - area: "Debouncing Strategy at Component Level"
+    description: "CombatTab and other tabs fire onUpdate() immediately. No debounce at component level. Only App.tsx has 300ms debounce. Creates gap where state changes fast but persistence lags"
+    impact: "decision_blocker"
+    affects: ["HP changes not persisted if component unmounts within 300ms", "re-renders trigger before save completes"]
+
+  - area: "Error Recovery & Rollback"
+    description: "No rollback if saveCharacterToCloud fails. No retry queue. No user feedback. Silent failure mode"
+    impact: "decision_blocker"
+    affects: ["data loss risk", "user trust", "observability"]
+
+  - area: "Listener Deduplication"
+    description: "App.tsx subscribes to character updates via subscribeWithRetry + subscribeToOwnCharacters simultaneously. Same character can trigger setState 2-3 times in rapid succession with no deduplication"
+    impact: "research_blocker"
+    affects: ["performance", "re-render count"]
+
+  - area: "Conflict Resolution Documentation"
+    description: "Timestamp-based merge strategy is in code but not documented. Vulnerable to clock skew. No mention of edge cases (e.g., equal timestamps, offline merge)"
+    impact: "research_blocker"
+    affects: ["team understanding", "future maintenance"]
+
+  - area: "Batch Save Optimization"
+    description: "Cloud save iterates characters instead of using batch endpoint. Each save is separate upsert call"
+    impact: "nice_to_know"
+    affects: ["network efficiency", "throughput"]
+
+  - area: "localStorage Validation"
+    description: "localStorage loaded on startup but no schema validation. If corrupted data exists, will propagate to cloud on next save"
+    impact: "research_blocker"
+    affects: ["data corruption scenarios", "recovery procedures"]
+
+  - area: "Real-time Listener Cleanup"
+    description: "subscribeWithRetry returns unsubscribe function, but no guarantee it's called. useEffect cleanup in App.tsx should cover it, but verify"
+    impact: "nice_to_know"
+    affects: ["resource leaks", "connection management"]
+
+  - area: "User Feedback for Sync Status"
+    description: "UI shows 'Sincronizando...' and 'Sincronizado' but no distinction between pending, saving, failed states. No toast for errors"
+    impact: "decision_blocker"
+    affects: ["user confidence", "troubleshooting difficulty"]
