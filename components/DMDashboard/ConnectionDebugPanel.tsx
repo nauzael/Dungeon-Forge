@@ -13,18 +13,21 @@ interface ConnectionDebugPanelProps {
 const ConnectionDebugPanel: React.FC<ConnectionDebugPanelProps> = ({ realtimeStatus = 'connecting' }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [events, setEvents] = useState(debugLogger.getLatestEvents(20));
-  const [supabaseUrl, setSupabaseUrl] = useState<string>('');
-  const [supabaseKey, setSupabaseKey] = useState<string>('');
+  const [firebaseProjectId, setFirebaseProjectId] = useState<string>('');
+  const [firebaseAuthDomain, setFirebaseAuthDomain] = useState<string>('');
+  const [firebaseApiKey, setFirebaseApiKey] = useState<string>('');
   const [localMode, setLocalMode] = useState<string | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<string>('');
 
   useEffect(() => {
-    // Obtener credenciales incrustadas en el bundle
-    const url = import.meta.env.VITE_SUPABASE_URL || '';
-    const key = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+    // Obtener credenciales Firebase incrustadas en el bundle
+    const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID || '';
+    const authDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '';
+    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY || '';
     
-    setSupabaseUrl(url);
-    setSupabaseKey(key);
+    setFirebaseProjectId(projectId);
+    setFirebaseAuthDomain(authDomain);
+    setFirebaseApiKey(apiKey);
     
     // Obtener local mode
     const mode = localStorage.getItem('df_local_mode');
@@ -40,23 +43,29 @@ const ConnectionDebugPanel: React.FC<ConnectionDebugPanelProps> = ({ realtimeSta
 
   // Función para copiar información de diagnóstico
   const handleCopy = async () => {
+    // Máscara de API key: primeros 10 chars + ... + últimos 5 chars
+    const maskedApiKey = firebaseApiKey
+      ? firebaseApiKey.substring(0, 10) + '...' + firebaseApiKey.substring(firebaseApiKey.length - 5)
+      : '❌ NOT CONFIGURED';
+    
     const diagnosticInfo = `🔍 DUNGEON FORGE - DIAGNOSTIC REPORT
 ===============================================
 Timestamp: ${new Date().toISOString()}
 Realtime Status: ${realtimeStatus}
 Modo Local: ${localMode === 'true' ? '✅ ACTIVADO' : '❌ Desactivado'}
 
-🔐 CREDENTIALS
-URL: ${supabaseUrl || '❌ NOT CONFIGURED'}
-Anon Key: ${supabaseKey ? supabaseKey.substring(0, 20) + '...' + ` (${supabaseKey.length} chars)` : '❌ NOT CONFIGURED'}
+🔐 FIREBASE CONFIG
+Project ID: ${firebaseProjectId || '❌ NOT CONFIGURED'}
+Auth Domain: ${firebaseAuthDomain || '❌ NOT CONFIGURED'}
+API Key: ${maskedApiKey} (${firebaseApiKey.length} chars)
 
 📊 EVENTS (${events.length})
 ${events.map(e => `[${e.timestamp_iso.split('T')[1]}] ${e.source} [${e.level.toUpperCase()}] ${e.message}${e.data ? ' → ' + (typeof e.data === 'string' ? e.data : JSON.stringify(e.data).substring(0, 50)) : ''}`).join('\n')}
 
 💡 NOTES
-- If Credentials show ❌ NOT CONFIGURED: .env was not loaded during npm run build
-- If Local Mode is ✅ ACTIVADO: Data comes from localStorage, NOT Supabase
-- If status is 🔴 error for >10s: There's a connection issue with Supabase realtime
+- If Firebase Config shows ❌ NOT CONFIGURED: .env was not loaded during npm run build
+- If Local Mode is ✅ ACTIVADO: Data comes from localStorage, NOT Firebase
+- If status is 🔴 error for >10s: There's a connection issue with Firebase realtime
 ===============================================`;
 
     try {
@@ -99,7 +108,7 @@ ${events.map(e => `[${e.timestamp_iso.split('T')[1]}] ${e.source} [${e.level.toU
     }
   };
 
-  const hasCredentials = supabaseUrl && supabaseUrl.includes('supabase.co') && supabaseKey && supabaseKey.length > 10;
+  const hasCredentials = firebaseProjectId && firebaseAuthDomain && firebaseApiKey && firebaseApiKey.length > 10;
   const isLocalModeActive = localMode === 'true';
 
   return (
@@ -175,25 +184,34 @@ ${events.map(e => `[${e.timestamp_iso.split('T')[1]}] ${e.source} [${e.level.toU
             </div>
           </div>
 
-          {/* Credenciales Incrustadas */}
+          {/* Credenciales Firebase */}
           <div className="border-b border-gray-700 pb-2">
-            <div className="font-bold text-blue-300 mb-2">🔐 Credenciales (Bundle)</div>
+            <div className="font-bold text-blue-300 mb-2">🔐 Firebase Config (Bundle)</div>
             
             <div className="space-y-1 text-gray-300 break-all">
               <div>
-                <span className="text-gray-500">URL:</span>
-                {supabaseUrl ? (
-                  <div className="text-green-400">{supabaseUrl}</div>
+                <span className="text-gray-500">Project ID:</span>
+                {firebaseProjectId ? (
+                  <div className="text-green-400">{firebaseProjectId}</div>
                 ) : (
                   <div className="text-red-400">❌ NO CONFIGURADA</div>
                 )}
               </div>
 
               <div>
-                <span className="text-gray-500">Anon Key:</span>
-                {supabaseKey ? (
+                <span className="text-gray-500">Auth Domain:</span>
+                {firebaseAuthDomain ? (
+                  <div className="text-green-400">{firebaseAuthDomain}</div>
+                ) : (
+                  <div className="text-red-400">❌ NO CONFIGURADA</div>
+                )}
+              </div>
+
+              <div>
+                <span className="text-gray-500">API Key:</span>
+                {firebaseApiKey ? (
                   <div className="text-green-400">
-                    {supabaseKey.substring(0, 20)}...{supabaseKey.length > 20 ? `(${supabaseKey.length} chars)` : ''}
+                    {firebaseApiKey.substring(0, 10)}...{firebaseApiKey.substring(firebaseApiKey.length - 5)} ({firebaseApiKey.length} chars)
                   </div>
                 ) : (
                   <div className="text-red-400">❌ NO CONFIGURADA</div>
@@ -256,9 +274,9 @@ ${events.map(e => `[${e.timestamp_iso.split('T')[1]}] ${e.source} [${e.level.toU
             <div>💡 Si ves "Credenciales: ❌ Faltantes":</div>
             <div className="ml-2">→ El .env no fue cargado durante npm run build</div>
             <div>💡 Si "Modo Local: ✅ ACTIVADO":</div>
-            <div className="ml-2">→ Datos vienen de localStorage, NO de Supabase</div>
+            <div className="ml-2">→ Datos vienen de localStorage, NO de Firebase</div>
             <div>💡 Si status es "🔴 error" por &gt;10s:</div>
-            <div className="ml-2">→ Hay problema con conexión a Supabase realtime</div>
+            <div className="ml-2">→ Hay problema con conexión a Firebase realtime</div>
           </div>
         </div>
       )}
