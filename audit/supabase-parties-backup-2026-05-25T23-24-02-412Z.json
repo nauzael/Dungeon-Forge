@@ -1,0 +1,37 @@
+[
+  {
+    "id": "b2479622-76c7-4b79-a717-36a34e3eba0a",
+    "name": "Willd",
+    "code": "XX6AU1",
+    "creator_id": "8e62b9b0-bfcf-46b9-841b-8d744f1c7f73",
+    "created_at": "2026-03-25T21:32:37.432421+00:00"
+  },
+  {
+    "id": "e09e8ecf-c6a0-4875-8d7c-ac2de36608da",
+    "name": "LGC",
+    "code": "80NE4U",
+    "creator_id": "f89d995e-69e8-4652-8649-d7f95562bb79",
+    "created_at": "2026-03-26T13:12:23.275152+00:00"
+  },
+  {
+    "id": "05d8fa79-cf8a-4a3a-8b9a-bbccaee709b4",
+    "name": "80NE4U",
+    "code": "7ER3WT",
+    "creator_id": "32b9146b-ed41-45cc-af38-6ae3182da54b",
+    "created_at": "2026-03-26T13:16:29.54626+00:00"
+  },
+  {
+    "id": "58b306bd-5133-4a25-bb69-de97c4d8f2ba",
+    "name": "Wilmer",
+    "code": "VH9S89",
+    "creator_id": "875613d6-6178-45f1-8beb-98aacfd5af32",
+    "created_at": "2026-04-09T18:50:56.315324+00:00"
+  },
+  {
+    "id": "585dfe74-f1b1-472e-a168-907395fde054",
+    "name": "Rocamojada",
+    "code": "X9HSV2",
+    "creator_id": "32b9146b-ed41-45cc-af38-6ae3182da54b",
+    "created_at": "2026-05-17T01:26:21.904011+00:00"
+  }
+]

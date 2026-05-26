@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-26T00:13:56.340Z",
+  "dryRun": false,
+  "duration": "27.3s",
+  "stats": {
+    "resourcesInSupabase": 48,
+    "resourcesInFirebase": 0,
+    "filesDownloaded": 48,
+    "filesUploaded": 48,
+    "metadataWritten": 48,
+    "failed": [],
+    "skipped": [],
+    "totalSize": 0
+  }
+}

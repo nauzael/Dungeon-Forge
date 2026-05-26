@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-26T00:08:12.532Z",
+  "totalParties": 5,
+  "validCodes": 5,
+  "nullIssues": 0,
+  "uniqueCodes": 5,
+  "issues": "All data looks good",
+  "sampleCodes": [
+    "XX6AU1",
+    "80NE4U",
+    "7ER3WT",
+    "VH9S89",
+    "X9HSV2"
+  ]
+}

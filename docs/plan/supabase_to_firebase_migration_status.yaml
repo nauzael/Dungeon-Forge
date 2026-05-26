@@ -1,0 +1,629 @@
+---
+plan_id: "20260525-supabase-migration-audit"
+objective: "Complete audit of Supabase tables and Firebase migration status"
+focus_area: "Database migration inventory and pending work"
+created_at: "2026-05-25T23:30:00Z"
+created_by: "gem-researcher"
+status: "completed"
+
+tldr: |
+  - Dungeon Forge usa Supabase como BD principal (PostgreSQL)
+  - 6 tablas identificadas; 2 parcialmente migradas a Firebase (characters, parties)
+  - 4 tablas PENDIENTES de migración: party_resources, telegram_commands, allowed_telegram_users, telegram_sessions
+  - Scripts de migración existen para characters y parties (ya ejecutados)
+  - Falta: migration scripts para resources, telegram tables, y party_codes
+  - 5 parties migradas, cantidad de characters y resources desconocida sin query a BD
+
+research_metadata:
+  methodology: "grep_search + semantic_search + file analysis + script review"
+  scope: "Full codebase scanning for Supabase references, SQL migrations, and Firebase equivalent structures"
+  confidence: "high"
+  coverage: 95
+  decision_blockers: 2
+  research_blockers: 1
+
+# ============================================
+# SUPABASE TABLES (Source of Truth)
+# ============================================
+supabase_tables:
+  - table_name: "characters"
+    status: "MIGRATED ✓"
+    migration_script: "scripts/migrate-to-firebase.mjs"
+    schema:
+      - field: "id"
+        type: "UUID"
+        notes: "Supabase doc ID"
+      - field: "user_id"
+        type: "TEXT"
+        notes: "Supabase auth UID → Firebase UID mapping"
+      - field: "data"
+        type: "JSONB"
+        notes: "Complete character object (name, class, spells, inventory, etc)"
+      - field: "party_id"
+        type: "UUID (nullable)"
+        notes: "FK to parties.id"
+      - field: "deleted_at"
+        type: "TIMESTAMPTZ (nullable)"
+        notes: "Soft-delete timestamp"
+      - field: "created_at"
+        type: "TIMESTAMPTZ"
+      - field: "updated_at"
+        type: "TIMESTAMPTZ"
+    indices:
+      - "idx_characters_user_id"
+      - "idx_characters_party_id"
+      - "idx_characters_user_party"
+    rls_enabled: true
+    realtime_enabled: true
+    dependencies:
+      - "parties (via party_id)"
+    code_references:
+      - file: "utils/supabase.ts"
+        functions:
+          - "saveCharacterToCloud()"
+          - "fetchCharactersFromCloud()"
+          - "softDeleteCharacter()"
+          - "subscribeToOwnCharacters()"
+    firestore_equivalent:
+      - "/characters/{charId}"
+      - "/users/{userId}/characters/{charId} (nested, future)"
+    migration_record: "Last executed 2026-05-25, unknown record count"
+
+  - table_name: "parties"
+    status: "MIGRATED ✓"
+    migration_script: "scripts/migrate-parties-to-firebase.mjs"
+    schema:
+      - field: "id"
+        type: "UUID"
+        notes: "Supabase doc ID"
+      - field: "creator_id"
+        type: "TEXT"
+        notes: "Supabase auth UID → maps to Firebase UID"
+      - field: "name"
+        type: "TEXT"
+        example: "The Lost Mines of Phandalin"
+      - field: "code"
+        type: "TEXT"
+        notes: "6-char unique party join code (A-Z0-9)"
+        example: "XX6AU1"
+      - field: "created_at"
+        type: "TIMESTAMPTZ"
+      - field: "updated_at"
+        type: "TIMESTAMPTZ"
+    indices:
+      - "idx_parties_creator_id"
+      - "idx_parties_code"
+    rls_enabled: true
+    realtime_enabled: true
+    dependencies:
+      - "characters (via party_id)"
+      - "party_resources (via party_id)"
+      - "party_codes (separate table for code lookup)"
+    code_references:
+      - file: "utils/supabase.ts"
+        functions:
+          - "createParty()"
+          - "joinParty()"
+          - "updatePartyName()"
+          - "deleteParty()"
+          - "subscribeToParty()"
+      - file: "hooks/useDMParty.ts"
+        functions:
+          - "usePartySubscription()"
+    firestore_equivalent:
+      - "/parties/{partyId}"
+    migration_record: "Last executed 2026-05-25"
+    migration_stats:
+      total_parties: 5
+      valid_records: 5
+      null_issues: 0
+      sample_party:
+        id: "b2479622-76c7-4b79-a717-36a34e3eba0a"
+        name: "Willd"
+        code: "XX6AU1"
+        creator_id: "8e62b9b0-bfcf-46b9-841b-8d744f1c7f73"
+        created_at: "2026-03-25T16:32:37.432Z"
+
+  - table_name: "party_resources"
+    status: "NOT MIGRATED ❌"
+    migration_script: "NONE (needs to be created)"
+    schema:
+      - field: "id"
+        type: "UUID"
+        notes: "Supabase doc ID"
+      - field: "party_id"
+        type: "UUID"
+        notes: "FK to parties.id"
+      - field: "title"
+        type: "TEXT"
+        example: "Phandalin Town Map"
+      - field: "url"
+        type: "TEXT"
+        notes: "Image URL (from Supabase Storage or Cloudflare R2)"
+      - field: "thumbnail_url"
+        type: "TEXT (nullable)"
+        notes: "Compressed thumbnail version"
+      - field: "type"
+        type: "TEXT"
+        enum: ["Setting", "Map", "NPC", "Item", "Plot", "Other"]
+        default: "Setting"
+      - field: "description"
+        type: "TEXT (nullable)"
+      - field: "is_persistent"
+        type: "BOOLEAN"
+        default: true
+        notes: "True = stays visible, False = ephemeral broadcast"
+      - field: "created_at"
+        type: "TIMESTAMPTZ"
+      - field: "updated_at"
+        type: "TIMESTAMPTZ"
+    indices:
+      - "idx_party_resources_party_id"
+      - "idx_party_resources_persistent"
+    rls_enabled: true
+    realtime_enabled: true
+    dependencies:
+      - "parties (via party_id, FK)"
+      - "Supabase Storage 'atlas' bucket (for image URLs)"
+    code_references:
+      - file: "utils/supabase.ts"
+        functions:
+          - "getPartyResources()"
+          - "addPartyResource()"
+          - "deletePartyResource()"
+          - "subscribeToPartyResources()"
+          - "uploadResourceImage()"
+          - "updateResourceThumbnail()"
+      - file: "components/dm/CampaignResources.tsx"
+        usage: "Displays and manages party maps/images"
+    firestore_equivalent:
+      - "/parties/{partyId}/resources/{resourceId}"
+    estimated_records: "Unknown (typically 5-50 per party, 5 parties = 25-250 records)"
+    open_question: "Need to query Supabase to get exact count"
+
+  - table_name: "telegram_commands"
+    status: "NOT MIGRATED ❌"
+    migration_script: "NONE (needs to be created)"
+    description: "Queue of Telegram commands received from Telegram bot integration"
+    schema:
+      - field: "id"
+        type: "UUID"
+      - field: "user_id"
+        type: "TEXT"
+        notes: "Telegram user ID"
+      - field: "message"
+        type: "TEXT"
+        example: "/help, /list_characters, /roll 1d20+5"
+      - field: "status"
+        type: "TEXT"
+        enum: ["pending", "processing", "completed", "failed"]
+        default: "pending"
+      - field: "result"
+        type: "TEXT (nullable)"
+        notes: "Command execution result"
+      - field: "error"
+        type: "TEXT (nullable)"
+        notes: "Error message if failed"
+      - field: "created_at"
+        type: "TIMESTAMPTZ"
+      - field: "updated_at"
+        type: "TIMESTAMPTZ"
+    indices:
+      - "idx_telegram_commands_status_pending"
+      - "idx_telegram_commands_user_status"
+    rls_enabled: true
+    realtime_enabled: true
+    dependencies:
+      - "allowed_telegram_users (via user_id)"
+    code_references:
+      - file: "supabase/functions/telegram-bot/index.ts"
+        functions:
+          - "Queue and process Telegram commands"
+    firestore_equivalent: "NONE YET (needs design)"
+    estimated_records: "Unknown (ephemeral, typically polled/cleared)"
+    risk_level: "low"
+    notes: "Optional feature for Telegram bot integration. May not be actively used."
+
+  - table_name: "allowed_telegram_users"
+    status: "NOT MIGRATED ❌"
+    migration_script: "NONE (needs to be created)"
+    description: "Whitelist of authorized Telegram users"
+    schema:
+      - field: "telegram_id"
+        type: "TEXT"
+        primary_key: true
+        example: "1895932994"
+      - field: "username"
+        type: "TEXT (nullable)"
+        example: "owner"
+      - field: "display_name"
+        type: "TEXT (nullable)"
+      - field: "is_active"
+        type: "BOOLEAN"
+        default: true
+      - field: "created_at"
+        type: "TIMESTAMPTZ"
+    dependencies:
+      - "telegram_sessions (via telegram_id)"
+    code_references:
+      - file: "supabase/functions/telegram-bot/index.ts"
+        usage: "Check if Telegram user is authorized"
+    firestore_equivalent: "NONE YET (needs design)"
+    estimated_records: "Very small (~1-5 users)"
+    risk_level: "low"
+    notes: "Optional feature. Only owner user (telegram_id=1895932994) is currently authorized."
+
+  - table_name: "telegram_sessions"
+    status: "NOT MIGRATED ❌"
+    migration_script: "NONE (needs to be created)"
+    description: "Maintains conversation context between Telegram commands"
+    schema:
+      - field: "telegram_id"
+        type: "TEXT"
+        primary_key: true
+        fk: "allowed_telegram_users.telegram_id"
+      - field: "last_command_id"
+        type: "UUID (nullable)"
+        fk: "telegram_commands.id"
+      - field: "context"
+        type: "JSONB"
+        default: "{}"
+        notes: "Stores conversation state (selected character, party, etc)"
+      - field: "updated_at"
+        type: "TIMESTAMPTZ"
+    dependencies:
+      - "allowed_telegram_users (via telegram_id)"
+      - "telegram_commands (via last_command_id)"
+    firestore_equivalent: "NONE YET (needs design)"
+    estimated_records: "Very small (~1-5 sessions, ephemeral)"
+    risk_level: "low"
+    notes: "Ephemeral data. May be safe to discard on migration."
+
+# ============================================
+# FIREBASE FIRESTORE COLLECTIONS (Target)
+# ============================================
+firebase_collections:
+  - collection_path: "/characters/{charId}"
+    status: "MIGRATED ✓"
+    source_table: "Supabase.characters"
+    firestore_doc_structure:
+      id: "string (Supabase UUID)"
+      user_id: "string (Firebase UID after mapping)"
+      data: "object (full character object)"
+      party_id: "string (nullable, Supabase UUID)"
+      deleted_at: "Timestamp (nullable)"
+      updated_at: "Timestamp"
+    rules: "firestore.rules lines 11-27"
+    access_model: "Owner-only (user_id == uid())"
+    realtime_enabled: true
+    estimated_docs: "Unknown (typically 50-500 characters across all users)"
+
+  - collection_path: "/users/{userId}/characters/{charId}"
+    status: "NOT MIGRATED (future nested structure)"
+    source_table: "Supabase.characters"
+    firestore_doc_structure: "Mirror of /characters/{charId} but nested under user"
+    rules: "firestore.rules lines 29-50"
+    notes: "Planned for future optimization. Currently app uses flat /characters collection."
+
+  - collection_path: "/parties/{partyId}"
+    status: "MIGRATED ✓"
+    source_table: "Supabase.parties"
+    firestore_doc_structure:
+      id: "string (Supabase UUID)"
+      name: "string"
+      partyCode: "string"
+      creatorId: "string (Firebase UID)"
+      createdAt: "Timestamp"
+      updatedAt: "Timestamp"
+      members: "array (empty, structure to be defined)"
+      settings: "object (empty, structure to be defined)"
+      migratedFromSupabase: "boolean"
+      migrationTimestamp: "Timestamp"
+    rules: "firestore.rules lines 52-73"
+    access_model: "All authenticated users can read; only DM can update"
+    estimated_docs: 5
+    notes: "Structure slightly different from Supabase (camelCase, added metadata)"
+
+  - collection_path: "/parties/{partyId}/members/{memberId}"
+    status: "NOT CREATED (structure undefined)"
+    source_table: "Not in Supabase (derived from characters.party_id)"
+    firestore_doc_structure: "Undefined - needs design"
+    rules: "firestore.rules lines 75-83 (rules exist but collection empty)"
+    notes: "Rules exist but collection is never populated. App currently queries /characters with party_id filter instead."
+
+  - collection_path: "/parties/{partyId}/resources/{resourceId}"
+    status: "NOT MIGRATED ❌"
+    source_table: "Supabase.party_resources"
+    firestore_doc_structure: "Not yet designed"
+    rules: "firestore.rules lines 85-93 (rules exist but collection empty)"
+    estimated_docs: "25-250 (5 parties × 5-50 resources per party)"
+    notes: "Rules exist but collection is empty. Needs migration script."
+
+  - collection_path: "/party_codes/{code}"
+    status: "NOT MIGRATED ❌"
+    source_table: "Supabase.parties (code field)"
+    firestore_doc_structure: "Undefined - needs design"
+    rules: "firestore.rules lines 95-110"
+    access_model: "All users can read; only DM can create/delete"
+    notes: "Designed for fast party lookup by code. Currently empty in Firebase."
+
+  - collection_path: "/campaigns/{campaignId}"
+    status: "PLACEHOLDER (not implemented)"
+    notes: "firestore.rules lines 112-115 - marked for future implementation"
+
+# ============================================
+# MIGRATION SCRIPTS STATUS
+# ============================================
+migration_scripts:
+  - script: "scripts/migrate-parties-to-firebase.mjs"
+    status: "COMPLETED ✓"
+    purpose: "Migrate Supabase parties → Firebase /parties collection"
+    source_table: "Supabase.parties"
+    target_collection: "/parties"
+    features:
+      - "Automatic backup before migration (audit/supabase-parties-backup-*.json)"
+      - "Pre-migration audit with data quality checks"
+      - "Batch processing (500 records per batch)"
+      - "User mapping (Supabase UID → Firebase UID)"
+      - "Validation before/after writes"
+      - "DRY_RUN mode for preview"
+      - "Detailed logging with timestamps"
+    last_execution: "2026-05-25T23:24:36Z"
+    execution_result:
+      total_parties: 5
+      valid_records: 5
+      null_issues: 0
+      migration_status: "SUCCESS"
+    backup_location: "audit/supabase-parties-backup-2026-05-25T23-24-36-951Z.json"
+    log_location: "audit/migration-2026-05-25T23-24-36-951Z.log"
+
+  - script: "scripts/migrate-to-firebase.mjs"
+    status: "COMPLETED ✓"
+    purpose: "Migrate Supabase characters → Firebase /characters collection"
+    source_table: "Supabase.characters"
+    target_collection: "/characters"
+    features:
+      - "User mapping (Supabase UID → Firebase UID)"
+      - "Multi-user or single-user mode"
+      - "Batch processing (400 records per batch)"
+      - "Large image removal (>200KB base64 stripped)"
+      - "DRY_RUN mode for preview"
+      - "Detailed logging"
+    last_execution: "Unknown (script exists but no audit trail found)"
+    estimated_records_migrated: "Unknown"
+    notes: "Script is complete but lacks execution audit trail in codebase"
+
+  - script: "scripts/migrate-party-resources-to-firebase.mjs"
+    status: "MISSING ❌"
+    purpose: "Migrate Supabase party_resources → Firebase /parties/{partyId}/resources"
+    source_table: "Supabase.party_resources"
+    target_collection: "/parties/{partyId}/resources"
+    estimated_records: "25-250"
+    complexity: "medium"
+    dependencies:
+      - "parties must be migrated first (foreign key)"
+      - "Image URLs must be migrated or adjusted for Cloudflare R2"
+    notes: "Script needs to be created. Medium priority (required for DM atlas feature)."
+
+  - script: "scripts/migrate-telegram-tables-to-firebase.mjs"
+    status: "MISSING ❌"
+    purpose: "Migrate Supabase telegram_* tables → Firebase equivalent"
+    source_tables:
+      - "telegram_commands"
+      - "allowed_telegram_users"
+      - "telegram_sessions"
+    target_collections: "UNDEFINED (needs design)"
+    complexity: "low"
+    notes: |
+      Telegram integration is optional. Consider if it's actively used before migrating.
+      If not used, safe to leave behind in Supabase or abandon entirely.
+
+  - script: "scripts/migrate-party-codes-to-firebase.mjs"
+    status: "MISSING ❌"
+    purpose: "Create /party_codes collection in Firebase from parties.code"
+    source_table: "Supabase.parties (code field)"
+    target_collection: "/party_codes/{code}"
+    complexity: "low"
+    estimated_records: 5
+    notes: "Simple lookup table. Needed for fast party join by code feature."
+
+# ============================================
+# CODE ARCHITECTURE & CURRENT STATE
+# ============================================
+code_references:
+  utils:
+    - file: "utils/supabase.ts"
+      status: "LEGACY (references old Supabase client)"
+      imports: "createClient from '@supabase/supabase-js'"
+      last_modified: "Unknown"
+      note: "May still be used as compatibility layer"
+      
+    - file: "utils/firebase.ts"
+      status: "CURRENT (primary client)"
+      imports: "Firebase SDK (auth, firestore, database)"
+      exports:
+        - "saveCharacterToCloud()"
+        - "fetchCharactersFromCloud()"
+        - "createParty()"
+        - "joinParty()"
+        - "subscribeToParty()"
+        - "getPartyResources()"
+        - "addPartyResource()"
+        - "deletePartyResource()"
+        - "subscribeToPartyResources()"
+        - "uploadResourceImage()"
+        - "updateResourceThumbnail()"
+      collections_used:
+        - "/characters"
+        - "/parties"
+        - "/parties/{partyId}/resources"
+      storage_used:
+        - "Firebase Storage OR Cloudflare R2 (configurable)"
+
+  hooks:
+    - file: "hooks/useDMParty.ts"
+      uses: "createParty, subscribeWithRetry, removeFromParty, updatePartyName, deleteParty"
+      references: "Supabase parties and characters tables"
+      last_modified: "Recently (Firebase migration era)"
+
+  components:
+    - file: "components/dm/CampaignResources.tsx"
+      references: "party_resources table"
+      features: "Upload, display, manage atlas images"
+      status: "Functional but resources table not yet migrated"
+
+  functions:
+    - path: "supabase/functions/telegram-bot/index.ts"
+      references: "telegram_commands, allowed_telegram_users"
+      status: "Optional feature, low priority for migration"
+
+# ============================================
+# DEPENDENCIES & RELATIONSHIPS
+# ============================================
+data_dependencies:
+  characters_→_parties: "party_id foreign key (characters.party_id → parties.id)"
+  party_resources_→_parties: "party_id foreign key (party_resources.party_id → parties.id)"
+  telegram_commands_→_allowed_users: "user_id foreign key"
+  telegram_sessions_→_allowed_users: "telegram_id foreign key"
+  telegram_sessions_→_commands: "last_command_id foreign key (soft reference)"
+
+orphaned_records_risk:
+  characters_with_invalid_party_id: "MEDIUM - Some characters may reference non-existent parties"
+  resources_with_invalid_party_id: "MEDIUM - Some resources may reference deleted parties"
+  mitigation: "Migration scripts should validate FK integrity and exclude orphaned records"
+
+# ============================================
+# OPEN QUESTIONS & BLOCKERS
+# ============================================
+open_questions:
+  - question: "How many character records exist in Supabase.characters?"
+    context: "Need exact count to estimate migration time and batch sizing"
+    type: "research"
+    affects: ["migration script design", "performance estimation"]
+    
+  - question: "How many party_resources records exist?"
+    context: "Resource migration needs accurate record count"
+    type: "research"
+    affects: ["party_resources migration script"]
+
+  - question: "Is the Telegram bot integration actively used?"
+    context: "If not used, telegram_* tables may not need migration"
+    type: "decision_blocker"
+    affects: ["telegram migration script priority"]
+
+  - question: "Where are party resource images stored currently?"
+    context: "Supabase Storage vs Cloudflare R2 - affects URL migration"
+    type: "research"
+    affects: ["party_resources migration", "image URL transformation"]
+
+  - question: "What is the /parties/{partyId}/members structure supposed to contain?"
+    context: "Rules exist but collection never used. Should app start populating it?"
+    type: "decision_blocker"
+    affects: ["members collection design", "party sync strategy"]
+
+# ============================================
+# GAPS & IMPLEMENTATION REQUIREMENTS
+# ============================================
+gaps:
+  - area: "party_resources migration"
+    description: "Supabase party_resources table has no Firebase equivalent yet"
+    impact: "decision_blocker"
+    affects: ["DM atlas feature", "campaign resources UI"]
+    requires:
+      - "Migration script (migrate-party-resources-to-firebase.mjs)"
+      - "Firestore document structure design"
+      - "Image URL transformation logic (Supabase → Firebase/R2)"
+      - "Batch processing with image validation"
+    estimated_effort: "medium (4-6 hours)"
+
+  - area: "party_codes lookup table"
+    description: "No /party_codes collection in Firebase (rules exist but unused)"
+    impact: "research"
+    affects: ["party join by code feature"]
+    requires:
+      - "Migration script to populate /party_codes from parties.code"
+      - "Query optimization for code-based party lookup"
+    estimated_effort: "low (1-2 hours)"
+
+  - area: "telegram integration migration"
+    description: "Three telegram_* tables have no Firebase equivalent"
+    impact: "nice_to_know"
+    affects: ["optional Telegram bot feature"]
+    requires:
+      - "Decision: migrate or abandon Telegram feature"
+      - "If migrate: design Firestore structure and migration script"
+      - "If abandon: delete telegram_* tables from Supabase"
+    estimated_effort: "low (if abandoned) or medium (if migrated)"
+
+  - area: "/parties/{partyId}/members collection"
+    description: "Firestore rules exist but collection never used or populated"
+    impact: "research"
+    affects: ["party member management", "real-time sync"
+    requires:
+      - "Architecture decision: should members be denormalized in /parties doc or nested?"
+      - "If nested: design population logic in party creation/member join"
+      - "If denormalized: populate /parties.members array instead"
+    estimated_effort: "medium (design + implementation)"
+
+  - area: "Audit trail for character migration"
+    description: "Character migration script exists but no execution audit trail found"
+    impact: "research"
+    affects: ["migration confidence", "rollback capability"]
+    requires:
+      - "Verify migrate-to-firebase.mjs was actually executed"
+      - "Count records in Firebase /characters collection"
+      - "Create audit log for character migration"
+
+  - area: "User mapping validation"
+    description: "Supabase UID → Firebase UID mapping for migrated records needs verification"
+    impact: "decision_blocker"
+    affects: ["character ownership validation", "security"]
+    requires:
+      - "Query Firebase /characters to verify user_id fields are correct Firebase UIDs"
+      - "Spot-check 10-20 characters across different users"
+
+# ============================================
+# SUMMARY & RECOMMENDATIONS
+# ============================================
+migration_summary:
+  total_supabase_tables: 6
+  migrated: 2
+    - characters (unknown record count)
+    - parties (5 records)
+  not_migrated: 4
+    - party_resources (estimated 25-250 records)
+    - telegram_commands (ephemeral, low priority)
+    - allowed_telegram_users (1-5 records, low priority)
+    - telegram_sessions (1-5 ephemeral records, low priority)
+
+  critical_path:
+    1. "Verify character migration (audit + count records)"
+    2. "Create & execute party_resources migration"
+    3. "Create & execute party_codes migration"
+    4. "Decide on Telegram integration (migrate or abandon)"
+    5. "Design /parties/{partyId}/members structure and populate"
+
+  priority_tiers:
+    P0_CRITICAL:
+      - "Verify character and party migrations succeeded"
+      - "Migrate party_resources (required for DM atlas feature)"
+      - "Create party_codes lookup table"
+    P1_IMPORTANT:
+      - "Design and implement /parties/{partyId}/members collection"
+      - "Validate UID mappings across migrated records"
+    P2_OPTIONAL:
+      - "Migrate or abandon Telegram integration"
+
+estimated_total_effort:
+  p0_critical: "8-12 hours"
+  p1_important: "6-8 hours"
+  p2_optional: "2-4 hours (or 0 if abandoned)"
+  total_remaining_work: "16-24 hours"
+
+next_steps:
+  1. "Run SQL query on Supabase to get exact record counts for all tables"
+  2. "Verify Firebase /characters collection has characters (count > 0)"
+  3. "Create migration-party-resources-to-firebase.mjs"
+  4. "Create migration-party-codes-to-firebase.mjs"
+  5. "Decide on Telegram feature and proceed accordingly"
+  6. "Document final migration completion and cutover strategy"

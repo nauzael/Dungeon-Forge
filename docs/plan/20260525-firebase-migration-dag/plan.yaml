@@ -1,0 +1,844 @@
+plan_id: PLAN-20260525-firebase-migration-dag
+objective: "Migración de datos Supabase → Firebase en 4 waves: Characters, Party Codes, Otras Tablas, Merge a Main"
+created_at: "2026-05-25T00:00:00Z"
+created_by: gem-planner
+status: pending
+research_confidence: high
+
+plan_metrics:
+  wave_1_task_count: 3
+  total_dependencies: 12
+  risk_score: high
+
+tldr: |
+  Plan de migración 4-wave de Supabase a Firebase para Dungeon Forge.
+  - WAVE 1 (día 1): Migrar characters con script existente + validación
+  - WAVE 2 (día 2): Crear y ejecutar migración party_codes
+  - WAVE 3 (día 3): Auditar y migrar otras tablas (si existen)
+  - WAVE 4 (día 4): Merge feature/firebase-migration → main
+  
+  Riesgos críticos: UID mapping (email), pérdida de datos en batch writes,
+  integridad referencial (parties ↔ characters).
+
+open_questions:
+  - question: "¿Cuántos registros hay en party_codes (aproximado)?"
+    context: "Afecta tamaño de batch y tiempo de ejecución"
+    type: nice_to_know
+    affects: [task-2b]
+  - question: "¿Existen otras tablas de datos además de characters, parties, party_codes?"
+    context: "Determina scope de WAVE 3"
+    type: decision_blocker
+    affects: [task-3a]
+  - question: "¿Hay UIDs sin mapping en Supabase (usuarios eliminados)?"
+    context: "Afecta UID mapping fallback strategy"
+    type: research
+    affects: [task-1a, task-2a]
+
+gaps:
+  - description: "Scripts de migración para party_codes no existen aún"
+    refinement_requests:
+      - query: "¿party_codes tiene referencias a parties o characters?"
+        source_hint: "Revisar Supabase schema"
+  - description: "Rollback procedures no documentadas para WAVE 4 (merge)"
+    refinement_requests:
+      - query: "¿Hay branching strategy documentada?"
+        source_hint: "AGENTS.md o Git workflow"
+
+pre_mortem:
+  overall_risk_level: high
+  critical_failure_modes:
+    - scenario: "UID mapping falla para >5% usuarios: party_codes queda huérfano"
+      likelihood: medium
+      impact: high
+      mitigation: |
+        - Ejecutar UID audit previo (task-1a-audit)
+        - Batch validation (task-2b) con stop-on-error
+        - Manual mapping fallback (scripts/data/uid-mapping-manual.json)
+        - Rollback immediate si >5% mismatch
+
+    - scenario: "Party integrity check falla: parties sin characters"
+      likelihood: medium
+      impact: high
+      mitigation: |
+        - Verificar referential integrity post-characters (task-1c)
+        - Ejecutar WAVE 2 solo después de WAVE 1 SUCCESS
+        - Dependency explícita en plan (contracts)
+
+    - scenario: "Merge a main genera conflictos: feature/firebase-migration diverge"
+      likelihood: low
+      impact: critical
+      mitigation: |
+        - Task 4a: rebase contra main antes de merge (task-4a)
+        - Task 4b: usar squash merge si hay conflictos menores
+        - Rollback git (git reset) si merge falla
+
+    - scenario: "Batch writes exceden límites Firestore (1M ops/sec)"
+      likelihood: low
+      impact: medium
+      mitigation: |
+        - Limitar batch size ≤ 500 docs (scripts)
+        - Agregar delay entre batches: 500ms
+        - Monitorear Firestore quota en Console
+
+  assumptions:
+    - "Firebase project y Firestore ya están configurados en producción"
+    - "Service account JSON con acceso admin está disponible en .env"
+    - "Supabase credentials (SUPABASE_SERVICE_KEY) están disponibles"
+    - "feature/firebase-migration branch ya existe y está actualizada"
+    - "No hay transacciones activas en Supabase durante migraciones"
+
+implementation_specification:
+  code_structure: |
+    scripts/
+    ├── migrate-to-firebase.mjs          (EXISTENTE - characters)
+    ├── migrate-party-codes-to-firebase.mjs   (NEW - party codes)
+    ├── audit-remaining-tables.mjs         (NEW - audit)
+    ├── validate-integrity.mjs             (UTILITY - validation)
+    ├── rollback-firebase-migration.mjs    (NEW - rollback)
+    └── data/
+        ├── backup/                         (Backups pre-migration)
+        ├── uid-mapping.json                (UID mappings)
+        └── migration-logs/                 (Execution logs)
+
+  affected_areas:
+    - "Data layer: Supabase (source) → Firebase Firestore (target)"
+    - "Scripts: Migration & validation scripts"
+    - "Version control: feature/firebase-migration branch"
+    - "Backup: LocalStorage + audit/ directory"
+    - "CI/CD: None (manual scripts, not automated)"
+
+  component_details:
+    - component: "Migration Engine (scripts/migrate-*.mjs)"
+      responsibility: "Transform Supabase rows → Firestore docs, batch write, error handling"
+      interfaces:
+        - "Input: Supabase table rows, UID mapping"
+        - "Output: Firebase Firestore writes, validation log"
+      dependencies:
+        - "Component: Firebase Admin SDK"
+          relationship: "Direct write via admin.firestore()"
+        - "Component: Supabase Client"
+          relationship: "Read-only from Supabase (using SERVICE_KEY)"
+        - "Component: Validation Engine"
+          relationship: "Pre-write validation"
+      integration_points:
+        - "Reads from: process.env (Supabase key, Firebase config)"
+        - "Writes to: Firestore (live), scripts/data/ (logs, mappings)"
+
+    - component: "UID Mapping (scripts/data/uid-mapping.json)"
+      responsibility: "Map Supabase UIDs → Firebase UIDs (email-based fallback)"
+      interfaces:
+        - "Input: Supabase users + Firebase auth users"
+        - "Output: {supabase_uid: firebase_uid} map"
+      dependencies:
+        - "Component: Firebase Auth"
+          relationship: "Lookup UID by email"
+      integration_points:
+        - "Used by: All migration scripts (task-1b, 2b, 3b)"
+
+    - component: "Validation Engine (scripts/validate-integrity.mjs)"
+      responsibility: "Pre-write + post-write validation, row count verification"
+      interfaces:
+        - "Input: source rows, target docs"
+        - "Output: validation report, error log"
+      dependencies:
+        - "Component: Supabase"
+          relationship: "Count source rows"
+        - "Component: Firestore"
+          relationship: "Count target docs"
+      integration_points:
+        - "Used by: task-1c, 2c, 3b, 4c"
+
+contracts:
+  - from_task: task-1c
+    to_task: task-2a
+    interface: "Character migration SUCCESS flag + validation report"
+    format: |
+      {
+        "status": "SUCCESS|FAILED",
+        "characters_migrated": number,
+        "uid_mapping_coverage": percentage,
+        "validation_errors": []
+      }
+    description: "Task 2a (Party Codes) must wait for Task 1c SUCCESS before starting"
+
+  - from_task: task-2c
+    to_task: task-3a
+    interface: "Party Codes validation report + rollback decision"
+    format: |
+      {
+        "status": "SUCCESS|FAILED|ROLLBACK_APPROVED",
+        "party_codes_migrated": number,
+        "integrity_issues": []
+      }
+    description: "Task 3a reads completion status; if ROLLBACK, pause WAVE 3"
+
+  - from_task: task-3b
+    to_task: task-4a
+    interface: "All data migration complete flag"
+    format: |
+      {
+        "all_waves_complete": boolean,
+        "migration_artifacts": {
+          "backup_path": string,
+          "logs_path": string,
+          "mappings_path": string
+        }
+      }
+    description: "Task 4a commits only after task-3b SUCCESS"
+
+tasks:
+  # ============ WAVE 1: Characters ============
+  - id: task-1a
+    title: "Verificar script migrate-to-firebase.mjs (Characters)"
+    description: |
+      Auditar script existente scripts/migrate-to-firebase.mjs:
+      - Validar que soporta DRY_RUN mode
+      - Verificar UID mapping strategy (email fallback)
+      - Confirmar que soporta FIREBASE_USER_ID (single-user) mode
+      - Listar transformaciones de datos aplicadas
+      - Documentar supuestos (image base64, size limits, etc.)
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers: ["Character migration readiness", "UID mapping validation", "DRY_RUN mode validation"]
+    priority: high
+    status: pending
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "scripts/migrate-to-firebase.mjs"
+        description: "Main migration script to audit"
+      - path: "firestore.rules"
+        description: "RLS rules (target validation)"
+      - path: "types.ts"
+        description: "Character interface to validate transformations"
+    estimated_effort: medium
+    estimated_files: 3
+    estimated_lines: 150
+    focus_area: "Script audit, no modifications"
+    verification:
+      - "Script exists and is readable"
+      - "DRY_RUN mode functional (console output)"
+      - "UID mapping strategy documented"
+      - "Character validation function present"
+      - "Audit report created: scripts/audit-migrate-to-firebase.md"
+    acceptance_criteria:
+      - "Audit report confirms migrate-to-firebase.mjs is production-ready"
+      - "UID mapping strategy supports >95% coverage (email + manual fallback)"
+      - "Script supports rollback (via backup)"
+    failure_modes:
+      - scenario: "Script has syntax errors or missing dependencies"
+        likelihood: low
+        impact: high
+        mitigation: "Fix imports/deps before proceeding to task-1b"
+      - scenario: "UID mapping strategy is missing or incomplete"
+        likelihood: medium
+        impact: high
+        mitigation: "Implement email fallback in task-1b before live migration"
+
+  - id: task-1b
+    title: "Ejecutar migración Characters con backup y verificación DRY_RUN"
+    description: |
+      Ejecutar migración de characters de Supabase → Firebase:
+      1. Crear backup: scripts/data/backup/characters-$(date).json
+      2. Ejecutar DRY_RUN=true (preview, no writes)
+      3. Validar output (count, transformations)
+      4. Ejecutar live migration con FIREBASE_USER_ID (si aplica) o auto-map
+      5. Monitorizando logs para UID mapping coverage
+      6. Guardar migration log: scripts/data/migration-logs/characters-$(timestamp).log
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers: ["Data migration", "Backup strategy", "Live execution"]
+    priority: high
+    status: pending
+    dependencies: [task-1a]
+    conflicts_with: []
+    context_files:
+      - path: "scripts/migrate-to-firebase.mjs"
+        description: "Migration script (audit result)"
+      - path: ".env"
+        description: "Supabase & Firebase credentials"
+    estimated_effort: large
+    estimated_files: 2
+    estimated_lines: 200
+    focus_area: "Data integrity, backup, UID mapping"
+    verification:
+      - "DRY_RUN completes with 0 write errors"
+      - "Backup file created and contains ≥95% characters"
+      - "Live migration completes without critical errors"
+      - "Migration log shows UID mapping coverage ≥95%"
+      - "Firestore confirms all characters written"
+    acceptance_criteria:
+      - "All characters migrated from Supabase → Firebase"
+      - "UID mapping coverage ≥95% (remaining marked for manual review)"
+      - "Backup present and valid"
+      - "Zero character data loss (row count match)"
+      - "Migration log archived"
+    failure_modes:
+      - scenario: "UID mapping fails for >5%: UIDs invalid in Firebase"
+        likelihood: medium
+        impact: high
+        mitigation: |
+          - Stop migration, review uid-mapping.json
+          - Manual UID mapping via email lookup script
+          - Retry with updated mapping file
+      - scenario: "Batch write quota exceeded (Firestore limits)"
+        likelihood: low
+        impact: medium
+        mitigation: "Reduce batch size or add delay between batches"
+
+  - id: task-1c
+    title: "Validar integridad Characters post-migración (spot-check)"
+    description: |
+      Post-migration validation de characters:
+      1. Row count verification: Supabase count == Firestore count
+      2. Spot-check 50+ random characters (data integrity)
+      3. Verificar que UIDs son válidos en Firebase Auth
+      4. Verificar que no hay campos truncados (base64, etc.)
+      5. Generar integrity report: scripts/data/integrity-report-characters.json
+      6. Documentar cualquier dato incompleto (>5% threshold) → escalate
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers: ["Data validation", "Quality assurance", "Escalation"]
+    priority: high
+    status: pending
+    dependencies: [task-1b]
+    conflicts_with: []
+    context_files:
+      - path: "scripts/data/migration-logs/characters-*.log"
+        description: "Migration execution log"
+      - path: "types.ts"
+        description: "Character schema to validate against"
+    estimated_effort: medium
+    estimated_files: 2
+    estimated_lines: 250
+    focus_area: "Data integrity, completeness"
+    verification:
+      - "Row count matches exactly (Supabase vs Firestore)"
+      - "Spot-check finds 0 truncations"
+      - "All UIDs valid in Firebase Auth"
+      - "Integrity report generated and reviewed"
+    acceptance_criteria:
+      - "Character row count matches exactly"
+      - "Integrity check passes (0 critical errors)"
+      - "UID mapping complete (0 unmapped UIDs)"
+      - "Go/No-Go decision documented"
+      - "Signal to WAVE 2: task-2a can START (contract met)"
+    failure_modes:
+      - scenario: "Row count mismatch: characters lost in migration"
+        likelihood: low
+        impact: critical
+        mitigation: "Rollback to backup, re-run migration with fixes"
+      - scenario: ">5% data truncation detected"
+        likelihood: low
+        impact: high
+        mitigation: "Rollback, investigate data transformation logic, retry"
+
+  # ============ WAVE 2: Party Codes ============
+  - id: task-2a
+    title: "Crear script migrate-party-codes-to-firebase.mjs"
+    description: |
+      Crear nuevo script de migración para party_codes (códigos de unión a grupos):
+      1. Auditar Supabase party_codes schema
+      2. Definir transformación (field mapping, defaults)
+      3. Implementar script: scripts/migrate-party-codes-to-firebase.mjs
+      4. Incluir:
+         - DRY_RUN mode
+         - Validación pre-write (required fields, references)
+         - Batch writes (≤500 docs/batch)
+         - Error handling y logging
+         - Rollback support (backup antes de escribir)
+      5. Validar que script no quebra si character UID es invalid (graceful fallback)
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers: ["Script development", "Schema mapping", "Error handling"]
+    priority: high
+    status: pending
+    dependencies: [task-1c]
+    conflicts_with: []
+    context_files:
+      - path: "scripts/migrate-to-firebase.mjs"
+        description: "Template para script (patterns)"
+      - path: "firestore.rules"
+        description: "Party codes RLS rules"
+    estimated_effort: large
+    estimated_files: 1
+    estimated_lines: 350
+    focus_area: "Script development, validation"
+    verification:
+      - "Script exists and passes linting"
+      - "DRY_RUN mode works (console output, no writes)"
+      - "Validation catches ≥3 error scenarios (missing field, invalid UID, etc.)"
+      - "Batch size ≤500 docs enforced"
+      - "Rollback mechanism present (backup + restore script)"
+    acceptance_criteria:
+      - "Script ready for DRY_RUN test (task-2b)"
+      - "All error scenarios handled gracefully"
+      - "Code reviewed (inline documentation)"
+      - "Input/output contracts defined"
+    failure_modes:
+      - scenario: "Script doesn't handle missing character UID gracefully"
+        likelihood: medium
+        impact: medium
+        mitigation: "Implement skip-with-log for orphaned party_codes"
+      - scenario: "Batch size issues cause quota exceeded"
+        likelihood: low
+        impact: medium
+        mitigation: "Implement rate limiting (500ms delay between batches)"
+
+  - id: task-2b
+    title: "Ejecutar migración party_codes con DRY_RUN + live validation"
+    description: |
+      Ejecutar migración de party_codes:
+      1. Crear backup: scripts/data/backup/party-codes-$(date).json
+      2. Ejecutar DRY_RUN=true (preview)
+      3. Validar output (count, transformations, errors)
+      4. Si DRY_RUN SUCCESS:
+         - Ejecutar live migration
+         - Monitor logs para errores
+         - Guardar migration log
+      5. Si DRY_RUN FAILED:
+         - Escalate a task-2a para fix
+      6. Post-execution: Generar detailed error report si hay fallos
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers: ["Data migration", "Quality validation"]
+    priority: high
+    status: pending
+    dependencies: [task-2a]
+    conflicts_with: []
+    context_files:
+      - path: "scripts/migrate-party-codes-to-firebase.mjs"
+        description: "Party codes migration script"
+      - path: ".env"
+        description: "Credentials"
+    estimated_effort: large
+    estimated_files: 2
+    estimated_lines: 150
+    focus_area: "Live execution, error handling"
+    verification:
+      - "DRY_RUN completes successfully"
+      - "Live migration writes all party_codes to Firestore"
+      - "Migration log shows any UIDs unmapped (reference integrity)"
+      - "Firestore confirms count matches Supabase"
+    acceptance_criteria:
+      - "All party_codes migrated successfully"
+      - "UID references valid (character UIDs exist in Firebase Auth)"
+      - "Zero data loss"
+      - "Migration log archived"
+      - "Go/No-Go documented"
+      - "Signal to WAVE 3: task-3a can START"
+    failure_modes:
+      - scenario: ">5% party_codes have invalid character UIDs"
+        likelihood: medium
+        impact: high
+        mitigation: |
+          - Identify unmapped UIDs
+          - Option 1: Manual UID mapping + re-run
+          - Option 2: Rollback + fix character migration
+      - scenario: "Batch write quota exceeded mid-migration"
+        likelihood: low
+        impact: medium
+        mitigation: "Implement exponential backoff + retry logic"
+
+  - id: task-2c
+    title: "Validar integridad party_codes + referential integrity"
+    description: |
+      Post-migration validation de party_codes:
+      1. Row count verification: Supabase == Firestore
+      2. Spot-check 50+ random party_codes
+      3. Referential integrity: Verify all character UIDs exist in Firebase Auth
+      4. Verificar campos key no truncados
+      5. Generar report: scripts/data/integrity-report-party-codes.json
+      6. Verificar que parties table no existe (si así es según audit)
+      7. Documentar cualquier referential integrity issue (escalate)
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers: ["Data validation", "Referential integrity"]
+    priority: high
+    status: pending
+    dependencies: [task-2b]
+    conflicts_with: []
+    context_files:
+      - path: "scripts/data/migration-logs/party-codes-*.log"
+        description: "Migration log"
+    estimated_effort: medium
+    estimated_files: 2
+    estimated_lines: 200
+    focus_area: "Referential integrity, completeness"
+    verification:
+      - "Row count matches exactly"
+      - "Spot-check finds 0 truncations"
+      - "All character UIDs valid in Firebase Auth"
+      - "Integrity report generated"
+    acceptance_criteria:
+      - "Party codes row count matches exactly"
+      - "Integrity check passes (0 critical errors)"
+      - "All character references valid"
+      - "Go/No-Go decision documented"
+      - "Signal to WAVE 3: task-3a can START (contract met)"
+    failure_modes:
+      - scenario: "Referential integrity violated: orphaned party_codes"
+        likelihood: medium
+        impact: medium
+        mitigation: "Identify orphaned records, decide: keep or delete"
+
+  # ============ WAVE 3: Other Tables ============
+  - id: task-3a
+    title: "Auditar tablas pendientes en Supabase (schema enumeration)"
+    description: |
+      Auditar Supabase para identificar otras tablas de datos:
+      1. Conectar a Supabase (usar SUPABASE_SERVICE_KEY)
+      2. Enumerar ALL tables (except auth.users, system tables)
+      3. Para cada tabla:
+         - Count rows
+         - List columns
+         - Detect relationships (FK)
+         - Assess data size
+         - Determine criticality (game-critical vs. config)
+      4. Generar audit report: scripts/audit-remaining-tables.json
+      5. Documentar decision: MIGRATE, SKIP, MANUAL
+      6. Si tabla SKIP: Documentar razón en report
+    wave: 3
+    agent: gem-implementer
+    prototype: false
+    covers: ["Discovery", "Risk assessment", "Scope definition"]
+    priority: high
+    status: pending
+    dependencies: [task-2c]
+    conflicts_with: []
+    context_files:
+      - path: "MIGRATION-PLAN-SUPABASE-PARTIES-TO-FIREBASE.yaml"
+        description: "Previous migration plan (reference)"
+    estimated_effort: medium
+    estimated_files: 1
+    estimated_lines: 100
+    focus_area: "Discovery, documentation"
+    verification:
+      - "All tables enumerated in report"
+      - "Row counts documented"
+      - "Relationships identified"
+      - "Migration decision (MIGRATE/SKIP) documented per table"
+    acceptance_criteria:
+      - "Audit report complete and detailed"
+      - "Decision matrix: which tables to migrate"
+      - "Estimated row counts per table"
+      - "Risk assessment per table (data loss, dependencies)"
+      - "Clear GO/NO-GO for task-3b"
+    failure_modes:
+      - scenario: "Supabase connection fails (invalid credentials)"
+        likelihood: low
+        impact: medium
+        mitigation: "Verify SUPABASE_SERVICE_KEY in .env"
+      - scenario: ">10 tables identified (unexpected scope)"
+        likelihood: low
+        impact: high
+        mitigation: "Re-assess WAVE 3 scope; may require additional tasks"
+
+  - id: task-3b
+    title: "Migrar tablas adicionales (según audit decision)"
+    description: |
+      Ejecutar migración de tablas identificadas en task-3a:
+      
+      **For each table marked MIGRATE in audit:**
+      1. Crear migration script: scripts/migrate-TABLE-to-firebase.mjs
+      2. Auditar schema + transformations
+      3. Ejecutar DRY_RUN
+      4. Ejecutar live migration con backup
+      5. Validate post-migration (row count, integrity)
+      6. Generar report: scripts/data/integrity-report-TABLE.json
+      
+      **SKIP logic:**
+      - If audit shows 0 additional tables → Skip to task-4a
+      - If >3 tables found → Break into separate tasks (task-3b-1, 3b-2, etc.)
+      
+      **Error handling:**
+      - If ANY migration fails → Escalate to task-3a review (schema issue)
+      - If >10% data loss → Rollback immediately
+    wave: 3
+    agent: gem-implementer
+    prototype: false
+    covers: ["Remaining data migration", "Quality validation"]
+    priority: medium
+    status: pending
+    dependencies: [task-3a]
+    conflicts_with: []
+    context_files:
+      - path: "scripts/audit-remaining-tables.json"
+        description: "Audit results (determines which tables to migrate)"
+    estimated_effort: large
+    estimated_files: 3
+    estimated_lines: 500
+    focus_area: "Flexible based on audit results"
+    verification:
+      - "Each migrated table: row count matches"
+      - "Each migrated table: spot-check passes"
+      - "All migrations logged and reported"
+    acceptance_criteria:
+      - "All MIGRATE tables successfully migrated"
+      - "Zero critical data loss"
+      - "Integrity reports generated for each table"
+      - "Post-migration validation passed"
+      - "Signal to WAVE 4: task-4a can START (contract met)"
+    failure_modes:
+      - scenario: "Unexpected schema complexity: migration script fails"
+        likelihood: medium
+        impact: high
+        mitigation: "Debug schema, add data transformation logic, retry"
+      - scenario: "Data loss during batch writes (quota or timeout)"
+        likelihood: low
+        impact: high
+        mitigation: "Implement checkpointing (resume from last successful batch)"
+
+  # ============ WAVE 4: Merge to Main ============
+  - id: task-4a
+    title: "Preparar merge: rebase feature/firebase-migration contra main"
+    description: |
+      Preparar rama feature/firebase-migration para merge a main:
+      1. Checkout feature/firebase-migration
+      2. Git fetch origin main (actualizar remote)
+      3. Git rebase origin/main (resolver conflictos)
+      4. If conflictos:
+         - Resolver manualmente (scripts/, docs/, types.ts)
+         - Validar que código sigue compilando
+         - Commit después de resolver
+      5. Git log feature/firebase-migration → origin/main (listar commits)
+      6. Documentar cambios: COMMIT-SUMMARY.md
+      7. Verificar que artifacts de migración NO se commitean:
+         - ❌ .env files
+         - ❌ scripts/data/backup/* (use .gitignore)
+         - ❌ firebase credentials JSON
+      8. Final check: npm run build (verificar que compila)
+    wave: 4
+    agent: gem-devops
+    prototype: false
+    covers: ["Version control", "Conflict resolution", "Build validation"]
+    priority: high
+    status: pending
+    dependencies: [task-3b]
+    conflicts_with: []
+    context_files:
+      - path: ".git/HEAD"
+        description: "Git status"
+      - path: ".gitignore"
+        description: "Verify sensible files are excluded"
+    estimated_effort: medium
+    estimated_files: 2
+    estimated_lines: 50
+    focus_area: "Git workflow, conflict resolution"
+    verification:
+      - "Rebase completes without conflicts (or all resolved)"
+      - "Build passes: npm run build"
+      - "No sensible files in commit (env, backups, credentials)"
+      - "Commit summary documented"
+    acceptance_criteria:
+      - "feature/firebase-migration fully rebased against main"
+      - "0 unresolved conflicts"
+      - "Build compiles successfully"
+      - "No breaking changes introduced"
+      - "Commit history clean (squash if necessary)"
+      - "Ready for merge (task-4b can proceed)"
+    failure_modes:
+      - scenario: "Conflicts in critical files (types.ts, firestore.rules)"
+        likelihood: medium
+        impact: high
+        mitigation: "Resolve carefully, validate schema compatibility"
+      - scenario: "Build fails after rebase"
+        likelihood: low
+        impact: high
+        mitigation: "Fix compilation errors, re-test, commit again"
+
+  - id: task-4b
+    title: "Mergear feature/firebase-migration → main (con verificación post-merge)"
+    description: |
+      Ejecutar merge a main con protocolos de seguridad:
+      1. Checkout main
+      2. Git pull origin main (sincronizar)
+      3. Git merge feature/firebase-migration (fast-forward o merge commit)
+      4. If conflictos → Escalate (ir atrás a task-4a)
+      5. Push a origin main
+      6. Verificar en GitHub que push fue exitoso
+      7. Documentar merge: MERGE-LOG.md
+         - Timestamp, branch, commits mergeados, approver
+      8. Slack/Teams notification: "Firebase migration merged to main"
+    wave: 4
+    agent: gem-devops
+    prototype: false
+    covers: ["Version control", "Integration"]
+    priority: high
+    status: pending
+    dependencies: [task-4a]
+    conflicts_with: []
+    context_files:
+      - path: ".git/HEAD"
+        description: "Git status"
+    estimated_effort: small
+    estimated_files: 1
+    estimated_lines: 30
+    focus_area: "Safe merge execution"
+    verification:
+      - "Merge completes without conflicts"
+      - "Push to origin succeeds"
+      - "GitHub confirms branch merged"
+    acceptance_criteria:
+      - "main branch contains all firebase-migration commits"
+      - "No commits lost during merge"
+      - "Merge documented in MERGE-LOG.md"
+      - "Ready for final validation (task-4c)"
+    failure_modes:
+      - scenario: "Merge conflicts in main during push"
+        likelihood: low
+        impact: high
+        mitigation: "Revert merge, resolve in feature branch (task-4a), retry"
+
+  - id: task-4c
+    title: "Validar integridad en main (compilación + migration artifacts present)"
+    description: |
+      Post-merge validation en main:
+      1. Checkout main
+      2. Git log --oneline (verificar commits están presentes)
+      3. npm install (actualizar deps si algo cambió)
+      4. npm run build (verificar compilación)
+      5. Verificar que migration scripts están presentes:
+         - scripts/migrate-to-firebase.mjs ✓
+         - scripts/migrate-party-codes-to-firebase.mjs ✓
+         - scripts/audit-remaining-tables.mjs ✓
+         - scripts/validate-integrity.mjs ✓
+      6. Verificar que firestore.rules está actualizado
+      7. Verificar que .env.example tiene nuevas vars (si aplica)
+      8. Generar MERGE-VALIDATION.md (signed off)
+    wave: 4
+    agent: gem-devops
+    prototype: false
+    covers: ["Integration validation", "Artifact verification"]
+    priority: high
+    status: pending
+    dependencies: [task-4b]
+    conflicts_with: []
+    context_files:
+      - path: ".git/HEAD"
+        description: "Git status (should be on main)"
+      - path: "package.json"
+        description: "Build config"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 50
+    focus_area: "Post-merge validation"
+    verification:
+      - "main branch contains all expected commits"
+      - "npm run build succeeds"
+      - "All migration scripts present and readable"
+      - "firestore.rules up to date"
+    acceptance_criteria:
+      - "main compiles successfully"
+      - "All migration artifacts present"
+      - "No artifacts accidentally deleted"
+      - "Firebase migration COMPLETE and SIGNED OFF"
+      - "Ready for production deployment"
+    failure_modes:
+      - scenario: "Merge lost migration scripts (bad rebase)"
+        likelihood: low
+        impact: critical
+        mitigation: "Revert merge, fix in feature branch, retry merge"
+
+# ============ Contracts (Dependencies between tasks) ============
+contracts:
+  - from_task: task-1c
+    to_task: task-2a
+    interface: "Character migration SUCCESS flag + validation report"
+    format: |
+      {
+        "wave_1_complete": true,
+        "characters_migrated": number,
+        "status": "SUCCESS|FAILED",
+        "errors": []
+      }
+    description: |
+      Task 2a (Party Codes) must not START until Task 1c has PASSED validation.
+      If Task 1c fails, escalate to Task 1b for retry before proceeding.
+
+  - from_task: task-2c
+    to_task: task-3a
+    interface: "Party Codes migration SUCCESS flag + audit decision"
+    format: |
+      {
+        "wave_2_complete": true,
+        "party_codes_migrated": number,
+        "status": "SUCCESS|FAILED|ROLLBACK_APPROVED",
+        "ready_for_wave_3": boolean
+      }
+    description: |
+      Task 3a must wait for Task 2c SUCCESS before auditing remaining tables.
+      If Task 2c fails with ROLLBACK_APPROVED, Wave 3 is PAUSED until rollback completes.
+
+  - from_task: task-3b
+    to_task: task-4a
+    interface: "All data migration complete flag + artifact locations"
+    format: |
+      {
+        "wave_3_complete": true,
+        "tables_migrated": number,
+        "all_migrations_passed": boolean,
+        "artifact_paths": {
+          "backups": string,
+          "logs": string,
+          "validation_reports": string
+        }
+      }
+    description: |
+      Task 4a (prepare for merge) must wait for Task 3b SUCCESS.
+      Task 4a reads artifact locations to ensure all migration data is backed up before git merge.
+
+  - from_task: task-4a
+    to_task: task-4b
+    interface: "Rebase SUCCESS + clean build"
+    format: |
+      {
+        "rebase_complete": true,
+        "conflicts_resolved": true,
+        "build_passes": true,
+        "sensible_files_excluded": true
+      }
+    description: |
+      Task 4b (merge to main) must not execute until Task 4a confirms rebase is complete
+      and build passes. If Task 4a fails, resolve conflicts before retrying Task 4b.
+
+  - from_task: task-4b
+    to_task: task-4c
+    interface: "Merge SUCCESS + branch confirmation"
+    format: |
+      {
+        "merge_complete": true,
+        "branch": "main",
+        "commits_merged": number,
+        "push_successful": true
+      }
+    description: |
+      Task 4c (validate on main) must execute AFTER Task 4b confirms merge succeeded.
+      Task 4c verifies that all artifacts are present in main post-merge.
+
+# ============ Plan Metrics ============
+plan_summary:
+  total_tasks: 12
+  wave_breakdown:
+    wave_1: 3 tasks (Characters)
+    wave_2: 3 tasks (Party Codes)
+    wave_3: 2 tasks (Other tables)
+    wave_4: 4 tasks (Merge to main)
+  agent_breakdown:
+    gem-implementer: 10 tasks (migration, validation, audit, scripting)
+    gem-devops: 4 tasks (merge, integration, release)
+  estimated_total_effort: "40-60 hours (excluding scripting & testing)"
+  critical_path: "task-1a → 1b → 1c → 2a → 2b → 2c → 3a → 3b → 4a → 4b → 4c"
+  parallelization: "Wave 1-4 sequential (dependencies block parallelism)"
+  rollback_strategy: |
+    - WAVE 1 rollback: Restore from backup (scripts/data/backup/characters-*.json)
+    - WAVE 2 rollback: Restore from backup (scripts/data/backup/party-codes-*.json)
+    - WAVE 3 rollback: Per-table rollback script generated in task-3b
+    - WAVE 4 rollback: git reset --hard HEAD~1 (if merge fails)
+    - Full rollback: git checkout stable-v1.1 branch (if critical)

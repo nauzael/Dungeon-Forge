@@ -1,0 +1,1006 @@
+---
+plan_id: "20260525-migrate-supabase-parties-to-firebase"
+title: "Supabase Parties → Firebase Migration Plan"
+version: "1.0"
+created_at: "2026-05-25T00:00:00Z"
+objective: "Zero-loss migration of Supabase parties table to Firebase with full integrity verification"
+complexity: "complex"
+risk_level: "high"
+estimated_duration_hours: 4
+
+# ============================================
+# CRITICAL CONSTRAINTS
+# ============================================
+constraints:
+  - "NO DATA LOSS - every record must migrate"
+  - "NO TRUNCATION - all fields fully preserved"
+  - "NO UID MISMATCH - creator_id → Firebase UID mapping"
+  - "NO ORPHANED RECORDS - related characters must stay consistent"
+  - "BACKUP BEFORE MIGRATION - export Supabase parties as JSON"
+  - "DRY_RUN MANDATORY - preview all writes before production"
+
+# ============================================
+# SOURCE SCHEMA (Supabase)
+# ============================================
+source_schema:
+  table: "parties"
+  database: "Supabase (PostgreSQL)"
+  fields:
+    - name: "id"
+      type: "UUID"
+      primary_key: true
+      nullable: false
+      example: "550e8400-e29b-41d4-a716-446655440000"
+    - name: "creator_id"
+      type: "TEXT"
+      primary_key: false
+      nullable: false
+      notes: "Currently TEXT, may be EMAIL or Supabase UUID depending on auth"
+    - name: "name"
+      type: "TEXT"
+      primary_key: false
+      nullable: false
+      example: "The Lost Mines"
+    - name: "code"
+      type: "TEXT"
+      primary_key: false
+      nullable: false
+      unique: true
+      notes: "6-char random code (A-Z0-9), used for party joins"
+      example: "ABCDEF"
+    - name: "created_at"
+      type: "TIMESTAMPTZ"
+      primary_key: false
+      nullable: false
+      default: "now()"
+      example: "2026-05-25T10:30:00Z"
+    - name: "updated_at"
+      type: "TIMESTAMPTZ"
+      primary_key: false
+      nullable: false
+      default: "now()"
+      example: "2026-05-25T12:45:00Z"
+  
+  indices:
+    - name: "idx_parties_creator_id"
+      fields: ["creator_id"]
+    - name: "idx_parties_code"
+      fields: ["code"]
+  
+  row_level_security: true
+  realtime_enabled: true
+
+# ============================================
+# TARGET SCHEMA (Firebase)
+# ============================================
+target_schema:
+  collection: "parties"
+  database: "Firebase (Firestore)"
+  document_structure:
+    id: "UUID string (parties/{id})"
+    fields:
+      - name: "id"
+        type: "string"
+        notes: "Firestore doc ID - must match Supabase UUID"
+      - name: "creator_id"
+        type: "string"
+        notes: "Firebase UID after mapping"
+      - name: "name"
+        type: "string"
+      - name: "code"
+        type: "string"
+      - name: "createdAt"
+        type: "timestamp"
+        notes: "ISO string or Firebase Timestamp"
+      - name: "updatedAt"
+        type: "timestamp"
+        notes: "ISO string or Firebase Timestamp"
+      - name: "_metadata"
+        type: "object"
+        nested_fields:
+          - name: "migrationSource"
+            value: "supabase"
+          - name: "migratedAt"
+            value: "ISO timestamp"
+          - name: "sourceCreatorId"
+            value: "original Supabase creator_id"
+  
+  indices:
+    - name: "idx_parties_creatorId"
+      fields: ["creator_id"]
+    - name: "idx_parties_code"
+      fields: ["code"]
+
+# ============================================
+# DATA MAPPING & TRANSFORMATIONS
+# ============================================
+data_mapping:
+  uuid_id:
+    source: "parties.id (UUID)"
+    target: "parties/{id} (string)"
+    transformation: "toString()"
+    validation: "Must be valid UUID format"
+  
+  creator_id:
+    source: "parties.creator_id (TEXT)"
+    target: "parties.creator_id (string - Firebase UID)"
+    transformation: "MAP via UID_MAPPING table (see below)"
+    validation: "Must exist in Firebase Auth or mapping"
+    
+  timestamps:
+    source: "parties.created_at, updated_at (TIMESTAMPTZ)"
+    target: "parties.createdAt, updatedAt (ISO 8601 string)"
+    transformation: "toISOString()"
+    validation: "Must be valid ISO 8601 format"
+
+# ============================================
+# UID MAPPING STRATEGY
+# ============================================
+uid_mapping:
+  problem: |
+    Supabase auth IDs (TEXT) may not directly map to Firebase UIDs.
+    Users may not have Firebase accounts yet.
+    
+  solution_hierarchical:
+    1_automatic_mapping: |
+      - Fetch all users from Firebase Auth
+      - Fetch all Supabase auth users (via API if possible)
+      - Build mapping: supabase_uid → firebase_uid
+      - Handle: users already migrated to Firebase
+      
+    2_email_based_fallback: |
+      - For Supabase users without Firebase equivalent:
+        * Find Firebase user by email
+        * Create mapping: supabase_id (email) → firebase_uid
+        
+    3_preserve_unmapped: |
+      - If no Firebase account found for creator:
+        * Store original creator_id in _metadata.sourceCreatorId
+        * Create temporary account or flag for manual mapping
+        * Document in MAPPING_ERRORS.json for post-migration review
+      
+    4_manual_mapping: |
+      - For critical parties with unmapped creators:
+        * Allow manual UID correction in post-migration validation
+        * Provide UI/script to bulk reassign creator_id
+
+  output_format:
+    mapping_file: "scripts/data/uid-mapping.json"
+    format: |
+      {
+        "mappings": [
+          {
+            "supabase_id": "creator@example.com",
+            "firebase_uid": "KaRwqKw0JFeaJzDWQOWzc8j7Q2Q",
+            "email": "creator@example.com",
+            "status": "mapped" | "email_based" | "unmapped",
+            "notes": "optional notes"
+          }
+        ],
+        "unmapped_count": 0,
+        "total_users": 42
+      }
+
+# ============================================
+# PHASE 1: PRE-MIGRATION VALIDATION
+# ============================================
+phases:
+  - phase_number: 1
+    phase: "Pre-Migration Validation"
+    duration_minutes: 20
+    objective: "Audit source data, verify target schema, create backups"
+    
+    tasks:
+      - task_id: "1.1"
+        name: "Audit Supabase parties table"
+        description: |
+          - Count total records
+          - List all fields and types
+          - Check for NULL values in critical fields
+          - Identify orphaned records (creator_id not in auth)
+          - Check code uniqueness (should be 100% unique)
+          - Verify indexes exist
+        script: "scripts/audit-supabase-parties.mjs"
+        outputs:
+          - "audit/supabase-parties-audit.json"
+        success_criteria:
+          - Record count > 0 (or = 0 if empty)
+          - No NULLs in id, creator_id, name, code
+          - 100% code uniqueness
+          - All creators map to valid users
+        
+      - task_id: "1.2"
+        name: "Verify Firebase collection structure"
+        description: |
+          - Check if /parties collection exists
+          - Verify Firestore rules allow writes
+          - Test write permissions for service account
+          - Check for existing documents (if migrating again)
+        script: "scripts/verify-firebase-structure.mjs"
+        outputs:
+          - "audit/firebase-structure-check.json"
+        success_criteria:
+          - Collection /parties accessible
+          - Service account can write
+          - Document structure supports all fields
+      
+      - task_id: "1.3"
+        name: "Validate relationships"
+        description: |
+          - Count characters per party
+          - Verify all party_ids in characters reference valid parties
+          - Check for orphaned characters (party_id not in parties)
+          - Document party-character relationships
+        script: "scripts/validate-party-relationships.mjs"
+        outputs:
+          - "audit/party-relationships.json"
+        success_criteria:
+          - No orphaned characters
+          - All party references valid
+      
+      - task_id: "1.4"
+        name: "Export Supabase parties as JSON backup"
+        description: |
+          - Export ALL parties records as JSON
+          - Include all fields
+          - Add export metadata (timestamp, count, hash)
+          - Store in version-controlled location
+        script: "scripts/export-supabase-parties-backup.mjs"
+        outputs:
+          - "backups/supabase-parties-backup-20260525.json"
+          - "backups/supabase-parties-backup-20260525.sha256"
+        success_criteria:
+          - File exists and is valid JSON
+          - Record count matches audit
+          - SHA256 hash computed and stored
+      
+      - task_id: "1.5"
+        name: "Build UID mapping table"
+        description: |
+          - Query all Supabase auth users
+          - Query all Firebase Auth users
+          - Build mapping: supabase_id → firebase_uid
+          - Identify unmapped users
+          - Document strategy for unmapped accounts
+        script: "scripts/build-uid-mapping.mjs"
+        outputs:
+          - "scripts/data/uid-mapping.json"
+          - "audit/uid-mapping-report.json"
+        success_criteria:
+          - Mapping count ≥ parties count
+          - < 5% unmapped (or 0 if all mapped)
+          - All mappings validated against Firebase Auth
+
+# ============================================
+# PHASE 2: MIGRATION SCRIPT DEVELOPMENT
+# ============================================
+  - phase_number: 2
+    phase: "Migration Script Development"
+    duration_minutes: 60
+    objective: "Create production-ready migration script with dry-run support"
+    
+    tasks:
+      - task_id: "2.1"
+        name: "Create migrate-parties-to-firebase.mjs"
+        description: |
+          Core migration script with:
+          - DRY_RUN mode (default: true)
+          - Batch processing (500 records per batch)
+          - Transaction support where possible
+          - Pre-write validation
+          - Error tracking and reporting
+          - Progress reporting
+          - Rollback-friendly logging
+        
+        script_skeleton: |
+          ```javascript
+          // scripts/migrate-parties-to-firebase.mjs
+          
+          const DRY_RUN = process.env.DRY_RUN !== 'false'; // Default: true
+          const BATCH_SIZE = process.env.BATCH_SIZE || 500;
+          const UID_MAPPING_FILE = 'scripts/data/uid-mapping.json';
+          
+          async function migrateParties() {
+            try {
+              // 1. Load UID mapping
+              const uidMapping = loadUidMapping(UID_MAPPING_FILE);
+              
+              // 2. Fetch all parties from Supabase
+              const supabaseParties = await fetchSupabaseParties();
+              
+              // 3. Transform each record
+              const transformedParties = supabaseParties.map(party => 
+                transformPartyRecord(party, uidMapping)
+              );
+              
+              // 4. Validate all records before writing
+              const validationReport = validateAllRecords(transformedParties);
+              if (validationReport.failures > 0) {
+                throw new Error(`Validation failed: ${validationReport.failures} records invalid`);
+              }
+              
+              // 5. Process in batches
+              const results = [];
+              for (let i = 0; i < transformedParties.length; i += BATCH_SIZE) {
+                const batch = transformedParties.slice(i, i + BATCH_SIZE);
+                const batchResults = await processBatch(batch, DRY_RUN);
+                results.push(...batchResults);
+              }
+              
+              // 6. Report results
+              reportMigrationResults(results, supabaseParties.length, DRY_RUN);
+              
+            } catch (error) {
+              console.error('[Migration Error]', error);
+              process.exit(1);
+            }
+          }
+          ```
+        
+        requirements:
+          - DRY_RUN mode enabled by default
+          - Pre-write validation (every record checked before batch write)
+          - Batch validation (verify each batch before writing)
+          - Clear logging of each operation
+          - Error handling with recovery suggestions
+          - Progress bar or counter
+        
+        outputs:
+          - "scripts/migrate-parties-to-firebase.mjs"
+        
+        success_criteria:
+          - Script runs without errors in DRY_RUN mode
+          - Outputs clear, machine-readable migration report
+          - All records validated pre-write
+      
+      - task_id: "2.2"
+        name: "Implement record transformation logic"
+        description: |
+          - Transform Supabase UUID to string
+          - Transform timestamps (TIMESTAMPTZ → ISO 8601)
+          - Map creator_id via UID_MAPPING
+          - Add _metadata fields
+          - Preserve all original fields
+          - Validate each transformed record
+        
+        validation_logic: |
+          For each party:
+          1. Verify id is valid UUID
+          2. Verify creator_id maps to valid Firebase UID
+          3. Verify name is non-empty string
+          4. Verify code matches pattern [A-Z0-9]{6}
+          5. Verify timestamps are valid ISO 8601
+          6. Check for required fields (none missing)
+        
+        outputs:
+          - "scripts/transform-party-record.mjs"
+      
+      - task_id: "2.3"
+        name: "Implement batch validation layer"
+        description: |
+          - Validate all records in batch before any writes
+          - Generate validation report with failures
+          - Halt batch on validation failure
+          - Track failure count and reasons
+          - Report suggestions for remediation
+        
+        outputs:
+          - "scripts/validate-batch.mjs"
+      
+      - task_id: "2.4"
+        name: "Implement progress tracking & logging"
+        description: |
+          - Log each batch operation
+          - Track success/failure count
+          - Estimate time remaining
+          - Output JSON log for programmatic parsing
+          - Include detailed error messages
+        
+        outputs:
+          - "scripts/migration-logger.mjs"
+          - "logs/migration-TIMESTAMP.json"
+      
+      - task_id: "2.5"
+        name: "Create migration rollback script"
+        description: |
+          - Create rollback-parties-from-firebase.mjs
+          - Delete Firebase records by ID list
+          - Restore from Supabase backup if needed
+          - Verify deletion
+          - Document rollback procedure
+        
+        script_skeleton: |
+          ```javascript
+          // scripts/rollback-parties-from-firebase.mjs
+          
+          async function rollbackPartiesMigration() {
+            const partyIdsToDelete = readMigrationLog();
+            const BATCH_SIZE = 500;
+            
+            for (let i = 0; i < partyIdsToDelete.length; i += BATCH_SIZE) {
+              const batch = partyIdsToDelete.slice(i, i + BATCH_SIZE);
+              await firestore.batch()
+                .delete(batch.map(id => db.collection('parties').doc(id)))
+                .commit();
+            }
+          }
+          ```
+        
+        outputs:
+          - "scripts/rollback-parties-from-firebase.mjs"
+
+# ============================================
+# PHASE 3: DRY-RUN EXECUTION
+# ============================================
+  - phase_number: 3
+    phase: "Dry-Run Execution & Validation"
+    duration_minutes: 15
+    objective: "Preview migration without writing to Firebase (no data change)"
+    
+    tasks:
+      - task_id: "3.1"
+        name: "Run migration in DRY_RUN mode"
+        description: |
+          - Execute: DRY_RUN=true node scripts/migrate-parties-to-firebase.mjs
+          - No writes to Firebase (DRY_RUN prevents actual writes)
+          - Output preview of all records to be migrated
+          - Generate dry-run report
+        
+        command: |
+          DRY_RUN=true node scripts/migrate-parties-to-firebase.mjs 2>&1 | tee logs/dry-run-20260525.log
+        
+        success_criteria:
+          - Script completes without errors
+          - Output shows record count matches Supabase audit
+          - All transformations logged
+          - No writes to Firebase (verify via Firestore console)
+        
+        outputs:
+          - "logs/dry-run-20260525.log"
+          - "audit/dry-run-report-20260525.json"
+      
+      - task_id: "3.2"
+        name: "Validate dry-run output"
+        description: |
+          - Compare dry-run record count vs Supabase audit count
+          - Spot-check 10 random records
+          - Verify all fields present in output
+          - Check for validation errors in dry-run log
+          - Verify Firebase was NOT written to
+        
+        validation_checklist:
+          - "[ ] Record count in dry-run = audit count"
+          - "[ ] All records have valid id, creator_id, name, code"
+          - "[ ] Timestamps converted to ISO 8601"
+          - "[ ] UID mapping applied correctly"
+          - "[ ] _metadata fields present"
+          - "[ ] No errors in transformation"
+          - "[ ] Firestore collection /parties unchanged"
+        
+        outputs:
+          - "audit/dry-run-validation-report-20260525.json"
+      
+      - task_id: "3.3"
+        name: "Generate migration plan approval document"
+        description: |
+          - Summarize dry-run results
+          - Document any issues found
+          - Get approval to proceed to production
+          - Document approval timestamp and approver
+        
+        outputs:
+          - "MIGRATION-APPROVAL-20260525.md"
+
+# ============================================
+# PHASE 4: PRODUCTION MIGRATION
+# ============================================
+  - phase_number: 4
+    phase: "Production Migration"
+    duration_minutes: 30
+    objective: "Execute live migration to Firebase"
+    
+    tasks:
+      - task_id: "4.1"
+        name: "Pre-migration safety checks"
+        description: |
+          - Backup current Firebase /parties collection (if any)
+          - Verify network connectivity
+          - Verify service account credentials valid
+          - Notify stakeholders
+          - Prepare rollback procedure
+        
+        checklist:
+          - "[ ] Firebase backup exported"
+          - "[ ] Service account key loaded"
+          - "[ ] UID mapping file fresh"
+          - "[ ] Rollback script tested"
+          - "[ ] Stakeholders notified"
+      
+      - task_id: "4.2"
+        name: "Execute live migration"
+        description: |
+          - Run migration with DRY_RUN=false
+          - Process batches sequentially
+          - Monitor for errors in real-time
+          - Log all writes to Firebase
+          - Keep terminal output for audit trail
+        
+        command: |
+          DRY_RUN=false node scripts/migrate-parties-to-firebase.mjs 2>&1 | tee logs/migration-live-20260525.log
+        
+        success_criteria:
+          - All records written to Firebase
+          - No write errors reported
+          - Migration completes without abort
+          - Log file contains all batch results
+        
+        outputs:
+          - "logs/migration-live-20260525.log"
+      
+      - task_id: "4.3"
+        name: "Verify writes to Firebase"
+        description: |
+          - Query Firestore /parties collection
+          - Count documents
+          - Spot-check 5-10 random records
+          - Verify createdAt and updatedAt timestamps
+          - Check _metadata fields
+        
+        validation_steps:
+          1. "db.collection('parties').count() → should equal audit count"
+          2. "db.collection('parties').where('code', '==', 'ABCDEF').get() → verify specific records"
+          3. "Sample 10 random doc IDs and verify all fields present"
+        
+        success_criteria:
+          - Document count in Firebase = source record count
+          - All sampled records have correct structure
+          - No truncation or data loss visible
+
+# ============================================
+# PHASE 5: POST-MIGRATION VALIDATION
+# ============================================
+  - phase_number: 5
+    phase: "Post-Migration Validation & Integrity Checks"
+    duration_minutes: 30
+    objective: "Verify complete data integrity, spot-check relationships"
+    
+    tasks:
+      - task_id: "5.1"
+        name: "Row count verification"
+        description: |
+          - Count records in Supabase parties table
+          - Count documents in Firebase /parties collection
+          - These counts must be IDENTICAL
+          - If mismatch, halt and trigger rollback investigation
+        
+        script: "scripts/verify-row-counts.mjs"
+        success_criteria:
+          - "Supabase parties count == Firebase parties count"
+          - "Difference = 0 records"
+        
+        outputs:
+          - "audit/row-count-verification-20260525.json"
+      
+      - task_id: "5.2"
+        name: "Data integrity check (spot sample)"
+        description: |
+          - Select random sample of 50 parties from Firebase
+          - Compare each field against Supabase source
+          - Check for truncation, missing fields, type mismatches
+          - Verify timestamps are ISO 8601 and correct
+          - Check code uniqueness in Firebase
+        
+        comparison_fields:
+          - id (UUID string)
+          - creator_id (must match UID mapping)
+          - name (exact match)
+          - code (exact match, verify uniqueness)
+          - createdAt (ISO 8601, same timestamp)
+          - updatedAt (ISO 8601, same timestamp)
+        
+        script: "scripts/integrity-check-sample.mjs"
+        success_criteria:
+          - "0 field mismatches in sample"
+          - "0 truncated values"
+          - "100% code uniqueness in sample"
+          - "All timestamps valid ISO 8601"
+        
+        outputs:
+          - "audit/integrity-check-sample-20260525.json"
+      
+      - task_id: "5.3"
+        name: "Relationship validation"
+        description: |
+          - For each party in Firebase, verify:
+            * creator_id exists in Firebase Auth
+            * Associated characters (via party_id) reference this party
+            * No orphaned party records
+          - Cross-reference with Supabase relationships
+        
+        script: "scripts/validate-migrated-relationships.mjs"
+        success_criteria:
+          - "All creator_ids in Firebase Auth"
+          - "All character → party relationships valid"
+          - "0 orphaned records"
+        
+        outputs:
+          - "audit/relationship-validation-20260525.json"
+      
+      - task_id: "5.4"
+        name: "UID mapping validation"
+        description: |
+          - Verify all creator_id values in Firebase are valid Firebase UIDs
+          - Check mapping against Firebase Auth users
+          - Document any unmapped accounts (should be 0 after mapping)
+          - Generate mapping coverage report
+        
+        script: "scripts/validate-uid-mapping-coverage.mjs"
+        success_criteria:
+          - "100% of creator_ids are valid Firebase UIDs"
+          - "< 1% unmapped accounts (or 0)"
+        
+        outputs:
+          - "audit/uid-mapping-coverage-20260525.json"
+      
+      - task_id: "5.5"
+        name: "Archive Supabase backup"
+        description: |
+          - Confirm backup file exists and is valid
+          - Compute final SHA256 hash
+          - Store in secure, version-controlled location
+          - Document backup location in runbook
+        
+        success_criteria:
+          - "Backup file exists and is readable"
+          - "SHA256 hash verified"
+          - "File stored in backups/ folder"
+        
+        outputs:
+          - "backups/BACKUP-MANIFEST-20260525.json"
+      
+      - task_id: "5.6"
+        name: "Generate final migration report"
+        description: |
+          - Consolidate all validation reports
+          - Document any warnings or issues
+          - Provide rollback procedure (if needed)
+          - Sign off on migration success
+        
+        report_includes:
+          - "Migration timestamp"
+          - "Total records migrated"
+          - "Validation results (all checks)"
+          - "Any unmapped UIDs or issues"
+          - "Backup location and hash"
+          - "Rollback procedure (if needed)"
+        
+        outputs:
+          - "MIGRATION-REPORT-20260525.md"
+          - "audit/FINAL-VALIDATION-20260525.json"
+
+# ============================================
+# BACKUP & ROLLBACK PROCEDURES
+# ============================================
+backup_strategy:
+  pre_migration:
+    - Export Supabase parties as JSON
+    - Compute SHA256 hash
+    - Store with timestamp
+    - Location: "backups/supabase-parties-backup-YYYYMMDD.json"
+  
+  firebase_backup:
+    - If /parties collection already has data, export it first
+    - Command: "node scripts/backup-firebase-parties.mjs"
+    - Location: "backups/firebase-parties-backup-YYYYMMDD.json"
+    - Hash: "backups/firebase-parties-backup-YYYYMMDD.sha256"
+
+rollback_procedure:
+  when_to_rollback: |
+    - Row count mismatch (Supabase ≠ Firebase)
+    - Data integrity check fails (sample shows corruption)
+    - UID mapping > 5% unmapped
+    - Relationships invalid (orphaned records)
+    - Manual decision during validation
+  
+  rollback_steps:
+    1: "Stop all Firebase reads/writes to /parties collection"
+    2: "Run: node scripts/rollback-parties-from-firebase.mjs"
+    3: "Verify all documents deleted from Firebase"
+    4: "Investigate root cause"
+    5: "Fix and re-run migration (new dry-run first)"
+  
+  recovery_command: |
+    # Delete all Firebase parties
+    node scripts/rollback-parties-from-firebase.mjs
+    
+    # Then, re-prepare and retry migration
+    DRY_RUN=true node scripts/migrate-parties-to-firebase.mjs
+
+# ============================================
+# CRITICAL VALIDATION MATRICES
+# ============================================
+validation_matrix:
+  
+  field_validation:
+    - field: "id"
+      source_type: "UUID"
+      target_type: "string"
+      validation_rule: "Valid UUID format"
+      failure_action: "Skip record, log error"
+    
+    - field: "creator_id"
+      source_type: "TEXT"
+      target_type: "string (Firebase UID)"
+      validation_rule: "Must map to valid Firebase UID"
+      failure_action: "Flag for manual mapping, log unmapped"
+    
+    - field: "name"
+      source_type: "TEXT"
+      target_type: "string"
+      validation_rule: "Non-empty, length > 0"
+      failure_action: "Skip record, log error"
+    
+    - field: "code"
+      source_type: "TEXT"
+      target_type: "string"
+      validation_rule: |
+        Pattern: [A-Z0-9]{6}
+        Must be unique across all parties
+      failure_action: "Skip record, log duplicate"
+    
+    - field: "created_at / createdAt"
+      source_type: "TIMESTAMPTZ"
+      target_type: "ISO 8601 string"
+      validation_rule: "Valid ISO 8601 timestamp"
+      failure_action: "Skip record, log error"
+    
+    - field: "updated_at / updatedAt"
+      source_type: "TIMESTAMPTZ"
+      target_type: "ISO 8601 string"
+      validation_rule: "Valid ISO 8601 timestamp"
+      failure_action: "Skip record, log error"
+
+  integrity_checks:
+    - check: "Row count match"
+      source_count: "SELECT COUNT(*) FROM parties"
+      target_count: "db.collection('parties').count().get()"
+      tolerance: "0 (exact match)"
+      severity: "CRITICAL"
+    
+    - check: "Code uniqueness"
+      source: "SELECT code, COUNT(*) FROM parties GROUP BY code HAVING COUNT(*) > 1"
+      target: "db.collection('parties').where('code', '==', code)"
+      tolerance: "0 duplicates"
+      severity: "CRITICAL"
+    
+    - check: "UID validity"
+      rule: "All creator_ids must exist in Firebase Auth"
+      tolerance: "< 1% unmapped"
+      severity: "HIGH"
+    
+    - check: "No truncation"
+      rule: "All STRING fields must not be shorter than source"
+      tolerance: "0 truncated fields"
+      severity: "CRITICAL"
+    
+    - check: "No NULL values"
+      rule: "Required fields (id, name, code, creator_id) must not be NULL/undefined"
+      tolerance: "0 NULLs"
+      severity: "CRITICAL"
+
+  relationship_checks:
+    - relationship: "parties → characters"
+      rule: "All characters.party_id must reference valid parties.id in target"
+      check_command: |
+        db.collection('characters')
+          .where('party_id', '!=', null)
+          .get()
+          .then(snap => snap.forEach(doc => {
+            db.collection('parties').doc(doc.data().party_id).get();
+          }))
+      tolerance: "0 broken references"
+      severity: "HIGH"
+
+# ============================================
+# SUCCESS CRITERIA (MUST ALL PASS)
+# ============================================
+success_criteria:
+  - "✓ Supabase audit completed (all records counted and validated)"
+  - "✓ UID mapping built and validated (> 95% coverage)"
+  - "✓ Firebase structure verified (collection writable)"
+  - "✓ Dry-run completed successfully (no Firebase writes)"
+  - "✓ Migration executed without errors"
+  - "✓ Row count verification PASSED (source = target)"
+  - "✓ Integrity check sample PASSED (50+ random records verified)"
+  - "✓ Code uniqueness VERIFIED (100% unique in Firebase)"
+  - "✓ UID mapping coverage > 99% (< 1% unmapped)"
+  - "✓ Relationship validation PASSED (no orphaned records)"
+  - "✓ Backup archived and hashed"
+  - "✓ Supabase parties table ready for deprecation"
+
+# ============================================
+# POST-MIGRATION TASKS (AFTER VALIDATION)
+# ============================================
+post_migration:
+  - task: "Archive migration logs"
+    location: "docs/migrations/20260525-parties-migration/"
+  
+  - task: "Update application code to read from Firebase /parties"
+    description: "Update utils/supabase.ts to use Firebase SDK"
+  
+  - task: "Update RLS/security rules"
+    description: "Create Firestore security rules for /parties collection"
+  
+  - task: "Monitor Firebase for 24 hours"
+    description: "Watch for any anomalies, errors, or performance issues"
+  
+  - task: "Schedule Supabase parties table deprecation"
+    description: |
+      - Keep table for 30 days as safety net
+      - Enable read-only access only (no writes)
+      - Archive to cold storage after 30 days
+  
+  - task: "Document lessons learned"
+    description: |
+      - What went well
+      - What could be improved
+      - Add to runbook for future migrations
+
+# ============================================
+# ROLLBACK DECISION TREE
+# ============================================
+rollback_decision_tree:
+  
+  if_row_count_mismatch:
+    condition: "Supabase count ≠ Firebase count"
+    action: |
+      STOP IMMEDIATELY
+      Run: node scripts/rollback-parties-from-firebase.mjs
+      Investigate: Why were records not migrated?
+      Root causes to check:
+      - Batch write failures (check logs)
+      - UID mapping issues (check unmapped count)
+      - Network timeouts (retry)
+      - Firestore quota exceeded (wait and retry)
+    recovery: "Retry migration after fixing root cause"
+  
+  if_data_corruption:
+    condition: "Integrity check finds truncated/corrupted data"
+    action: |
+      STOP IMMEDIATELY
+      Run: node scripts/rollback-parties-from-firebase.mjs
+      Investigate: 
+      - Check transformation logic
+      - Verify field types in Firebase
+      - Check for UTF-8 encoding issues
+    recovery: "Fix transformation logic, retry with new dry-run"
+  
+  if_uid_mapping_failure:
+    condition: "> 5% unmapped creator_ids"
+    action: |
+      STOP IMMEDIATELY
+      Identify unmapped accounts
+      Options:
+      a) Wait for users to migrate to Firebase (manual mapping)
+      b) Create temporary Firebase accounts (auto-mapping)
+      c) Manual correction via admin panel
+    recovery: "Update UID mapping, retry migration"
+  
+  if_firestore_quota_exceeded:
+    condition: "Firebase returns quota exceeded error during writes"
+    action: |
+      Halt migration
+      Wait for quota reset (typically next calendar day)
+      Rollback any partial writes
+      Resume migration after quota reset
+    recovery: "Run rollback, then retry after 24 hours"
+
+# ============================================
+# MONITORING & ALERTS DURING MIGRATION
+# ============================================
+monitoring:
+  real_time_metrics:
+    - "Records migrated per minute"
+    - "Error rate (failures / total)"
+    - "Network latency to Firebase"
+    - "Firestore write units consumed"
+  
+  alerting_thresholds:
+    - trigger: "Error rate > 1%"
+      action: "Halt migration immediately"
+    
+    - trigger: "Batch write latency > 10 seconds"
+      action: "Log warning, continue monitoring"
+    
+    - trigger: "Firestore write quota > 80%"
+      action: "Consider rolling back and resuming after reset"
+
+# ============================================
+# SIGN-OFF & APPROVAL
+# ============================================
+sign_off:
+  plan_prepared_by: "Claude AI Agent"
+  prepared_date: "2026-05-25"
+  prepared_time: "12:00:00Z"
+  
+  dry_run_approval: "[ ] Pending - Execute dry-run and validate"
+  production_approval: "[ ] Pending - Review dry-run results and approve"
+  
+  approved_by: "[ ] Human reviewer / project manager"
+  approved_date: "[ ] YYYY-MM-DD"
+  approved_time: "[ ] HH:MM:SSZ"
+  
+  notes: "This plan is comprehensive and conservative. All writes protected by DRY_RUN mode first."
+
+# ============================================
+# APPENDIX A: FILE STRUCTURE
+# ============================================
+appendix_files:
+  migration_scripts:
+    - "scripts/migrate-parties-to-firebase.mjs (main entry point)"
+    - "scripts/audit-supabase-parties.mjs"
+    - "scripts/verify-firebase-structure.mjs"
+    - "scripts/validate-party-relationships.mjs"
+    - "scripts/export-supabase-parties-backup.mjs"
+    - "scripts/build-uid-mapping.mjs"
+    - "scripts/transform-party-record.mjs"
+    - "scripts/validate-batch.mjs"
+    - "scripts/rollback-parties-from-firebase.mjs"
+  
+  data_files:
+    - "scripts/data/uid-mapping.json"
+    - "backups/supabase-parties-backup-20260525.json"
+    - "backups/firebase-parties-backup-20260525.json"
+  
+  audit_reports:
+    - "audit/supabase-parties-audit.json"
+    - "audit/firebase-structure-check.json"
+    - "audit/party-relationships.json"
+    - "audit/uid-mapping-report.json"
+    - "audit/dry-run-report-20260525.json"
+    - "audit/integrity-check-sample-20260525.json"
+    - "audit/relationship-validation-20260525.json"
+    - "audit/row-count-verification-20260525.json"
+    - "audit/FINAL-VALIDATION-20260525.json"
+  
+  logs:
+    - "logs/migration-live-20260525.log"
+    - "logs/dry-run-20260525.log"
+  
+  documentation:
+    - "MIGRATION-PLAN-SUPABASE-PARTIES-TO-FIREBASE.yaml (this file)"
+    - "MIGRATION-APPROVAL-20260525.md"
+    - "MIGRATION-REPORT-20260525.md"
+    - "BACKUP-MANIFEST-20260525.json"
+
+# ============================================
+# APPENDIX B: QUICK REFERENCE COMMANDS
+# ============================================
+quick_reference:
+  audit_supabase: |
+    node scripts/audit-supabase-parties.mjs
+  
+  build_uid_mapping: |
+    node scripts/build-uid-mapping.mjs
+  
+  dry_run: |
+    DRY_RUN=true node scripts/migrate-parties-to-firebase.mjs
+  
+  production_migration: |
+    DRY_RUN=false node scripts/migrate-parties-to-firebase.mjs
+  
+  verify_counts: |
+    node scripts/verify-row-counts.mjs
+  
+  integrity_check: |
+    node scripts/integrity-check-sample.mjs
+  
+  rollback: |
+    node scripts/rollback-parties-from-firebase.mjs
+  
+  export_supabase_backup: |
+    node scripts/export-supabase-parties-backup.mjs
+
+# ============================================
+# END OF MIGRATION PLAN
+# ============================================

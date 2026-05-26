@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-05-26T02:01:21.779Z",
+  "projectRoot": "I:\\Apks\\Dungeon Forge",
+  "credentialsFile": {
+    "path": "I:\\Apks\\Dungeon Forge\\dungeon-forge-prod-firebase-adminsdk-fbsvc-08adfe3b9a.json",
+    "exists": true,
+    "size": 693
+  },
+  "migrationScript": {
+    "path": "I:\\Apks\\Dungeon Forge\\scripts\\migrate-parties-to-firebase.mjs",
+    "exists": true
+  },
+  "environment": {
+    "supabaseUrl": true,
+    "supabaseKey": true,
+    "nodeEnv": "development"
+  },
+  "gitStatus": {
+    "branch": "main",
+    "latestCommit": "2d3b8f0"
+  }
+}
