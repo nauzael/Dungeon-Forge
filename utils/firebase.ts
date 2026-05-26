@@ -437,7 +437,7 @@ export const saveCharacterToCloud = async (character: Character, userId: string)
       user_id: userId,
       data: character,
       party_id: character.party_id || null,
-      updated_at: Timestamp.now(),
+      updated_at: new Date().toISOString(),
       deleted_at: null,
     }, { merge: true });
 
@@ -475,7 +475,7 @@ export const saveCharacterWithRollback = async (
       user_id: userId,
       data: character,
       party_id: character.party_id || null,
-      updated_at: Timestamp.now(),
+      updated_at: new Date().toISOString(),
       deleted_at: null,
     }, { merge: true });
 
@@ -613,7 +613,7 @@ export const restoreCharacter = async (characterId: string) => {
     const characterRef = doc(firestoreInstance, 'characters', characterId);
     await updateDoc(characterRef, {
       deleted_at: null,
-      updated_at: Timestamp.now(),
+      updated_at: new Date().toISOString(),
     });
 
     console.log(`[Recovery] Character ${characterId} restored successfully`);
@@ -629,9 +629,10 @@ export const softDeleteCharacter = async (characterId: string) => {
     if (!firestoreInstance) throw new Error('Firestore not initialized');
     
     const characterRef = doc(firestoreInstance, 'characters', characterId);
+    const now = new Date().toISOString();
     await updateDoc(characterRef, {
-      deleted_at: Timestamp.now(),
-      updated_at: Timestamp.now(),
+      deleted_at: now,
+      updated_at: now,
     });
 
     console.log(`[SoftDelete] Character ${characterId} marked as deleted`);
@@ -643,6 +644,15 @@ export const softDeleteCharacter = async (characterId: string) => {
 };
 
 // Party Management
+/**
+ * Create a new party with proper fields for Firestore Security Rules
+ * Bug Fixes:
+ * - ADD dm_uid for updateParty/deleteParty rules
+ * - ADD members: {} subcollection stub for isPartyMember() check
+ * - ADD settings: {} for party configuration
+ * - CHANGE timestamps to ISO 8601 strings (not Timestamp objects)
+ * - CREATE party_codes/{code} document
+ */
 export const createParty = async (userId: string, name: string) => {
   const code = Math.random().toString(36).substring(2, 8).toUpperCase();
   
@@ -658,17 +668,25 @@ export const createParty = async (userId: string, name: string) => {
     if (!firestoreInstance) throw new Error('Firestore not initialized');
     
     const partyRef = doc(collection(firestoreInstance, 'parties'));
+    const now = new Date().toISOString();
     const partyData = {
       id: partyRef.id,
       creator_id: userId,
+      dm_uid: userId,                    // BUG FIX #1: Add dm_uid for Firestore rules
       name,
       code,
-      created_at: Timestamp.now(),
-      updated_at: Timestamp.now(),
+      members: {},                        // BUG FIX #2: Initialize members map
+      settings: {},                       // BUG FIX #2: Initialize settings
+      created_at: now,                   // BUG FIX #3: ISO 8601 string (not Timestamp)
+      updated_at: now,                   // BUG FIX #3: ISO 8601 string (not Timestamp)
     };
 
     await setDoc(partyRef, partyData);
-    console.log(`[Party] Created: ${name} with code ${code}`);
+    
+    // BUG FIX #4: Create party_codes/{code} document
+    await createPartyCode(code, partyRef.id);
+    
+    console.log(`[Party] Created: ${name} with code ${code} (dm_uid=${userId}, members={}, settings={})`);
     return { data: partyData, error: null };
   } catch (e) {
     console.error('[Party] Failed to create:', e);
@@ -677,6 +695,10 @@ export const createParty = async (userId: string, name: string) => {
   }
 };
 
+/**
+ * BUG FIX #2: joinParty must write to /parties/{partyId}/members/{userId}
+ * This is required for Firestore Security Rules to verify party membership via isPartyMember() check
+ */
 export const joinParty = async (character: Character, code: string) => {
   try {
     console.log(`[Join] Intentando unirse: ${code.trim().toUpperCase()}`);
@@ -712,6 +734,7 @@ export const joinParty = async (character: Character, code: string) => {
 
     // 3. Upsert character with party_id
     const characterRef = doc(firestoreInstance, 'characters', characterId);
+    const now = new Date().toISOString();
     await setDoc(
       characterRef,
       {
@@ -719,12 +742,32 @@ export const joinParty = async (character: Character, code: string) => {
         user_id: effectiveUserId,
         data: updatedCharacter,
         party_id: party.id,
-        updated_at: Timestamp.now(),
+        updated_at: now,
         deleted_at: null,
       },
       { merge: true }
     );
 
+    // BUG FIX #2: Write to /parties/{partyId}/members/{userId} subcollection
+    // This is critical for Firestore Security Rules (isPartyMember() check)
+    const memberRef = doc(firestoreInstance, 'parties', party.id, 'members', effectiveUserId);
+    await setDoc(memberRef, {
+      user_id: effectiveUserId,
+      character_id: characterId,
+      joined_at: now,
+    }, { merge: true });
+
+    // Update party members map with user_id entry
+    const partyRef = doc(firestoreInstance, 'parties', party.id);
+    await updateDoc(partyRef, {
+      [`members.${effectiveUserId}`]: {
+        character_id: characterId,
+        joined_at: now,
+      },
+      updated_at: now,
+    });
+
+    console.log(`[Join] Character ${characterId} joined party ${party.id} (members subcollection created)`);
     return { partyId: party.id, partyName: party.name, error: null };
   } catch (e) {
     console.error('[Join] Error:', e);
@@ -733,6 +776,31 @@ export const joinParty = async (character: Character, code: string) => {
       partyName: null,
       error: e instanceof Error ? e.message : 'Error desconocido',
     };
+  }
+};
+
+/**
+ * BUG FIX #4: Create party_codes/{code} document for code-to-party mapping
+ * This is required for Security Rules to validate party codes during joinParty
+ * @param code Party code (uppercase)
+ * @param partyId Party ID
+ */
+const createPartyCode = async (code: string, partyId: string): Promise<void> => {
+  try {
+    if (!firestoreInstance) throw new Error('Firestore not initialized');
+
+    const codeRef = doc(firestoreInstance, 'party_codes', code);
+    const now = new Date().toISOString();
+    await setDoc(codeRef, {
+      code,
+      party_id: partyId,
+      created_at: now,
+    });
+
+    console.log(`[PartyCode] Created mapping: ${code} -> ${partyId}`);
+  } catch (e) {
+    console.error(`[PartyCode] Failed to create code ${code}:`, e);
+    throw e;
   }
 };
 
@@ -882,9 +950,10 @@ export const removeFromParty = async (characterId: string) => {
     if (!firestoreInstance) throw new Error('Firestore not initialized');
 
     const characterRef = doc(firestoreInstance, 'characters', characterId);
+    const now = new Date().toISOString();
     await updateDoc(characterRef, {
       party_id: null,
-      updated_at: Timestamp.now(),
+      updated_at: now,
     });
 
     console.log(`[Party] Character ${characterId} removed from party`);
@@ -900,9 +969,10 @@ export const updatePartyName = async (partyId: string, name: string) => {
     if (!firestoreInstance) throw new Error('Firestore not initialized');
 
     const partyRef = doc(firestoreInstance, 'parties', partyId);
+    const now = new Date().toISOString();
     await updateDoc(partyRef, {
       name,
-      updated_at: Timestamp.now(),
+      updated_at: now,
     });
 
     console.log(`[Party] Updated name to: ${name}`);
@@ -925,10 +995,11 @@ export const deleteParty = async (partyId: string, userId: string) => {
       )
     );
 
+    const now = new Date().toISOString();
     for (const charDoc of charactersSnapshot.docs) {
       await updateDoc(charDoc.ref, {
         party_id: null,
-        updated_at: Timestamp.now(),
+        updated_at: now,
       });
     }
 
@@ -968,11 +1039,12 @@ export const addPartyResource = async (resource: CampaignResource) => {
     if (!firestoreInstance) throw new Error('Firestore not initialized');
 
     const resourceRef = doc(collection(firestoreInstance, 'campaign_resources'));
+    const now = new Date().toISOString();
     const resourceData = {
       ...resource,
       id: resourceRef.id,
-      created_at: Timestamp.now(),
-      updated_at: Timestamp.now(),
+      created_at: now,
+      updated_at: now,
     };
 
     await setDoc(resourceRef, resourceData);
@@ -1134,7 +1206,7 @@ export const updatePartyResourcePersistence = async (
     const partyRef = doc(firestoreInstance, 'parties', partyId);
     await updateDoc(partyRef, {
       persistent_resources: resourceIds,
-      updated_at: Timestamp.now(),
+      updated_at: new Date().toISOString(),
     });
 
     console.log('[Resources] Updated persistence');
@@ -1179,7 +1251,7 @@ export const updateResourceThumbnail = async (
     const resourceRef = doc(firestoreInstance, 'campaign_resources', resourceId);
     await updateDoc(resourceRef, {
       image_url: imageUrl,
-      updated_at: Timestamp.now(),
+      updated_at: new Date().toISOString(),
     });
 
     return { error: null };
