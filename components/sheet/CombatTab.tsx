@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import React, { useState, useMemo, useEffect, memo, useRef, useLayoutEffect } from 'react';
 import { useModalScrollLock } from '../../hooks/useModalScrollLock';
 import { useResponsive } from '../../hooks/useResponsive';
+import { useDebounce } from '../../hooks/useDebounce';
 import { Character, Ability, WeaponData, InventoryItem } from '../../types';
 import { SKILL_ABILITY_MAP, SKILL_DESCRIPTIONS } from '../../Data/skills';
 import { useSkills } from '../../Data/skills/index';
@@ -70,6 +71,8 @@ const CombatTab: React.FC<CombatTabProps> = ({
     const SKILL_LIST = skills.map(s => s.name);
     const [hpModal, setHpModal] = useState<{ show: boolean; type: 'damage' | 'heal' | 'temp' }>({ show: false, type: 'damage' });
     const [hpAmount, setHpAmount] = useState('');
+    const [pendingHpChange, setPendingHpChange] = useState<{ current: number; temp: number } | null>(null);
+    const debouncedHpChange = useDebounce(pendingHpChange, 500);
     const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
     const [inspectedStat, setInspectedStat] = useState<'AC' | 'Init' | 'Spd' | 'Prof' | 'Insp' | 'HP' | 'Save_STR' | 'Save_DEX' | 'Save_CON' | 'Save_INT' | 'Save_WIS' | 'Save_CHA' | 'Ability_STR' | 'Ability_DEX' | 'Ability_CON' | 'Ability_INT' | 'Ability_WIS' | 'Ability_CHA' | null>(null);
     
@@ -434,9 +437,21 @@ const CombatTab: React.FC<CombatTabProps> = ({
             }
             newCurrent = Math.max(0, newCurrent - remainingDamage);
         }
-        onUpdate({ ...character, hp: { ...character.hp, current: newCurrent, temp: newTemp } });
+        // Actualizar localmente INMEDIATO para UX, pero guardar a cloud solo después de debounce
+        setPendingHpChange({ current: newCurrent, temp: newTemp });
         setHpModal(prev => ({ ...prev, show: false }));
     };
+
+    // Guardar HP a cloud solo cuando debounce se resuelve (después de 500ms sin cambios)
+    useEffect(() => {
+        if (debouncedHpChange !== null) {
+            const currentChanged = debouncedHpChange.current !== character.hp.current;
+            const tempChanged = debouncedHpChange.temp !== character.hp.temp;
+            if (currentChanged || tempChanged) {
+                onUpdate({ ...character, hp: { ...character.hp, current: debouncedHpChange.current, temp: debouncedHpChange.temp } });
+            }
+        }
+    }, [debouncedHpChange, character, onUpdate]);
 
     // Detectar si un arma necesita municiones
     const getWeaponAmmoType = (weaponName: string): 'arrows' | 'bolts' | 'bullets' | 'needles' | null => {
@@ -1554,7 +1569,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                     role="presentation"
                     tabIndex={-1}
                 >
-                    <div className="w-full max-w-[320px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.preventDefault()} role="presentation">
+                    <div className="w-full max-w-[320px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} role="presentation">
                         <h3 className="font-bold text-sm text-slate-900 dark:text-white uppercase tracking-widest mb-6">
                             {inspectedStat === 'HP' ? 'Hit Points' 
                              : inspectedStat?.startsWith('Save_') 
@@ -1672,7 +1687,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                     role="presentation"
                     tabIndex={-1}
                 >
-                    <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.preventDefault()} role="presentation">
+                    <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} role="presentation">
                         <div className="flex gap-1 mb-6 bg-slate-100 dark:bg-black/20 p-1 rounded-xl">
                             <button onClick={() => setHpModal(prev => ({ ...prev, type: 'damage' }))} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'damage' ? 'bg-red-500 text-white shadow-red-500/30' : 'text-slate-500'}`}>Damage</button>
                             <button onClick={() => setHpModal(prev => ({ ...prev, type: 'heal' }))} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${hpModal.type === 'heal' ? 'bg-emerald-500 text-white shadow-emerald-500/30' : 'text-slate-500'}`}>Heal</button>
@@ -1685,7 +1700,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                         </p>
                         
                         {/* Input */}
-                        <input type="number" value={hpAmount} onChange={(e) => setHpAmount(e.target.value)} className={`w-full text-center text-5xl font-black bg-transparent border-b-2 py-3 mb-6 outline-none text-slate-900 dark:text-white ${hpModal.type === 'damage' ? 'border-red-500/50' : hpModal.type === 'heal' ? 'border-emerald-500/50' : 'border-blue-500/50'}`} placeholder="0"/>
+                        <input type="number" value={hpAmount} onChange={(e) => setHpAmount(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && applyHpChange()} className={`w-full text-center text-5xl font-black bg-transparent border-b-2 py-3 mb-6 outline-none text-slate-900 dark:text-white ${hpModal.type === 'damage' ? 'border-red-500/50' : hpModal.type === 'heal' ? 'border-emerald-500/50' : 'border-blue-500/50'}`} placeholder="0"/>
                         
                         {/* Info for temp HP */}
                         {hpModal.type === 'temp' && (
@@ -1731,7 +1746,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                     role="presentation"
                     tabIndex={-1}
                 >
-                    <div className="w-full max-sm bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.preventDefault()} role="presentation">
+                    <div className="w-full max-sm bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp flex flex-col max-h-[70vh]" onClick={e => e.stopPropagation()} role="presentation">
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{selectedSkill}</h3>
@@ -1775,7 +1790,7 @@ const CombatTab: React.FC<CombatTabProps> = ({
                     role="presentation"
                     tabIndex={-1}
                 >
-                    <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} onKeyDown={(e) => e.preventDefault()} role="presentation">
+                    <div className="w-full max-w-[280px] bg-white dark:bg-surface-dark p-6 rounded-3xl animate-scaleUp" onClick={e => e.stopPropagation()} role="presentation">
                         <div className="space-y-2">
                             {weaponStatModal.isSpell ? (
                                 <>

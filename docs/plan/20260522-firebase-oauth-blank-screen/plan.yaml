@@ -1,0 +1,895 @@
+plan_id: 20260522-firebase-oauth-blank-screen
+objective: Implement definitive fix for Android blank screen on Google login in Capacitor plus Firebase while preserving web redirect behavior
+created_at: "2026-05-22"
+created_by: GitHub Copilot (gem-planner)
+status: pending
+research_confidence: high
+plan_metrics:
+  wave_1_task_count: 4
+  total_dependencies: 23
+  risk_score: high
+tldr: |
+  Build a contract-safe split auth flow: Android uses native provider credential exchange to Firebase,
+  web keeps redirect flow. Remove legacy Supabase hash callback assumptions from app lifecycle,
+  and gate each wave with integration checks plus explicit rollback points.
+open_questions:
+  - question: Is the team approved to add and maintain a native Google sign-in dependency for Android runtime?
+    context: Recommended option requires a native provider bridge before Firebase credential exchange.
+    type: decision_blocker
+    affects: [T05]
+  - question: Should legacy hash-based callback compatibility be fully removed or kept behind a temporary kill switch?
+    context: Legacy deep-link token hash logic conflicts with Firebase contract and can reintroduce blank screen race conditions.
+    type: decision_blocker
+    affects: [T08, T12]
+gaps:
+  - description: docs/PRD.yaml is not present, so acceptance mapping uses user objective, AGENTS guidance, and research artifact only.
+    refinement_requests:
+      - query: Provide product-level non-functional constraints for auth latency and allowed plugin footprint.
+        source_hint: docs/PRD.yaml
+  - description: No single canonical failing trace bound to one APK build and one OAuth stage.
+    refinement_requests:
+      - query: Capture one deterministic trace from tap login to post-return state with timestamps and build id.
+        source_hint: adb logcat plus release metadata
+pre_mortem:
+  overall_risk_level: high
+  critical_failure_modes:
+    - scenario: Native provider returns token but Firebase credential exchange fails due to SHA or OAuth client mismatch.
+      likelihood: medium
+      impact: critical
+      mitigation: Validate Android SHA and OAuth client ids before wave 2 merge; add explicit error surfacing and rollback checkpoint.
+    - scenario: Legacy appUrlOpen hash injection path remains reachable and overrides new auth state transitions.
+      likelihood: medium
+      impact: high
+      mitigation: Remove or gate legacy path, add regression check that no hash injection logs appear in success path.
+    - scenario: Session appears only in local storage bridge but not in Firebase current user.
+      likelihood: medium
+      impact: high
+      mitigation: Enforce session truth source as Firebase auth state and fail integration check if drift is detected.
+  assumptions:
+    - Firebase project and Google provider are already enabled and reachable from Android runtime.
+    - Capacitor deep-link and app resume callbacks are functional on target Android versions.
+    - Team can run adb logcat and reinstall debug APK for each wave gate.
+implementation_specification:
+  code_structure: Split auth contracts by runtime boundary; keep web redirect in adapter, introduce Android native provider bridge, and converge app session state on Firebase auth events.
+  affected_areas:
+    - components/Login.tsx
+    - utils/firebase.ts
+    - App.tsx
+    - utils/oauthDiagnostics.ts
+    - android/app/src/main/AndroidManifest.xml
+    - capacitor.config.json
+    - android/app/build.gradle
+  component_details:
+    - component: Firebase auth adapter
+      responsibility: Expose unified auth interface while routing Android to native provider credential exchange and web to redirect contract.
+      interfaces:
+        - signInWithOAuth(options)
+        - signInWithCredential(googleCredential)
+        - onAuthStateChange(callback)
+      dependencies:
+        - component: firebase/auth SDK
+          relationship: provider and session primitives
+      integration_points:
+        - components/Login.tsx
+        - App.tsx
+    - component: Login entry flow
+      responsibility: Start correct OAuth strategy per runtime and surface deterministic errors.
+      interfaces:
+        - handleGoogleLogin()
+      dependencies:
+        - component: Firebase auth adapter
+          relationship: calls auth entrypoint
+      integration_points:
+        - UI login screen
+        - diagnostics logs
+    - component: App lifecycle auth observer
+      responsibility: Process appUrlOpen and resume events without token hash mutation, relying on Firebase session transitions.
+      interfaces:
+        - appUrlOpen listener
+        - appStateChange listener
+      dependencies:
+        - component: Firebase auth adapter
+          relationship: session source of truth
+      integration_points:
+        - startup bootstrap
+        - authenticated view routing
+contracts:
+  - from_task: T03
+    to_task: T05
+    interface: AndroidAuthContractV1
+    format: "{ provider: 'google', returnMode: 'nativeCredential', errorCodes: string[] }"
+  - from_task: T03
+    to_task: T06
+    interface: WebAuthContractV1
+    format: "{ provider: 'google', returnMode: 'redirect', redirectPolicy: 'browserOnly' }"
+  - from_task: T05
+    to_task: T08
+    interface: NativeCredentialResult
+    format: "{ idToken: string, accessToken?: string, issuedAt: number }"
+  - from_task: T08
+    to_task: T10
+    interface: SessionStateContract
+    format: "{ firebaseCurrentUser: boolean, localSessionMirror: boolean, drift: boolean }"
+  - from_task: T10
+    to_task: T12
+    interface: ReleaseGateEvidence
+    format: "{ wave: number, logsPass: boolean, uiPass: boolean, persistencePass: boolean, notes: string }"
+tasks:
+  - id: T01
+    title: Capture deterministic baseline failure trace for Android OAuth blank screen
+    description: |
+      Reproduce current failure path on Android and capture a single canonical trace from tap login
+      through browser handoff and app return. Normalize log prefixes and timestamp markers so later
+      waves can prove delta.
+    wave: 1
+    agent: gem-debugger
+    prototype: false
+    covers: [baseline, root-cause-evidence, observability]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: docs/plan/20260522-firebase-oauth-blank-screen/research_findings_oauth_contract_and_redirect_popup_semantics.yaml
+        description: Existing deep research and failure signals
+      - path: App.tsx
+        description: Current appUrlOpen and auth bootstrap behavior
+      - path: components/Login.tsx
+        description: Current runtime branching for OAuth
+    diagnosis:
+      root_cause: Mixed callback contract and runtime strategy produce non-deterministic return behavior.
+      fix_recommendations: Lock one canonical failing trace and classify stage of failure before code edits.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 120
+    focus_area: Android OAuth traceability
+    verification:
+      - One trace artifact includes start marker, browser handoff, return marker, and final auth state.
+      - Trace clearly identifies whether failure occurs pre-return or post-return.
+    acceptance_criteria:
+      - Canonical trace saved and referenced by task outputs.
+      - Failure stage tagged for downstream implementation.
+    failure_modes:
+      - scenario: Log filters miss critical events and produce false classification.
+        likelihood: medium
+        impact: high
+        mitigation: Use broad filters first, then refine; include raw segment fallback.
+      - scenario: Device state contamination from prior installs skews results.
+        likelihood: medium
+        impact: medium
+        mitigation: Reinstall app and clear logcat before capture.
+
+  - id: T02
+    title: Create explicit rollback checkpoint before auth flow changes
+    description: |
+      Create rollback assets before implementation: git tag, APK fingerprint note, and runtime env snapshot.
+      This checkpoint is the recovery anchor for any regression introduced in waves 2 to 4.
+    wave: 1
+    agent: gem-devops
+    prototype: false
+    covers: [rollback, release-safety]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: AGENTS.md
+        description: Repository rollback strategy and stable tags
+      - path: docs/ROLLBACK-STRATEGY-DM-SYNC.md
+        description: Existing rollback playbook pattern
+    diagnosis:
+      root_cause: Prior auth fixes lacked deterministic rollback handoff.
+      fix_recommendations: Stamp checkpoint before any code or config mutation.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 80
+    focus_area: Release checkpointing
+    verification:
+      - Rollback tag and artifact metadata are recorded in one place.
+      - Reinstall command for rollback APK is documented and tested once.
+    acceptance_criteria:
+      - Rollback point RP1 is created and discoverable.
+      - Recovery steps are executable by non-author reviewer.
+    failure_modes:
+      - scenario: Checkpoint omits environment variables needed for auth behavior parity.
+        likelihood: medium
+        impact: high
+        mitigation: Include auth-related env keys and plugin versions in snapshot.
+      - scenario: Tag exists but artifact mismatch prevents practical rollback.
+        likelihood: low
+        impact: high
+        mitigation: Store APK hash and install verification log with checkpoint.
+    environment: staging
+    requires_approval: false
+    devops_security_sensitive: true
+
+  - id: T03
+    title: Define and lock runtime auth contracts for Android native and web redirect
+    description: |
+      Produce contract document and interface map that separates Android native credential flow
+      from browser redirect flow. This is the gate that implementation tasks consume.
+    wave: 1
+    agent: gem-reviewer
+    prototype: false
+    covers: [contract-definition, architecture]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T01]
+    conflicts_with: []
+    context_files:
+      - path: utils/firebase.ts
+        description: Adapter API surface and platform branches
+      - path: docs/plan/20260522-firebase-oauth-blank-screen/research_findings_oauth_contract_and_redirect_popup_semantics.yaml
+        description: Recommended option and open questions
+    diagnosis:
+      root_cause: Legacy Supabase deeplink expectations coexist with Firebase flow semantics.
+      fix_recommendations: Lock explicit runtime-specific auth contracts before implementation.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 140
+    focus_area: Contract safety
+    verification:
+      - Android contract includes credential payload and error taxonomy.
+      - Web contract preserves redirect policy and callback assumptions.
+    acceptance_criteria:
+      - Contract IDs referenced by all downstream implementation tasks.
+      - Conflicting legacy semantics are listed for removal or gating.
+    failure_modes:
+      - scenario: Contract is too vague and allows mixed popup/redirect behavior.
+        likelihood: medium
+        impact: high
+        mitigation: Define strict runtime invariants and forbidden paths.
+      - scenario: Contract ignores backward compatibility needs for existing sessions.
+        likelihood: low
+        impact: medium
+        mitigation: Include migration notes and kill-switch strategy.
+    requires_review: true
+    review_depth: full
+    review_security_sensitive: true
+
+  - id: T04
+    title: Wave 1 integration check for baseline, contract, and rollback readiness
+    description: |
+      Validate wave 1 outputs before coding. Confirm baseline trace quality, rollback recoverability,
+      and contract completeness. Wave 2 cannot start without this gate.
+    wave: 1
+    agent: gem-mobile-tester
+    prototype: false
+    covers: [wave-gate, integration-check]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T01, T02, T03]
+    conflicts_with: []
+    context_files:
+      - path: docs/plan/20260522-firebase-oauth-blank-screen/research_findings_oauth_contract_and_redirect_popup_semantics.yaml
+        description: Success and failure signals
+      - path: docs/plan/20260522-firebase-oauth-blank-screen/plan.yaml
+        description: Wave definitions and gates
+    diagnosis:
+      root_cause: Teams often code before proving observability and rollback foundations.
+      fix_recommendations: Hard gate wave transition with objective checks.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: small
+    estimated_files: 1
+    estimated_lines: 90
+    focus_area: Gate quality
+    verification:
+      - RP1 rollback dry-run succeeds.
+      - Baseline trace and contract document are linked in gate report.
+    acceptance_criteria:
+      - Wave 1 gate status is pass with evidence links.
+      - Blocking gaps are converted into tracked actions.
+    failure_modes:
+      - scenario: Gate passes with incomplete evidence leading to noisy regressions later.
+        likelihood: medium
+        impact: high
+        mitigation: Require all three evidence classes: logs, config snapshot, contract map.
+    validation_matrix:
+      - scenario: rollback-readiness
+        steps: [Verify tag and APK hash, reinstall checkpoint APK, confirm app boots]
+        expected_result: Rollback assets are valid and reproducible
+    flows: []
+    fixtures: {}
+    test_data: []
+    cleanup: false
+    visual_regression: {}
+
+  - id: T05
+    title: Implement Android native Google provider bridge and Firebase credential exchange
+    description: |
+      Add Android native provider auth path and map returned credential to Firebase sign-in flow.
+      Ensure explicit error mapping for token acquisition, cancellation, and exchange failure.
+    wave: 2
+    agent: gem-implementer-mobile
+    prototype: false
+    covers: [implementation, android-auth, config]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T03, T04]
+    conflicts_with: [T06]
+    context_files:
+      - path: utils/firebase.ts
+        description: Existing auth adapter to extend
+      - path: android/app/build.gradle
+        description: Native dependency and config changes
+      - path: capacitor.config.json
+        description: Capacitor runtime auth-related settings
+    diagnosis:
+      root_cause: Popup/redirect semantics in embedded runtime are contract-incompatible for Android.
+      fix_recommendations: Use native provider then Firebase credential sign-in inside app context.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: medium
+    estimated_files: 3
+    estimated_lines: 260
+    focus_area: Native auth path
+    verification:
+      - Android auth start no longer depends on web popup APIs.
+      - Firebase current user is populated after credential exchange.
+    acceptance_criteria:
+      - Native provider branch compiles and runs on Android debug build.
+      - Error codes are surfaced with actionable messages.
+      - Rollback point RP2 created after merge of this task.
+    failure_modes:
+      - scenario: Plugin dependency adds build instability across Android variants.
+        likelihood: medium
+        impact: high
+        mitigation: Pin versions and validate minSdk and gradle compatibility in wave 2 gate.
+      - scenario: Credential payload missing id token for Firebase exchange.
+        likelihood: medium
+        impact: high
+        mitigation: Add strict payload validation and fallback error path before exchange attempt.
+    tech_stack: [TypeScript, Capacitor, Firebase Auth, Android Gradle]
+    test_coverage: null
+
+  - id: T06
+    title: Implement browser-only redirect guardrails and remove native redirect misuse
+    description: |
+      Keep web redirect flow for browser runtime, but enforce runtime guards so Android path cannot
+      call redirect or popup web APIs accidentally. Align config defaults with browser-only redirect policy.
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers: [implementation, web-auth, runtime-guards]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T03, T04]
+    conflicts_with: [T05]
+    context_files:
+      - path: components/Login.tsx
+        description: Runtime branch decision point
+      - path: utils/firebase.ts
+        description: signInWithOAuth behavior by platform
+      - path: android/app/src/main/AndroidManifest.xml
+        description: Callback contract reference
+    diagnosis:
+      root_cause: Shared auth entrypoint allows contract drift between web and Android.
+      fix_recommendations: Hard guard runtime and explicitly forbid redirect for native branch.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: medium
+    estimated_files: 3
+    estimated_lines: 220
+    focus_area: Runtime segregation
+    verification:
+      - Web browser flow still uses redirect and succeeds.
+      - Android path never reaches web redirect branch.
+    acceptance_criteria:
+      - Platform guards are centralized and tested manually on both runtimes.
+      - Rollback point RP2b created after this task if merged independently.
+    failure_modes:
+      - scenario: Overly strict guard blocks legitimate webview-based browser login in edge setup.
+        likelihood: low
+        impact: medium
+        mitigation: Include explicit runtime detector logs and fallback policy behind feature flag.
+      - scenario: Manifest callback assumptions diverge from redirect URI policy.
+        likelihood: medium
+        impact: medium
+        mitigation: Verify callback URI matrix during wave 2 integration check.
+    tech_stack: [TypeScript, React, Firebase Auth]
+    test_coverage: null
+
+  - id: T07
+    title: Wave 2 integration check for auth initiation and Android return path
+    description: |
+      Validate that wave 2 implementation starts correct auth flow per runtime and that Android
+      returns to app without blank screen at the handoff boundary.
+    wave: 2
+    agent: gem-mobile-tester
+    prototype: false
+    covers: [wave-gate, integration-check, handoff]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T05, T06]
+    conflicts_with: []
+    context_files:
+      - path: components/Login.tsx
+        description: Updated login entry branch
+      - path: utils/firebase.ts
+        description: Updated adapter runtime routing
+    diagnosis:
+      root_cause: Most regressions appear at browser to app return handoff.
+      fix_recommendations: Gate wave 3 behind explicit handoff evidence.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 110
+    focus_area: Return-path reliability
+    verification:
+      - Android no longer lands on blank screen after provider return.
+      - Web redirect continues to complete login.
+    acceptance_criteria:
+      - Wave 2 gate pass report includes adb evidence and UI screenshots.
+      - Rollback RP2 or RP2b is available before wave 3 starts.
+    failure_modes:
+      - scenario: Device-specific Chrome custom tab behavior hides return bug.
+        likelihood: medium
+        impact: high
+        mitigation: Run at least one physical device and one emulator path.
+    validation_matrix:
+      - scenario: android-handoff
+        steps: [Tap Google login, complete provider flow, return to app]
+        expected_result: App returns to login or authenticated state without blank screen
+      - scenario: web-redirect-regression
+        steps: [Open web app, trigger Google login, complete redirect]
+        expected_result: Session established and redirected UI loaded
+    flows: []
+    fixtures: {}
+    test_data: [android-debug-build, web-dev-build]
+    cleanup: false
+    visual_regression: {}
+
+  - id: T08
+    title: Replace legacy deep-link hash injection with Firebase session-driven lifecycle handling
+    description: |
+      Rework app lifecycle listeners so auth completion depends on Firebase auth transitions and
+      validated callback shape, removing forced hash mutation and page reload strategy.
+    wave: 3
+    agent: gem-implementer
+    prototype: false
+    covers: [implementation, lifecycle, session-contract]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T05, T06, T07]
+    conflicts_with: []
+    context_files:
+      - path: App.tsx
+        description: appUrlOpen and appStateChange listeners
+      - path: utils/firebase.ts
+        description: onAuthStateChange and getSession bridge
+      - path: android/app/src/main/AndroidManifest.xml
+        description: deep-link callback registration
+    diagnosis:
+      root_cause: Legacy Supabase token hash bridge races with Firebase auth state and causes blank screen loops.
+      fix_recommendations: Remove hash/reload path and rely on session event convergence.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: medium
+    estimated_files: 3
+    estimated_lines: 280
+    focus_area: Lifecycle correctness
+    verification:
+      - No hash injection or forced reload logs appear in successful login.
+      - Authenticated route transition occurs after Firebase state update.
+    acceptance_criteria:
+      - Legacy callback path is removed or gated off by default.
+      - Resume listener handles delayed auth state without blank render.
+      - Rollback point RP3 created after merge.
+    failure_modes:
+      - scenario: Removing legacy path breaks rare fallback recovery.
+        likelihood: medium
+        impact: medium
+        mitigation: Keep temporary kill switch and remove after two stable releases.
+      - scenario: Resume listener introduces duplicate state transitions.
+        likelihood: medium
+        impact: high
+        mitigation: Debounce listener updates and assert idempotent route changes.
+    tech_stack: [TypeScript, React, Capacitor App plugin, Firebase Auth]
+    test_coverage: null
+
+  - id: T09
+    title: Align login UI messaging and diagnostics with new Firebase-native contract
+    description: |
+      Update login error messaging, timeout behavior, and diagnostics utilities so operators can
+      distinguish provider errors, exchange errors, and session propagation delays.
+    wave: 3
+    agent: gem-implementer
+    prototype: false
+    covers: [implementation, diagnostics, ui-feedback]
+    priority: medium
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T05, T06, T07]
+    conflicts_with: []
+    context_files:
+      - path: components/Login.tsx
+        description: Timeout and error rendering
+      - path: utils/oauthDiagnostics.ts
+        description: Auth diagnostics currently tied to legacy supabase client
+      - path: utils/firebase.ts
+        description: Adapter events and error mapping
+    diagnosis:
+      root_cause: Diagnostics and UI still reflect mixed legacy semantics.
+      fix_recommendations: Normalize logs and user messages to the new contract.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: medium
+    estimated_files: 3
+    estimated_lines: 210
+    focus_area: Operator visibility
+    verification:
+      - Logs consistently use [Login], [OAuth], [Auth] prefixes by error class.
+      - Timeout fallback does not hide hard auth errors.
+    acceptance_criteria:
+      - Diagnostics consume Firebase-backed adapter as source of truth.
+      - User-facing errors remain clear and non-sensitive.
+    failure_modes:
+      - scenario: More verbose logs leak sensitive token fragments.
+        likelihood: low
+        impact: high
+        mitigation: Redact token payloads and enforce log sanitizer.
+      - scenario: Reduced timeout logic increases perceived hanging for users.
+        likelihood: medium
+        impact: medium
+        mitigation: Show progressive status states and cancellation guidance.
+    tech_stack: [TypeScript, React, Firebase Auth]
+    test_coverage: null
+
+  - id: T10
+    title: Wave 3 integration check for end-to-end session establishment and persistence
+    description: |
+      Validate full login flow end-to-end after lifecycle and diagnostics changes. Confirm UI,
+      auth state, and persisted session stay consistent across cold start and resume.
+    wave: 3
+    agent: gem-mobile-tester
+    prototype: false
+    covers: [wave-gate, integration-check, session-persistence]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T08, T09]
+    conflicts_with: []
+    context_files:
+      - path: App.tsx
+        description: Updated lifecycle behavior
+      - path: components/Login.tsx
+        description: Updated UX and errors
+      - path: utils/firebase.ts
+        description: Session source of truth
+    diagnosis:
+      root_cause: Session drift can still occur even when blank screen is fixed.
+      fix_recommendations: Add explicit persistence checks as wave gate.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 140
+    focus_area: End-to-end correctness
+    verification:
+      - Session exists in Firebase current user and adapter getSession after login.
+      - App remains authenticated after restart without blank frame.
+    acceptance_criteria:
+      - Wave 3 gate passes all matrix rows for logs, UI, persistence.
+      - Evidence packaged for reviewer and release gate.
+    failure_modes:
+      - scenario: Session appears valid until cold restart then drops.
+        likelihood: medium
+        impact: high
+        mitigation: Include cold-start row in matrix and fail gate on mismatch.
+    validation_matrix:
+      - scenario: logs
+        steps: [Run adb logcat filtered on OAuth/Auth/Login, execute login, inspect errors]
+        expected_result: No popup-blocked, no unsupported-environment, no hash-injection events
+      - scenario: ui
+        steps: [Start from logged-out state, complete Google login, navigate protected screen]
+        expected_result: No blank screen and authenticated UI loaded within target time
+      - scenario: session-persistence
+        steps: [Complete login, kill app, reopen app, verify session]
+        expected_result: Session persists and user remains authenticated
+    flows: []
+    fixtures: {}
+    test_data: [android-device, android-emulator]
+    cleanup: false
+    visual_regression: {}
+
+  - id: T11
+    title: Security and regression review for auth flow, logs, and callback handling
+    description: |
+      Perform focused review on callback validation, sensitive logging, and auth error surfaces.
+      Confirm no secrets or tokens are leaked and no insecure fallback remains.
+    wave: 4
+    agent: gem-reviewer
+    prototype: false
+    covers: [security, regression-review]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T10]
+    conflicts_with: []
+    context_files:
+      - path: App.tsx
+        description: callback and lifecycle handling
+      - path: components/Login.tsx
+        description: user messaging and retries
+      - path: utils/firebase.ts
+        description: auth integration and error handling
+    diagnosis:
+      root_cause: Auth fixes can accidentally expose sensitive data in logs or fallback logic.
+      fix_recommendations: Run dedicated security regression review before release gate.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: small
+    estimated_files: 3
+    estimated_lines: 130
+    focus_area: Security hardening
+    verification:
+      - No token fragments appear in logs.
+      - Callback handler validates expected scheme and path only.
+    acceptance_criteria:
+      - Review report marks auth path as release-safe or lists blocking findings.
+    failure_modes:
+      - scenario: Review misses platform-specific leakage path.
+        likelihood: low
+        impact: high
+        mitigation: Include Android device run with full log inspection.
+    requires_review: true
+    review_depth: full
+    review_security_sensitive: true
+
+  - id: T12
+    title: Execute rollback rehearsal and release gate decision
+    description: |
+      Rehearse rollback from latest checkpoint to prove operational recovery. Then run go/no-go
+      decision with objective evidence from prior wave checks.
+    wave: 4
+    agent: gem-devops
+    prototype: false
+    covers: [rollback, release-gate]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T10]
+    conflicts_with: [T14]
+    context_files:
+      - path: AGENTS.md
+        description: Existing rollback tags and commands
+      - path: docs/plan/20260522-firebase-oauth-blank-screen/plan.yaml
+        description: rollback points and gate criteria
+    diagnosis:
+      root_cause: Unverified rollback plans fail under incident pressure.
+      fix_recommendations: Practice rollback before release and document timing/results.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 120
+    focus_area: Operability
+    verification:
+      - Rollback from RP3 to RP2 succeeds on test device.
+      - Go/no-go record cites gate outputs from T10 and T11.
+    acceptance_criteria:
+      - Rollback rehearsal duration and outcome are documented.
+      - Release gate decision is reproducible and evidence-based.
+    failure_modes:
+      - scenario: Rollback works in code but fails due to stale APK distribution path.
+        likelihood: medium
+        impact: high
+        mitigation: Validate install source and checksum during rehearsal.
+    environment: staging
+    requires_approval: false
+    devops_security_sensitive: true
+
+  - id: T13
+    title: Final validation matrix execution across logs, UI, and session persistence
+    description: |
+      Run the definitive validation matrix after review and rollback rehearsal, producing final
+      pass/fail evidence package for Android and web behavior split.
+    wave: 4
+    agent: gem-mobile-tester
+    prototype: false
+    covers: [final-validation, matrix, release-evidence]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T11, T12]
+    conflicts_with: []
+    context_files:
+      - path: docs/plan/20260522-firebase-oauth-blank-screen/research_findings_oauth_contract_and_redirect_popup_semantics.yaml
+        description: success and failure signals
+      - path: App.tsx
+        description: final lifecycle behavior
+      - path: utils/firebase.ts
+        description: final auth adapter behavior
+    diagnosis:
+      root_cause: Final release decisions often rely on partial checks.
+      fix_recommendations: Enforce complete matrix with explicit logs/UI/persistence outcomes.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Initial complex DAG planning
+        timestamp: "2026-05-22"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 150
+    focus_area: Release confidence
+    verification:
+      - All matrix rows pass on at least one emulator and one physical device.
+      - Web redirect regression row passes in browser.
+    acceptance_criteria:
+      - Final matrix report marks each row pass or fail with evidence pointers.
+      - If any row fails, rollout is blocked and rollback point is selected.
+    failure_modes:
+      - scenario: Matrix passes on one device but fails on another due to OEM browser differences.
+        likelihood: medium
+        impact: high
+        mitigation: Require two Android environments and fail on inconsistency.
+    validation_matrix:
+      - scenario: logs-no-blank-screen-signature
+        steps: [Clear logcat, run login, capture OAuth/Auth/Login traces]
+        expected_result: No blank-screen signatures and no legacy hash injection events
+      - scenario: ui-authenticated-route
+        steps: [Start logged out, login with Google, observe route transition]
+        expected_result: Authenticated screen renders without white frame or forced reload
+      - scenario: session-persistence-cold-start
+        steps: [Login success, force-stop app, relaunch app]
+        expected_result: User remains authenticated and session is available
+      - scenario: web-redirect-preserved
+        steps: [Run browser flow and complete Google redirect]
+        expected_result: Web login still succeeds with redirect contract
+    flows:
+      - flow_id: android_google_login_flow
+        description: Native Android login through provider and return
+        setup: [Install wave build, clear app data, clear logcat]
+        steps: [Tap Google login, complete provider account selection, return to app]
+        expected_state: { authenticated: true, blank_screen: false, drift: false }
+        teardown: [Export logs, capture screenshot]
+      - flow_id: web_google_redirect_flow
+        description: Browser redirect login regression check
+        setup: [Open web app in browser, clear session]
+        steps: [Tap Google login, complete redirect]
+        expected_state: { authenticated: true, redirect_contract_ok: true }
+        teardown: [Record console output]
+    fixtures: {}
+    test_data: [google-test-account, android-physical-device, android-emulator, desktop-browser]
+    cleanup: true
+    visual_regression: { enabled: true, target: login-to-home-transition }
+
+  - id: T14
+    title: Publish implementation and operations runbook for new auth split strategy
+    description: |
+      Document architecture delta, runtime split behavior, rollback points, and troubleshooting playbook.
+      Include how to verify logs/UI/persistence quickly during incidents.
+    wave: 5
+    agent: gem-documentation-writer
+    prototype: false
+    covers: [documentation, handoff]
+    priority: medium
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: [T13]
+    conflicts_with: [T12]
+    context_files:
+      - path: docs/plan/20260522-firebase-oauth-blank-screen/plan.yaml
+        description: Final DAG, gates, and rollback definitions
+      - path: AGENTS.md
+        description: Existing ops and rollback references
+    diagnosis:
+      root_cause: Prior fixes lacked unified runbook and caused repeated rediscovery.
+      fix_recommendations: Publish concise ops-ready guide after validation passes.
+      injected_at: "2026-05-22"
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: Documentation auto-inclusion for feature change
+        timestamp: "2026-05-22"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 180
+    focus_area: Team enablement
+    verification:
+      - Runbook contains quick triage matrix and rollback decision tree.
+      - Documentation references final evidence package and known limitations.
+    acceptance_criteria:
+      - Handoff doc is consumable by implementer, tester, and on-call roles.
+      - Post-release checklist includes monitoring hooks.
+    failure_modes:
+      - scenario: Documentation diverges from shipped behavior.
+        likelihood: low
+        impact: medium
+        mitigation: Generate doc from final matrix evidence and reviewer signoff.
+    task_type: update
+    audience: developers
+    coverage_matrix: [architecture-delta, rollback-points, validation-matrix, incident-triage]

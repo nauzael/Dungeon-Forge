@@ -3,7 +3,7 @@ import path from 'path';
 import archiver from 'archiver';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-js';
+import admin from 'firebase-admin';
 
 // Load env vars
 dotenv.config();
@@ -13,23 +13,34 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.join(__dirname, '..');
 const distDir = path.join(projectRoot, 'dist');
 const otaDir = path.join(projectRoot, 'ota-release');
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const serviceKey = process.env.SUPABASE_SERVICE_KEY; // Requires the Service Role Secret Key
+const bucketName = process.env.VITE_FIREBASE_STORAGE_BUCKET || 'dungeon-forge-prod.firebasestorage.app';
 
 if (!fs.existsSync(distDir)) {
   console.error("❌ The 'dist/' directory was not found. Please run 'npm run build' first.");
   process.exit(1);
 }
 
-if (!serviceKey) {
-  console.error("\n❌ ERROR: SUPABASE_SERVICE_KEY was not found in your .env file!");
-  console.error("To make OTA completely automatic, go to Supabase -> Project Settings -> API");
-  console.error("Reveal the 'service_role' (secret) key, copy it, and put it in your .env like this:");
-  console.error("SUPABASE_SERVICE_KEY=your_secret_key_here\n");
+const serviceAccountPath = path.join(projectRoot, 'dungeon-forge-prod-firebase-adminsdk-fbsvc-08adfe3b9a.json');
+
+if (!fs.existsSync(serviceAccountPath)) {
+  console.error(`\n❌ ERROR: Firebase Service Account JSON not found at ${serviceAccountPath}!`);
   process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, serviceKey);
+// Initialize Firebase Admin
+let adminApp;
+try {
+  const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+  adminApp = admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    storageBucket: bucketName
+  });
+} catch (e) {
+  console.error("❌ Failed to initialize Firebase Admin:", e.message);
+  process.exit(1);
+}
+
+const bucket = admin.storage().bucket();
 
 // Read version from package.json
 const pkg = JSON.parse(fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf-8'));
@@ -66,31 +77,40 @@ async function createOTA() {
       const versionJsonPath = path.join(otaDir, 'version.json');
       const versionData = {
         version: versionStr,
-        url: `${supabaseUrl}/storage/v1/object/public/updates/${zipFile}`,
+        url: `https://storage.googleapis.com/${bucketName}/${zipFile}`,
         message: customMessage
       };
       
       fs.writeFileSync(versionJsonPath, JSON.stringify(versionData, null, 2));
       console.log(`✅ Generated version.json.`);
       
-      console.log(`🚀 Uploading directly to Supabase...`);
+      console.log(`🚀 Uploading directly to Firebase Storage...`);
       try {
         // Upload zip
-        const zipBuffer = fs.readFileSync(outputPath);
-        const { error: zipErr } = await supabase.storage.from('updates').upload(zipFile, zipBuffer, {
+        console.log(`   Uploading ZIP payload: ${zipFile}...`);
+        const [zipFileObj] = await bucket.upload(outputPath, {
+          destination: zipFile,
+          metadata: {
             contentType: 'application/zip',
-            upsert: true
+            cacheControl: 'public, max-age=31536000'
+          }
         });
-        if (zipErr) throw zipErr;
-        console.log(`✅ Uploaded ZIP payload.`);
+        console.log(`   Making ZIP public...`);
+        await zipFileObj.makePublic();
+        console.log(`✅ Uploaded and published ZIP payload.`);
 
         // Upload version.json
-        const jsonBuffer = fs.readFileSync(versionJsonPath);
-        const { error: jsonErr } = await supabase.storage.from('updates').upload('version.json', jsonBuffer, {
+        console.log(`   Uploading version.json...`);
+        const [jsonFileObj] = await bucket.upload(versionJsonPath, {
+          destination: 'version.json',
+          metadata: {
             contentType: 'application/json',
-            upsert: true
+            cacheControl: 'public, no-cache, no-store, must-revalidate, max-age=0' // Prevent caching version.json
+          }
         });
-        if (jsonErr) throw jsonErr;
+        console.log(`   Making version.json public...`);
+        await jsonFileObj.makePublic();
+        console.log(`✅ Uploaded and published version.json.`);
         
         console.log(`\n===========================================`);
         console.log(`🎉 OTA DEPLOYMENT 100% SUCCESSFUL!`);

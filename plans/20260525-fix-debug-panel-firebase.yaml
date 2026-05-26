@@ -1,0 +1,185 @@
+plan_id: "20260525-fix-debug-panel-firebase"
+plan_name: "Debug Panels Firebase Migration"
+created_at: "2026-05-25"
+objective: "Migrate debug credential displays from Supabase to Firebase in ConnectionDebugPanel.tsx and AuthDebugOverlay.tsx"
+status: "ready"
+priority: "medium"
+complexity: "simple"
+estimated_total_time: "25 min"
+
+context:
+  current_state:
+    - Both components display Supabase credentials (URL, Anon Key)
+    - Firebase env vars present but unused in debug panels
+    - Panels show "❌ NOT CONFIGURED" incorrectly
+  target_state:
+    - ConnectionDebugPanel.tsx shows Firebase Project ID, Auth Domain, API Key (partial)
+    - AuthDebugOverlay.tsx shows Firebase Project ID, Auth Domain, API Key status
+    - Both panels verify Firebase configuration correctly
+
+environment:
+  firebase_vars:
+    - VITE_FIREBASE_PROJECT_ID: "dungeon-forge-prod"
+    - VITE_FIREBASE_AUTH_DOMAIN: "dungeon-forge-prod.firebaseapp.com"
+    - VITE_FIREBASE_API_KEY: "AIzaSyBYbpNyUtDIrZCi_44_q1z41MEZpkcg6h8"
+    - VITE_FIREBASE_STORAGE_BUCKET: "dungeon-forge-prod.firebasestorage.app"
+    - VITE_FIREBASE_MESSAGING_SENDER_ID: "955477498217"
+    - VITE_FIREBASE_APP_ID: "1:955477498217:web:67c6bee9f88980d12a05f8"
+    - VITE_FIREBASE_DATABASE_URL: "https://dungeon-forge-prod-default-rtdb.firebaseio.com"
+
+waves:
+  - wave: 1
+    name: "Update ConnectionDebugPanel.tsx"
+    tasks:
+      - task_id: "task-1.1"
+        title: "Extract Firebase credentials from env vars"
+        agent: "gem-implementer"
+        description: |
+          Replace Supabase credential extraction (lines 18-19) with Firebase:
+          - Remove: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+          - Add state: `firebaseProjectId`, `firebaseAuthDomain`, `firebaseApiKey`
+          - Extract from: `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_API_KEY`
+          - Validate: All three vars present or show diagnostic warning
+        dependencies: []
+        estimated_time: "5 min"
+        acceptance_criteria:
+          - State variables correctly reference Firebase env vars
+          - Values extracted in useEffect dependency array
+
+      - task_id: "task-1.2"
+        title: "Update diagnostic report output in handleCopy()"
+        agent: "gem-implementer"
+        description: |
+          Replace Supabase credential display (lines 35-40) with Firebase info:
+          
+          FROM:
+            🔐 CREDENTIALS
+            URL: ${supabaseUrl || '❌ NOT CONFIGURED'}
+            Anon Key: ${supabaseKey ? supabaseKey.substring(0, 20) + '...' : '❌ NOT CONFIGURED'}
+          
+          TO:
+            🔐 FIREBASE CONFIG
+            Project ID: ${firebaseProjectId || '❌ NOT CONFIGURED'}
+            Auth Domain: ${firebaseAuthDomain || '❌ NOT CONFIGURED'}
+            API Key: ${firebaseApiKey ? '✓ Present (' + firebaseApiKey.length + ' chars)' : '❌ NOT CONFIGURED'}
+          
+          Also update diagnostic notes to reflect Firebase instead of Supabase realtime.
+        dependencies: ["task-1.1"]
+        estimated_time: "5 min"
+        acceptance_criteria:
+          - Diagnostic report shows Firebase config instead of Supabase
+          - API key shown as masked (just char count and status)
+          - Notes updated to reference Firebase
+
+    risk: "low - debug panel only, no production impact, isolated component"
+
+  - wave: 2
+    name: "Update AuthDebugOverlay.tsx"
+    tasks:
+      - task_id: "task-2.1"
+        title: "Extract Firebase configuration state"
+        agent: "gem-implementer"
+        description: |
+          Replace Supabase config state (lines 16-19, 23-27) with Firebase:
+          - Remove: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` checks
+          - Add state: `firebaseConfig` with properties:
+            - projectId: string | null
+            - authDomain: string | null
+            - hasApiKey: boolean
+          - Extract from: `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_API_KEY`
+        dependencies: []
+        estimated_time: "5 min"
+        acceptance_criteria:
+          - firebaseConfig state properly typed
+          - All three Firebase env vars checked
+          - No Supabase refs remain
+
+      - task_id: "task-2.2"
+        title: "Update config display section in render"
+        agent: "gem-implementer"
+        description: |
+          Replace Supabase config display (lines 96-103) with Firebase:
+          
+          FROM:
+            <div className={supabaseConfig.url ? 'text-green-400' : 'text-red-400'}>
+              URL: {supabaseConfig.url ? '✓ Set' : '✗ MISSING'}
+            </div>
+            <div className={supabaseConfig.hasKey ? 'text-green-400' : 'text-red-400'}>
+              Key: {supabaseConfig.hasKey ? '✓ Set' : '✗ MISSING'}
+            </div>
+          
+          TO:
+            <div className={firebaseConfig.projectId ? 'text-green-400' : 'text-red-400'}>
+              Project ID: {firebaseConfig.projectId ? '✓ ' + firebaseConfig.projectId : '✗ MISSING'}
+            </div>
+            <div className={firebaseConfig.authDomain ? 'text-green-400' : 'text-red-400'}>
+              Auth Domain: {firebaseConfig.authDomain ? '✓ Set' : '✗ MISSING'}
+            </div>
+            <div className={firebaseConfig.hasApiKey ? 'text-green-400' : 'text-red-400'}>
+              API Key: {firebaseConfig.hasApiKey ? '✓ Configured' : '✗ MISSING'}
+            </div>
+          
+          Also update bottom text snippet to show first 40 chars of authDomain instead of URL.
+        dependencies: ["task-2.1"]
+        estimated_time: "5 min"
+        acceptance_criteria:
+          - Display shows Firebase Project ID, Auth Domain, API Key status
+          - Color status (green/red) based on Firebase config presence
+          - No Supabase refs remain in render
+
+    risk: "low - debug overlay only, no production impact, isolated component"
+
+summary:
+  files_modified: 2
+  components_affected:
+    - components/DMDashboard/ConnectionDebugPanel.tsx
+    - components/AuthDebugOverlay.tsx
+  changes_per_file:
+    ConnectionDebugPanel.tsx:
+      - Remove 2 state vars (supabaseUrl, supabaseKey)
+      - Add 3 state vars (firebaseProjectId, firebaseAuthDomain, firebaseApiKey)
+      - Update useEffect env var extraction
+      - Update handleCopy() diagnostic output
+    AuthDebugOverlay.tsx:
+      - Modify 1 state var (supabaseConfig → firebaseConfig, expand with 3 properties)
+      - Update useEffect env var checks
+      - Update 4 lines in config display render section
+      
+  testing_strategy:
+    - npm run dev and manually verify both panels load
+    - Check ConnectionDebugPanel shows Firebase credentials in diagnostic report
+    - Check AuthDebugOverlay shows Firebase Project ID, Auth Domain, API Key status
+    - Verify no console errors related to missing env vars
+    - Test on both web and (if available) Capacitor mobile
+
+  rollback_plan:
+    - If issues arise: git checkout HEAD -- components/DMDashboard/ConnectionDebugPanel.tsx components/AuthDebugOverlay.tsx
+    - No database or persistent state changes, only debug panel display
+
+deployment:
+  pr_title: "fix(debug): Migrate debug panels from Supabase to Firebase credentials display"
+  pr_description: |
+    ## Overview
+    Update debug panels to display Firebase credentials instead of Supabase.
+    
+    ## Changes
+    - **ConnectionDebugPanel.tsx**: Shows Firebase Project ID, Auth Domain, API Key (partial)
+    - **AuthDebugOverlay.tsx**: Shows Firebase Project ID, Auth Domain, API Key status
+    
+    ## Verification
+    - Both panels display correct Firebase configuration
+    - No console errors
+    - Diagnostic report includes Firebase details
+    
+    ## Impact
+    - Debug panels only (zero production impact)
+    - Better diagnostic clarity for Firebase-based authentication
+  
+  merge_requirements:
+    - npm run build completes successfully
+    - npm run lint passes (if enabled)
+    - Manual verification of both debug panels
+  
+  post_merge:
+    - Monitor dev builds for any console warnings
+    - Consider future: extend panels to show other Firebase config (Storage, Database)

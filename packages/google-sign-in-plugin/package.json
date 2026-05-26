@@ -1,0 +1,22 @@
+{
+  "name": "@dungeon-forge/google-sign-in",
+  "version": "1.0.0",
+  "description": "Custom Google Sign-In plugin for Capacitor",
+  "main": "android/dist.js",
+  "types": "android/dist.d.ts",
+  "scripts": {
+    "build": "echo 'Build not needed for custom plugin'"
+  },
+  "capacitor": {
+    "android": {
+      "src": "./android"
+    }
+  },
+  "keywords": [
+    "capacitor",
+    "plugin",
+    "google-signin"
+  ],
+  "author": "Dungeon Forge",
+  "license": "MIT"
+}

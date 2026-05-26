@@ -1,0 +1,720 @@
+---
+plan_id: "firebase-ota-architecture-2026-05-25"
+objective: |
+  Analyze current Firebase and OTA configuration in Dungeon Forge project.
+  Identify integration points, differences between web and APK, and potential breakpoints.
+focus_area: "Firebase Cloud Services & OTA Update System"
+created_at: "2026-05-25T12:00:00Z"
+created_by: "Researcher Agent"
+status: "completed"
+
+tldr: |
+  Firebase is fully configured with production credentials in .env (Firestore + Auth + Realtime DB + Storage).
+  OTA system uses CapacitorUpdater (Capgo) to fetch updates from Firebase Storage; only works on APK, not web.
+  Critical issue: google-services.json is in docs/ instead of android/app/ → Android build may fail.
+  Auth differs: Web uses redirect flow, APK uses popup + native Google Sign-In plugin.
+  OTA script (build_ota.mjs) packages dist/ as ZIP, generates version.json, uploads to Firebase Storage.
+  Web and APK diverge at deployment: APK needs CapacitorUpdater, web needs CDN/server hosting.
+
+research_metadata:
+  methodology: "Semantic search + grep_search + file content analysis + architecture mapping"
+  scope: |
+    - Firebase configuration files and initialization
+    - OTA update logic in App.tsx and build scripts
+    - Capacitor plugins and Android native configuration
+    - File structure for web vs APK deployment
+    - Environment variables and credential management
+  confidence: "high"
+  coverage: 92
+  decision_blockers: 1
+  research_blockers: 0
+
+files_analyzed:
+  - file: "firebase.ts"
+    path: "utils/firebase.ts"
+    purpose: "Firebase initialization, Auth wrapper (Supabase-compatible), Firestore queries, Realtime subscriptions"
+    key_elements:
+      - element: "firebaseConfig"
+        type: "variable"
+        location: "utils/firebase.ts:49-57"
+        description: "Configuration object loaded from VITE_* env vars. Contains API key, project ID, auth domain, storage bucket, messaging ID, app ID, database URL."
+        language: "TypeScript"
+      - element: "initializeApp()"
+        type: "function"
+        location: "utils/firebase.ts:70"
+        description: "Firebase app initialization. Calls getAuth(), getFirestore(), getDatabase()."
+        language: "TypeScript"
+      - element: "signInWithGoogleNativeFirebase()"
+        type: "function"
+        location: "utils/firebase.ts:301-376"
+        description: "Platform-specific OAuth: Android native plugin, web redirect, other Capacitor popup."
+        language: "TypeScript"
+      - element: "supabase.auth"
+        type: "variable"
+        location: "utils/firebase.ts:82-127"
+        description: "Supabase-compatible auth wrapper exposing Firebase methods: getSession(), onAuthStateChange(), signInWithOAuth()."
+        language: "TypeScript"
+      - element: "subscribeToOwnCharacters()"
+        type: "function"
+        location: "utils/firebase.ts:875-895"
+        description: "Firestore real-time subscription for character changes via onSnapshot()."
+        language: "TypeScript"
+    lines: 1000
+
+  - file: "App.tsx"
+    path: "App.tsx"
+    purpose: "Root component orchestrating views, authentication, sync, and OTA updates"
+    key_elements:
+      - element: "CapacitorUpdater import"
+        type: "variable"
+        location: "App.tsx:22"
+        description: "Capacitor Updater from @capgo/capacitor-updater v6.0.0 for OTA updates on APK."
+        language: "TypeScript"
+      - element: "updateAvailable state"
+        type: "variable"
+        location: "App.tsx:46"
+        description: "Holds OTAUpdate object when new version available: {version, message, payload}."
+        language: "TypeScript"
+      - element: "checkForUpdates()"
+        type: "function"
+        location: "App.tsx:210-250"
+        description: |
+          Fetches version.json from Firebase Storage.
+          Compares remote version vs localStorage 'app_version'.
+          Downloads update if newer via CapacitorUpdater.download().
+          Sets updateAvailable state and applies after 4s timeout.
+        language: "TypeScript"
+      - element: "appStateChange listener"
+        type: "function"
+        location: "App.tsx:160-210"
+        description: "Listens for app resume from background; re-checks updates and auth state when app becomes active."
+        language: "TypeScript"
+      - element: "deeplink handler"
+        type: "function"
+        location: "App.tsx:140-158"
+        description: "Processes OAuth deeplinks from Android intent filter; extracts access_token from URL hash and reloads page."
+        language: "TypeScript"
+    lines: 600
+
+  - file: "capacitor.config.json"
+    path: "capacitor.config.json"
+    purpose: "Capacitor runtime configuration for mobile app"
+    key_elements:
+      - element: "appId"
+        type: "variable"
+        location: "capacitor.config.json:1"
+        description: "Application ID: com.tupaquete.dndcompanion"
+        language: "JSON"
+      - element: "plugins.GoogleSignIn"
+        type: "variable"
+        location: "capacitor.config.json:13-16"
+        description: "Registers GoogleSignInPlugin native class for Android Google Sign-In."
+        language: "JSON"
+      - element: "webDir"
+        type: "variable"
+        location: "capacitor.config.json:3"
+        description: "Web directory for Capacitor: dist/ (build output)."
+        language: "JSON"
+    lines: 22
+
+  - file: ".env"
+    path: ".env"
+    purpose: "Runtime environment variables for Firebase configuration"
+    key_elements:
+      - element: "VITE_FIREBASE_API_KEY"
+        type: "variable"
+        location: ".env:3"
+        description: "Firebase Web API Key (production). Real credential."
+        language: "bash"
+      - element: "VITE_FIREBASE_PROJECT_ID"
+        type: "variable"
+        location: ".env:4"
+        description: "Firebase project ID: dungeon-forge-prod"
+        language: "bash"
+      - element: "VITE_FIREBASE_STORAGE_BUCKET"
+        type: "variable"
+        location: ".env:6"
+        description: "Firebase Storage bucket for OTA: dungeon-forge-prod.firebasestorage.app"
+        language: "bash"
+    lines: 9
+
+  - file: "build_ota.mjs"
+    path: "scripts/build_ota.mjs"
+    purpose: "Build script that packages OTA updates and uploads to Firebase Storage"
+    key_elements:
+      - element: "createOTA()"
+        type: "function"
+        location: "scripts/build_ota.mjs:70-130"
+        description: |
+          1. Archives dist/ into ZIP with level 9 compression.
+          2. Creates version.json with {version, url, message}.
+          3. Uploads ZIP + version.json to Firebase Storage via Admin SDK.
+          4. Makes files public (cacheControl: public, max-age=31536000).
+        language: "JavaScript (ESM)"
+      - element: "admin.initializeApp()"
+        type: "function"
+        location: "scripts/build_ota.mjs:32-42"
+        description: "Firebase Admin SDK initialization using service account JSON file."
+        language: "JavaScript"
+      - element: "serviceAccountPath"
+        type: "variable"
+        location: "scripts/build_ota.mjs:28"
+        description: "Path to Firebase service account key: dungeon-forge-prod-firebase-adminsdk-fbsvc-08adfe3b9a.json"
+        language: "JavaScript"
+    lines: 150
+
+  - file: "firestore.rules"
+    path: "firestore.rules"
+    purpose: "Security rules for Firestore database access control"
+    key_elements:
+      - element: "isAuth()"
+        type: "function"
+        location: "firestore.rules:7-8"
+        description: "Helper: checks if user is authenticated (request.auth != null)."
+        language: "Firestore Rules"
+      - element: "isOwner(userId)"
+        type: "function"
+        location: "firestore.rules:13-14"
+        description: "Helper: checks if current user ID matches given userId."
+        language: "Firestore Rules"
+      - element: "/characters/{charId}"
+        type: "collection"
+        location: "firestore.rules:23-43"
+        description: |
+          Root collection for characters.
+          READ: Only owner can read.
+          CREATE/UPDATE/DELETE: User must be owner and user_id must match request.
+        language: "Firestore Rules"
+    lines: 120
+
+  - file: "AndroidManifest.xml"
+    path: "android/app/src/main/AndroidManifest.xml"
+    purpose: "Android app manifest defining activities, permissions, intents"
+    key_elements:
+      - element: "MainActivity"
+        type: "activity"
+        location: "AndroidManifest.xml:12-36"
+        description: "Main activity with LAUNCHER intent and OAuth deeplink intent filter."
+        language: "XML"
+      - element: "OAuth Deeplink intent-filter"
+        type: "intent-filter"
+        location: "AndroidManifest.xml:24-30"
+        description: |
+          Handles deep links matching scheme: com.tupaquete.dndcompanion://login-callback
+          Critical for Firebase OAuth redirect flow on Android.
+        language: "XML"
+    lines: 50
+
+  - file: "build.gradle"
+    path: "android/app/build.gradle"
+    purpose: "Android Gradle build configuration"
+    key_elements:
+      - element: "Google Play Services"
+        type: "dependency"
+        location: "android/app/build.gradle:42"
+        description: "implementation 'com.google.android.gms:play-services-auth:21.0.0' for native Google Sign-In."
+        language: "Gradle"
+    lines: 50
+
+  - file: "google-services.json"
+    path: "docs/google-services.json"
+    purpose: "Firebase Android configuration (but stored in wrong location!)"
+    key_elements:
+      - element: "project_id"
+        type: "variable"
+        location: "google-services.json:3"
+        description: "Firebase project: dungeon-forge-prod"
+        language: "JSON"
+      - element: "package_name"
+        type: "variable"
+        location: "google-services.json:10"
+        description: "Android package: com.tupaquete.dndcompanion"
+        language: "JSON"
+      - element: "default_web_client_id"
+        type: "variable"
+        location: "google-services.json (not shown)"
+        description: "OAuth client ID used by native Sign-In plugin (extracted from google-services.json at runtime)."
+        language: "JSON"
+    lines: 50
+
+patterns_found:
+  - category: "architecture"
+    pattern: "Firebase as primary backend + Firestore ORM"
+    description: |
+      Firebase replaces Supabase entirely. App exposes Firebase via `supabase` wrapper for compatibility.
+      Firestore = document database for characters/parties.
+      Realtime DB = pub/sub for live updates.
+      Storage = static assets + OTA packages.
+    examples:
+      - file: "utils/firebase.ts"
+        location: "lines 82-127"
+        snippet: "export const supabase = { auth: { ... }, from: () => ({ ... }) }"
+      - file: "App.tsx"
+        location: "line 14-19"
+        snippet: "import { supabase, ... } from './utils/firebase'"
+    prevalence: "common"
+
+  - category: "error_handling"
+    pattern: "Try-catch with try/catch for localStorage and cloud operations"
+    description: |
+      localStorage.setItem() wrapped in try-catch (debounced 300ms).
+      Cloud saves fail gracefully with console.error().
+      No user-facing error toasts in critical paths (should add).
+    examples:
+      - file: "App.tsx"
+        location: "line 90-95"
+        snippet: |
+          try {
+            localStorage.setItem('df_session', JSON.stringify({...}));
+          } catch (e) {
+            console.error("Failed to save session:", e);
+          }
+      - file: "firebase.ts"
+        location: "line 410-415"
+        snippet: "catch (e) { console.error('[Sync] Cloud save failed...', e); }"
+    prevalence: "common"
+
+  - category: "platform_detection"
+    pattern: "Capacitor.getPlatform() branching for web/android/ios"
+    description: |
+      Platform-specific code paths:
+      - web: redirect OAuth, no OTA, CDN delivery
+      - android: native Google Sign-In, OTA via CapacitorUpdater, deeplink handling
+      - ios: (assumed similar to android, not fully tested)
+    examples:
+      - file: "firebase.ts"
+        location: "lines 206-250"
+        snippet: "if (platform === 'android') { ... native plugin ... } else if (platform === 'web') { ... redirect ... }"
+      - file: "App.tsx"
+        location: "line 138"
+        snippet: "if (Capacitor.getPlatform() !== 'web') { CapacitorApp.addListener(...) }"
+    prevalence: "common"
+
+  - category: "configuration"
+    pattern: "Environment variables for all secrets"
+    description: |
+      Firebase credentials stored in .env, NOT hardcoded.
+      VITE_* prefix for Vite build-time substitution.
+      .env.testing for test environment.
+      .env.example as template.
+    examples:
+      - file: ".env"
+        location: "lines 3-9"
+        snippet: "VITE_FIREBASE_API_KEY=AIzaSy..."
+      - file: "utils/firebase.ts"
+        location: "line 50"
+        snippet: "apiKey: import.meta.env.VITE_FIREBASE_API_KEY || ''"
+    prevalence: "common"
+
+related_architecture:
+  components_relevant_to_domain:
+    - component: "Login.tsx"
+      responsibility: "OAuth flow UI component. Handles web redirect, mobile popup, native plugin fallback."
+      location: "components/Login.tsx"
+      relationship_to_domain: |
+        Calls supabase.auth.signInWithOAuth() which routes to Firebase Auth.
+        Manages loading/error states during authentication.
+
+    - component: "AuthDebugOverlay.tsx"
+      responsibility: "Debug panel for auth configuration validation"
+      location: "components/AuthDebugOverlay.tsx"
+      relationship_to_domain: |
+        Displays Firebase config status, session info, OAuth diagnostics.
+        Helps troubleshoot auth issues in development.
+
+    - component: "DMDashboard/ConnectionDebugPanel.tsx"
+      responsibility: "Runtime connection debugging panel"
+      location: "components/DMDashboard/ConnectionDebugPanel.tsx"
+      relationship_to_domain: |
+        Displays Supabase/Firebase connection status, localStorage state, recent events.
+        Shows credential truncation for security.
+
+    - component: "GoogleSignInPlugin (Android native)"
+      responsibility: "Native Android Google Sign-In using Google Play Services"
+      location: "android/app/src/main/java/com/tupaquete/dndcompanion/GoogleSignInPlugin.java"
+      relationship_to_domain: |
+        Bridges native Android Google Sign-In to web layer.
+        Returns ID token that Firebase Auth exchanges for user session.
+
+  interfaces_used_by_domain:
+    - interface: "OTAUpdate"
+      location: "types.ts:335-337"
+      usage_pattern: |
+        Describes structure of OTA update available to user:
+        { version: string, message: string, payload: unknown }
+
+    - interface: "VersionJsonResponse"
+      location: "types.ts:341-344"
+      usage_pattern: |
+        Response from version.json fetch:
+        { version?: string, url?: string, message?: string }
+
+  data_flow_involving_domain: |
+    USER AUTHENTICATION FLOW (Web):
+    1. Login.tsx displays login button
+    2. User clicks → supabase.auth.signInWithOAuth({provider: 'google'})
+    3. firebase.ts redirects to Google OAuth (leaves app)
+    4. User grants permission on Google login page
+    5. Firebase redirects back to deeplink URL (from intent filter)
+    6. App.tsx deeplink handler extracts token from URL hash
+    7. Firebase auth state updates, session stored in localStorage
+
+    USER AUTHENTICATION FLOW (APK/Native):
+    1. Login.tsx displays login button
+    2. User clicks → supabase.auth.signInWithOAuth({provider: 'google'})
+    3. Platform detected: android
+    4. GoogleSignInPlugin.signInWithGoogle() called
+    5. Native Android Google Sign-In UI shown
+    6. User grants permission, returns ID token
+    7. signInWithGoogleNativeFirebase() exchanges token for Firebase credential
+    8. User session established, stored in localStorage
+
+    OTA UPDATE FLOW (APK only):
+    1. App starts, calls CapacitorUpdater.notifyAppReady()
+    2. checkForUpdates() called
+    3. Fetches https://storage.googleapis.com/{bucket}/version.json
+    4. Compares version field vs localStorage 'app_version'
+    5. If newer: CapacitorUpdater.download({url, version})
+    6. Downloads ZIP from Storage
+    7. 4-second wait for user interaction
+    8. CapacitorUpdater.set({id}) applies update
+    9. App restarts with new code
+
+  key_relationships_to_domain:
+    - from: "App.tsx (OTA logic)"
+      to: "CapacitorUpdater"
+      relationship: "calls download(), set(), notifyAppReady()"
+    - from: "App.tsx (Auth logic)"
+      to: "firebase.ts (supabase wrapper)"
+      relationship: "calls supabase.auth.getSession(), onAuthStateChange(), signInWithOAuth()"
+    - from: "firebase.ts"
+      to: "Firebase Admin SDK (via build_ota.mjs)"
+      relationship: "App reads from public Storage; build script writes via Admin SDK"
+    - from: "GoogleSignInPlugin (native)"
+      to: "firebase.ts signInWithGoogleNativeFirebase()"
+      relationship: "Native returns ID token; Web layer exchanges for Firebase credential"
+
+related_technology_stack:
+  languages_used_in_domain:
+    - "TypeScript (React components, utilities)"
+    - "JavaScript (Node.js build scripts)"
+    - "Java (Android native plugin)"
+    - "XML (AndroidManifest.xml)"
+    - "Firestore Rules (security rules)"
+
+  frameworks_used_in_domain:
+    - name: "React 19"
+      usage_in_domain: "UI layer for login, auth debug components"
+    - name: "Firebase SDK (v12.13.0)"
+      usage_in_domain: "Auth, Firestore, Realtime DB, Storage"
+    - name: "Firebase Admin SDK"
+      usage_in_domain: "build_ota.mjs uses for uploading OTA packages to Storage"
+    - name: "Capacitor 6"
+      usage_in_domain: "Mobile runtime; App, Browser, CapacitorUpdater plugins"
+    - name: "Capacitor Updater (Capgo)"
+      usage_in_domain: "OTA update download and installation on APK"
+
+  libraries_used_in_domain:
+    - name: "dotenv"
+      purpose_in_domain: "Load .env variables for build scripts"
+    - name: "archiver"
+      purpose_in_domain: "Create ZIP archive for OTA packages"
+    - name: "firebase-admin"
+      purpose_in_domain: "Upload OTA packages to Firebase Storage (Admin API)"
+    - name: "@capacitor/app"
+      purpose_in_domain: "Listen to appStateChange events for OTA re-check"
+    - name: "@capacitor/browser"
+      purpose_in_domain: "Open browser for OAuth redirect (if needed on Capacitor)"
+
+  external_apis_used_in_domain:
+    - name: "Google OAuth 2.0"
+      integration_point: "firebase.ts via FirebaseAuthProvider"
+    - name: "Firebase Auth REST API (implicit via SDK)"
+      integration_point: "firebase.ts initializeApp()"
+    - name: "Firebase Firestore API (implicit via SDK)"
+      integration_point: "firebase.ts getFirestore()"
+    - name: "Firebase Realtime DB API (implicit via SDK)"
+      integration_point: "firebase.ts getDatabase()"
+    - name: "Firebase Storage REST API"
+      integration_point: "App.tsx fetches https://storage.googleapis.com/{bucket}/version.json"
+    - name: "Google Play Services (native)"
+      integration_point: "GoogleSignInPlugin.java uses com.google.android.gms"
+
+related_conventions:
+  naming_patterns_in_domain: |
+    Functions: camelCase (signInWithGoogleNativeFirebase, checkForUpdates)
+    Variables: camelCase (isAuthenticated, updateAvailable, storageBucket)
+    Constants: UPPER_SNAKE_CASE (none visible in critical paths)
+    Interfaces: PascalCase (OTAUpdate, VersionJsonResponse)
+    Collections (Firestore): lowercase plural (characters, parties, users)
+    Firebase SDK exports: explicit (auth, firestore, database)
+
+  structure_of_domain: |
+    STRUCTURE:
+    ├── utils/firebase.ts
+    │   ├── Firebase initialization
+    │   ├── Auth wrapper (supabase-compatible)
+    │   ├── Firestore queries
+    │   └── Realtime subscriptions
+    ├── App.tsx
+    │   ├── Auth state management
+    │   ├── OTA check & apply logic
+    │   └── Deeplink handling
+    ├── components/Login.tsx
+    │   └── OAuth flow UI
+    ├── scripts/build_ota.mjs
+    │   └── OTA package creation & upload
+    ├── android/
+    │   ├── app/build.gradle (Google Play Services dependency)
+    │   ├── app/AndroidManifest.xml (deeplink intent)
+    │   └── java/.../GoogleSignInPlugin.java (native auth)
+    ├── .env (credentials)
+    └── firestore.rules (security)
+
+  error_handling_in_domain: |
+    - localStorage: try-catch with console.error() fallback
+    - Firebase operations: promise .catch() with console.error()
+    - OTA download: CapacitorUpdater handles errors internally
+    - OAuth: Error dialogs shown to user (see Login.tsx)
+    - Missing credentials: Fallback to local mode (see App.tsx)
+
+  testing_in_domain: |
+    - Manual testing scripts referenced (validate-oauth.js)
+    - OTA testing on actual Android device (not fully documented)
+    - No unit tests found for firebase.ts or OTA logic
+    - Debug panels assist in troubleshooting (ConnectionDebugPanel, AuthDebugOverlay)
+
+  documentation_in_domain: |
+    - NATIVE-GOOGLE-SIGNIN-IMPLEMENTATION.md (describes OAuth plugin setup)
+    - T13_FIREBASE_TESTING_SETUP.md (testing environment guide)
+    - AGENTS.md mentions Firebase OAuth Android known issue
+    - Comments in code (inline logs for debugging)
+    - Build scripts have error messages
+
+related_dependencies:
+  internal:
+    - component: "types.ts"
+      relationship_to_domain: "Defines OTAUpdate, VersionJsonResponse interfaces"
+      direction: "inbound"
+    - component: "constants.ts"
+      relationship_to_domain: "May contain default values or mock data (not verified)"
+      direction: "inbound"
+    - component: "utils/uuid.ts"
+      relationship_to_domain: "Used for generating user IDs in local mode"
+      direction: "inbound"
+    - component: "utils/localStorage.ts"
+      relationship_to_domain: "Fallback sync for party/character data if Firebase unavailable"
+      direction: "bidirectional"
+    - component: "utils/debugLogger.ts"
+      relationship_to_domain: "Logs Firebase events for debugging"
+      direction: "inbound"
+
+  external:
+    - name: "firebase"
+      version: "^12.13.0"
+      purpose_for_domain: "Complete backend API (Auth, Firestore, DB, Storage)"
+    - name: "@capgo/capacitor-updater"
+      version: "^6.0.0"
+      purpose_for_domain: "OTA update system on APK"
+    - name: "@capacitor/app"
+      version: "^6.0.0"
+      purpose_for_domain: "App lifecycle hooks (resume detection)"
+    - name: "@capacitor/core"
+      version: "^6.0.0"
+      purpose_for_domain: "Platform detection (web/android/ios)"
+    - name: "firebase-admin"
+      version: "(not in package.json, used in build scripts only)"
+      purpose_for_domain: "Server-side access to upload OTA to Storage"
+
+domain_security_considerations:
+  sensitive_areas:
+    - area: "Firebase API Key"
+      location: ".env:3"
+      concern: "Public API key visible in .env. Should be safe (restricted in Firebase Console), but verify CORS policies."
+
+    - area: "Firebase Storage CORS"
+      location: "App.tsx:172 (fetch version.json)"
+      concern: |
+        version.json must be publicly readable from browser.
+        If CORS misconfigured: OTA fetch fails silently.
+        Verify in Firebase Console → Storage → CORS rules.
+
+    - area: "OAuth Client ID"
+      location: "android/app/google-services.json"
+      concern: "Client ID extracted at runtime by native plugin. Ensure google-services.json not exposed in build."
+
+    - area: "ID Token Handling"
+      location: "firebase.ts:330-350"
+      concern: |
+        Native plugin returns ID token.
+        Token exchanged for Firebase credential immediately.
+        Token should not be logged; ensure error logs don't expose it.
+
+    - area: "Session Storage"
+      location: "App.tsx localStorage df_session"
+      concern: |
+        Session stored as JSON in localStorage.
+        Should contain user ID + email, not tokens.
+        Verify tokens NOT stored in localStorage.
+
+  authentication_patterns_in_domain: |
+    WEB PATTERN:
+    - signInWithRedirect() → browser navigates to Google → redirects back to deeplink → hash parsed → session established
+    
+    APK PATTERN:
+    - Google Sign-In native plugin → ID token returned → exchanged for Firebase credential via signInWithCredential() → session established
+    
+    SESSION RETRIEVAL:
+    - getSession() returns user object + ID token (from getIdToken())
+    - onAuthStateChange() fires on auth state updates
+    - Session persisted in localStorage (email + user.id only, not tokens)
+
+  authorization_patterns_in_domain: |
+    FIRESTORE RULES:
+    - Character read: Only owner (resource.data.user_id == uid)
+    - Character write: Only owner, must match user_id constraint
+    - Party members: Check via parties/{id}.members[uid]
+    
+    APPLICATION LEVEL:
+    - setUser() / isAuthenticated state in React
+    - Local mode bypass (df_local_mode='true' in localStorage)
+
+  data_validation_in_domain: |
+    - Character ID type check: isObsoleteSupabaseId() filters UUIDs vs Supabase 36-char format
+    - Session parsing: try-catch on JSON.parse(df_session)
+    - Version format: semantic version + timestamp (e.g., "1.1.0-2026.5.13-162947")
+    - Firebase credential validation: idToken length checked before exchange
+
+testing_patterns:
+  framework: "No formal test framework configured. Manual testing scripts exist (scripts/validate-oauth.js)."
+  coverage_areas:
+    - "OAuth flow validation (scripts/validate-oauth.js)"
+    - "Android regression protocol (ANDROID_REGRESSION_MANUAL_PROTOCOL.md referenced)"
+    - "OTA integration testing (on actual devices, not automated)"
+  test_organization: "Scripts in scripts/ directory; manual protocols in docs/."
+  mock_patterns:
+    - "Mock Supabase functions exported from firebase.ts for fallback"
+    - "Local mode (df_local_mode) for offline development"
+
+open_questions:
+  - question: "Where is google-services.json supposed to be placed for Android build?"
+    context: |
+      File currently in docs/google-services.json.
+      Android Gradle expects it at android/app/google-services.json.
+      If build fails, this is likely cause.
+    type: "decision_blocker"
+    affects:
+      - "Android APK compilation"
+      - "Native Google Sign-In availability"
+      - "Firebase project configuration in APK"
+
+  - question: "Is Firebase Storage CORS configured to allow browser fetch of version.json?"
+    context: |
+      App.tsx fetches: https://storage.googleapis.com/{bucket}/version.json
+      If CORS not configured, fetch fails and OTA doesn't work.
+      CORS rules must allow origin of web/APK.
+    type: "decision_blocker"
+    affects:
+      - "OTA update detection on web/APK"
+      - "version.json accessibility"
+
+  - question: "Does the OTA system work for web, or only APK?"
+    context: |
+      Current code suggests OTA only on APK (CapacitorUpdater only available in native).
+      Web deployments would need traditional CDN/server update mechanism.
+      Clarification needed: Is web OTA in scope?
+    type: "research"
+    affects:
+      - "Deployment strategy for web vs mobile"
+      - "Update frequency expectations"
+
+  - question: "Is the restore_ota.mjs script (mentioned in AGENTS.md) implemented?"
+    context: |
+      AGENTS.md references rollback capability via scripts/restore_ota.mjs.
+      Script not found in search results.
+      If not implemented, rollback procedures are incomplete.
+    type: "research"
+    affects:
+      - "Incident response capability"
+      - "OTA rollback procedures"
+
+  - question: "What is the expected behavior if version.json fetch fails?"
+    context: |
+      App.tsx has try-catch for OTA check but silently logs error.
+      User sees no feedback if OTA download fails.
+      Should there be a user-facing error or retry mechanism?
+    type: "nice_to_know"
+    affects:
+      - "User experience during OTA failures"
+      - "Visibility into update issues"
+
+gaps:
+  - area: "OTA System Documentation"
+    description: |
+      No comprehensive OTA documentation.
+      build_ota.mjs script assumes service account key exists but no setup instructions.
+      version.json format not documented.
+      CapacitorUpdater API not explained (when to call notifyAppReady, what happens on download failure).
+    impact: "research_blocker"
+    affects:
+      - "Onboarding for OTA deployment"
+      - "Troubleshooting OTA issues"
+
+  - area: "Web OTA Strategy"
+    description: |
+      App.tsx OTA logic only works on APK (CapacitorUpdater).
+      Web deployment strategy unclear.
+      Should web use traditional CDN invalidation, service worker, or other?
+    impact: "decision_blocker"
+    affects:
+      - "Web deployment workflow"
+      - "Release cadence for web vs mobile"
+
+  - area: "Android google-services.json Placement"
+    description: |
+      google-services.json in docs/ but build expects android/app/.
+      No build step to copy it; may cause Android build failure.
+      Requires clarification or fix.
+    impact: "decision_blocker"
+    affects:
+      - "Android APK compilation"
+      - "Native Google Sign-In functionality"
+
+  - area: "Firebase Storage CORS Configuration"
+    description: |
+      No CORS rules documented for Firebase Storage.
+      version.json must be publicly accessible.
+      If not configured, OTA fetch fails.
+    impact: "decision_blocker"
+    affects:
+      - "OTA update availability"
+      - "Cross-origin fetch from browser"
+
+  - area: "OTA Rollback Procedure"
+    description: |
+      AGENTS.md references restore_ota.mjs but script not found.
+      No documented rollback procedure for failed OTA updates.
+    impact: "research_blocker"
+    affects:
+      - "Incident response"
+      - "Production stability"
+
+  - area: "Unit Tests for Firebase & OTA"
+    description: |
+      No unit tests for firebase.ts, App.tsx OTA logic, or build_ota.mjs.
+      Manual testing only (scripts/validate-oauth.js).
+      No automated regression protection.
+    impact: "nice_to_know"
+    affects:
+      - "Code reliability"
+      - "Regression prevention"
+
+  - area: "Error Handling for OTA Failures"
+    description: |
+      OTA download/apply failures logged but not shown to user.
+      No retry mechanism documented.
+      Silent failures could leave user on outdated version.
+    impact: "nice_to_know"
+    affects:
+      - "User awareness of update failures"
+      - "Troubleshooting visibility"

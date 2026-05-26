@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0-2026.5.25-000000",
+  "buildDate": "2026-05-25T00:00:00Z",
+  "changes": [
+    "CORS configuration applied to Firebase Storage",
+    "OTA update system ready for testing"
+  ],
+  "downloadUrl": "https://storage.googleapis.com/dungeon-forge-prod.firebasestorage.app/app.aab",
+  "required": false,
+  "minSdkVersion": 24
+}

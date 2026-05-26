@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { runOAuthDiagnostics, printOAuthDiagnostics, testOAuthFlow, OAuthDiagnostic } from '../utils/oauthDiagnostics';
-import { supabase, fetchDeletedCharacters, restoreCharacter } from '../utils/supabase';
+import { supabase, fetchDeletedCharacters, restoreCharacter } from '../utils/firebase';
 import { Character } from '../types';
 
 const OAuthDebugConsole: React.FC = () => {

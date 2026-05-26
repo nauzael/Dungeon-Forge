@@ -19,7 +19,7 @@ interface TabletLayoutWrapperProps {
  *   tabPanelLeft={<CombatTab />}
  *   tabPanelRight={<InventoryTab />}
  * >
- *   {/* navigation */}
+ *   { navigation }
  * </TabletLayoutWrapper>
  */
 const TabletLayoutWrapper: React.FC<TabletLayoutWrapperProps> = ({
