@@ -17,8 +17,24 @@ out/
 # Environment variables
 .env
 .env.local
-.env.*.local
+.env.*.local.env.production
+.env.production.local
 
+# Firebase & Google Cloud configuration (CONTAINS SENSITIVE API KEYS)
+**/google-services.json
+android/app/google-services.json
+docs/google-services.json
+android/google-services.json
+
+# Firebase config files
+*.service-account-key.json
+firebase-adminsdk-*.json
+
+# API keys and secrets
+*.pem
+*.key
+*.cert
+*.secret
 # IDE
 .vscode/
 .idea/
