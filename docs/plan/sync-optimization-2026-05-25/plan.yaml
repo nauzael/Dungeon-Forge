@@ -1,0 +1,978 @@
+plan_id: sync-optimization-2026-05-25
+objective: |
+  Optimizar el sistema de sincronización en Dungeon Forge para reducir pérdida de datos,
+  minimizar peticiones al servidor, y mejorar experiencia de usuario. Target: 50x menos 
+  cambios perdidos, 10-15x menos peticiones, -20% batería.
+created_at: '2026-05-25T00:00:00Z'
+created_by: gem-planner
+status: pending
+research_confidence: high
+plan_metrics:
+  wave_1_task_count: 3
+  total_dependencies: 8
+  risk_score: medium
+
+tldr: |
+  Plan de 5 waves para arreglar sistema de sincronización: 
+  (1) Debounce + dedup listeners, (2) Validación pre-save, (3) Error handling + rollback, 
+  (4) Batching de cambios, (5) Testing + docs. Reduce requests 10-15x, errores 50x.
+  Arreglos implementados sobre patrones TypeScript strict, React 19 hooks, Supabase realtime.
+
+open_questions:
+  - question: ¿Usar debounce global o por componente?
+    context: CombatTab.tsx tiene múltiples handlers que actualizan
+    type: decision_blocker
+    affects: ["task-1-1", "task-1-2"]
+  - question: ¿Batch endpoint en Supabase o manual en frontend?
+    context: Firebase + Supabase dual backend
+    type: decision_blocker
+    affects: ["task-4-1"]
+
+gaps:
+  - description: |
+      Tests de sincronización - sin framework de testing actual.
+      Plan asume mock tests o manual validation.
+    refinement_requests:
+      - query: E2E testing para offline → online scenarios
+        source_hint: gem-browser-tester puede hacer pruebas manuales
+
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: |
+        Debounce implementado incorrectamente causa race condition:
+        User A cambia HP, se debouncea, se envía al servidor. User B hace cambio
+        local antes de que llegue respuesta. Timestamp diferente causa conflicto.
+      likelihood: medium
+      impact: critical
+      mitigation: |
+        Implementar optimistic updates + snapshot rollback en task-3-2.
+        Revisar timestamp handling en utils/supabase.ts. Agregar tests de
+        collision detection con gem-browser-tester.
+    
+    - scenario: |
+        localStorage corrupción: Data inválida se carga y propaga a cloud,
+        sincronizando basura a todos los dispositivos del usuario.
+      likelihood: medium
+      impact: high
+      mitigation: |
+        task-2-3 implementa isValidCharacter() strict. Agregar try/catch
+        en load inicial (task-2-3). Revertir a backup si detección de corrupción.
+    
+    - scenario: |
+        Listener deduplicación falla: Mismo personaje editado desde 3 tabs,
+        3 listeners se disparan en paralelo, pierden cambios de uno.
+      likelihood: medium
+      impact: high
+      mitigation: |
+        task-1-3 implementa dedup por character.id + timestamp. Usar Set interno.
+        Agregar logging para detectar si duplicates pasan.
+    
+    - scenario: |
+        Rollback parcial: Si batching falla a mitad, algunos personajes se
+        guardan otros no. Cliente queda inconsistente.
+      likelihood: low
+      impact: critical
+      mitigation: |
+        task-4-1 usa atomic transactions o Promise.allSettled() con
+        rollback total si alguno falla. task-3-3 maneja esto.
+
+  assumptions:
+    - Supabase realtime channels están configurados correctamente
+    - Firebase auth + Supabase auth están sincronizados
+    - localStorage disponible en todos targets (web + mobile)
+    - Timestamps de servidor son confiables (NTP sincronización)
+    - User interacción típica: <5 cambios/segundo por personaje
+
+implementation_specification:
+  code_structure: |
+    Cambios en 5 áreas core:
+    1. **utils/hooks/useDebounce.ts** - Hook personalizado de debounce
+    2. **components/sheet/CombatTab.tsx** - Aplicar debounce a handlers
+    3. **App.tsx** - Deduplicar listeners, agregar error states
+    4. **utils/supabase.ts** - Agregar rollback, batching, validación
+    5. **types.ts** - Agregar tipos para SyncState, ValidationResult
+    
+    Patrón de validación:
+    ```typescript
+    const isValidCharacter = (char: Character): ValidationResult => {
+      if (!char.id) return { valid: false, error: 'Missing ID' };
+      if (isNaN(char.hp.current)) return { valid: false, error: 'Invalid HP' };
+      // ... más checks
+      return { valid: true };
+    };
+    ```
+    
+    Patrón de rollback:
+    ```typescript
+    const saveWithRollback = async (character: Character) => {
+      const snapshot = { ...character };
+      try {
+        await supabase.from('characters').update(character);
+      } catch (e) {
+        setCharacters(prev => prev.map(c => c.id === character.id ? snapshot : c));
+        throw e;
+      }
+    };
+    ```
+
+  affected_areas:
+    - utils/supabase.ts (sync logic)
+    - utils/hooks/useDebounce.ts (new)
+    - components/sheet/CombatTab.tsx (debounce handlers)
+    - App.tsx (listener dedup)
+    - types.ts (SyncState enum)
+    - index.css (sync status indicator)
+
+  component_details:
+    - component: Debounce Hook
+      responsibility: |
+        Reusable hook para debounce de callbacks.
+        Config: 500ms min para cloud sync, 100ms para UI.
+      interfaces:
+        - "useDebounce<T>(value: T, delay: number): T"
+        - "useDebouncedCallback<T, R>(callback: (arg: T) => R, delay: number): (arg: T) => void"
+      dependencies:
+        - component: CombatTab
+          relationship: utilizado por
+        - component: InventoryTab
+          relationship: utilizado por
+      integration_points:
+        - "Called on every HP/ability change"
+        - "Returns debounced value for conditional render"
+    
+    - component: Validation Layer
+      responsibility: |
+        Prevenir valores inválidos antes de guardar.
+        Incluye sanitización de NaN, Infinity, nulls.
+      interfaces:
+        - "isValidCharacter(char: Character): ValidationResult"
+        - "isValidInventoryItem(item: InventoryItem): ValidationResult"
+        - "sanitizeCharacterData(char: Character): Character"
+      dependencies:
+        - component: CombatTab
+          relationship: llamado por
+        - component: localStorage
+          relationship: validar al cargar
+      integration_points:
+        - "Pre-save validation en App.tsx"
+        - "Load validation en useEffect inicial"
+    
+    - component: Error State Manager
+      responsibility: |
+        Mantener estado de sync (idle/syncing/success/error).
+        Exponer al UI via context o state.
+      interfaces:
+        - "SyncState: 'idle' | 'syncing' | 'success' | 'error'"
+        - "useSyncState(): { state, lastError, clearError }"
+      dependencies:
+        - component: Toast
+          relationship: notificar errores
+        - component: All tabs
+          relationship: consume state
+      integration_points:
+        - "Renderizar tooltip en header si error"
+        - "Mostrar toast en cambio de error"
+    
+    - component: Batching Engine
+      responsibility: |
+        Agrupar múltiples cambios en single request.
+        Implementar con queue + debounce.
+      interfaces:
+        - "saveBatch(characters: Character[]): Promise<Result[]>"
+        - "queueSave(character: Character): Promise<void>"
+      dependencies:
+        - component: supabase.ts
+          relationship: base de datos
+      integration_points:
+        - "Called on debounce timeout"
+        - "Returns atomic success/fail"
+
+contracts:
+  - from_task: "task-1-1"
+    to_task: "task-1-2"
+    interface: "useDebounce<T> hook exported"
+    format: |
+      export function useDebounce<T>(value: T, delay: number): T
+      export function useDebouncedCallback<T, R>(
+        callback: (arg: T) => R,
+        delay: number
+      ): (arg: T) => void
+  
+  - from_task: "task-1-2"
+    to_task: "task-1-3"
+    interface: "Character update event structure"
+    format: |
+      {
+        characterId: string;
+        changes: Partial<Character>;
+        timestamp: number;
+        source: 'combat' | 'inventory' | 'spells' | 'features' | 'notes';
+      }
+  
+  - from_task: "task-2-1"
+    to_task: "task-2-2"
+    interface: "ValidationResult type"
+    format: |
+      interface ValidationResult {
+        valid: boolean;
+        error?: string;
+        warnings?: string[];
+      }
+  
+  - from_task: "task-2-2"
+    to_task: "task-3-1"
+    interface: "Validation errors propagate to error handler"
+    format: |
+      if (!isValidCharacter(char).valid) {
+        throw new ValidationError(...);
+      }
+  
+  - from_task: "task-3-1"
+    to_task: "task-4-1"
+    interface: "Snapshot restore exposes batch interface"
+    format: |
+      interface SaveResult {
+        success: boolean;
+        characterId: string;
+        timestamp: number;
+        error?: Error;
+      }
+  
+  - from_task: "task-3-2"
+    to_task: "task-3-3"
+    interface: "Error events trigger UI updates"
+    format: |
+      { type: 'sync-error'; characterId: string; error: string; }
+
+tasks:
+  # ==================== WAVE 1: Debounce + Deduplicación ====================
+  
+  - id: "task-1-1"
+    title: "Crear hook useDebounce personalizado"
+    description: |
+      Implementar hook reutilizable de debounce con dos variantes:
+      1. useDebounce<T>(value, delay) - debouncea valores
+      2. useDebouncedCallback<T, R>(callback, delay) - debouncea funciones
+      
+      Requisitos:
+      - Limpiar timeout en unmount y cambio de delay
+      - TypeScript strict types
+      - Support para async callbacks
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Debounce value variant"
+      - "Debounce callback variant"
+      - "Cleanup handling"
+    priority: high
+    status: pending
+    estimated_effort: small
+    estimated_files: 1
+    estimated_lines: 80
+    focus_area: "utils/hooks/useDebounce.ts"
+    verification:
+      - "Hook exported desde utils/hooks/index.ts"
+      - "TypeScript no tiene errores (strict mode)"
+      - "Cleanup retornado en useEffect"
+    acceptance_criteria:
+      - "useDebounce<T> demora value changes 500ms"
+      - "useDebouncedCallback ejecuta callback después de 500ms"
+      - "Múltiples calls en <500ms resultan en single ejecución"
+    failure_modes:
+      - scenario: "Timeout no se limpia en unmount, causa memory leak"
+        likelihood: medium
+        impact: high
+        mitigation: "Siempre retornar cleanup function en useEffect"
+
+  - id: "task-1-2"
+    title: "Aplicar debounce a CombatTab.tsx handlers"
+    description: |
+      Refactor CombatTab.tsx para usar hook useDebounce en:
+      - applyHpChange() - HP edits
+      - applyAbilityChange() - Ability score edits
+      - applySpellSlotChange() - Spell slot edits
+      
+      Patrón:
+      ```typescript
+      const [debouncedCharacter, setDebouncedCharacter] = useState(character);
+      const debouncedOnUpdate = useDebouncedCallback(onUpdate, 500);
+      
+      const handleHpChange = (newHp: number) => {
+        setDebouncedCharacter(prev => ({ ...prev, hp: { ...prev.hp, current: newHp } }));
+        debouncedOnUpdate(newCharacter);
+      };
+      ```
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "HP change debounce"
+      - "Ability score debounce"
+      - "Spell slot debounce"
+    priority: high
+    status: pending
+    dependencies:
+      - "task-1-1"
+    estimated_effort: medium
+    estimated_files: 1
+    estimated_lines: 150
+    focus_area: "components/sheet/CombatTab.tsx"
+    verification:
+      - "applyHpChange no llama onUpdate inmediato"
+      - "onUpdate se llama 500ms después del último keystroke"
+      - "Múltiples cambios en <500ms resultan en single call a onUpdate"
+    acceptance_criteria:
+      - "CombatTab compila sin errores"
+      - "Visualmente no hay cambio en UI"
+      - "Cada keystroke en HP no genera request a servidor"
+    failure_modes:
+      - scenario: "Debounce delay es muy corto (100ms), causa muchos requests"
+        likelihood: low
+        impact: medium
+        mitigation: "Hard-code 500ms, no hacer configurable inicialmente"
+
+  - id: "task-1-3"
+    title: "Deduplicar listeners en App.tsx"
+    description: |
+      App.tsx carga personajes vía 3 Supabase realtime listeners que se
+      disparan simultáneamente en cambios. Resultado: 3 setState calls,
+      re-renders innecesarios, conflictos de timestamp.
+      
+      Solución:
+      - Centralizar en single listener por character.id
+      - Usar Set<characterId> para track qué está listening
+      - Debounce setState de 100ms para batching local
+      - Deduplicar por (characterId, timestamp) tuple
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Single unified listener per character"
+      - "Dedup by (id, timestamp)"
+      - "Set-based tracking"
+    priority: high
+    status: pending
+    dependencies:
+      - "task-1-1"
+    estimated_effort: medium
+    estimated_files: 1
+    estimated_lines: 100
+    focus_area: "App.tsx (realtime listeners section)"
+    verification:
+      - "Single subscribe call per character visible en logs"
+      - "Timestamp dedup previene duplicate updates"
+      - "No memory leak en cleanup"
+    acceptance_criteria:
+      - "App.tsx compila sin errores"
+      - "No cambios visuales"
+      - "Logs muestran single listener por character"
+    failure_modes:
+      - scenario: "Dedup Map crece infinito, nunca se limpia"
+        likelihood: low
+        impact: high
+        mitigation: "Limpiar entrada en listener cleanup, usar WeakMap si posible"
+
+  # ==================== WAVE 2: Validación Pre-save ====================
+
+  - id: "task-2-1"
+    title: "Crear validator isValidCharacter()"
+    description: |
+      Función de validación strict que rechaza:
+      - NaN, Infinity en stats
+      - HP > maxHP
+      - Ability scores fuera de rango [3, 20]
+      - IDs vacíos
+      - Inventory items sin ID
+      - Strings vacíos en required fields
+      
+      Retornar ValidationResult { valid, error, warnings }.
+      No debe lanzar excepciones, solo retornar status.
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Number validation (NaN, Infinity)"
+      - "Range validation (HP, abilities)"
+      - "Required field checks"
+      - "Array integrity"
+    priority: high
+    status: pending
+    estimated_effort: small
+    estimated_files: 1
+    estimated_lines: 120
+    focus_area: "utils/validators.ts (new file)"
+    verification:
+      - "Validates all Character fields"
+      - "No exceptions thrown"
+      - "Returns descriptive error messages"
+    acceptance_criteria:
+      - "Valid character passes validation"
+      - "NaN in HP rejected with error"
+      - "Ability score > 20 rejected"
+      - "Inventory corruption detected"
+    failure_modes:
+      - scenario: "Validador demasiado permisivo, permite datos inválidos"
+        likelihood: low
+        impact: high
+        mitigation: "Test con intentional corruption, agregar checks exhaustivos"
+
+  - id: "task-2-2"
+    title: "Agregar validación pre-save en componentes"
+    description: |
+      Antes de llamar onUpdate(), todos los componentes (CombatTab, InventoryTab, etc)
+      deben validar el Character con isValidCharacter().
+      
+      Si validation falla:
+      - No llamar onUpdate
+      - Setear error state local
+      - Mostrar toast de error
+      
+      Aplicar a:
+      - CombatTab.tsx - applyHpChange, applyAbilityChange
+      - InventoryTab.tsx - addItem, removeItem
+      - SpellsTab.tsx - addSpell, removeSpell
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "CombatTab validation"
+      - "InventoryTab validation"
+      - "SpellsTab validation"
+    priority: high
+    status: pending
+    dependencies:
+      - "task-2-1"
+    estimated_effort: medium
+    estimated_files: 3
+    estimated_lines: 180
+    focus_area: |
+      components/sheet/CombatTab.tsx
+      components/sheet/InventoryTab.tsx
+      components/sheet/SpellsTab.tsx
+    verification:
+      - "Invalid data no se envía a servidor"
+      - "User ve error toast"
+      - "Error message es descriptivo"
+    acceptance_criteria:
+      - "NaN en HP no se guarda"
+      - "Toast muestra error si validación falla"
+      - "Función retorna early sin onUpdate"
+    failure_modes:
+      - scenario: "Toast se muestra pero setTimeout(clearError) nunca se ejecuta"
+        likelihood: low
+        impact: low
+        mitigation: "Usar useEffect cleanup para clearTimeout"
+
+  - id: "task-2-3"
+    title: "Validar localStorage al cargar"
+    description: |
+      App.tsx carga caracteres del localStorage sin validar.
+      Si data está corrupta, se propaga a cloud en siguiente sync.
+      
+      Solución:
+      - En useEffect inicial, validar cada character con isValidCharacter()
+      - Si inválido, loguear error y remover del localStorage
+      - Si >50% personajes inválidos, ofrecer reset a cloud version
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "localStorage load validation"
+      - "Corruption detection"
+      - "Recovery logic"
+    priority: medium
+    status: pending
+    dependencies:
+      - "task-2-1"
+    estimated_effort: small
+    estimated_files: 1
+    estimated_lines: 80
+    focus_area: "App.tsx (useEffect initial load)"
+    verification:
+      - "Valid characters loaded"
+      - "Invalid characters logged"
+      - "localStorage cleaned on corruption"
+    acceptance_criteria:
+      - "App starts even si localStorage corrupto"
+      - "Error logged a console"
+      - "Valid characters sinced desde cloud"
+    failure_modes:
+      - scenario: "localStorage limpieza falla, user pierde todos personajes"
+        likelihood: low
+        impact: critical
+        mitigation: "Hacer backup a IndexedDB antes de limpiar"
+
+  # ==================== WAVE 3: Error Handling + Rollback ====================
+
+  - id: "task-3-1"
+    title: "Implementar rollback en saveCharacterToCloud()"
+    description: |
+      Patrón: snapshot → update → on error rollback
+      
+      ```typescript
+      const saveWithRollback = async (character: Character) => {
+        const snapshot = JSON.parse(JSON.stringify(character)); // deep copy
+        try {
+          await saveCharacterToCloud(character);
+        } catch (error) {
+          // Restaurar snapshot local
+          setCharacters(prev => 
+            prev.map(c => c.id === character.id ? snapshot : c)
+          );
+          // Lanzar error para que handler lo procese
+          throw new SyncError('Save failed, rolling back', character.id, error);
+        }
+      };
+      ```
+      
+      Implementar en utils/supabase.ts.
+    wave: 3
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Snapshot creation"
+      - "Rollback on error"
+      - "Error propagation"
+    priority: high
+    status: pending
+    dependencies:
+      - "task-2-2"
+    estimated_effort: small
+    estimated_files: 1
+    estimated_lines: 60
+    focus_area: "utils/supabase.ts (saveCharacterToCloud function)"
+    verification:
+      - "Snapshot es deep copy"
+      - "Rollback restaura estado previo"
+      - "Error no es silenciado"
+    acceptance_criteria:
+      - "On network error, character revierte a snapshot"
+      - "Error propagado a error handler"
+      - "No data loss"
+    failure_modes:
+      - scenario: "Snapshot copia en shallow, propiedades mutables se comparten"
+        likelihood: medium
+        impact: high
+        mitigation: "Usar JSON.parse(JSON.stringify()) para deep copy"
+
+  - id: "task-3-2"
+    title: "Toast con estado de sincronización"
+    description: |
+      Agregar Toast component que muestre:
+      - "Guardando..." (syncing)
+      - "✓ Sincronizado" (success)
+      - "✗ Error de sincronización" (error, clickable para retry)
+      
+      Implementar SyncState en types.ts:
+      ```typescript
+      type SyncState = 'idle' | 'syncing' | 'success' | 'error';
+      interface SyncStatus {
+        state: SyncState;
+        lastError?: string;
+        characterId?: string;
+      }
+      ```
+      
+      Agregar context SyncStatusContext para exponer a toda app.
+    wave: 3
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "SyncState enum"
+      - "SyncStatusContext"
+      - "Toast rendering logic"
+    priority: high
+    status: pending
+    dependencies:
+      - "task-3-1"
+    estimated_effort: medium
+    estimated_files: 3
+    estimated_lines: 150
+    focus_area: |
+      types.ts (SyncState type)
+      App.tsx (SyncStatusContext provider)
+      components/SyncToast.tsx (new)
+    verification:
+      - "Toast aparece cuando syncing"
+      - "Desaparece cuando success o error"
+      - "Error muestra mensaje descriptivo"
+    acceptance_criteria:
+      - "User ve feedback inmediato"
+      - "Toast autohide después de 3s si success"
+      - "Toast persiste si error"
+    failure_modes:
+      - scenario: "Toast spam: múltiples toasts aparecen simultáneamente"
+        likelihood: medium
+        impact: low
+        mitigation: "Queue toasts, mostrar máximo 1 activo"
+
+  - id: "task-3-3"
+    title: "Snapshot + error state integration"
+    description: |
+      Integrar rollback de task-3-1 con error handling de task-3-2.
+      
+      Flow:
+      1. User hace cambio
+      2. Debounce fires (task-1)
+      3. Validación corre (task-2)
+      4. saveWithRollback corre (task-3-1)
+      5. Si error → rollback + toast error (task-3-2)
+      6. User ve "✗ Error" e intenta retry manual
+      
+      Lógica:
+      - Mantener Map<characterId, snapshot> de última versión exitosa
+      - On save attempt, guardar snapshot pre-send
+      - On error, restaurar snapshot + log attempt count
+    wave: 3
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Snapshot persistence"
+      - "Error retry logic"
+      - "State cleanup"
+    priority: high
+    status: pending
+    dependencies:
+      - "task-3-1"
+      - "task-3-2"
+    estimated_effort: medium
+    estimated_files: 1
+    estimated_lines: 120
+    focus_area: "App.tsx (useEffect handlers)"
+    verification:
+      - "Snapshot guardado antes de send"
+      - "On error, snapshot restaurado"
+      - "Toast muestra error"
+      - "Retry button funciona"
+    acceptance_criteria:
+      - "User puede hacer retry manual"
+      - "No data loss después de error"
+      - "Log muestra attempt count"
+    failure_modes:
+      - scenario: "Race condition: user hace cambio DURANTE rollback"
+        likelihood: low
+        impact: medium
+        mitigation: "Usar flag inProgress para preventduplicate saves"
+
+  # ==================== WAVE 4: Batching de Cambios ====================
+
+  - id: "task-4-1"
+    title: "Implementar batching de cambios"
+    description: |
+      Actualmente: 10 personajes = 10 requests secuenciales.
+      Target: 10 personajes = 1 batched request.
+      
+      Implementar:
+      1. Queue de cambios (Map<characterId, Character>)
+      2. Debounce global 500ms (agrupa cambios)
+      3. saveBatch(characters[]) que envía todos atomically
+      4. On error: rollback ALL o NONE (transactional)
+      
+      Pseudo-código:
+      ```typescript
+      const pendingChanges = new Map<string, Character>();
+      
+      const queueSave = (character: Character) => {
+        pendingChanges.set(character.id, character);
+        debounceFlush();
+      };
+      
+      const flushBatch = async () => {
+        const batch = Array.from(pendingChanges.values());
+        const snapshots = batch.map(c => ({ ...c }));
+        try {
+          await saveBatch(batch);
+        } catch {
+          // Rollback ALL
+          batch.forEach(c => rollbackCharacter(snapshots.get(c.id)));
+          throw;
+        }
+      };
+      ```
+    wave: 4
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Batch queue implementation"
+      - "Atomic save logic"
+      - "Rollback all on error"
+    priority: high
+    status: pending
+    dependencies:
+      - "task-2-2"
+      - "task-3-1"
+    estimated_effort: medium
+    estimated_files: 1
+    estimated_lines: 140
+    focus_area: "utils/supabase.ts (new saveBatch function)"
+    verification:
+      - "Multiple character saves batched"
+      - "Single request sent per batch"
+      - "All succeed or all fail"
+    acceptance_criteria:
+      - "10 saves = 1 request (verified in Network tab)"
+      - "Transactional: no partial saves"
+      - "Error handling works"
+    failure_modes:
+      - scenario: "Batch request timeout, partial processed on server"
+        likelihood: low
+        impact: critical
+        mitigation: |
+          Usar Supabase transaction support o
+          implement idempotency keys para retry safety
+
+  - id: "task-4-2"
+    title: "Integrar batching en App.tsx"
+    description: |
+      Refactor App.tsx para usar batching:
+      - Reemplazar calls individuales a saveCharacterToCloud()
+      - Usar queueSave() de task-4-1
+      - Asegurar que onUpdate callbacks triggeren queueSave
+      
+      Cambios:
+      - onUpdate handler en CombatTab, InventoryTab, etc
+      - Antes: setCharacters() + saveCharacterToCloud()
+      - Después: setCharacters() + queueSave()
+    wave: 4
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Integration with all tabs"
+      - "Handler refactor"
+      - "Testing batching end-to-end"
+    priority: high
+    status: pending
+    dependencies:
+      - "task-4-1"
+    estimated_effort: small
+    estimated_files: 1
+    estimated_lines: 80
+    focus_area: "App.tsx (all onUpdate handlers)"
+    verification:
+      - "Compiles without errors"
+      - "Batching works from all tabs"
+      - "Visual behavior unchanged"
+    acceptance_criteria:
+      - "Network tab shows single request per flush"
+      - "All characters saved in batch"
+      - "No errors from handler refactor"
+    failure_modes:
+      - scenario: "Batch size grows unbounded, OOM"
+        likelihood: low
+        impact: high
+        mitigation: "Limit queue size, flush if > 50 pending"
+
+  # ==================== WAVE 5: Testing + Documentation ====================
+
+  - id: "task-5-1"
+    title: "Test debounce behavior"
+    description: |
+      Manual testing o mock tests para verificar:
+      - Debounce delay actúa en 500ms
+      - Múltiples keystroke = single call
+      - Cleanup funciona en unmount
+      - Async callbacks supported
+      
+      Test scenarios:
+      1. Type 10 HP values, verify 1 save call
+      2. Edit HP + ability simultaneously, verify batched
+      3. Unmount component mid-debounce, verify cleanup
+      4. Debounce delay is exactly 500ms (not earlier)
+    wave: 5
+    agent: gem-browser-tester
+    prototype: false
+    covers:
+      - "Debounce timing"
+      - "Multiple input handling"
+      - "Cleanup verification"
+      - "Batching validation"
+    priority: high
+    status: pending
+    dependencies:
+      - "task-1-2"
+      - "task-4-2"
+    estimated_effort: medium
+    estimated_files: 0
+    estimated_lines: 0
+    focus_area: "CombatTab.tsx (manual E2E testing)"
+    verification:
+      - "Network requests logged"
+      - "Request count matches expected"
+      - "Timing verified via timestamps"
+    acceptance_criteria:
+      - "10 HP edits = 1 request (not 10)"
+      - "Request sent exactly 500ms after last keystroke"
+      - "No request if browser closes within 500ms"
+    validation_matrix:
+      - scenario: "Rapid HP changes"
+        steps:
+          - "Open character sheet"
+          - "Edit HP field 5 times in <1s"
+          - "Open DevTools Network tab"
+        expected_result: "Single PATCH request to characters table"
+      
+      - scenario: "Cross-tab editing"
+        steps:
+          - "Edit HP in CombatTab"
+          - "Simultaneously edit Inventory in InventoryTab"
+          - "Check Network tab"
+        expected_result: "Single batched request with both changes"
+      
+      - scenario: "Error recovery"
+        steps:
+          - "Edit HP"
+          - "Simulate network error (DevTools throttle → offline)"
+          - "Verify UI shows error"
+          - "Re-enable network, verify auto-retry"
+        expected_result: "Character reverts then resaves, no data loss"
+
+    fixtures:
+      character_with_max_hp_100:
+        id: "test-char-1"
+        name: "Test Fighter"
+        hp: { current: 100, max: 100, temp: 0 }
+      character_with_full_inventory:
+        id: "test-char-2"
+        inventory: [{ id: "item-1", name: "Sword", quantity: 1 }]
+
+  - id: "task-5-2"
+    title: "Test error scenarios"
+    description: |
+      Verificar que error handling funciona:
+      1. Network timeout → rollback
+      2. Validation error → local error state
+      3. Server error (500) → toast + retry
+      4. Data corruption → detected + logged
+      5. localStorage corruption → recovered
+      
+      Test matrix:
+      - Invalid HP (NaN) → saved? (should not)
+      - HP > maxHP → saved? (should not)
+      - Offline mode → synced on online? (yes)
+      - Server 500 → toast? (yes) + retry? (yes)
+      - Partial batch fail → all rollback? (yes)
+    wave: 5
+    agent: gem-browser-tester
+    prototype: false
+    covers:
+      - "Validation errors"
+      - "Network errors"
+      - "Server errors"
+      - "Recovery scenarios"
+    priority: high
+    status: pending
+    dependencies:
+      - "task-2-2"
+      - "task-3-2"
+      - "task-3-3"
+    estimated_effort: medium
+    estimated_files: 0
+    estimated_lines: 0
+    focus_area: "All components + utils (error path testing)"
+    verification:
+      - "Invalid data rejected"
+      - "Errors visible to user"
+      - "Recovery works"
+      - "No silent failures"
+    acceptance_criteria:
+      - "NaN HP rejected with error toast"
+      - "Network error shows 'Error' state"
+      - "Retry works after network restored"
+      - "Offline changes sync when online"
+    flows:
+      - flow_id: "invalid-hp-validation"
+        description: "User enters NaN in HP field"
+        setup:
+          - "Open character sheet"
+          - "Character.hp = { current: 50, max: 100 }"
+        steps:
+          - "Click HP field"
+          - "Delete content, leave blank"
+          - "Try to save (trigger debounce)"
+        expected_state:
+          - "Toast shows validation error"
+          - "HP reverts to 50"
+          - "No network request sent"
+        teardown:
+          - "Close sheet"
+      
+      - flow_id: "network-error-recovery"
+        description: "Network fails during save, user retries"
+        setup:
+          - "Character sheet open"
+          - "Network available"
+        steps:
+          - "Edit HP to 75"
+          - "Simulate network error (DevTools throttle)"
+          - "Toast shows 'Error saving'"
+          - "Restore network"
+          - "Toast shows 'Retry' button"
+          - "Click Retry"
+        expected_state:
+          - "Character syncs"
+          - "Toast shows 'Synchronized'"
+          - "Network tab shows successful PATCH"
+        teardown:
+          - "Verify HP persisted in cloud"
+
+  - id: "task-5-3"
+    title: "Documentation + Performance Validation"
+    description: |
+      Crear documentación de cambios y validar mejora de performance.
+      
+      Deliverables:
+      1. SYNC-OPTIMIZATION.md
+         - Explicar debounce, dedup, batching, rollback
+         - Before/after metrics
+         - Screenshots de Network tab
+      
+      2. Performance report
+         - Request count: before vs after (target 10x reduction)
+         - Data loss incidents: before vs after (target 50x reduction)
+         - Battery usage: before vs after estimate
+      
+      3. Architecture diagram
+         - Flow de debounce → validation → batch → sync
+         - Error handling paths
+      
+      4. Runbook de troubleshooting
+         - "Changes not syncing"
+         - "Data corruption detected"
+         - "Rollback stuck"
+    wave: 5
+    agent: gem-documentation-writer
+    prototype: false
+    covers:
+      - "SYNC-OPTIMIZATION.md"
+      - "Performance metrics document"
+      - "Architecture diagrams"
+      - "Troubleshooting runbook"
+    priority: medium
+    status: pending
+    dependencies:
+      - "task-5-2"
+    estimated_effort: small
+    estimated_files: 4
+    estimated_lines: 400
+    focus_area: "docs/ directory (new files)"
+    verification:
+      - "Documentation accurate"
+      - "Metrics measured and documented"
+      - "Diagrams clear"
+    acceptance_criteria:
+      - "SYNC-OPTIMIZATION.md exists"
+      - "Performance improvement documented"
+      - "Before/after metrics clear"
+      - "Team can understand flow from docs"
+    task_type: documentation
+    audience:
+      - developers
+      - stakeholders
+    coverage_matrix:
+      - "Debounce mechanism explained"
+      - "Dedup logic documented"
+      - "Batching strategy"
+      - "Error recovery flows"
+      - "Performance metrics"

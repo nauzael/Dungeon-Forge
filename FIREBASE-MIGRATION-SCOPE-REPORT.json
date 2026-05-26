@@ -1,0 +1,342 @@
+{
+  "investigation_timestamp": "2026-05-25T00:00:00Z",
+  "migration_context": "Supabase → Firebase migration on feature/firebase-migration branch",
+  "summary": {
+    "total_supabase_references": 20,
+    "references_in_active_code": 4,
+    "references_in_documentation": 8,
+    "references_in_scripts": 4,
+    "references_in_rules": 2,
+    "debug_components_affected": 2,
+    "critical_scope_items": 2
+  },
+  "supabase_references": [
+    {
+      "file": "components/DMDashboard/ConnectionDebugPanel.tsx",
+      "line": 23,
+      "type": "environment_variable",
+      "status": "CRITICAL",
+      "context": "const url = import.meta.env.VITE_SUPABASE_URL || '';",
+      "issue": "Checks non-existent env var; shows ❌ NOT CONFIGURED even with working Firebase",
+      "impact": "Misleading diagnostic output in DM Dashboard connection panel"
+    },
+    {
+      "file": "components/DMDashboard/ConnectionDebugPanel.tsx",
+      "line": 24,
+      "type": "environment_variable",
+      "status": "CRITICAL",
+      "context": "const key = import.meta.env.VITE_SUPABASE_ANON_KEY || '';",
+      "issue": "Checks non-existent env var; shows ❌ NOT CONFIGURED even with working Firebase",
+      "impact": "Misleading diagnostic output in DM Dashboard connection panel"
+    },
+    {
+      "file": "components/AuthDebugOverlay.tsx",
+      "line": 20,
+      "type": "environment_variable",
+      "status": "CRITICAL",
+      "context": "const url = import.meta.env.VITE_SUPABASE_URL;",
+      "issue": "Checks non-existent env var in auth debug overlay",
+      "impact": "Auth debug panel shows incorrect credentials status; confuses developers"
+    },
+    {
+      "file": "components/AuthDebugOverlay.tsx",
+      "line": 21,
+      "type": "environment_variable",
+      "status": "CRITICAL",
+      "context": "const key = import.meta.env.VITE_SUPABASE_ANON_KEY;",
+      "issue": "Checks non-existent env var in auth debug overlay",
+      "impact": "Auth debug panel shows incorrect credentials status; confuses developers"
+    },
+    {
+      "file": ".env.example",
+      "line": 5,
+      "type": "documentation",
+      "status": "MEDIUM",
+      "context": "VITE_SUPABASE_URL=https://your-project.supabase.co",
+      "issue": "Example file still references Supabase; outdated template",
+      "impact": "New developers might copy old credentials template"
+    },
+    {
+      "file": ".env.example",
+      "line": 6,
+      "type": "documentation",
+      "status": "MEDIUM",
+      "context": "VITE_SUPABASE_ANON_KEY=your-anon-key",
+      "issue": "Example file still references Supabase; outdated template",
+      "impact": "New developers might copy old credentials template"
+    },
+    {
+      "file": "README.md",
+      "line": 122,
+      "type": "documentation",
+      "status": "MEDIUM",
+      "context": "VITE_SUPABASE_URL=https://your-project.supabase.co",
+      "issue": "Old credential example in main README",
+      "impact": "Setup documentation is out of date with Firebase migration"
+    },
+    {
+      "file": "README.md",
+      "line": 123,
+      "type": "documentation",
+      "status": "MEDIUM",
+      "context": "VITE_SUPABASE_ANON_KEY=your-anon-key-here",
+      "issue": "Old credential example in main README",
+      "impact": "Setup documentation is out of date with Firebase migration"
+    },
+    {
+      "file": "README.md",
+      "line": 203,
+      "type": "documentation",
+      "status": "MEDIUM",
+      "context": "| `VITE_SUPABASE_URL` | ✅ | Your Supabase project URL |",
+      "issue": "Documentation table lists Supabase URL as required env var",
+      "impact": "Users follow outdated setup instructions"
+    },
+    {
+      "file": "README.md",
+      "line": 204,
+      "type": "documentation",
+      "status": "MEDIUM",
+      "context": "| `VITE_SUPABASE_ANON_KEY` | ✅ | Your Supabase anonymous public key |",
+      "issue": "Documentation table lists Supabase key as required env var",
+      "impact": "Users follow outdated setup instructions"
+    },
+    {
+      "file": "scripts/create_checkpoint.mjs",
+      "line": 24,
+      "type": "script",
+      "status": "LOW",
+      "context": "const supabaseUrl = process.env.VITE_SUPABASE_URL;",
+      "issue": "Checkpoint creation script reads Supabase URL",
+      "impact": "Backup script references old backend; may fail silently"
+    },
+    {
+      "file": "scripts/test-kaelen.mjs",
+      "line": 11,
+      "type": "script",
+      "status": "LOW",
+      "context": "const ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';",
+      "issue": "Test script references Supabase ANON_KEY",
+      "impact": "Legacy test script depends on non-existent env var"
+    },
+    {
+      "file": "scripts/test-oauth-fix.mjs",
+      "line": 24,
+      "type": "script",
+      "status": "LOW",
+      "context": "const supabaseUrl = process.env.VITE_SUPABASE_URL || '';",
+      "issue": "OAuth test script references Supabase URL",
+      "impact": "Test utilities may not function correctly with Firebase"
+    },
+    {
+      "file": "scripts/test-oauth-fix.mjs",
+      "line": 25,
+      "type": "script",
+      "status": "LOW",
+      "context": "const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';",
+      "issue": "OAuth test script references Supabase key",
+      "impact": "Test utilities may not function correctly with Firebase"
+    },
+    {
+      "file": ".claude/rules/common/security.md",
+      "line": 23,
+      "type": "rule_example",
+      "status": "LOW",
+      "context": "const apiKey = import.meta.env.VITE_SUPABASE_KEY",
+      "issue": "Example code in security guidelines references Supabase",
+      "impact": "Developers might copy outdated security patterns"
+    },
+    {
+      "file": ".claude/rules/web/security.md",
+      "line": 53,
+      "type": "rule_example",
+      "status": "LOW",
+      "context": "const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;",
+      "issue": "Example code in security guidelines references Supabase",
+      "impact": "Developers might copy outdated security patterns"
+    },
+    {
+      "file": "PRODUCTION-CONNECTION-VERIFIED.md",
+      "line": 21,
+      "type": "documentation",
+      "status": "LOW",
+      "context": "- `VITE_SUPABASE_URL=https://usnlhzkpukkuwbtortil.supabase.co`",
+      "issue": "Historical deployment notes reference Supabase credentials",
+      "impact": "Archive document; low immediate impact but confusing for future reference"
+    },
+    {
+      "file": "PRODUCTION-CONNECTION-VERIFIED.md",
+      "line": 22,
+      "type": "documentation",
+      "status": "LOW",
+      "context": "- `VITE_SUPABASE_ANON_KEY=[valor correcto]`",
+      "issue": "Historical deployment notes reference Supabase credentials",
+      "impact": "Archive document; low immediate impact but confusing for future reference"
+    }
+  ],
+  "debug_components": [
+    {
+      "name": "ConnectionDebugPanel",
+      "file": "components/DMDashboard/ConnectionDebugPanel.tsx",
+      "purpose": "Shows connection status, credentials, and debug logs in DM Dashboard",
+      "current_status": "BROKEN - checks for VITE_SUPABASE_* which don't exist",
+      "where_used": "components/DMDashboard.tsx line 158",
+      "variables_checked": ["VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY"],
+      "should_check": ["VITE_FIREBASE_PROJECT_ID", "VITE_FIREBASE_API_KEY", "VITE_FIREBASE_AUTH_DOMAIN"],
+      "additional_notes": "Panel spans ~270 lines; includes credential display, event logging, copy-to-clipboard functionality"
+    },
+    {
+      "name": "AuthDebugOverlay",
+      "file": "components/AuthDebugOverlay.tsx",
+      "purpose": "Floating auth debug panel with console log capture and credential status",
+      "current_status": "BROKEN - checks for VITE_SUPABASE_* which don't exist",
+      "where_used": "Appears to be loaded in App.tsx or triggered conditionally",
+      "variables_checked": ["VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY"],
+      "should_check": ["VITE_FIREBASE_PROJECT_ID", "VITE_FIREBASE_API_KEY"],
+      "additional_notes": "Floating button UI (🔍) that opens debug overlay; captures console logs in real-time"
+    },
+    {
+      "name": "OAuthDebugConsole",
+      "file": "components/OAuthDebugConsole.tsx",
+      "purpose": "OAuth diagnostics, session monitoring, and character recovery",
+      "current_status": "TRANSITIONAL - imports supabase but doesn't check credentials",
+      "where_used": "Likely in App.tsx or conditionally triggered",
+      "variables_checked": "None explicitly; imports supabase module",
+      "should_check": "N/A (different pattern - uses imports not env vars)",
+      "additional_notes": "Does NOT display credentials; focuses on OAuth diagnostics and session state. May need refactoring to use Firebase auth instead of Supabase"
+    }
+  ],
+  "risk_assessment": {
+    "severity": "MODERATE",
+    "reasoning": "Two UI debug panels currently display incorrect credential status (always showing ❌ NOT CONFIGURED even with working Firebase). This will confuse developers during troubleshooting and deployment verification. Active code is blocked; documentation and scripts are secondary.",
+    "developer_impact": "HIGH - when troubleshooting connection issues, developers see red ❌ flags even though Firebase is correctly configured",
+    "production_impact": "LOW - these are debug panels; not user-facing. Only affects internal diagnostics",
+    "migration_blocking": true,
+    "timeline_critical": false
+  },
+  "recommendations": {
+    "priority_1_critical_components": [
+      {
+        "task": "Update ConnectionDebugPanel.tsx (lines 23-24)",
+        "action": "Replace VITE_SUPABASE_* checks with VITE_FIREBASE_* checks",
+        "files_to_update": ["components/DMDashboard/ConnectionDebugPanel.tsx"],
+        "required_env_vars": ["VITE_FIREBASE_PROJECT_ID", "VITE_FIREBASE_API_KEY", "VITE_FIREBASE_AUTH_DOMAIN"],
+        "scope_notes": "Check all credential display logic; update diagnostic messages to reference Firebase instead of Supabase"
+      },
+      {
+        "task": "Update AuthDebugOverlay.tsx (lines 20-21)",
+        "action": "Replace VITE_SUPABASE_* checks with VITE_FIREBASE_* checks",
+        "files_to_update": ["components/AuthDebugOverlay.tsx"],
+        "required_env_vars": ["VITE_FIREBASE_PROJECT_ID", "VITE_FIREBASE_API_KEY"],
+        "scope_notes": "Update overlay display UI; adjust header label from 'Supabase Config' to 'Firebase Config'"
+      }
+    ],
+    "priority_2_documentation": [
+      {
+        "task": "Update .env.example to remove Supabase credentials",
+        "action": "Replace VITE_SUPABASE_* with VITE_FIREBASE_* credentials in example file",
+        "files_to_update": [".env.example"],
+        "affected_developers": "New project setup"
+      },
+      {
+        "task": "Update README.md environment variable table",
+        "action": "Replace Supabase env var table (lines 203-204) with Firebase env vars",
+        "files_to_update": ["README.md"],
+        "affected_developers": "Setup documentation readers",
+        "new_vars": ["VITE_FIREBASE_API_KEY", "VITE_FIREBASE_PROJECT_ID", "VITE_FIREBASE_AUTH_DOMAIN", "VITE_FIREBASE_STORAGE_BUCKET", "VITE_FIREBASE_MESSAGING_SENDER_ID", "VITE_FIREBASE_APP_ID"]
+      }
+    ],
+    "priority_3_scripts": [
+      {
+        "task": "Audit and update test scripts",
+        "files_to_update": ["scripts/test-kaelen.mjs", "scripts/test-oauth-fix.mjs", "scripts/create_checkpoint.mjs"],
+        "action": "Replace Supabase references with Firebase equivalents or remove if legacy",
+        "notes": "Determine if these scripts are still actively used before updating"
+      }
+    ],
+    "priority_4_guidelines": [
+      {
+        "task": "Update code examples in .claude/ rules",
+        "files_to_update": [".claude/rules/common/security.md", ".claude/rules/web/security.md"],
+        "action": "Update example code snippets to use VITE_FIREBASE_* instead of VITE_SUPABASE_*",
+        "notes": "These are development guidelines; update for consistency"
+      }
+    ]
+  },
+  "implementation_strategy": {
+    "phase_1_blocking": {
+      "duration_estimate": "15-20 minutes",
+      "impact": "Unblocks diagnostic panel functionality",
+      "tasks": [
+        "Update ConnectionDebugPanel.tsx environment variable checks (2-3 min)",
+        "Update AuthDebugOverlay.tsx environment variable checks (2-3 min)",
+        "Test both panels with Firebase env vars loaded (.env.testing) (10-15 min)"
+      ]
+    },
+    "phase_2_documentation": {
+      "duration_estimate": "20-30 minutes",
+      "impact": "Prevents new developers from following outdated setup",
+      "tasks": [
+        "Update .env.example (5 min)",
+        "Update README.md sections 2.2, 3.1 (10-15 min)",
+        "Add migration note: 'Legacy Supabase references removed in Firebase migration' (5 min)"
+      ]
+    },
+    "phase_3_cleanup": {
+      "duration_estimate": "30-45 minutes",
+      "impact": "Reduces maintenance debt and confusion",
+      "tasks": [
+        "Review and update test scripts (15-20 min)",
+        "Update .claude/ rules examples (10-15 min)",
+        "Mark PRODUCTION-CONNECTION-VERIFIED.md as archived/historical (5 min)"
+      ]
+    }
+  },
+  "files_requiring_no_changes": [
+    {
+      "file": "components/OAuthDebugConsole.tsx",
+      "reason": "Imports supabase module but doesn't check env vars; uses different diagnostic pattern. May need separate OAuth refactoring.",
+      "future_task": "Review Firebase OAuth integration patterns in OAuthDebugConsole"
+    },
+    {
+      "file": "App.tsx",
+      "reason": "Contains Supabase cleanup code and legacy session handling. Part of larger migration cleanup (separate scope).",
+      "future_task": "Part of main Firebase migration cleanup task"
+    },
+    {
+      "file": "utils/firebase.ts",
+      "reason": "Already using VITE_FIREBASE_* correctly; no changes needed.",
+      "status": "✓ Already correct"
+    },
+    {
+      "file": "components/Login.tsx",
+      "reason": "Already using VITE_FIREBASE_* correctly with mock mode checks; no changes needed.",
+      "status": "✓ Already correct"
+    }
+  ],
+  "validation_checklist": {
+    "after_phase_1": [
+      "✓ Both debug panels load without 'NOT CONFIGURED' errors",
+      "✓ ConnectionDebugPanel shows Firebase PROJECT_ID when env var is set",
+      "✓ AuthDebugOverlay shows Firebase API key status when env var is set",
+      "✓ Copy-to-clipboard diagnostic report references Firebase, not Supabase",
+      "✓ No console errors about missing env vars in debug components"
+    ],
+    "after_phase_2": [
+      "✓ .env.example contains only Firebase env vars",
+      "✓ README.md environment variable table lists Firebase vars",
+      "✓ New developer following setup gets Firebase config, not Supabase"
+    ],
+    "after_phase_3": [
+      "✓ No grep results for 'VITE_SUPABASE' in /components folder",
+      "✓ Scripts updated or marked as deprecated",
+      "✓ Code examples in rules reference Firebase"
+    ]
+  },
+  "notes": {
+    "post_migration_context": "This report addresses the debug/diagnostic layer of the Firebase migration. Main backend migration (API integration, auth flow, realtime sync) is handled separately.",
+    "testing_environment": "Use .env.testing which already contains VITE_FIREBASE_* credentials for validation",
+    "branch_context": "feature/firebase-migration branch; should be merged after all phases complete",
+    "related_tasks": "OAuthDebugConsole component audit (separate issue); App.tsx legacy session cleanup (separate issue)"
+  }
+}

@@ -1,0 +1,138 @@
+plan_id: "20260525-fix-realtime-imports"
+plan_name: "Fix subscribeWithRetry Imports - Firebase vs Supabase"
+objective: "Correct realtime listener imports to use Firebase instead of legacy Supabase"
+complexity: "simple"
+status: "ready"
+created: "2026-05-25"
+
+context:
+  issue: |
+    Post-Firebase migration, subscribeWithRetry exists in both locations:
+    - utils/firebase.ts (line 745) - CORRECT Firebase Realtime DB version ✅
+    - utils/supabase.ts (line 429) - LEGACY Supabase version (deprecated)
+  
+  impact: |
+    SheetTabs.tsx and DMDashboard.tsx import from wrong location (supabase),
+    causing realtime listeners to timeout when trying to use Supabase 
+    instead of Firebase
+  
+  files_affected:
+    - components/SheetTabs.tsx (line 18) - INCORRECT IMPORT
+    - components/DMDashboard.tsx (line 7) - INCORRECT IMPORT
+    - App.tsx (line 17) - ✅ ALREADY CORRECT
+  
+  confidence: "high"
+  
+waves:
+  - wave: 1
+    name: "Fix Component Imports"
+    tasks:
+      - task_id: 1.1
+        name: "Update SheetTabs.tsx import"
+        file: "components/SheetTabs.tsx"
+        operation: "replace"
+        line_number: 18
+        old_import: "import { subscribeWithRetry } from '../utils/supabase'; // WAVE 8: Lazy load listener"
+        new_import: "import { subscribeWithRetry } from '../utils/firebase'; // WAVE 8: Lazy load listener"
+        verification: "Verify import resolves to firebase version"
+        
+      - task_id: 1.2
+        name: "Update DMDashboard.tsx import"
+        file: "components/DMDashboard.tsx"
+        operation: "replace"
+        line_number: 7
+        old_import: "import { subscribeWithRetry } from '../utils/supabase'; // WAVE 8: Lazy load listeners"
+        new_import: "import { subscribeWithRetry } from '../utils/firebase'; // WAVE 8: Lazy load listeners"
+        verification: "Verify import resolves to firebase version"
+
+  - wave: 2
+    name: "Verification & Quality Checks"
+    tasks:
+      - task_id: 2.1
+        name: "Scan for remaining incorrect imports"
+        operation: "grep_search"
+        query: "subscribeWithRetry.*from.*utils/supabase"
+        expected_result: "Only matches in documentation (CHANGELOG, docs/), no active code imports"
+        
+      - task_id: 2.2
+        name: "Verify all realtime imports point to firebase"
+        operation: "grep_search"
+        query: "import.*subscribeWithRetry.*from"
+        expected_result: |
+          App.tsx line 17: from '../utils/firebase'
+          SheetTabs.tsx line 18: from '../utils/firebase'
+          DMDashboard.tsx line 7: from '../utils/firebase'
+        
+      - task_id: 2.3
+        name: "Check function signatures match"
+        operation: "manual_review"
+        description: "Confirm both versions have identical signatures"
+        check_firebase: "utils/firebase.ts line 745"
+        check_supabase: "utils/supabase.ts line 429 (should be removed/deprecated)"
+
+  - wave: 3
+    name: "Build & Test Validation"
+    tasks:
+      - task_id: 3.1
+        name: "Run TypeScript compilation"
+        command: "npm run type-check"
+        expected_result: "No type errors in SheetTabs.tsx or DMDashboard.tsx"
+        
+      - task_id: 3.2
+        name: "Run ESLint validation"
+        command: "npm run lint"
+        expected_result: "No import-related errors"
+        
+      - task_id: 3.3
+        name: "Build production bundle"
+        command: "npm run build"
+        expected_result: "Build succeeds, no module resolution errors"
+        
+      - task_id: 3.4
+        name: "Verify bundle contents"
+        operation: "inspect"
+        check: "Confirm subscribeWithRetry in dist/ uses Firebase realtime logic"
+
+  - wave: 4
+    name: "Runtime Validation"
+    tasks:
+      - task_id: 4.1
+        name: "Start dev server"
+        command: "npm run dev"
+        expected_result: "No console errors about module resolution"
+        
+      - task_id: 4.2
+        name: "Test SheetTabs realtime listeners"
+        operation: "manual_test"
+        steps:
+          - "Open character sheet"
+          - "Verify combat tab updates in realtime (no timeout)"
+          - "Check console for subscribeWithRetry success logs"
+        
+      - task_id: 4.3
+        name: "Test DMDashboard realtime listeners"
+        operation: "manual_test"
+        steps:
+          - "Open DM Dashboard"
+          - "Verify party member list updates in realtime"
+          - "Check connection status shows 'connected'"
+          - "Verify no timeout errors in console"
+
+rollback_plan: |
+  If any task fails:
+  1. Revert both imports to '../utils/supabase'
+  2. Investigate why Firebase version has issues
+  3. Check firebase.ts exports are complete
+  4. Validate subscribeWithRetry signature compatibility
+
+success_criteria:
+  - "Both imports point to '../utils/firebase'"
+  - "No grep_search results for incorrect imports in active code"
+  - "TypeScript compilation succeeds"
+  - "Build completes without errors"
+  - "Dev server starts cleanly"
+  - "Realtime listeners connect without timeout"
+  - "No console errors related to subscribeWithRetry"
+
+estimated_effort: "15 minutes"
+priority: "high"

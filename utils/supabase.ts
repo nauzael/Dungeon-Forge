@@ -7,6 +7,7 @@ import {
   kickLocal,
 } from './localStorage';
 import { debugLogger } from './debugLogger';
+import { isValidCharacter } from './validators';
 
 const TIMEOUT_MS = 15000;
 
@@ -26,15 +27,29 @@ console.log('[Supabase Init] URL:', supabaseUrl ? 'SET ✓' : 'MISSING ✗');
 console.log('[Supabase Init] Key: ', supabaseAnonKey ? 'SET ✓' : 'MISSING ✗');
 console.log('[Supabase Init] App ID: com.tupaquete.dndcompanion');
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials missing. Local storage will be used as fallback.');
+export const isSupabaseEnabled = !!(supabaseUrl && supabaseAnonKey);
+
+if (!isSupabaseEnabled) {
+  console.warn('Supabase credentials missing. Cloud sync and party features will be unavailable.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Usar placeholder cuando no hay credenciales para evitar crash al crear el cliente
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
+);
 
 // Helpers to handle character sync
 export const saveCharacterToCloud = async (character: Character, userId: string) => {
   try {
+    // VALIDAR PRIMERO
+    const validation = isValidCharacter(character);
+    if (!validation.valid) {
+      console.error('Character validation failed:', validation.errors);
+      throw new Error(`Invalid character: ${validation.errors.join(', ')}`);
+    }
+
+    // Si es válido, guardar
     const { data, error } = await supabase.from('characters').upsert(
       {
         id: character.id,
@@ -53,9 +68,183 @@ export const saveCharacterToCloud = async (character: Character, userId: string)
     return data;
   } catch (e) {
     console.error(`[Sync] Cloud save failed for ${character.name}:`, e instanceof Error ? e.message : e);
-    return null;
+    throw e; // Re-throw para que Wave 3 lo maneje con rollback
   }
 };
+
+/**
+ * Guarda un character con rollback automático si la sincronización a cloud falla.
+ * 
+ * Proceso:
+ * 1. Guarda snapshot de estado original en localStorage con key backup-${characterId}
+ * 2. Intenta guardar a cloud via saveOperation callback
+ * 3. Si falla:
+ *    - Restaura datos locales a originalCharacter
+ *    - Guarda lo que intentó guardar en localStorage bajo key failed-sync-${characterId}
+ *    - Retorna { success: false, error }
+ * 4. Si éxito:
+ *    - Limpia backup de localStorage
+ *    - Retorna { success: true }
+ * 
+ * @param character - Personaje a guardar
+ * @param originalCharacter - Personaje original para rollback
+ * @param saveOperation - Función que realiza el guardado a cloud
+ */
+export async function saveWithRollback(
+  character: Character,
+  originalCharacter: Character,
+  saveOperation?: () => Promise<any>
+): Promise<{
+  success: boolean;
+  error?: Error;
+}> {
+  const backupKey = `backup-${character.id}`;
+  const failedSyncKey = `failed-sync-${character.id}`;
+
+  try {
+    // Guardar backup ANTES de intentar save
+    localStorage.setItem(backupKey, JSON.stringify(originalCharacter));
+    console.log(`[Rollback] Backup guardado para ${character.id}`);
+
+    // Intentar guardar a cloud (si se proporciona saveOperation)
+    if (saveOperation) {
+      await saveOperation();
+    }
+
+    // Si éxito, limpiar backup
+    localStorage.removeItem(backupKey);
+    console.log(`[Rollback] Backup limpiado para ${character.id}`);
+
+    return { success: true };
+  } catch (error) {
+    // Si falla, restaurar datos locales
+    console.error(`[Rollback] Cloud save failed para ${character.id}:`, error instanceof Error ? error.message : error);
+    
+    // Guardar lo que intentamos guardar en failed-sync para auditoría
+    localStorage.setItem(failedSyncKey, JSON.stringify(character));
+    console.log(`[Rollback] Failed sync guardado en ${failedSyncKey}`);
+
+    return {
+      success: false,
+      error: error instanceof Error ? error : new Error('Unknown error during saveWithRollback'),
+    };
+  }
+}
+
+/**
+ * Agrupa múltiples saves de personajes en batches para reducir latencia.
+ * 
+ * Proceso:
+ * 1. Valida todos los characters con `isValidCharacter()`
+ * 2. Agrupa en chunks de 10 caracteres (límite de Supabase)
+ * 3. Ejecuta chunk 1, espera, ejecuta chunk 2, etc. (secuencial entre chunks)
+ * 4. Dentro de cada chunk, ejecución paralela con Promise.allSettled
+ * 5. Si un personaje falla, continúa con otros (no bloquea)
+ * 6. Retorna resumen con successful, failed, y totalTime
+ * 
+ * @param characters - Array de Character a guardar
+ * @param saveCallback - Función custom de guardado (opcional, usa saveCharacterToCloud si no se proporciona)
+ * @returns { successful: Character[], failed: {character, error}[], totalTime: number }
+ */
+export async function batchSaveCharacters(
+  characters: Character[],
+  saveCallback?: (character: Character) => Promise<any>
+): Promise<{
+  successful: Character[];
+  failed: { character: Character; error: Error }[];
+  totalTime: number;
+}> {
+  const successful: Character[] = [];
+  const failed: { character: Character; error: Error }[] = [];
+  const startTime = performance.now();
+
+  console.log(`[BatchSave] Starting batch save for ${characters.length} characters`);
+
+  // Validar todos primero
+  const validCharacters = characters.filter((char) => {
+    const validation = isValidCharacter(char);
+    if (!validation.valid) {
+      failed.push({
+        character: char,
+        error: new Error(validation.errors.join(', ')),
+      });
+      console.warn(
+        `[BatchSave] Validation failed for ${char.name}: ${validation.errors.join(', ')}`
+      );
+      return false;
+    }
+    return true;
+  });
+
+  console.log(
+    `[BatchSave] Validation complete: ${validCharacters.length} valid, ${failed.length} invalid`
+  );
+
+  // Batch en chunks de 10
+  const BATCH_SIZE = 10;
+  for (let i = 0; i < validCharacters.length; i += BATCH_SIZE) {
+    const chunk = validCharacters.slice(i, i + BATCH_SIZE);
+    const chunkNumber = Math.floor(i / BATCH_SIZE) + 1;
+    const totalChunks = Math.ceil(validCharacters.length / BATCH_SIZE);
+
+    console.log(
+      `[BatchSave] Processing chunk ${chunkNumber}/${totalChunks} (${chunk.length} characters)`
+    );
+
+    try {
+      // Ejecutar en paralelo dentro del chunk
+      const results = await Promise.allSettled(
+        chunk.map((char) =>
+          saveCallback ? saveCallback(char) : saveCharacterToCloud(char, char.user_id || 'guest')
+        )
+      );
+
+      // Procesar resultados
+      results.forEach((result, idx) => {
+        const character = chunk[idx];
+        if (result.status === 'fulfilled') {
+          successful.push(character);
+          console.log(`[BatchSave] ✓ Saved: ${character.name}`);
+        } else {
+          failed.push({
+            character,
+            error: result.reason instanceof Error ? result.reason : new Error(String(result.reason)),
+          });
+          console.error(`[BatchSave] ✗ Failed: ${character.name} - ${result.reason}`);
+        }
+      });
+    } catch (error) {
+      // Error en batch, agregar todos al failed
+      console.error(`[BatchSave] Chunk ${chunkNumber} error:`, error instanceof Error ? error.message : error);
+      chunk.forEach((char) => {
+        failed.push({
+          character: char,
+          error:
+            error instanceof Error ? error : new Error('Unknown error during batch save'),
+        });
+      });
+    }
+
+    // Pequeño delay entre chunks para no sobrecargar
+    if (i + BATCH_SIZE < validCharacters.length) {
+      const delayMs = 100;
+      await new Promise((r) => setTimeout(r, delayMs));
+      console.log(`[BatchSave] Waiting ${delayMs}ms before next chunk...`);
+    }
+  }
+
+  const totalTime = performance.now() - startTime;
+
+  console.log(
+    `[BatchSave] Complete: ${successful.length} successful, ${failed.length} failed in ${totalTime.toFixed(0)}ms`
+  );
+
+  return {
+    successful,
+    failed,
+    totalTime,
+  };
+}
 
 export const fetchCharactersFromCloud = async (userId: string) => {
   try {
@@ -241,7 +430,8 @@ export const subscribeWithRetry = (
   partyId: string,
   onUpdate: (payload: unknown) => void,
   onBroadcast?: (payload: unknown) => void,
-  onStatusChange?: (status: 'connecting' | 'connected' | 'error' | 'reconnecting') => void
+  onStatusChange?: (status: 'connecting' | 'connected' | 'error' | 'reconnecting') => void,
+  activeCharacterId?: string // WAVE 7: Selective sync - only listen to this character
 ): RealtimeSubscription => {
   // 🔧 FIX LOCAL MODE: Si estamos en local mode, retornar subscription noop
   const isLocalMode = localStorage.getItem('df_local_mode') === 'true';
@@ -312,13 +502,18 @@ export const subscribeWithRetry = (
     let eventReceived = false;
     
     // Setup postgres_changes listener
+    // WAVE 7: Build selective filter based on activeCharacterId
+    const characterFilter = activeCharacterId 
+      ? `party_id=eq.${partyId} AND id=eq.${activeCharacterId}`
+      : `party_id=eq.${partyId}`;
+    
     channel.on(
       'postgres_changes',
       {
         event: '*',
         schema: 'public',
         table: 'characters',
-        filter: `party_id=eq.${partyId}`,
+        filter: characterFilter, // WAVE 7: Only listen to activeCharacterId
       },
       (payload: unknown) => {
         eventReceived = true;

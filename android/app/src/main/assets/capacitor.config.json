@@ -4,5 +4,21 @@
 	"webDir": "dist",
 	"server": {
 		"androidScheme": "https"
+	},
+	"android": {
+		"preferredColorScheme": "dark",
+		"allowMixedContent": true
+	},
+	"plugins": {
+		"GoogleSignIn": {
+			"package": "com.tupaquete.dndcompanion",
+			"classname": "GoogleSignInPlugin"
+		},
+		"SafeArea": {
+			"offset": 0
+		},
+		"CapacitorHttp": {
+			"enabled": false
+		}
 	}
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../utils/supabase';
+import { supabase } from '../utils/firebase';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 
@@ -8,13 +8,22 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
+  // 🚀 V1.6 VERIFICATION - OAuth popup flow
+  console.log('[V1.6] 🚀 Login component loaded - NEW POPUP FLOW');
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  const isMockMode = !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('TU_PROYECTO');
+  // Check if Firebase is properly configured (not mock/placeholder values)
+  const isMockMode = !import.meta.env.VITE_FIREBASE_PROJECT_ID || 
+                     import.meta.env.VITE_FIREBASE_PROJECT_ID.includes('TU_PROYECTO') ||
+                     !import.meta.env.VITE_FIREBASE_API_KEY ||
+                     import.meta.env.VITE_FIREBASE_API_KEY.includes('TU_API_KEY');
 
   const handleLocalModeClick = () => {
     try {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       localStorage.setItem('df_local_mode', 'true');
       localStorage.setItem('df_session', JSON.stringify({ 
         user: 'Local Developer', 
@@ -33,14 +42,14 @@ const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
 
   const handleGoogleLogin = async () => {
     if (isMockMode) {
-      alert("Google Login is not available in Mock Mode. Please set VITE_SUPABASE_URL in .env");
+      alert("Google Login is not available in Mock Mode. Please set VITE_FIREBASE_PROJECT_ID and VITE_FIREBASE_API_KEY in .env");
       return;
     }
     
     setLoading(true);
     setError('');
     
-    // Choose redirect depending on platform (Capacitor Mobile vs Web)
+    // Detect platform
     const isNative = Capacitor.getPlatform() !== 'web';
     const redirectUrl = isNative
       ? 'com.tupaquete.dndcompanion://login-callback' 
@@ -49,46 +58,82 @@ const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
     console.log('[Login] Starting OAuth flow');
     console.log('[Login] Platform:', isNative ? 'native (Capacitor)' : 'web');
     console.log('[Login] Redirect URL:', redirectUrl);
-    console.log('[Login] Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+    console.log('[Login] Firebase Project:', import.meta.env.VITE_FIREBASE_PROJECT_ID);
 
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl,
-          skipBrowserRedirect: isNative, 
-          queryParams: { prompt: 'select_account' }
-        }
-      });
+      // For web: signInWithOAuth uses signInWithRedirect (will redirect to Google)
+      // For mobile: We need to use a different approach with popups/custom handlers
       
-      if (error) {
-         console.error('[Login] Supabase OAuth error:', error.message);
-         setLoading(false);
-         alert("SUPABASE ERROR: " + error.message);
-         return;
-      }
-
-      console.log('[Login] OAuth URL generated successfully');
-
-      if (isNative && data?.url) {
-        console.log('[Login] Opening browser with OAuth URL');
-        try {
-          await Browser.open({ url: data.url });
-          console.log('[Login] Browser opened');
-          // Don't set loading to false here - it will be set when session is established
-          // The app should stay in loading state until onAuthStateChange fires with a session
-        } catch (bErr) {
-          console.error('[Login] Browser open error:', bErr);
-          alert('BROWSER OPEN ERROR: ' + (bErr instanceof Error ? bErr.message : String(bErr)));
+      if (!isNative) {
+        // Web platform: use redirect flow
+        console.log('[Login] Using redirect OAuth flow for web');
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: redirectUrl,
+            queryParams: { prompt: 'select_account' }
+          }
+        });
+        
+        if (error) {
+          console.error('[Login] OAuth error:', error.message);
           setLoading(false);
+          setError('OAuth error: ' + error.message);
+          alert("OAUTH ERROR: " + error.message);
+          return;
         }
-      } else if (!isNative) {
-        console.log('[Login] Web platform - OAuth should redirect automatically');
-        // For web, the redirect happens automatically
+        
+        // For redirect flow, the browser will navigate away
+        // Loading state remains until page reloads with user
+        console.log('[Login] Redirect flow initiated - waiting for Google OAuth...');
       } else {
-        console.warn('[Login] No OAuth URL generated');
-        setLoading(false);
-        setError('OAuth URL not generated. Please try again.');
+        // Mobile: use popup flow for Capacitor (NO redirectTo, so firebase uses popup)
+        console.log('[Login] Using POPUP OAuth flow for mobile');
+        
+        try {
+          // Use signInWithOAuth WITHOUT redirectTo for Capacitor
+          // This triggers popup flow in firebase.ts
+          const result = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+              // NO redirectTo for mobile - let firebase.ts use popup flow
+              queryParams: { prompt: 'select_account' }
+            }
+          });
+          
+          const { error, data } = result as any;
+          
+          if (error) {
+            console.error('[Login] OAuth error:', error.message);
+            setLoading(false);
+            setError('OAuth error: ' + error.message);
+            return;
+          }
+          
+          // SUCCESS path: Credential exchange completed
+          if (data?.user) {
+            console.log('[Login] OAuth succeeded for:', data.user.email);
+            setLoading(false);  // ← CRITICAL: Clear loading state immediately
+            // App.tsx onAuthStateChange will fire and navigate to CharacterSelect
+          } else {
+            console.log('[Login] OAuth response with no user, waiting for auth state change...');
+          }
+          
+          // Safety timeout - if auth doesn't complete in 15 seconds, show error
+          timeoutRef.current = setTimeout(() => {
+            console.error('[Login] OAuth timeout - auth did not complete');
+            setLoading(false);
+            setError('Authentication timeout. Please try again.');
+          }, 15000);
+        } catch (popupError) {
+          console.error('[Login] Redirect OAuth error:', popupError);
+          
+          // Fallback: Provide user with manual link
+          setError('Automatic OAuth failed. Please try again.');
+          setLoading(false);
+          
+          alert('Note: OAuth popups may not work in Capacitor. The app will automatically sign you in when you authorize Google in the system browser.');
+        }
       }
     } catch (e) {
       console.error('[Login] Unexpected error:', e);
@@ -97,7 +142,14 @@ const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
       setLoading(false);
     }
   };
-
+  // Cleanup timeout on unmount or when navigating away
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
   return (
     <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden">
       {/* Background with parallax effect */}

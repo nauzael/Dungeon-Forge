@@ -10,16 +10,18 @@ interface LogEntry {
 const AuthDebugOverlay: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [supabaseConfig, setSupabaseConfig] = useState<{
-    url: string | null;
-    hasKey: boolean;
-  }>({ url: null, hasKey: false });
+  const [firebaseConfig, setFirebaseConfig] = useState<{
+    projectId: string | null;
+    authDomain: string | null;
+    hasApiKey: boolean;
+  }>({ projectId: null, authDomain: null, hasApiKey: false });
 
   useEffect(() => {
-    // Check Supabase config
-    const url = import.meta.env.VITE_SUPABASE_URL;
-    const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    setSupabaseConfig({ url: url || null, hasKey: !!key });
+    // Check Firebase config
+    const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
+    const authDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN;
+    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+    setFirebaseConfig({ projectId: projectId || null, authDomain: authDomain || null, hasApiKey: !!apiKey });
   }, []);
 
   useEffect(() => {
@@ -93,17 +95,18 @@ const AuthDebugOverlay: React.FC = () => {
             AUTH DEBUG PANEL
           </div>
 
-          {/* Supabase Config */}
+          {/* Firebase Config */}
           <div className="bg-slate-800 px-4 py-2 border-b border-slate-700 text-xs">
             <div className="space-y-1">
-              <div className={supabaseConfig.url ? 'text-green-400' : 'text-red-400'}>
-                URL: {supabaseConfig.url ? '✓ Set' : '✗ MISSING'}
+              <div className="text-amber-400 font-bold mb-2">🔥 FIREBASE CONFIG</div>
+              <div className={firebaseConfig.projectId ? 'text-green-400' : 'text-red-400'}>
+                Project ID: {firebaseConfig.projectId ? '✓ ' + firebaseConfig.projectId : '✗ MISSING'}
               </div>
-              <div className={supabaseConfig.hasKey ? 'text-green-400' : 'text-red-400'}>
-                Key: {supabaseConfig.hasKey ? '✓ Set' : '✗ MISSING'}
+              <div className={firebaseConfig.authDomain ? 'text-green-400' : 'text-red-400'}>
+                Auth Domain: {firebaseConfig.authDomain ? '✓ ' + firebaseConfig.authDomain : '✗ MISSING'}
               </div>
-              <div className="text-slate-400 text-[10px] font-mono break-all">
-                {supabaseConfig.url && supabaseConfig.url.substring(0, 40)}...
+              <div className={firebaseConfig.hasApiKey ? 'text-green-400' : 'text-red-400'}>
+                API Key: {firebaseConfig.hasApiKey ? '✓ Configured' : '✗ MISSING'}
               </div>
             </div>
           </div>

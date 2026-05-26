@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "955477498217",
+    "project_id": "dungeon-forge-prod",
+    "storage_bucket": "dungeon-forge-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955477498217:android:f50f5c4fc5bfccf52a05f8",
+        "android_client_info": {
+          "package_name": "com.tupaquete.dndcompanion"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955477498217-jlv0cm8dkv2l46pv2g5bqkbkff0g4kbp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-AhtIG1Extbl0drI795-My7AU4KiKLAA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955477498217-jlv0cm8dkv2l46pv2g5bqkbkff0g4kbp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

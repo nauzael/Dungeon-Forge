@@ -1,0 +1,425 @@
+plan_id: 20260522-firebase-oauth-blank-screen
+objective: Deep research on Firebase Auth Web SDK behavior inside Capacitor Android for Google OAuth
+focus_area: OAuth contract and redirect/popup semantics
+created_at: 2026-05-22
+created_by: GitHub Copilot (gem-researcher)
+status: completed
+tldr: |
+  - Current app uses a Firebase-backed auth adapter exposed as supabase.auth, but App lifecycle callback logic is still Supabase-token-hash oriented.
+  - Firebase redirect contract requires signInWithRedirect -> app return -> getRedirectResult/onAuthStateChanged with Firebase-managed state storage; current deep-link hash injection and forced reload are not part of this contract.
+  - Native branch currently uses signInWithPopup inside Capacitor WebView path, while Firebase docs classify popup as browser popup flow and Cordova guidance prefers manual provider flow + signInWithCredential.
+  - Android deep-link intent filter exists for com.tupaquete.dndcompanion://login-callback and appUrlOpen listener is active, but callback processing is coupled to access_token/refresh_token hash semantics from prior Supabase flow.
+  - Best-fit option by contract compatibility is to use native provider sign-in and exchange credential with Firebase on Android, while keeping web redirect for browser.
+
+research_metadata:
+  methodology: "explore_subagent + grep_search + read_file + fetch_webpage (Firebase docs + Capacitor docs)"
+  scope: "Login/auth adapter/App lifecycle + Android manifest + Capacitor/Firebase contract docs"
+  confidence: high
+  coverage: 91
+  decision_blockers: 2
+  research_blockers: 1
+
+files_analyzed:
+  - file: App.tsx
+    path: i:/Apks/Dungeon Forge/App.tsx
+    purpose: Main app lifecycle, auth bootstrap, deep-link callback handling
+    key_elements:
+      - element: appUrlOpen deep-link callback handler
+        type: function
+        location: App.tsx:97
+        description: Parses incoming URL, expects access_token/refresh_token, injects window hash and reloads after 2s
+        language: TypeScript
+      - element: auth bootstrap
+        type: function
+        location: App.tsx:83
+        description: Calls supabase.auth.getSession and persists df_session
+        language: TypeScript
+      - element: auth state listener
+        type: function
+        location: App.tsx:200
+        description: Uses supabase.auth.onAuthStateChange to set app authenticated state
+        language: TypeScript
+      - element: appStateChange resume check
+        type: function
+        location: App.tsx:165
+        description: On resume, checks local df_session fallback state
+        language: TypeScript
+    lines: 900
+
+  - file: components/Login.tsx
+    path: i:/Apks/Dungeon Forge/components/Login.tsx
+    purpose: User-triggered OAuth start path and platform branching
+    key_elements:
+      - element: handleGoogleLogin web branch
+        type: function
+        location: components/Login.tsx:70
+        description: Calls supabase.auth.signInWithOAuth with redirectTo for web
+        language: TypeScript
+      - element: handleGoogleLogin native branch
+        type: function
+        location: components/Login.tsx:96
+        description: Calls supabase.auth.signInWithOAuth without redirectTo expecting popup behavior
+        language: TypeScript
+      - element: Browser plugin import
+        type: variable
+        location: components/Login.tsx:4
+        description: Browser imported but not used in OAuth launch path
+        language: TypeScript
+    lines: 320
+
+  - file: utils/firebase.ts
+    path: i:/Apks/Dungeon Forge/utils/firebase.ts
+    purpose: Firebase initialization and Supabase-compatible auth adapter
+    key_elements:
+      - element: firebase config and authDomain
+        type: variable
+        location: utils/firebase.ts:49
+        description: Reads VITE_FIREBASE_AUTH_DOMAIN and initializes Firebase app/auth
+        language: TypeScript
+      - element: getRedirectResult bootstrap call
+        type: function
+        location: utils/firebase.ts:78
+        description: Calls getRedirectResult at initialization and logs completion/errors
+        language: TypeScript
+      - element: onAuthStateChanged adapter
+        type: function
+        location: utils/firebase.ts:130
+        description: Maps Firebase onAuthStateChanged to Supabase-like event callback
+        language: TypeScript
+      - element: signInWithGoogle
+        type: function
+        location: utils/firebase.ts:166
+        description: Uses signInWithPopup directly
+        language: TypeScript
+      - element: signInWithOAuth
+        type: function
+        location: utils/firebase.ts:195
+        description: Uses signInWithRedirect on web and signInWithPopup on non-web platforms
+        language: TypeScript
+    lines: 900
+
+  - file: android/app/src/main/AndroidManifest.xml
+    path: i:/Apks/Dungeon Forge/android/app/src/main/AndroidManifest.xml
+    purpose: Native deep-link entry configuration
+    key_elements:
+      - element: oauth deep-link intent filter
+        type: pattern
+        location: android/app/src/main/AndroidManifest.xml:27
+        description: Registers com.tupaquete.dndcompanion://login-callback as browsable callback URL
+        language: XML
+      - element: launchMode singleTask
+        type: pattern
+        location: android/app/src/main/AndroidManifest.xml:17
+        description: Activity configured singleTask, relevant to URL callback routing
+        language: XML
+    lines: 80
+
+  - file: capacitor.config.json
+    path: i:/Apks/Dungeon Forge/capacitor.config.json
+    purpose: Capacitor runtime config
+    key_elements:
+      - element: appId
+        type: variable
+        location: capacitor.config.json:2
+        description: App ID aligns with custom scheme base value
+        language: JSON
+      - element: androidScheme
+        type: variable
+        location: capacitor.config.json:6
+        description: Web server scheme is https; separate from custom scheme deep-link intent filter
+        language: JSON
+    lines: 30
+
+  - file: utils/oauthDiagnostics.ts
+    path: i:/Apks/Dungeon Forge/utils/oauthDiagnostics.ts
+    purpose: Runtime diagnostics tool currently referenced by debug console
+    key_elements:
+      - element: Supabase import
+        type: variable
+        location: utils/oauthDiagnostics.ts:12
+        description: Imports supabase from utils/supabase instead of Firebase adapter module
+        language: TypeScript
+      - element: diagnostics session check
+        type: function
+        location: utils/oauthDiagnostics.ts:94
+        description: Evaluates session/auth listener using Supabase client semantics
+        language: TypeScript
+    lines: 300
+
+patterns_found:
+  - category: architecture
+    pattern: Firebase-to-Supabase compatibility adapter
+    description: App code consumes supabase.auth API while backend implementation is Firebase Auth.
+    examples:
+      - file: utils/firebase.ts
+        location: utils/firebase.ts:96
+        snippet: "export const supabase = { auth: { getSession, onAuthStateChange, signInWithOAuth } }"
+      - file: App.tsx
+        location: App.tsx:83
+        snippet: "supabase.auth.getSession().then(...)"
+    prevalence: common
+
+  - category: structure
+    pattern: Legacy Supabase callback semantics in app lifecycle
+    description: Callback processing expects access_token/refresh_token in URL hash and forces reload.
+    examples:
+      - file: App.tsx
+        location: App.tsx:97
+        snippet: "if (url.includes('access_token=') || url.includes('refresh_token='))"
+      - file: App.tsx
+        location: App.tsx:109
+        snippet: "window.location.hash = params"
+      - file: App.tsx
+        location: App.tsx:116
+        snippet: "window.location.reload()"
+    prevalence: common
+
+  - category: architecture
+    pattern: Platform split for OAuth initiation
+    description: Web uses redirect path, native uses popup path in same adapter function.
+    examples:
+      - file: utils/firebase.ts
+        location: utils/firebase.ts:217
+        snippet: "await signInWithRedirect(authInstance, provider)"
+      - file: utils/firebase.ts
+        location: utils/firebase.ts:238
+        snippet: "const result = await signInWithPopup(authInstance, provider)"
+    prevalence: common
+
+  - category: error_handling
+    pattern: Timeout-based fallback and localStorage bridge
+    description: Native login flow relies on timeouts and df_session fallback checks when auth events are not observed promptly.
+    examples:
+      - file: components/Login.tsx
+        location: components/Login.tsx:117
+        snippet: "setTimeout(() => { setError('Authentication timeout...') }, 15000)"
+      - file: App.tsx
+        location: App.tsx:228
+        snippet: "FALLBACK: check localStorage periodically"
+    prevalence: occasional
+
+  - category: structure
+    pattern: Parallel auth clients in codebase
+    description: Firebase adapter and direct Supabase client both exist and are both referenced.
+    examples:
+      - file: utils/firebase.ts
+        location: utils/firebase.ts:96
+        snippet: "supabase adapter backed by Firebase"
+      - file: utils/supabase.ts
+        location: utils/supabase.ts:1
+        snippet: "createClient from @supabase/supabase-js"
+      - file: utils/oauthDiagnostics.ts
+        location: utils/oauthDiagnostics.ts:12
+        snippet: "import { supabase } from './supabase'"
+    prevalence: common
+
+related_architecture:
+  components_relevant_to_domain:
+    - component: Login component
+      responsibility: Starts provider auth flow by platform
+      location: components/Login.tsx
+      relationship_to_domain: Entry point for OAuth launch semantics
+    - component: Firebase auth adapter
+      responsibility: Implements auth provider calls and maps callback/session APIs
+      location: utils/firebase.ts
+      relationship_to_domain: Core contract boundary between UI and Firebase SDK
+    - component: App lifecycle auth monitor
+      responsibility: Handles deep links, auth state transitions, and fallback persistence
+      location: App.tsx
+      relationship_to_domain: Determines session completion behavior after OAuth return
+    - component: Android activity intent filter
+      responsibility: Routes custom scheme callback URL to app
+      location: android/app/src/main/AndroidManifest.xml
+      relationship_to_domain: Native callback ingress path
+
+  interfaces_used_by_domain:
+    - interface: supabase.auth.getSession/onAuthStateChange/signInWithOAuth
+      location: utils/firebase.ts
+      usage_pattern: Compatibility facade consumed by App and Login
+    - interface: Capacitor App.addListener('appUrlOpen')
+      location: App.tsx:97
+      usage_pattern: Receives OAuth callback URLs from Android/iOS
+    - interface: Firebase signInWithPopup/signInWithRedirect/getRedirectResult
+      location: utils/firebase.ts
+      usage_pattern: Provider initiation + redirect completion
+
+  data_flow_involving_domain: |
+    User taps login -> Login calls adapter signInWithOAuth -> Firebase SDK starts popup or redirect -> native/browser returns control -> App lifecycle and/or Firebase onAuthStateChanged updates session -> App stores df_session and sets authenticated state.
+
+  key_relationships_to_domain:
+    - from: components/Login.tsx
+      to: utils/firebase.ts
+      relationship: calls
+    - from: App.tsx
+      to: utils/firebase.ts
+      relationship: imports
+    - from: AndroidManifest.xml intent filter
+      to: App.tsx appUrlOpen listener
+      relationship: composes
+    - from: components/OAuthDebugConsole.tsx
+      to: utils/oauthDiagnostics.ts
+      relationship: imports
+
+related_technology_stack:
+  languages_used_in_domain: [TypeScript, TSX, XML, JSON]
+  frameworks_used_in_domain:
+    - name: React 19
+      usage_in_domain: Login and app lifecycle UI state orchestration
+    - name: Capacitor 6
+      usage_in_domain: Native app container, deep-link callback delivery
+  libraries_used_in_domain:
+    - name: firebase/auth
+      purpose_in_domain: OAuth provider sign-in and auth state
+    - name: @capacitor/app
+      purpose_in_domain: appUrlOpen and appStateChange listeners
+    - name: @capacitor/browser
+      purpose_in_domain: Available but not actively used in current OAuth launch code
+    - name: @supabase/supabase-js
+      purpose_in_domain: Legacy/parallel auth client still used by diagnostics
+  external_apis_used_in_domain:
+    - name: Google OAuth via Firebase Auth
+      integration_point: signInWithPopup/signInWithRedirect in utils/firebase.ts
+
+related_conventions:
+  naming_patterns_in_domain: "[OAuth]/[Auth]/[Login] log prefixes; supabase alias for auth adapter object"
+  structure_of_domain: "UI -> compatibility adapter -> Firebase SDK, plus App lifecycle callback handler"
+  error_handling_in_domain: "try/catch with console logs, fallback timeout and localStorage checks"
+  testing_in_domain: "manual diagnostics and script-based simulations, no formal automated contract tests for Firebase callback semantics"
+  documentation_in_domain: "multiple local OAuth fix markdown docs focused on prior Supabase hash callback flow"
+
+related_dependencies:
+  internal:
+    - component: App.tsx
+      relationship_to_domain: consumes adapter session APIs and lifecycle callback handling
+      direction: bidirectional
+    - component: components/Login.tsx
+      relationship_to_domain: invokes provider sign-in methods
+      direction: outbound
+    - component: utils/oauthDiagnostics.ts
+      relationship_to_domain: validates session path but currently tied to direct Supabase client
+      direction: outbound
+  external:
+    - name: firebase/auth docs and SDK contract
+      purpose_for_domain: canonical popup/redirect callback behavior
+    - name: Capacitor App and Browser plugin docs
+      purpose_for_domain: native callback delivery and browser lifecycle behavior
+
+domain_security_considerations:
+  sensitive_areas:
+    - area: OAuth callback URL processing
+      location: App.tsx:97-116
+      concern: Callback acceptance keyed to token substring presence and direct hash injection, not strict provider callback shape validation
+    - area: session persistence
+      location: App.tsx:88, App.tsx:208, components/Login.tsx:28
+      concern: Session-like state bridged through localStorage key df_session; can diverge from Firebase SDK state machine
+  authentication_patterns_in_domain: "Firebase OAuth provider calls mapped into Supabase-like API"
+  authorization_patterns_in_domain: "Post-login app identity set from adapter session user payload"
+  data_validation_in_domain: "String matching for token fragments in callback URL; JSON parse guard rails in localStorage reads"
+
+testing_patterns:
+  framework: "Manual runtime diagnostics + adb log inspection + script simulations"
+  coverage_areas: ["deep-link callback capture", "session establishment timing", "auth state listener firing"]
+  test_organization: "Ad hoc docs/scripts under root and testing/documentation"
+  mock_patterns: ["mock deeplink string parsing in oauthDiagnostics/testOAuthFlow"]
+
+option_analysis:
+  - option: A
+    name: Keep Firebase Web SDK and standardize on redirect contract end-to-end
+    description: Use signInWithRedirect for all platforms that can return to same web context and consume completion via getRedirectResult/onAuthStateChanged only.
+    impacted_files:
+      - components/Login.tsx
+      - App.tsx
+      - utils/firebase.ts
+      - Firebase console OAuth/authorized domains configuration
+    pros:
+      - Minimal conceptual change to existing web Firebase SDK usage
+      - Aligns with Firebase documented redirect contract and best-practice docs
+    cons:
+      - Redirect flow depends on storage continuity and helper-domain behavior that is brittle in embedded/mobile contexts
+      - Existing Capacitor custom-scheme callback handling path is currently Supabase-token oriented and must be replaced
+    risk: medium_high
+
+  - option: B
+    name: Native provider flow on Android plus Firebase signInWithCredential (manual provider sign-in)
+    description: Obtain Google credential natively (Custom Tabs/plugin or native Google auth), then exchange credential with Firebase via signInWithCredential in app context.
+    impacted_files:
+      - components/Login.tsx
+      - utils/firebase.ts
+      - App.tsx
+      - Android native/plugin config files
+    pros:
+      - Removes dependency on popup/redirect helper-state behavior inside embedded web contexts
+      - Closest match to Firebase Cordova guidance for manual OAuth in hybrid environments
+      - Session completion occurs directly in app auth context without hash/reload bridge
+    cons:
+      - Requires additional integration surface (native/provider SDK/plugin)
+      - More moving parts in native configuration and token exchange path
+    risk: medium
+
+  - option: C
+    name: Cordova resolver path for Firebase Web SDK in hybrid container
+    description: Initialize auth with explicit hybrid resolver strategy (cordova popup/redirect resolver path) and rework callback handling accordingly.
+    impacted_files:
+      - utils/firebase.ts
+      - components/Login.tsx
+      - App.tsx
+      - build/dependency setup for resolver entrypoint
+    pros:
+      - Preserves Firebase Web SDK architecture with fewer cross-stack changes than full native provider integration
+      - Targets hybrid resolver semantics explicitly instead of browser defaults
+    cons:
+      - Capacitor is not identical to Cordova runtime assumptions
+      - Firebase docs mark Cordova OAuth area as impacted by Dynamic Links deprecation context
+      - Highest uncertainty in long-term compatibility
+    risk: high
+
+recommended_option:
+  option: B
+  rationale: |
+    Option B has the highest contract compatibility with observed Android Capacitor behavior because callback/session completion happens in the app context via credential exchange, avoiding reliance on popup/redirect helper storage semantics that are brittle in embedded contexts and are mismatched with current App.tsx hash/reload bridge.
+  confidence: 0.88
+
+validation_signals:
+  success_signals:
+    - "No [OAuth] window.location.hash injection path required for successful login"
+    - "Firebase onAuthStateChanged fires once with non-null user after credential exchange"
+    - "supabase.auth.getSession adapter returns non-null session immediately after sign-in completion"
+    - "No auth/operation-not-supported-in-this-environment, popup-blocked, or missing initial state errors in adb/web logs"
+    - "App returns to authenticated view without forced reload timer and without 15s timeout fallback"
+  failure_signals:
+    - "appUrlOpen receives URL but no Firebase user state transition occurs"
+    - "Session appears only in df_session localStorage fallback but not in Firebase auth currentUser"
+    - "Repeated timeout/fallback logs or login blank screen after browser return"
+
+open_questions:
+  - question: "Which exact Android OAuth user path is currently failing in production APK: popup blocked, redirect return missing, or post-return session not emitted?"
+    context: "Current logs and docs in repo show mixed historical errors across multiple implementations; failure mode needs one canonical trace for final implementation lock."
+    type: decision_blocker
+    affects: ["final option lock", "validation checklist", "rollback strategy"]
+
+  - question: "Is the project willing to add a native Google sign-in dependency/plugin for Android path?"
+    context: "Option B needs an additional native/provider integration surface compared with pure web SDK path."
+    type: decision_blocker
+    affects: ["implementation scope", "delivery timeline"]
+
+  - question: "Should legacy Supabase-style deep-link hash handling remain for backward compatibility or be fully removed once Firebase-native path is active?"
+    context: "Current App.tsx behavior is tied to prior Supabase callback semantics and can conflict with Firebase contract.
+"
+    type: research
+    affects: ["App.tsx lifecycle logic", "diagnostics behavior"]
+
+gaps:
+  - area: PRD source file unavailable
+    description: "docs/PRD.yaml expected by mode workflow is not present in workspace, so scope validation used user request + codebase + AGENTS context only."
+    impact: research_blocker
+    affects: ["formal in_scope/out_of_scope cross-check"]
+
+  - area: Cordova resolver reference endpoint
+    description: "Requested JS reference URL for auth.cordovapopupredirectresolver returned 404 via fetch tool, so resolver details were inferred from Firebase auth reference variable listings and Cordova guide text."
+    impact: research_blocker
+    affects: ["option C implementation certainty"]
+
+  - area: Runtime trace granularity
+    description: "No single deterministic end-to-end trace artifact in repo ties one failing APK build to one exact OAuth contract failure stage."
+    impact: nice_to_know
+    affects: ["precision of success/failure signal mapping"]

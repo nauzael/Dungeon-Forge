@@ -336,6 +336,10 @@ export interface OTAUpdate {
   version: string;
   message: string;
   payload: unknown;
+  error?: string;        // Error message if download fails
+  downloading?: boolean; // Is download in progress
+  progress?: number;     // Download progress 0-100
+  available?: boolean;   // Is update available
 }
 
 export interface VersionJsonResponse {

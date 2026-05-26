@@ -1,14 +1,1 @@
-[
-	{
-		"pkg": "@capacitor/app",
-		"classpath": "com.capacitorjs.plugins.app.AppPlugin"
-	},
-	{
-		"pkg": "@capacitor/browser",
-		"classpath": "com.capacitorjs.plugins.browser.BrowserPlugin"
-	},
-	{
-		"pkg": "@capgo/capacitor-updater",
-		"classpath": "ee.forgr.capacitor_updater.CapacitorUpdaterPlugin"
-	}
-]
+[{"pkg":"@capacitor/app","classpath":"com.capacitorjs.plugins.app.AppPlugin"},{"pkg":"@capacitor/browser","classpath":"com.capacitorjs.plugins.browser.BrowserPlugin"},{"pkg":"@capgo/capacitor-updater","classpath":"ee.forgr.capacitor_updater.CapacitorUpdaterPlugin"},{"pkg":"com.tupaquete.dndcompanion","classpath":"com.tupaquete.dndcompanion.GoogleSignInPlugin"}]

@@ -1,0 +1,885 @@
+plan_id: "20260525-firebase-ota-apk-fix"
+objective: "Arreglar configuración Firebase OTA en APK de Dungeon Forge: google-services.json, CORS, rollback, error handling, validación E2E"
+created_at: "2026-05-25T00:00:00Z"
+created_by: "gem-planner"
+status: "pending"
+research_confidence: "high"
+
+plan_metrics:
+  wave_1_task_count: 3
+  total_dependencies: 8
+  risk_score: "medium"
+
+tldr: |
+  5-wave plan para arreglar Firebase OTA en APK:
+  
+  1. **Wave 1 (Research)**: Análisis de google-services.json, CORS Storage, y estado de restore_ota.mjs
+  2. **Wave 2 (Fix Critical)**: Mover google-services.json a android/app/, configurar CORS
+  3. **Wave 3 (Error Handling)**: Agregar UI para errores OTA, mejorar restore_ota.mjs
+  4. **Wave 4 (Build)**: Compilar APK, validar sin errores
+  5. **Wave 5 (Validation)**: Test E2E OTA, rollback, y cierre
+
+open_questions:
+  - question: "¿Google-services.json tiene credenciales válidas?"
+    context: "El archivo está en docs/, revisar si contiene keys de Android correctas"
+    type: "decision_blocker"
+    affects: ["T1.1", "T2.1"]
+  
+  - question: "¿CORS está configurado en Firebase Storage?"
+    context: "version.json debe ser accesible desde el navegador del APK (WebView)"
+    type: "decision_blocker"
+    affects: ["T1.2", "T2.2"]
+  
+  - question: "¿restore_ota.mjs necesita validación o refactoring?"
+    context: "Script existe pero puede faltar error handling o compatibilidad"
+    type: "nice_to_know"
+    affects: ["T1.3", "T3.1"]
+
+gaps:
+  - description: "No hay validación visual de errores OTA en UI (solo logs)"
+    refinement_requests:
+      - query: "¿Qué componentes muestran estado OTA al usuario?"
+        source_hint: "App.tsx líneas 150-250, tipos.ts OTAUpdate"
+  
+  - description: "Script de rollback existe pero no está documentado públicamente"
+    refinement_requests:
+      - query: "¿restore_ota.mjs está en npm scripts o solo disponible vía CLI?"
+        source_hint: "package.json, AGENTS.md"
+
+pre_mortem:
+  overall_risk_level: "medium"
+  critical_failure_modes:
+    - scenario: "google-services.json tiene credenciales inválidas o desactulizadas"
+      likelihood: "low"
+      impact: "critical"
+      mitigation: "Verificar credenciales con Firebase Console antes de mover; test build inmediatamente después"
+    
+    - scenario: "CORS no configurado correcta en Storage; APK no puede descargar version.json"
+      likelihood: "medium"
+      impact: "critical"
+      mitigation: "Validar CORS antes de deploy; test fetch desde WebView en APK real"
+    
+    - scenario: "Build APK falla por plugin Google Sign-In no registrado"
+      likelihood: "medium"
+      impact: "high"
+      mitigation: "Verificar MainActivity.java tiene registerPlugin(GoogleSignInPlugin.class); si falla, ejecutar `npx cap sync android`"
+    
+    - scenario: "APK compilado pero OTA aún no funciona end-to-end"
+      likelihood: "low"
+      impact: "high"
+      mitigation: "Tener versión anterior del APK para rollback; usar adb logcat para debugging"
+  
+  assumptions:
+    - Firebase proyecto 'dungeon-forge-prod' tiene credenciales válidas en .env
+    - Capacitor 6 + CapacitorUpdater v6.0.0 son compatibles
+    - Android NDK + SDK están instalados en local.properties
+    - Dispositivo Android conectado para testing
+    - Network en APK puede alcanzar storage.googleapis.com
+
+implementation_specification:
+  code_structure: |
+    Cambios afectarán 4 áreas principales:
+    1. **Android Build**: google-services.json location, build.gradle plugin config
+    2. **Scripts OTA**: restore_ota.mjs mejorado, validaciones de archivo
+    3. **React App**: Error handling UI, estados de actualización visual
+    4. **Firebase**: CORS rules, acceso público a version.json
+
+  affected_areas:
+    - "android/app/google-services.json (NEW - mover desde docs/)"
+    - "android/app/build.gradle (apply plugin fix)"
+    - "scripts/restore_ota.mjs (mejorar error handling)"
+    - "App.tsx (agregar error handling visual)"
+    - "types.ts (extender OTAUpdate interface si necesario)"
+    - "firebase.json o Firebase Console (CORS config)"
+
+  component_details:
+    - component: "Google Services Plugin"
+      responsibility: "Registrar credenciales Android en gradle build"
+      interfaces: ["android/app/google-services.json → build.gradle"]
+      dependencies:
+        - component: "build.gradle"
+          relationship: "apply plugin: 'com.google.gms.google-services' después de plugin 'com.android.application'"
+      integration_points: ["Gradle build task", "APK binary"]
+    
+    - component: "OTA Update Check"
+      responsibility: "Fetch version.json desde Firebase Storage en App startup"
+      interfaces: ["fetch(https://storage.googleapis.com/{bucket}/version.json)"]
+      dependencies:
+        - component: "Firebase Storage CORS"
+          relationship: "Debe permitir GET sin Authorization header"
+      integration_points: ["App.tsx useEffect", "CapacitorUpdater.download()"]
+    
+    - component: "Restore OTA Script"
+      responsibility: "Rollback a una versión anterior específica"
+      interfaces: ["node restore_ota.mjs {targetVersion} {message}"]
+      dependencies:
+        - component: "Firebase Admin SDK"
+          relationship: "Service account JSON para auth a Storage"
+      integration_points: ["CLI", "version.json update", "Firebase Storage upload"]
+    
+    - component: "OTA Error Handler"
+      responsibility: "Capturar y mostrar errores de actualización visualmente"
+      interfaces: ["updateAvailable state → UI error toast/modal"]
+      dependencies:
+        - component: "App.tsx state"
+          relationship: "updateAvailable: OTAUpdate | null"
+      integration_points: ["Error catch blocks", "User feedback UI"]
+
+contracts:
+  - from_task: "T1.1_analyze_google_services"
+    to_task: "T2.1_move_google_services"
+    interface: "google-services.json metadata (location, validity)"
+    format: "JSON object: {path: string, valid: boolean, firebaseProjectId: string}"
+  
+  - from_task: "T1.2_verify_cors_storage"
+    to_task: "T2.2_configure_cors"
+    interface: "CORS current config + required rules"
+    format: "JSON object: {currentRules: string[], requiredRules: string[]}"
+  
+  - from_task: "T1.3_review_restore_ota"
+    to_task: "T3.1_enhance_restore_ota"
+    interface: "restore_ota.mjs improvement checklist"
+    format: "Array: [{issue: string, severity: 'high'|'low', fix: string}]"
+  
+  - from_task: "T2.1_move_google_services"
+    to_task: "T4.1_build_apk"
+    interface: "google-services.json in android/app/ + build.gradle updated"
+    format: "boolean + build log validation"
+  
+  - from_task: "T2.2_configure_cors"
+    to_task: "T4.2_validate_build"
+    interface: "Firebase Storage CORS configured + test fetch success"
+    format: "boolean + curl test response"
+  
+  - from_task: "T3.1_enhance_restore_ota"
+    to_task: "T4.1_build_apk"
+    interface: "restore_ota.mjs improvements committed"
+    format: "Git diff + verification of changes"
+  
+  - from_task: "T3.2_add_error_ui"
+    to_task: "T4.1_build_apk"
+    interface: "App.tsx error handling merged + TypeScript checks pass"
+    format: "boolean + build output"
+
+tasks:
+  # ==================== WAVE 1: RESEARCH & ANALYSIS ====================
+  
+  - id: "T1.1_analyze_google_services"
+    title: "Analizar google-services.json actual y validar credenciales"
+    description: |
+      Revisar google-services.json en docs/ para validar:
+      - Ubicación actual (docs/google-services.json)
+      - Contenido JSON válido
+      - Firebase Project ID correcto
+      - Credenciales Android (package name, SHA-1, etc.)
+      - Timestamp de última actualización
+      
+      Comparar con configuración esperada en Firebase Console y AGENTS.md.
+    wave: 1
+    agent: "gem-researcher"
+    prototype: false
+    covers: ["google-services.json audit", "credential validation"]
+    priority: "high"
+    status: "pending"
+    dependencies: []
+    context_files:
+      - path: "docs/google-services.json"
+        description: "Archivo actual (ubicación incorrecta)"
+      - path: "AGENTS.md"
+        description: "Referencia de instalación esperada"
+    estimated_effort: "small"
+    estimated_files: 1
+    estimated_lines: 0  # read-only
+    verification:
+      - "google-services.json es JSON válido"
+      - "firebaseProjectId es 'dungeon-forge-prod'"
+      - "Ubicación actual documentada en research findings"
+    acceptance_criteria:
+      - "Report documentado: ubicación, estado de credenciales, acciones necesarias"
+      - "Contract JSON generado para T2.1"
+
+  - id: "T1.2_verify_cors_storage"
+    title: "Verificar y documentar CORS en Firebase Storage"
+    description: |
+      Validar configuración CORS en Firebase Storage:
+      - Consultar firebase.json o Firebase Console
+      - Verificar si version.json es accesible públicamente sin auth
+      - Documentar current CORS rules
+      - Identificar qué reglas faltan para APK (WebView) acceso
+      
+      Test fetch manual desde curl o navegador para validar:
+      ```
+      curl -I https://storage.googleapis.com/dungeon-forge-prod.firebasestorage.app/version.json
+      ```
+    wave: 1
+    agent: "gem-researcher"
+    prototype: false
+    covers: ["Firebase Storage CORS audit", "public access validation"]
+    priority: "high"
+    status: "pending"
+    dependencies: []
+    context_files:
+      - path: "firebase.json"
+        description: "Configuración Firebase"
+      - path: "App.tsx"
+        description: "Fetch URL línea ~172"
+    estimated_effort: "small"
+    estimated_files: 1
+    estimated_lines: 0  # read-only
+    verification:
+      - "CORS status actual documentado (configured/missing)"
+      - "Test fetch result (success/failed)"
+      - "Contract generado con required rules"
+    acceptance_criteria:
+      - "Report CORS: current state + required changes"
+      - "Test curl output adjuntado"
+      - "Contract para T2.2 creado"
+
+  - id: "T1.3_review_restore_ota"
+    title: "Revisar completitud y error handling en restore_ota.mjs"
+    description: |
+      Auditoría de scripts/restore_ota.mjs para identificar:
+      - Error handling actual (try/catch blocks, error messages)
+      - Validación de argumentos
+      - Validación de archivo ZIP antes de upload
+      - Logging de pasos
+      - Comparar con build_ota.mjs para consistency
+      
+      Checklist:
+      - ¿Maneja error si targetVersion no existe en bucket?
+      - ¿Valida ZIP antes de push?
+      - ¿Genera rollback audit log?
+      - ¿Documenta versiones disponibles?
+    wave: 1
+    agent: "gem-reviewer"
+    prototype: false
+    covers: ["restore_ota.mjs audit", "error handling analysis"]
+    priority: "medium"
+    status: "pending"
+    dependencies: []
+    context_files:
+      - path: "scripts/restore_ota.mjs"
+        description: "Script actual"
+      - path: "scripts/build_ota.mjs"
+        description: "Referencia de patterns"
+    estimated_effort: "small"
+    estimated_files: 1
+    estimated_lines: 0  # read-only
+    verification:
+      - "restore_ota.mjs error paths identificados"
+      - "Comparación con build_ota.mjs completa"
+      - "Checklist de mejoras generado"
+    acceptance_criteria:
+      - "Issues list generada (high/low priority)"
+      - "Contract para T3.1 creado con improvement checklist"
+      - "Si todo está OK, marcar T3.1 como 'no changes needed'"
+
+  # ==================== WAVE 2: FIX CRITICAL ISSUES ====================
+  
+  - id: "T2.1_move_google_services"
+    title: "Mover google-services.json a android/app/ y actualizar build.gradle"
+    description: |
+      1. Mover archivo:
+         - De: docs/google-services.json
+         - A: android/app/google-services.json
+      
+      2. Actualizar android/app/build.gradle:
+         - Asegurar que `apply plugin: 'com.google.gms.google-services'` esté presente
+         - Plugin debe estar DESPUÉS de `apply plugin: 'com.android.application'`
+         - Verificar que try/catch del plugin está correcto
+      
+      3. Validar build.gradle:
+         - No tiene syntax errors
+         - Plugin registrado correctamente
+      
+      4. Git commit: "fix: move google-services.json to android/app/"
+    wave: 2
+    agent: "gem-implementer"
+    prototype: false
+    covers: ["google-services.json location fix", "gradle plugin config"]
+    priority: "high"
+    status: "pending"
+    dependencies: ["T1.1_analyze_google_services"]
+    conflicts_with: []
+    context_files:
+      - path: "docs/google-services.json"
+        description: "Archivo a mover"
+      - path: "android/app/build.gradle"
+        description: "Archivo a actualizar"
+    estimated_effort: "small"
+    estimated_files: 2
+    estimated_lines: 50
+    verification:
+      - "docs/google-services.json ya no existe (o movido)"
+      - "android/app/google-services.json existe y contiene credenciales válidas"
+      - "build.gradle tiene plugin registrado correctamente"
+      - "No hay errores de syntax en build.gradle"
+    acceptance_criteria:
+      - "Archivo movido exitosamente"
+      - "build.gradle validado sin errores"
+      - "Commit realizado"
+
+  - id: "T2.2_configure_cors"
+    title: "Configurar CORS en Firebase Storage para acceso público a version.json"
+    description: |
+      Basado en research de T1.2, aplicar CORS rules en Firebase Storage:
+      
+      Si está en firebase.json:
+      - Actualizar rules CORS en storage.rules o firebase.json
+      - Permitir GET sin Authorization para version.json y *.zip
+      
+      Si debe configurarse vía Console:
+      - Instrucciones claras para configurar manualmente
+      - Documentar steps en CORS-SETUP.md
+      
+      Validación:
+      ```
+      curl -I -H "Origin: capacitor://" \
+        https://storage.googleapis.com/dungeon-forge-prod.firebasestorage.app/version.json
+      ```
+      
+      Debe retornar HTTP 200, no 403/404
+    wave: 2
+    agent: "gem-implementer"
+    prototype: false
+    covers: ["Firebase Storage CORS configuration", "public API access"]
+    priority: "high"
+    status: "pending"
+    dependencies: ["T1.2_verify_cors_storage"]
+    context_files:
+      - path: "firebase.json"
+        description: "Configuración CORS"
+      - path: "storage.rules"
+        description: "Rules de Firestore/Storage si existe"
+    estimated_effort: "small"
+    estimated_files: 1
+    estimated_lines: 20
+    verification:
+      - "firebase.json o Console updated"
+      - "curl test retorna 200"
+      - "version.json accessible sin auth header"
+    acceptance_criteria:
+      - "CORS configurado en Firebase Storage"
+      - "Test curl validado exitosamente"
+      - "Documentación creada si requiere pasos manuales"
+
+  # ==================== WAVE 3: ERROR HANDLING & ENHANCEMENT ====================
+  
+  - id: "T3.1_enhance_restore_ota"
+    title: "Mejorar restore_ota.mjs con error handling y validación robusta"
+    description: |
+      Aplicar mejoras a scripts/restore_ota.mjs basado en T1.3:
+      
+      Mejoras mínimas (if T1.3 identified issues):
+      - Agregar validación de ZIP antes de upload
+      - Mejorar mensajes de error
+      - Agregar logging de audit trail
+      - Validar que targetVersion existe en bucket
+      - Manejar timeout en Firebase operations
+      
+      Mejoras opcionales (if T1.3 says "all good"):
+      - Agregar método para listar versiones disponibles
+      - Documenter CLI usage en README
+      - Agregar flag --dry-run para preview
+      
+      Testing:
+      - Ejecutar con --help o versión inválida
+      - Verificar que errors son claros al usuario
+    wave: 3
+    agent: "gem-implementer"
+    prototype: false
+    covers: ["restore_ota.mjs improvements", "error handling"]
+    priority: "medium"
+    status: "pending"
+    depends_on: ["T1.3_review_restore_ota"]
+    context_files:
+      - path: "scripts/restore_ota.mjs"
+        description: "Script a mejorar"
+      - path: "scripts/build_ota.mjs"
+        description: "Referencia de patterns"
+    estimated_effort: "medium"
+    estimated_files: 1
+    estimated_lines: 150
+    verification:
+      - "Error handling mejorado (try/catch, user-friendly messages)"
+      - "Validación de ZIP antes de upload"
+      - "Logging de audit trail"
+    acceptance_criteria:
+      - "restore_ota.mjs mejorado con error handling"
+      - "Script testeable manualmente"
+      - "Commit realizado"
+
+  - id: "T3.2_add_error_ui"
+    title: "Agregar error handling visual para OTA en App.tsx"
+    description: |
+      Mejorar UX de actualización OTA en App.tsx:
+      
+      1. Extender OTAUpdate interface en types.ts:
+         ```typescript
+         interface OTAUpdate {
+           version: string;
+           message?: string;
+           payload?: any;
+           error?: string;  // NEW
+           status?: 'pending' | 'downloading' | 'ready' | 'error';  // NEW
+         }
+         ```
+      
+      2. Agregar error states en App.tsx OTA handler:
+         - Capturar error en download()
+         - Capturar error en set()
+         - Mostrar toast/modal con error message
+         - Permitir retry o dismiss
+      
+      3. UI improvement:
+         - Mostrar progress durante download (si CapacitorUpdater soporta)
+         - Toast con "Update downloaded, aplicando..."
+         - Error modal con "Falló, intenta más tarde"
+      
+      4. Actualizar checkForUpdates():
+         - Wrap en try/catch
+         - Log errors en console
+         - Set error state visualmente
+    wave: 3
+    agent: "gem-implementer"
+    prototype: false
+    covers: ["OTA error handling UI", "user feedback"]
+    priority: "medium"
+    status: "pending"
+    dependencies: []
+    context_files:
+      - path: "App.tsx"
+        description: "OTA logic líneas ~150-250"
+      - path: "types.ts"
+        description: "OTAUpdate interface"
+      - path: "components/SheetTabs.tsx"
+        description: "Referencia de toast patterns"
+    estimated_effort: "medium"
+    estimated_files: 2
+    estimated_lines: 100
+    verification:
+      - "OTAUpdate interface extendida con error field"
+      - "checkForUpdates() tiene try/catch"
+      - "Download y set operations manejan errors"
+      - "UI muestra error messages al usuario"
+      - "TypeScript strict checks pass"
+    acceptance_criteria:
+      - "Error handling visual implementado"
+      - "tipos.ts actualizado"
+      - "App.tsx compilable sin errores"
+      - "Commit realizado"
+
+  # ==================== WAVE 4: BUILD & VALIDATION ====================
+  
+  - id: "T4.1_build_apk"
+    title: "Compilar APK con cambios Firebase OTA"
+    description: |
+      Build completo de APK con cambios de Waves 2-3:
+      
+      Steps:
+      1. Verificar que local.properties tiene android.sdk.path
+      2. `npm run build` - compilar React/TypeScript
+      3. `npx cap sync android` - sincronizar cambios
+      4. `cd android && ./gradlew assembleDebug` - build APK
+      
+      Validación:
+      - BUILD SUCCESSFUL en log de gradle
+      - APK generado en android/app/build/outputs/apk/debug/app-debug.apk
+      - No hay errores de plugin Google Sign-In
+      - No hay errores de TypeScript
+      
+      Si falla:
+      - Capturar error log completo
+      - Documentar root cause
+      - Ejecutar `./gradlew clean` si es necesario
+    wave: 4
+    agent: "gem-devops"
+    prototype: false
+    covers: ["APK compilation", "build validation"]
+    priority: "high"
+    status: "pending"
+    dependencies: ["T2.1_move_google_services", "T2.2_configure_cors", "T3.1_enhance_restore_ota", "T3.2_add_error_ui"]
+    context_files:
+      - path: "android/app/build.gradle"
+        description: "Build config con google-services plugin"
+      - path: "android/app/google-services.json"
+        description: "Credenciales Android"
+      - path: "build-and-deploy.bat"
+        description: "Referencia script build"
+    estimated_effort: "medium"
+    estimated_files: 0  # read-only after T2/T3
+    estimated_lines: 0
+    verification:
+      - "npm run build sin errores de TypeScript"
+      - "npx cap sync sin warnings de plugin"
+      - "gradle assembleDebug retorna BUILD SUCCESSFUL"
+      - "APK creado en ubicación esperada"
+      - "APK size razonable (< 150MB)"
+    acceptance_criteria:
+      - "APK compilado exitosamente"
+      - "Build log guardado para auditoría"
+      - "No hay errores bloqueantes"
+
+  - id: "T4.2_validate_build"
+    title: "Validar APK: estructura, permisos, plugins registrados"
+    description: |
+      Post-build validation:
+      
+      1. Validar APK estructura:
+         ```
+         unzip -l android/app/build/outputs/apk/debug/app-debug.apk | grep google-services
+         ```
+      
+      2. Verificar permisos AndroidManifest:
+         - INTERNET (requerido para OTA fetch)
+         - ACCESS_NETWORK_STATE
+         - READ_EXTERNAL_STORAGE (si Capacitor lo requiere)
+      
+      3. Checar plugin registration:
+         - AndroidManifest debe tener deeplink intent filter para OAuth
+         - MainActivity debe registrar GoogleSignInPlugin
+      
+      4. Validar Firebase SDK incluido:
+         ```
+         unzip -l .../app-debug.apk | grep firebase
+         ```
+      
+      5. Test fetch CORS desde APK (si es posible sin device):
+         - Documentar que se validará en Wave 5 con device real
+    wave: 4
+    agent: "gem-devops"
+    prototype: false
+    covers: ["APK validation", "manifest check"]
+    priority: "high"
+    status: "pending"
+    dependencies: ["T4.1_build_apk"]
+    context_files:
+      - path: "android/app/build/outputs/apk/debug/app-debug.apk"
+        description: "APK compilado"
+      - path: "android/app/AndroidManifest.xml"
+        description: "Permisos y manifest"
+    estimated_effort: "small"
+    estimated_files: 0  # read-only
+    estimated_lines: 0
+    verification:
+      - "APK estructura válida (ZIP extractable)"
+      - "Permisos INTERNET presente en manifest"
+      - "Firebase SDK incluido en build"
+      - "No hay warnings de missing plugins"
+    acceptance_criteria:
+      - "APK validado estructura y permisos OK"
+      - "Listo para deployment a device"
+
+  # ==================== WAVE 5: E2E TESTING & VALIDATION ====================
+  
+  - id: "T5.1_install_and_test_ota"
+    title: "Instalar APK en device y validar OTA end-to-end"
+    description: |
+      E2E OTA flow en device Android real:
+      
+      Setup:
+      - Conectar device Android via USB
+      - `adb devices` para validar conexión
+      - `adb install -r android/app/build/outputs/apk/debug/app-debug.apk`
+      
+      Test 1: OTA Check on Startup
+      - Abrir app
+      - Esperar 3-5 segundos
+      - Verificar en `adb logcat` que fetch version.json completa exitosamente
+      - Buscar mensajes: "Downloading new OTA update" o similar
+      
+      Test 2: OTA Download (si hay versión nueva)
+      - Si version.json mostró update disponible
+      - Verificar UI muestra "Update available" message
+      - Capturar logs de CapacitorUpdater.download()
+      
+      Test 3: Error Handling
+      - Desactivar network: `adb shell pm set-insecure-user-id off`
+      - Iniciar app y verificar que error handling UI muestra mensaje claro
+      - No debe mostrar logs crudos al usuario
+      
+      Test 4: localStorage OTA state
+      - Verificar que app_version se guarda en localStorage
+      - Comparar con version.json remota
+      
+      Captura de evidencia:
+      - Screenshots de UI
+      - `adb logcat` output filtrado
+      - curl test de version.json desde device
+    wave: 5
+    agent: "gem-mobile-tester"
+    prototype: false
+    covers: ["OTA E2E testing", "APK runtime validation"]
+    priority: "high"
+    status: "pending"
+    dependencies: ["T4.1_build_apk", "T4.2_validate_build"]
+    context_files:
+      - path: "android/app/build/outputs/apk/debug/app-debug.apk"
+        description: "APK a testear"
+      - path: "App.tsx"
+        description: "OTA logic reference"
+    estimated_effort: "large"
+    estimated_files: 0  # testing only
+    estimated_lines: 0
+    validation_matrix:
+      - scenario: "App startup → OTA check"
+        steps:
+          - "Conectar device Android"
+          - "adb install -r app-debug.apk"
+          - "Abrir app"
+          - "Esperar 5s"
+          - "adb logcat | grep -i ota"
+        expected_result: "Logs muestran 'fetch version.json' sin error"
+      
+      - scenario: "OTA download si hay versión nueva"
+        steps:
+          - "Verificar que version.json en Storage tiene versión > app.version"
+          - "Abrir app"
+          - "Observar UI"
+        expected_result: "UI muestra 'Update available' y CapacitorUpdater inicia download"
+      
+      - scenario: "Error handling sin network"
+        steps:
+          - "Desactivar network en device"
+          - "Abrir app"
+          - "Esperar que OTA check falle"
+        expected_result: "UI muestra error message amigable, no crash"
+    flows:
+      - flow_id: "OTA_HAPPY_PATH"
+        description: "Flujo exitoso: startup → check → download → apply"
+        setup:
+          - "Device conectado con network"
+          - "Firebase Storage accessible"
+          - "version.json en Storage con versión > app actual"
+        steps:
+          - "Abrir app por primera vez"
+          - "OTA check se ejecuta automáticamente"
+          - "UI muestra 'Update available'"
+          - "Usuario acepta actualización"
+          - "App descarga nuevo build"
+          - "App aplica update"
+          - "App reinicia"
+        expected_state:
+          - "App versión actualizada"
+          - "localStorage contiene nueva version"
+          - "Logs muestran 'CapacitorUpdater.set() success'"
+        teardown:
+          - "Documentar versión final"
+          - "Screenshot de success"
+      
+      - flow_id: "OTA_ERROR_NETWORK"
+        description: "Error path: red desconectada"
+        setup:
+          - "Device sin internet"
+        steps:
+          - "Abrir app"
+          - "OTA check intenta pero falla"
+        expected_state:
+          - "UI muestra error message"
+          - "App sigue funcionando"
+          - "No hay crash ni stack trace visible"
+        teardown:
+          - "Screenshot del error UI"
+    verification:
+      - "OTA check se ejecuta en startup"
+      - "version.json se fetch exitosamente"
+      - "Error handling UI es visible (no solo logs)"
+      - "No hay crashes ni unhandled errors"
+      - "App permanece funcional después de error"
+    acceptance_criteria:
+      - "APK instala y ejecuta sin crash"
+      - "OTA check completado en startup"
+      - "Si hay versión nueva, es detectada y descargada"
+      - "Error handling visual funciona"
+      - "Evidence documentada (screenshots, logcat)"
+
+  - id: "T5.2_test_rollback"
+    title: "Validar script restore_ota.mjs en production"
+    description: |
+      Probar rollback de versión:
+      
+      Prerequisite:
+      - Tener 2+ versiones en Firebase Storage (actual + anterior)
+      - Notas de cuáles son las versiones (ver ota-release/version.json)
+      
+      Test Steps:
+      1. Documentar versión actual en device:
+         ```
+         adb shell dumpsys package com.tupaquete.dndcompanion | grep versionName
+         ```
+      
+      2. Ejecutar rollback a versión anterior:
+         ```
+         node scripts/restore_ota.mjs 1.0.0-2026.4.16-182359 "Rollback para testing"
+         ```
+      
+      3. Verificar que version.json en Storage fue actualizado:
+         ```
+         curl https://storage.googleapis.com/dungeon-forge-prod.firebasestorage.app/version.json
+         ```
+      
+      4. En device, abrir app y esperar OTA check:
+         - App debe detectar que version anterior está disponible
+         - (O versión sigue igual si remote < local)
+      
+      5. Verificar audit log:
+         - Firebase Storage debe mostrar nuevo ZIP upload si restoring
+         - Timestamp de actualización en version.json
+      
+      Rollback en caso de error:
+      - Ejecutar restore_ota.mjs con versión anterior correcta
+      - Verificar que version.json volvió a la normal
+    wave: 5
+    agent: "gem-devops"
+    prototype: false
+    covers: ["Rollback script validation", "disaster recovery"]
+    priority: "medium"
+    status: "pending"
+    dependencies: ["T3.1_enhance_restore_ota", "T5.1_install_and_test_ota"]
+    context_files:
+      - path: "scripts/restore_ota.mjs"
+        description: "Script a validar"
+      - path: "ota-release/version.json"
+        description: "Current version tracking"
+    estimated_effort: "small"
+    estimated_files: 0  # CLI testing
+    estimated_lines: 0
+    verification:
+      - "restore_ota.mjs ejecuta sin error"
+      - "version.json en Storage actualizado"
+      - "ZIP anterior en bucket es alcanzable"
+      - "Audit trail documentado"
+    acceptance_criteria:
+      - "Script rollback validado funcionalmente"
+      - "version.json actualizado correctamente"
+      - "No hay errores o uploads fallidos"
+
+  - id: "T5.3_final_validation"
+    title: "Validación final y cierre de plan: OTA E2E funcional"
+    description: |
+      Consolidar evidencia de E2E y emitir quality gate:
+      
+      Checklist Final:
+      - [ ] google-services.json en android/app/ ✓ (T2.1)
+      - [ ] CORS configurado en Storage ✓ (T2.2)
+      - [ ] restore_ota.mjs mejorado ✓ (T3.1)
+      - [ ] Error handling UI en App.tsx ✓ (T3.2)
+      - [ ] APK compila sin errores ✓ (T4.1)
+      - [ ] APK valida estructura OK ✓ (T4.2)
+      - [ ] OTA check funciona en device ✓ (T5.1)
+      - [ ] Rollback script valida ✓ (T5.2)
+      
+      Documentación:
+      - Resumen de cambios con commit hashes
+      - Evidence: screenshots, logcat, curl tests
+      - Known limitations o deuda técnica
+      - Next steps para future improvements
+      
+      Quality Gate Decision:
+      - PASS: Todos los tests pasaron, OTA E2E funcional
+      - CONDITIONAL: Issues menores, non-blocking
+      - FAIL: Bloqueante encontrado, requiere fix
+      
+      Deliverables:
+      - SOLUTION-COMPLETE-FIREBASE-OTA.md
+      - Screenshots y evidencia en docs/plan/20260525-firebase-ota-apk-fix/
+      - Git commits documentados
+    wave: 5
+    agent: "gem-reviewer"
+    prototype: false
+    covers: ["Quality gate", "documentation", "closure"]
+    priority: "high"
+    status: "pending"
+    dependencies: ["T5.1_install_and_test_ota", "T5.2_test_rollback"]
+    context_files:
+      - path: "AGENTS.md"
+        description: "Referencia de estado OTA"
+      - path: ".claude/CLAUDE.md"
+        description: "Context de proyecto"
+    estimated_effort: "small"
+    estimated_files: 1
+    estimated_lines: 200
+    verification:
+      - "Todos los acceptance criteria de T5.1 y T5.2 satisfechos"
+      - "Documentación completa"
+      - "Quality gate decision clara"
+    acceptance_criteria:
+      - "OTA end-to-end funcional en APK real"
+      - "Documentación de solution completada"
+      - "Plan marcado como COMPLETED"
+      - "Next steps documentados para future work"
+
+  # ==================== CONTINGENCY: BUILD FAILURE ====================
+  
+  - id: "CONTINGENCY_build_failure"
+    title: "[CONTINGENCY] Diagnosticar y remediar build failure en T4"
+    description: |
+      Si T4.1_build_apk falla, ejecutar este plan de recuperación:
+      
+      Diagnosis Steps:
+      1. Capturar error completo de gradle:
+         ```
+         ./gradlew clean assembleDebug 2>&1 | tee build-error.log
+         ```
+      
+      2. Clasificar error:
+         - Plugin registration: "cannot find symbol GoogleSignInPlugin"
+         - Resource not found: "google-services.json not found"
+         - Gradle sync: "Could not resolve dependency"
+         - Capacitor: "capacitor plugin missing"
+      
+      3. Root cause analysis:
+         - Verificar que google-services.json existe en android/app/
+         - Verificar build.gradle syntax
+         - Ejecutar `npx cap sync android --no-build` para resetear plugins
+         - Validar local.properties tiene paths correctos
+      
+      4. Remediation:
+         - Si plugin: agregar registerPlugin en MainActivity
+         - Si file: verificar path y permisos
+         - Si gradle: limpiar .gradle/ y reintentar
+      
+      5. Retry:
+         - `./gradlew clean`
+         - `npx cap sync android`
+         - `./gradlew assembleDebug`
+      
+      Escalation:
+      - Si falla después de retry: documentar error y escalar a gem-debugger
+      - Crear issue JIRA con error log + context
+    wave: 4
+    agent: "gem-debugger"
+    prototype: false
+    covers: ["Build failure recovery", "error diagnosis"]
+    priority: "high"
+    status: "pending"
+    dependencies: ["T4.1_build_apk"]
+    conflicts_with: []
+    context_files:
+      - path: "android/"
+        description: "Android project"
+      - path: ".gradle/"
+        description: "Gradle cache (puede necesitar clean)"
+    estimated_effort: "medium"
+    estimated_files: 0
+    estimated_lines: 0
+    failure_modes:
+      - scenario: "google-services.json corrupto o missing"
+        likelihood: "low"
+        impact: "high"
+        mitigation: "Verificar T2.1 completado; re-copiar archivo de docs/"
+      
+      - scenario: "Plugin registration falla"
+        likelihood: "medium"
+        impact: "high"
+        mitigation: "Ejecutar npx cap sync --no-build; agregar @Override en MainActivity"
+    verification:
+      - "Root cause identificado y documentado"
+      - "Fix aplicado"
+      - "Retry de build exitoso"
+    acceptance_criteria:
+      - "Build success o escalación a gem-debugger"
+      - "Lecciones aprendidas documentadas para future builds"
+
+---
+# END OF PLAN YAML

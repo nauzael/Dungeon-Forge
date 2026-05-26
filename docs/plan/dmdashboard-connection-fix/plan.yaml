@@ -1,0 +1,522 @@
+plan_id: dmdashboard-connection-fix-wave10
+objective: "Fix DMDashboard connection stuck in 'connecting' state by replacing Supabase queries with Firebase Firestore queries and correcting import paths"
+created_at: "2026-05-25T14:22:00Z"
+created_by: gem-planner
+status: pending
+research_confidence: high
+complexity: medium
+
+plan_metrics:
+  wave_1_task_count: 2
+  total_dependencies: 12
+  risk_score: medium
+
+tldr: |
+  DMDashboard listener stuck in "connecting" because useDMParty.ts calls deprecated Supabase queries.
+  Migrate to Firebase Firestore queries (queryPartiesForUser, queryMembersForParty).
+  Fix broken imports from non-existent utils/supabase file (batchSaveCharacters, subscribeWithRetry).
+  Expected: 50 min total, 7 sequential waves, parallelizable at Wave 3+.
+
+open_questions:
+  - question: "Does Login.tsx use supabase for auth or queries?"
+    context: "imports supabase from firebase.ts — need to verify it's auth-only before removing export"
+    type: decision_blocker
+    affects: [task-6-verify-supabase-usage]
+  - question: "Does OAuthDebugConsole.tsx call supabase.from() or just handle debug data?"
+    context: "imports supabase but may only need for debug/restore logic"
+    type: decision_blocker
+    affects: [task-6-verify-supabase-usage]
+  - question: "What does batchSaveCharacters do and where should it live?"
+    context: "imported from non-existent utils/supabase in App.tsx — might be Firebase function or localStorage"
+    type: research
+    affects: [task-2-investigate-batchsavecharacters]
+
+gaps:
+  - description: "No Firebase Firestore query functions exist for party/member lookups — must create"
+    refinement_requests:
+      - query: "Look at firestore schema to understand Party and Character document structure"
+        source_hint: "Firebase console or existing doc references in codebase"
+
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "app.tsx fails to compile because batchSaveCharacters doesn't exist"
+      likelihood: high
+      impact: critical
+      mitigation: "Task 2 investigates batchSaveCharacters first; if missing, create stub or locate/move existing implementation"
+    - scenario: "queryPartiesForUser or queryMembersForParty returns wrong data structure → runtime type mismatch"
+      likelihood: medium
+      impact: high
+      mitigation: "Task 3 includes type validation; test output format before integrating into useDMParty"
+    - scenario: "Firestore rules deny read access → queries silently fail → listener still stuck"
+      likelihood: low
+      impact: high
+      mitigation: "Task 4 includes error logging; validate queries return data in test environment"
+    - scenario: "Other components depend on supabase export that we remove → breaking change"
+      likelihood: medium
+      impact: medium
+      mitigation: "Task 6 comprehensively scans codebase; update all consumers before removing export"
+  assumptions:
+    - "Local mode (localStorage fallback) works correctly — Wave 10 relies on it"
+    - "Firebase Firestore SDK already initialized in firebase.ts (verified — it is)"
+    - "Realtime listener (subscribeWithRetry) is Firebase-based and works (verified — it does)"
+    - "Party and Character Firestore schemas match existing TypeScript interfaces"
+
+implementation_specification:
+  code_structure: |
+    1. Create Firebase query layer:
+       - queryPartiesForUser(userId: string): Promise<Party[]>
+       - queryMembersForParty(partyId: string): Promise<Character[]>
+       Location: utils/firebase.ts (new exports)
+    
+    2. Refactor useDMParty.ts:
+       - Remove supabase imports
+       - Replace supabase.from().select() with Firebase queries
+       - Keep localStorage fallback (isLocalMode check)
+       - Error handling: if query fails AND !isLocalMode → fallback to localStorage
+    
+    3. Fix import paths:
+       - DMDashboard.tsx: ../utils/supabase → ../utils/firebase
+       - SheetTabs.tsx: ../utils/supabase → ../utils/firebase
+       - Verify App.tsx batchSaveCharacters source (Task 2)
+    
+    4. Cleanup:
+       - Verify supabase export not used elsewhere
+       - Consider deprecating supabase export (but keep if Login/OAuthDebugConsole need it)
+
+  affected_areas:
+    - "useDMParty.ts (core logic): ~100 lines changed"
+    - "firebase.ts (new functions): ~80 lines added"
+    - "DMDashboard.tsx (import fix): ~1 line"
+    - "SheetTabs.tsx (import fix): ~1 line"
+    - "App.tsx (verify batchSaveCharacters): 0-50 lines depending on fix"
+    - "Login.tsx (verify supabase usage): 0 lines (read-only validation)"
+    - "OAuthDebugConsole.tsx (verify supabase usage): 0 lines (read-only validation)"
+
+  component_details:
+    - component: "Firebase Query Functions"
+      responsibility: "Fetch parties/members from Firestore with error handling and local fallback"
+      interfaces:
+        - "queryPartiesForUser(userId: string): Promise<Party[]>"
+        - "queryMembersForParty(partyId: string, activeCharacterId?: string): Promise<Character[]>"
+      dependencies:
+        - component: "Firestore SDK"
+          relationship: "uses collection(), query(), where() from firebase/firestore"
+        - component: "localStorage"
+          relationship: "fallback if credentials missing or query fails"
+      integration_points:
+        - "useDMParty.fetchAllParties()"
+        - "useDMParty.fetchMembers()"
+
+contracts:
+  - from_task: task-2-investigate-batchsavecharacters
+    to_task: task-1-create-firebase-queries
+    interface: "Location and format of batchSaveCharacters"
+    format: "String: location (e.g., 'should be in firebase.ts' or 'moved to App.tsx local')"
+  
+  - from_task: task-1-create-firebase-queries
+    to_task: task-3-refactor-usedmparty
+    interface: "Firebase query functions signature"
+    format: |
+      ```typescript
+      type QueryPartiesForUserResult = { parties: Party[]; error?: string };
+      type QueryMembersForPartyResult = { members: Character[]; error?: string };
+      ```
+  
+  - from_task: task-3-refactor-usedmparty
+    to_task: task-4-fix-import-paths
+    interface: "useDMParty successfully uses Firebase queries and still fallsback to localStorage"
+    format: "Boolean: useDMParty compiles without supabase imports"
+  
+  - from_task: task-6-verify-supabase-usage
+    to_task: task-7-cleanup-firebase-exports
+    interface: "List of files that consume supabase export (auth vs queries)"
+    format: |
+      ```typescript
+      interface SupabaseConsumer {
+        file: string;
+        usage: 'auth' | 'queries' | 'both';
+        canRemoveExport: boolean;
+      }
+      ```
+
+tasks:
+  - id: task-1-investigate-imports
+    title: "Investigate broken imports and batchSaveCharacters"
+    description: |
+      Scan codebase for:
+      1. What is batchSaveCharacters (App.tsx line 23)?
+         - Does it exist in utils/supabase.ts (which doesn't exist)?
+         - Is it a Firebase function that got lost in migration?
+         - Should it be in firebase.ts or App.tsx local?
+      2. Verify subscribeWithRetry import from utils/supabase (DMDashboard, SheetTabs)
+         - Should point to utils/firebase instead
+      3. Map all supabase.* usage in Login.tsx and OAuthDebugConsole.tsx
+         - Auth-only? Or queries?
+    wave: 1
+    agent: gem-researcher
+    prototype: false
+    covers:
+      - "Import path discovery"
+      - "batchSaveCharacters location"
+      - "supabase export usage audit"
+    priority: high
+    status: pending
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "App.tsx"
+        description: "Line 23 — imports batchSaveCharacters from utils/supabase"
+      - path: "components/DMDashboard.tsx"
+        description: "Line 7 — imports subscribeWithRetry from utils/supabase"
+      - path: "components/SheetTabs.tsx"
+        description: "Line 18 — imports subscribeWithRetry from utils/supabase"
+      - path: "components/Login.tsx"
+        description: "Line 2 — imports supabase"
+      - path: "components/OAuthDebugConsole.tsx"
+        description: "Line 14 — imports supabase"
+      - path: "utils/firebase.ts"
+        description: "Check for existing batchSaveCharacters or similar functions"
+    estimated_effort: small
+    estimated_files: 5
+    estimated_lines: 0
+    verification:
+      - "Identify batchSaveCharacters definition location or confirm missing"
+      - "Confirm subscribeWithRetry exists in firebase.ts"
+      - "Document supabase usage in Login.tsx and OAuthDebugConsole.tsx"
+      - "Confirm utils/supabase.ts does not exist"
+    acceptance_criteria:
+      - "Research findings include batchSaveCharacters location/status"
+      - "All broken imports identified"
+      - "Decision: utils/supabase.ts should/should not exist"
+
+  - id: task-2-create-firebase-queries
+    title: "Create Firebase Firestore query functions"
+    description: |
+      Add two new functions to utils/firebase.ts:
+      
+      1. queryPartiesForUser(userId: string): Promise<Party[]>
+         - Query Firestore: collection('parties').where('creator_id', '==', userId)
+         - Handle errors: log, return []
+         - Type: Return Party[] matching existing interface
+      
+      2. queryMembersForParty(partyId: string): Promise<Character[]>
+         - Query Firestore: collection('parties/{partyId}/characters').where('deleted_at', '==', null)
+         - OR if flat schema: collection('characters').where('party_id', '==', partyId).where('deleted_at', '==', null)
+         - Handle errors: log, return []
+         - Type: Return Character[] from data field
+      
+      Both functions:
+      - Should NOT throw; catch errors and log
+      - Should return empty array on error (fail silent for local mode fallback)
+      - Should use firestore instance (already initialized)
+      - Include JSDoc with error behavior
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Firebase query layer creation"
+      - "Error handling for failed queries"
+      - "Type-safe returns"
+    priority: high
+    status: pending
+    dependencies: [task-1-investigate-imports]
+    conflicts_with: []
+    context_files:
+      - path: "utils/firebase.ts"
+        description: "Where new functions will be added; verify Firestore schema"
+      - path: "types.ts"
+        description: "Verify Party and Character interfaces"
+    tech_stack:
+      - "Firebase/firestore: getDocs, query, where"
+      - "TypeScript strict types"
+    test_coverage: |
+      Manual test in browser console:
+      - Call queryPartiesForUser('test-user-id')
+      - Call queryMembersForParty('party-123')
+      - Verify console logs no errors
+      - Verify return type matches Party[] and Character[]
+    estimated_effort: medium
+    estimated_files: 1
+    estimated_lines: 80
+    verification:
+      - "Both functions export from firebase.ts"
+      - "Functions compile without type errors"
+      - "Error handling: no uncaught exceptions"
+      - "Return type matches interface (Party[], Character[])"
+    acceptance_criteria:
+      - "queryPartiesForUser returns Party[] (or [] on error)"
+      - "queryMembersForParty returns Character[] (or [] on error)"
+      - "No Supabase code; pure Firebase"
+      - "JSDoc includes error behavior"
+
+  - id: task-3-refactor-usedmparty
+    title: "Refactor useDMParty to use Firebase queries"
+    description: |
+      Update hooks/useDMParty.ts:
+      
+      1. Remove import of supabase from firebase.ts (line 3)
+      2. Add imports: queryPartiesForUser, queryMembersForParty from firebase.ts
+      3. Replace fetchAllParties():
+         - Keep isLocalMode check
+         - If !isLocalMode: call queryPartiesForUser(userId) instead of supabase.from()
+         - Fallback to localStorage if query returns []
+      4. Replace fetchMembers():
+         - Keep isLocalMode check
+         - If !isLocalMode: call queryMembersForParty(partyId) instead of supabase.from()
+         - Fallback to localStorage if query returns []
+      5. Add error logging if queries fail (already handled by query functions returning [])
+      6. Verify deduplication logic still works with new data format
+      
+      CRITICAL: Keep localStorage fallback intact — don't remove isLocalMode checks.
+    wave: 3
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Replace Supabase queries with Firebase"
+      - "Maintain local mode fallback"
+      - "Error handling integration"
+    priority: high
+    status: pending
+    dependencies: [task-2-create-firebase-queries]
+    conflicts_with: []
+    context_files:
+      - path: "hooks/useDMParty.ts"
+        description: "Core file to refactor; lines 98-140 target"
+      - path: "utils/firebase.ts"
+        description: "New query functions"
+    tech_stack:
+      - "React hooks (useState, useCallback)"
+      - "Firebase queries"
+      - "TypeScript"
+    test_coverage: |
+      Manual:
+      - Open DMDashboard
+      - Create new party (should fetch from Firebase, not Supabase)
+      - Select party (should fetch members from Firebase)
+      - Verify no Supabase errors in console
+      - Try with local mode ON/OFF
+    estimated_effort: medium
+    estimated_files: 1
+    estimated_lines: 100
+    verification:
+      - "useDMParty.ts has no supabase imports"
+      - "fetchAllParties uses queryPartiesForUser"
+      - "fetchMembers uses queryMembersForParty"
+      - "Compiles without type errors"
+      - "localStorage fallback still works"
+    acceptance_criteria:
+      - "Zero Supabase imports in useDMParty.ts"
+      - "Firebase queries called for both fetch functions"
+      - "Local mode fallback preserved"
+      - "realtimeStatus state still managed (connecting/connected/error)"
+
+  - id: task-4-fix-import-paths
+    title: "Fix broken imports from utils/supabase"
+    description: |
+      Update import paths in:
+      1. components/DMDashboard.tsx line 7
+         - Change: `import { subscribeWithRetry } from '../utils/supabase'`
+         - To: `import { subscribeWithRetry } from '../utils/firebase'`
+      2. components/SheetTabs.tsx line 18
+         - Change: `import { subscribeWithRetry } from '../utils/supabase'`
+         - To: `import { subscribeWithRetry } from '../utils/firebase'`
+      3. App.tsx line 23 (conditional based on Task 1 findings)
+         - If batchSaveCharacters should be in firebase.ts: update import
+         - If batchSaveCharacters is App.tsx local: remove import, create local function
+         - If batchSaveCharacters missing: create stub
+    wave: 4
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Import path corrections"
+      - "Remove utils/supabase references"
+    priority: high
+    status: pending
+    dependencies: [task-3-refactor-usedmparty, task-1-investigate-imports]
+    conflicts_with: []
+    context_files:
+      - path: "components/DMDashboard.tsx"
+        description: "Line 7 import"
+      - path: "components/SheetTabs.tsx"
+        description: "Line 18 import"
+      - path: "App.tsx"
+        description: "Line 23 import"
+    tech_stack:
+      - "TypeScript imports"
+    estimated_effort: small
+    estimated_files: 3
+    estimated_lines: 5
+    verification:
+      - "All three files import from ../utils/firebase"
+      - "No remaining imports from ../utils/supabase"
+      - "App compiles without "module not found" errors"
+    acceptance_criteria:
+      - "DMDashboard imports subscribeWithRetry from firebase.ts"
+      - "SheetTabs imports subscribeWithRetry from firebase.ts"
+      - "App.tsx batchSaveCharacters resolved (import or local)"
+      - "Zero "cannot find module" errors"
+
+  - id: task-5-verify-supabase-auth-usage
+    title: "Verify supabase auth usage in Login and OAuthDebugConsole"
+    description: |
+      Read-only verification to check if Login.tsx and OAuthDebugConsole.tsx use supabase for:
+      A. Auth only (safe to leave supabase export)
+      B. Queries (need to update to Firebase)
+      
+      Expected: Both likely auth-only (using supabase.auth.getSession or similar).
+      If any queries found: add to Task 3 scope or create new task.
+    wave: 5
+    agent: gem-researcher
+    prototype: false
+    covers:
+      - "supabase usage audit"
+    priority: medium
+    status: pending
+    dependencies: [task-4-fix-import-paths]
+    conflicts_with: []
+    context_files:
+      - path: "components/Login.tsx"
+        description: "Line 2+ — usage of supabase"
+      - path: "components/OAuthDebugConsole.tsx"
+        description: "Line 14+ — usage of supabase"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 0
+    verification:
+      - "Confirm supabase usage is auth.getSession or similar (auth-only)"
+      - "No supabase.from() queries in either file"
+    acceptance_criteria:
+      - "Decision: can supabase export be kept or should it be removed?"
+      - "If queries found: escalate to implementer"
+
+  - id: task-6-cleanup-firebase-exports
+    title: "Verify supabase export is unused and update firebase.ts"
+    description: |
+      After Task 5 verifies usage:
+      1. If supabase export is ONLY used for auth (Login.tsx, OAuthDebugConsole.tsx):
+         - Keep supabase export as-is (used for auth)
+         - Add comment: "supabase export used for auth.getSession() in Login.tsx, OAuthDebugConsole.tsx"
+      2. If supabase export is UNUSED:
+         - Remove supabase export from firebase.ts
+         - Run grep to confirm no other files import it
+      3. Verify no broken imports remain:
+         - grep 'from.*supabase' (should find zero matches)
+    wave: 6
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Clean firebase.ts exports"
+      - "Remove dead code"
+    priority: medium
+    status: pending
+    dependencies: [task-5-verify-supabase-auth-usage]
+    conflicts_with: []
+    context_files:
+      - path: "utils/firebase.ts"
+        description: "supabase export (around line 160)"
+    estimated_effort: small
+    estimated_files: 1
+    estimated_lines: 5
+    verification:
+      - "grep 'from.*supabase' returns 0 results OR only auth usage"
+      - "firebase.ts exports cleaned up"
+    acceptance_criteria:
+      - "supabase export kept or removed (decision made)"
+      - "No dangling exports"
+      - "firebase.ts exports are: auth, firestore, database, queryPartiesForUser, queryMembersForParty, subscribeWithRetry"
+
+  - id: task-7-test-dmdashboard
+    title: "Test DMDashboard connection and sync"
+    description: |
+      Manual end-to-end test in browser:
+      1. Open DMDashboard
+      2. Check "Diagnóstico" panel:
+         - Status should be "connected" or "error" (NOT "connecting" stuck)
+         - No Supabase errors in browser console
+      3. Create new party
+         - Should complete without error
+         - Realtime listener should activate
+      4. Add character to party (observer view)
+         - Should appear in members list within 1s
+         - No sync lag
+      5. Kick character
+         - Should remove immediately
+         - Listener cleans up
+      6. Unselect party / unmount component
+         - Verify listener unsubscribes (cleanup)
+         - No memory leaks
+      
+      Expected outcome:
+      - No "plugin is not implemented" errors
+      - No "Cannot read property 'from' of undefined" errors
+      - Realtime status NOT stuck in "connecting"
+    wave: 7
+    agent: gem-browser-tester
+    prototype: false
+    covers:
+      - "End-to-end DMDashboard flow"
+      - "Realtime listener validation"
+      - "Error-free operation"
+    priority: high
+    status: pending
+    dependencies: [task-6-cleanup-firebase-exports]
+    conflicts_with: []
+    context_files:
+      - path: "components/DMDashboard.tsx"
+        description: "Main component to test"
+      - path: "components/DMDashboard/ConnectionDebugPanel.tsx"
+        description: "Status panel reference"
+    validation_matrix:
+      - scenario: "Create party with no members"
+        steps:
+          - "Click 'Create Party'"
+          - "Enter party name"
+          - "Submit"
+        expected_result: "Party created, appears in list, listener connects"
+      - scenario: "Add character to party as observer"
+        steps:
+          - "Select party"
+          - "Observe party on second screen"
+          - "Add character via observer view"
+        expected_result: "Character appears in members list <1s, sync complete"
+      - scenario: "Kick character"
+        steps:
+          - "Select party with 1+ members"
+          - "Click kick button"
+          - "Confirm"
+        expected_result: "Character removed, listener updates, no errors"
+    flows:
+      - flow_id: "create-party-flow"
+        description: "End-to-end party creation and member sync"
+        setup:
+          - "Clear localStorage"
+          - "Enable local mode: false"
+          - "Open DMDashboard"
+        steps:
+          - "Create new party 'Test Party'"
+          - "Observe realtime status in debug panel"
+          - "Add member via listener"
+          - "Verify status = 'connected'"
+        expected_state:
+          - "party.id exists"
+          - "realtimeStatus = 'connected' OR 'error'"
+          - "members.length > 0"
+    cleanup: true
+    estimated_effort: medium
+    estimated_files: 0
+    estimated_lines: 0
+    verification:
+      - "Browser console: zero Supabase errors"
+      - "Browser console: zero TypeError about supabase.from()"
+      - "Realtime status: connected or error (not stuck 'connecting')"
+      - "Party creation succeeds"
+      - "Member sync <1s"
+      - "Listener cleanup on unmount"
+    acceptance_criteria:
+      - "Status panel shows 'connected' or 'error' (NOT 'connecting')"
+      - "No Supabase errors in console"
+      - "Create party, add member, kick member — all succeed"
+      - "Real-time updates <100ms (Wave 10 SLA)"
+
+status: pending

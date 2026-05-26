@@ -4,27 +4,44 @@ import { Character, ViewState, SharedResourceEvent, OTAUpdate, VersionJsonRespon
 import { MOCK_CHARACTERS } from './constants';
 import CharacterList from './components/CharacterList';
 import Login from './components/Login';
+import Toast, { ToastType } from './src/components/Toast';
 import { migrateCharacters } from './utils/characterMigrations';
+import { isValidCharacter } from './src/utils/validators';
 import { generateUUID } from './utils/uuid';
 import { useResponsive } from './hooks/useResponsive';
 import {
   supabase,
   saveCharacterToCloud,
+  saveCharacterWithRollback,
   fetchCharactersFromCloud,
   subscribeWithRetry,
   broadcastCharacterUpdate,
-  softDeleteCharacter
-} from './utils/supabase';
+  softDeleteCharacter,
+  subscribeToOwnCharacters,
+  subscribeToPartyResources
+} from './utils/firebase';
+import { batchSaveCharacters } from './utils/supabase';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { ThemeProvider } from './src/contexts/ThemeContext';
+import { SyncProvider, useSyncStatus, SyncContextType } from './src/contexts/SyncContext';
+import SyncToast from './src/components/SyncToast';
 
 const CreatorSteps = lazy(() => import('./components/CreatorSteps'));
 const SheetTabs = lazy(() => import('./components/SheetTabs'));
 const DMDashboard = lazy(() => import('./components/DMDashboard'));
+const MigrationTool = lazy(() => import('./components/MigrationTool'));
 
-const AppContent: React.FC = () => {
+const isObsoleteSupabaseId = (id: string | undefined | null): boolean => {
+  if (!id) return false;
+  return id.includes('-') && id.length === 36;
+};
+
+const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) => {
+  // 🚀 V1.6 VERIFICATION MARKER - New OAuth popup flow
+  console.log('[V1.6] 🚀 AppContent initialized - NEW POPUP FLOW ACTIVE');
+  
   const [view, setView] = useState<ViewState>('list');
   const [sharedResource, setSharedResource] = useState<SharedResourceEvent | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -33,6 +50,9 @@ const AppContent: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLocalMode, setIsLocalMode] = useState(false);
   const [updateAvailable, setUpdateAvailable] = useState<OTAUpdate | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [downloadProgress, setDownloadProgress] = useState<number>(0);
+  const [showMigrationTool, setShowMigrationTool] = useState(false);
 
   // Responsive hook for landscape/portrait detection
   const { orientation } = useResponsive();
@@ -58,6 +78,21 @@ const AppContent: React.FC = () => {
 
   // Monitor Auth Changes
   useEffect(() => {
+    // Limpieza preventiva de sesiones obsoletas de Supabase
+    try {
+      const storedSession = localStorage.getItem('df_session');
+      if (storedSession) {
+        const parsed = JSON.parse(storedSession);
+        if (parsed && parsed.id && isObsoleteSupabaseId(parsed.id)) {
+          console.warn('[Auth] Sesión obsoleta de Supabase detectada en localStorage. Limpiando para forzar login de Firebase.');
+          localStorage.removeItem('df_session');
+          localStorage.removeItem('df_local_mode');
+        }
+      }
+    } catch (e) {
+      console.error('Failed to validate initial df_session:', e);
+    }
+
     // Check if local mode is active
     try {
       const localModeStr = localStorage.getItem('df_local_mode');
@@ -121,34 +156,100 @@ const AppContent: React.FC = () => {
 
       const checkForUpdates = async () => {
         try {
-          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-          // Fetch the version.json from our public 'updates' bucket
-          const resp = await fetch(`${supabaseUrl}/storage/v1/object/public/updates/version.json?t=${Date.now()}`);
+          const storageBucket = import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'dungeon-forge-prod.firebasestorage.app';
           
-          if (resp.ok) {
-            const data: VersionJsonResponse = await resp.json();
-            
-            // Log local stored version
-            const currentVersion = localStorage.getItem('app_version') || '1.0.0';
-            
-            if (data.version && data.version !== currentVersion && data.url) {
-              console.log(`Downloading new OTA update: ${data.version}`);
+          // Fetch the version.json from our public Firebase Storage bucket
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+          
+          try {
+            const resp = await fetch(`https://storage.googleapis.com/${storageBucket}/version.json?t=${Date.now()}`, {
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (resp.ok) {
+              const data: VersionJsonResponse = await resp.json();
               
-              const update = await CapacitorUpdater.download({
-                url: data.url,
-                version: data.version
-              });
+              // Log local stored version
+              const currentVersion = localStorage.getItem('app_version') || '1.0.0';
               
-              // Instead of setting instantly, wait for user confirmation
-              setUpdateAvailable({
-                version: data.version,
-                message: data.message || "New improvements have been forged for your adventure.",
-                payload: update
-              });
+              if (data.version && data.version !== currentVersion && data.url) {
+                console.log(`[OTA] Downloading new OTA update: ${data.version}`);
+                
+                try {
+                  // Set downloading state and reset progress
+                  setDownloadProgress(0);
+                  setUpdateError(null);
+                  
+                  const update = await CapacitorUpdater.download({
+                    url: data.url,
+                    version: data.version
+                  });
+                  
+                  // Update progress to 100% on success
+                  setDownloadProgress(100);
+                  
+                  // Instead of setting instantly, wait for user confirmation
+                  setUpdateAvailable({
+                    version: data.version,
+                    message: data.message || "New improvements have been forged for your adventure.",
+                    payload: update,
+                    downloading: false,
+                    progress: 100,
+                    available: true
+                  });
+                } catch (downloadErr) {
+                  // Handle download-specific errors
+                  const errorMsg = downloadErr instanceof Error ? downloadErr.message : String(downloadErr);
+                  console.error("[OTA] Download failed:", errorMsg);
+                  
+                  // Categorize error
+                  let displayError = "Error al descargar actualización";
+                  
+                  if (errorMsg.includes('quota') || errorMsg.includes('storage')) {
+                    displayError = "Almacenamiento insuficiente para descargar la actualización";
+                  } else if (errorMsg.includes('signature') || errorMsg.includes('invalid')) {
+                    displayError = "Archivo de actualización inválido o corrupto";
+                  } else if (errorMsg.includes('network') || errorMsg.includes('timeout')) {
+                    displayError = "Error de conexión. Reintentará automáticamente.";
+                  } else if (errorMsg.includes('CORS') || errorMsg.includes('cross-origin')) {
+                    displayError = "Error de conectividad al descargar la actualización";
+                  }
+                  
+                  setUpdateError(displayError);
+                  setDownloadProgress(0);
+                  setUpdateAvailable(null);
+                }
+              }
+            } else {
+              console.warn(`[OTA] Failed to fetch version.json: ${resp.status}`);
             }
+          } catch (fetchErr) {
+            clearTimeout(timeoutId);
+            
+            // Handle fetch-specific errors
+            const errorMsg = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
+            
+            if (errorMsg.includes('abort')) {
+              console.warn("[OTA] Version check timeout (>10s)");
+              setUpdateError("Tiempo de espera agotado al verificar actualizaciones");
+            } else if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+              console.warn("[OTA] Network error while checking updates:", errorMsg);
+              setUpdateError("Sin conexión de red para verificar actualizaciones");
+            } else {
+              console.error("[OTA] Fetch error:", errorMsg);
+              setUpdateError("Error al verificar si hay actualizaciones disponibles");
+            }
+            
+            setDownloadProgress(0);
           }
         } catch (e) {
-          console.error("Failed to fetch OTA update:", e);
+          // Catch-all for any unexpected errors
+          const errorMsg = e instanceof Error ? e.message : String(e);
+          console.error("[OTA] Unexpected error in checkForUpdates:", errorMsg);
+          setUpdateError("Error inesperado al verificar actualizaciones");
+          setDownloadProgress(0);
         }
       };
 
@@ -160,7 +261,30 @@ const AppContent: React.FC = () => {
 
       // Check when the app returns from background
       CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-        if (isActive) checkForUpdates();
+        if (isActive) {
+          console.log('[App] App resumed - checking for updates and auth state');
+          checkForUpdates();
+          
+          // Also trigger manual auth check in case user returned from OAuth popup
+          if (!isAuthenticated) {
+            try {
+              const storedSession = localStorage.getItem('df_session');
+              if (storedSession) {
+                const parsed = JSON.parse(storedSession);
+                if (parsed && parsed.id && !isObsoleteSupabaseId(parsed.id)) {
+                  console.log('[Auth] Resume check: Found stored session:', parsed.user);
+                  setUser({ name: parsed.user || 'Adventurer', id: parsed.id });
+                  setIsAuthenticated(true);
+                } else if (parsed && parsed.id && isObsoleteSupabaseId(parsed.id)) {
+                  console.warn('[Auth] Ignorando sesión obsoleta de Supabase al reanudar');
+                  localStorage.removeItem('df_session');
+                }
+              }
+            } catch (e) {
+              console.warn('[Auth] Resume check failed:', e);
+            }
+          }
+        }
       }).then(listener => {
         appStateListenerRef.current = listener;
       });
@@ -199,23 +323,101 @@ const AppContent: React.FC = () => {
         }
       }
     });
+    
+    // FALLBACK: If listener doesn't fire quickly from popup context, check localStorage periodically
+    // This handles the case where Firebase emits auth changes in popup context, not main app
+    let checkCount = 0;
+    const checkLocalStorageInterval = setInterval(() => {
+      try {
+        const storedSession = localStorage.getItem('df_session');
+        if (storedSession && !isAuthenticated) {
+          const parsed = JSON.parse(storedSession);
+          if (parsed && parsed.id && !isObsoleteSupabaseId(parsed.id)) {
+            console.log('[Auth] Fallback: Detected session in localStorage:', parsed.user);
+            setUser({ name: parsed.user || 'Adventurer', id: parsed.id });
+            setIsAuthenticated(true);
+            clearInterval(checkLocalStorageInterval);  // Stop polling once session found
+          } else if (parsed && parsed.id && isObsoleteSupabaseId(parsed.id)) {
+            console.warn('[Auth] Fallback: Sesión obsoleta de Supabase ignorada');
+            localStorage.removeItem('df_session');
+          }
+        }
+      } catch (e) {
+        // Silent fail
+      }
+      
+      // Prevent infinite polling - max 60 checks (30 seconds)
+      if (++checkCount > 60) {
+        console.warn('[Auth] Fallback polling exceeded max checks, stopping');
+        clearInterval(checkLocalStorageInterval);
+      }
+    }, 500); // Check every 500ms
+    
+    const cleanupCheckInterval = () => clearInterval(checkLocalStorageInterval);
 
     return () => {
       if (otaCleanup) otaCleanup();
       subscription.unsubscribe();
+      cleanupCheckInterval();
     };
   }, []);
   
   // Initialize characters from localStorage if available, otherwise use mocks
   // Apply migrations to existing characters on load
+  // Validate each character - filter corrupted ones, clean localStorage if needed
   const [characters, setCharacters] = useState<Character[]>(() => {
     try {
       const saved = localStorage.getItem('dnd-characters');
-      const loaded: Character[] = saved ? JSON.parse(saved) : MOCK_CHARACTERS;
-      const { characters: migratedChars } = migrateCharacters(loaded);
+      if (!saved) {
+        return MOCK_CHARACTERS;
+      }
+
+      const parsed = JSON.parse(saved) as unknown;
+
+      // Ensure it's an array
+      if (!Array.isArray(parsed)) {
+        console.warn('localStorage dnd-characters is not an array, clearing');
+        localStorage.removeItem('dnd-characters');
+        return MOCK_CHARACTERS;
+      }
+
+      // Validate each character
+      const validated: Character[] = [];
+      const corrupted: unknown[] = [];
+
+      for (const char of parsed) {
+        const validation = isValidCharacter(char);
+        if (!validation.valid) {
+          console.warn(`Removiendo personaje corrupto ${(char as any).name}:`, validation.errors);
+          corrupted.push(char);
+        } else {
+          validated.push(char as Character);
+        }
+      }
+
+      // If corrupted characters were found, save cleaned data back to localStorage
+      if (corrupted.length > 0) {
+        const percentage = Math.round((corrupted.length / parsed.length) * 100);
+        console.warn(`Limpiados ${corrupted.length} personajes corruptos (${percentage}%)`);
+        
+        // Save cleaned data
+        try {
+          localStorage.setItem('dnd-characters', JSON.stringify(validated));
+        } catch (storageErr) {
+          console.error('Failed to save cleaned characters back to localStorage:', storageErr);
+        }
+      }
+
+      // Apply migrations to valid characters
+      const { characters: migratedChars } = migrateCharacters(validated);
       return migratedChars;
     } catch (e) {
-      console.error("Failed to load characters from local storage", e);
+      console.error('localStorage corrupto, limpiando...', e);
+      try {
+        localStorage.removeItem('dnd-characters');
+      } catch (err) {
+        console.error('Failed to remove corrupted localStorage:', err);
+      }
       return MOCK_CHARACTERS;
     }
   });
@@ -234,8 +436,88 @@ const AppContent: React.FC = () => {
   const [activeCharacterId, setActiveCharacterId] = useState<string | null>(null);
   const activeCharacter = characters.find(c => c.id === activeCharacterId);
   
+  // WAVE 6: Listener cleanup on character switch
+  const listenerRef = useRef<{ unsubscribe: () => Promise<void> } | null>(null);
+
+  /**
+   * Subscribe to active character only - cleanup previous listener on switch
+   * WAVE 6: Selective listener management
+   */
+  const subscribeToActiveCharacter = async (characterId: string, partyId: string) => {
+    // Cleanup listener anterior
+    if (listenerRef.current) {
+      await listenerRef.current.unsubscribe();
+      console.log('[Listener] Cleaned up previous listener');
+    }
+
+    // Abrir listener SOLO para character activo (WAVE 7: selective sync)
+    if (!isLocalMode && isAuthenticated) {
+      const subscription = subscribeWithRetry(
+        partyId,
+        (payload: any) => {
+          // Solo procesar si es el character activo
+          if (payload.new?.id === characterId) {
+            const char = payload.new.data as Character;
+            setCharacters(prev => prev.map(c => c.id === characterId ? char : c));
+            console.log(`[App] Updated via listener: ${characterId}`);
+          }
+        },
+        (broadcastChar: any) => {
+          if (broadcastChar?.id === characterId) {
+            const char = broadcastChar as Character;
+            setCharacters(prev => prev.map(c => c.id === characterId ? char : c));
+            console.log(`[App] Updated via broadcast: ${characterId}`);
+          }
+        },
+        (status) => {
+          console.log(`[Listener] Party sync status: ${status}`);
+        },
+        characterId // WAVE 7: Pass activeCharacterId for selective sync
+      );
+      
+      listenerRef.current = subscription;
+      console.log(`[Listener] Opened listener for character: ${characterId}`);
+    }
+  };
+
+  // WAVE 6: useEffect to subscribe/cleanup when active character changes
+  useEffect(() => {
+    if (activeCharacter?.id && activeCharacter?.party_id) {
+      subscribeToActiveCharacter(activeCharacter.id, activeCharacter.party_id);
+    }
+
+    return () => {
+      // Cleanup on unmount or character change is handled in subscribeToActiveCharacter
+    };
+  }, [activeCharacter?.id, activeCharacter?.party_id, isLocalMode, isAuthenticated]);
+  
   // Pending uploads queue for sync
   const pendingUploads = useRef<Character[]>([]);
+
+  // Deduplication of listener events (prevent processing same event from multiple listeners)
+  const recentEventIds = useRef<Set<string>>(new Set());
+  const DEDUP_WINDOW_MS = 100;
+
+  // Helper: Generate event ID from character data
+  const getEventId = (characterId: string, timestamp: number): string => {
+    return `${characterId}-${timestamp}`;
+  };
+
+  // Helper: Check if event is duplicate and mark it as processed
+  const isDuplicateEvent = (characterId: string, timestamp: number): boolean => {
+    const eventId = getEventId(characterId, timestamp);
+    const isDuplicate = recentEventIds.current.has(eventId);
+    
+    if (!isDuplicate) {
+      recentEventIds.current.add(eventId);
+      // Schedule cleanup of this event ID after dedup window
+      setTimeout(() => {
+        recentEventIds.current.delete(eventId);
+      }, DEDUP_WINDOW_MS);
+    }
+    
+    return isDuplicate;
+  };
 
   // Sync with Cloud on Login - Merge Inteligente
   useEffect(() => {
@@ -261,11 +543,21 @@ const AppContent: React.FC = () => {
                     let updated = false;
                     
                     for (const cloudChar of cloudChars) {
-                        // Skip if this character was deleted locally
-                        if (deletedCharacterIds.has(cloudChar.id)) {
-                            console.log(`[Sync] Saltando personaje eliminado localmente: ${cloudChar.name}`);
-                            continue;
-                        }
+                      // Cloud es la fuente de verdad para personajes activos (deleted_at = null).
+                      // Si aparece aquí, eliminamos cualquier marca local obsoleta de borrado.
+                      if (deletedCharacterIds.has(cloudChar.id)) {
+                        console.log(`[Sync] Restaurando personaje activo desde cloud: ${cloudChar.name}`);
+                        setDeletedCharacterIds(prev => {
+                          const next = new Set(prev);
+                          next.delete(cloudChar.id);
+                          try {
+                            localStorage.setItem('df-deleted-characters', JSON.stringify([...next]));
+                          } catch (e) {
+                            console.error('Failed to sync deleted characters list:', e);
+                          }
+                          return next;
+                        });
+                      }
                         
                         const localIndex = merged.findIndex(c => c.id === cloudChar.id);
                         
@@ -433,18 +725,38 @@ const AppContent: React.FC = () => {
             observedCharacter.party_id || 'no-party',
             (payload: any) => {
                 if (payload.new?.id === observedCharacter.id) {
-                    setObservedCharacter(payload.new.data as Character);
+                    const char = payload.new.data as Character;
+                    const timestamp = char.syncTimestamp || Date.now();
+                    
+                    // Skip if this is a duplicate event from another listener
+                    if (isDuplicateEvent(char.id, timestamp)) {
+                        console.log(`[Observer] Postgres change - DUPLICATE IGNORED: ${char.id}`);
+                        return;
+                    }
+                    
+                    console.log(`[Observer] Postgres change processed: ${char.id}`);
+                    setObservedCharacter(char);
                 }
             },
             (broadcastChar: any) => {
                 if (broadcastChar && broadcastChar.id === observedCharacter.id) {
+                    const timestamp = broadcastChar.syncTimestamp || Date.now();
+                    
+                    // Skip if this is a duplicate event from another listener
+                    if (isDuplicateEvent(broadcastChar.id, timestamp)) {
+                        console.log(`[Observer] Broadcast - DUPLICATE IGNORED: ${broadcastChar.id}`);
+                        return;
+                    }
+                    
+                    console.log(`[Observer] Broadcast processed: ${broadcastChar.id}`);
                     setObservedCharacter(broadcastChar as Character);
                 }
             },
             (status) => {
                 // Log status changes (connecting, connected, error, reconnecting)
                 console.log(`[Observer] Realtime status: ${status}`);
-            }
+            },
+            observedCharacter.id // WAVE 10: Selective document listener
         );
 
         return () => {
@@ -452,91 +764,62 @@ const AppContent: React.FC = () => {
         };
     }, [observedCharacter?.id, view]);
     
-    // Real-time sync for own characters (from other devices)
+    // Real-time sync for own characters (from other devices) — Firebase Firestore onSnapshot
     useEffect(() => {
         if (isLocalMode || !isAuthenticated || !user?.id || user.id.includes('mock')) return;
 
-        const channel = supabase
-            .channel('my-characters-sync')
-            .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: 'characters',
-                filter: `user_id=eq.${user.id}`
-            }, (payload) => {
-                console.log('[Realtime] Character change from cloud:', payload);
-                
-                if (payload.eventType === 'DELETE') {
-                    const deletedId = payload.old?.id;
-                    if (deletedId) {
-                        console.log('[Realtime] Character deleted from cloud:', deletedId);
-                        setCharacters(prev => prev.filter(c => c.id !== deletedId));
-                        const newDeleted = new Set(deletedCharacterIds);
-                        newDeleted.add(deletedId);
-                        setDeletedCharacterIds(newDeleted);
-                        try {
-                          localStorage.setItem('df-deleted-characters', JSON.stringify([...newDeleted]));
-                        } catch (e) {}
+        const unsubscribe = subscribeToOwnCharacters(user.id, (char, type) => {
+            const timestamp = char.syncTimestamp || Date.now();
+            
+            // Skip if this is a duplicate event from another listener
+            if (isDuplicateEvent(char.id, timestamp)) {
+                console.log(`[Cloud Realtime] ${type} - DUPLICATE IGNORED: ${char.id}`);
+                return;
+            }
+            
+            if (type === 'DELETE') {
+                console.log('[Cloud Realtime] Character deleted from cloud:', char.id);
+                setCharacters(prev => prev.filter(c => c.id !== char.id));
+                setDeletedCharacterIds(prev => {
+                    const newDeleted = new Set(prev);
+                    newDeleted.add(char.id);
+                    try {
+                        localStorage.setItem('df-deleted-characters', JSON.stringify([...newDeleted]));
+                    } catch (e) {}
+                    return newDeleted;
+                });
+            } else {
+                console.log('[Cloud Realtime] Update processed:', char.id);
+                setCharacters(prev => {
+                    const localChar = prev.find(c => c.id === char.id);
+                    const localTime = localChar?.syncTimestamp || 0;
+                    if ((char.syncTimestamp || 0) > localTime) {
+                        console.log('[Cloud Realtime] Updating local with cloud version:', char.name);
+                        return prev.map(c => c.id === char.id ? char : c);
                     }
-                    return;
-                }
-                
-                if (payload.eventType === 'UPDATE' && payload.new?.data) {
-                    if (payload.new.deleted_at) {
-                        const deletedId = payload.new.id;
-                        console.log('[Realtime] Character marked as deleted in cloud:', deletedId);
-                        setCharacters(prev => prev.filter(c => c.id !== deletedId));
-                        const newDeleted = new Set(deletedCharacterIds);
-                        newDeleted.add(deletedId);
-                        setDeletedCharacterIds(newDeleted);
-                        try {
-                          localStorage.setItem('df-deleted-characters', JSON.stringify([...newDeleted]));
-                        } catch (e) {}
-                        return;
-                    }
-                    
-                    const cloudChar = payload.new.data as Character;
-                    const cloudTime = cloudChar.syncTimestamp || (payload.new.updated_at ? new Date(payload.new.updated_at).getTime() : 0);
-                    
-                    setCharacters(prev => {
-                        const localChar = prev.find(c => c.id === cloudChar.id);
-                        const localTime = localChar?.syncTimestamp || 0;
-                        
-                        if (cloudTime > localTime) {
-                            console.log('[Realtime] Updating local with cloud version:', cloudChar.name);
-                            return prev.map(c => c.id === cloudChar.id ? { ...cloudChar, syncTimestamp: Date.now() } : c);
-                        }
-                        return prev;
-                    });
-                }
-            })
-            .subscribe();
-
-        return () => {
-            channel.unsubscribe();
-        };
-    }, [isAuthenticated, user?.id]);
-    
-    // Manage broadcast channel for active character
-    useEffect(() => {
-        if (!activeCharacter?.party_id) return;
-        
-        const channelName = "party-" + activeCharacter.party_id;
-        const channel = supabase.channel(channelName);
-
-        channel.on('broadcast', { event: 'resource-share' }, (payload) => {
-            console.log("[Broadcast] Shared Resource received:", payload.payload.resource);
-            setSharedResource(payload.payload.resource);
-        }).on('broadcast', { event: 'resource-hide' }, () => {
-            console.log("[Broadcast] Resource Hide received");
-            setSharedResource(null);
+                    return prev;
+                });
+            }
         });
 
-        channel.subscribe();
-        
-        return () => {
-            channel.unsubscribe();
-        };
+        return unsubscribe;
+    }, [isAuthenticated, user?.id]);
+    
+    // Suscripción a recursos compartidos de la fiesta — Firebase RTDB
+    useEffect(() => {
+        if (!activeCharacter?.party_id) return;
+
+        const unsubscribe = subscribeToPartyResources(activeCharacter.party_id, (resource) => {
+            if (resource) {
+                console.log('[PartyResources] Shared Resource received:', resource.name);
+                setSharedResource(resource);
+            } else {
+                console.log('[PartyResources] Resource hidden');
+                setSharedResource(null);
+            }
+        });
+
+        return unsubscribe;
     }, [activeCharacter?.party_id]);
 
   const handleCharacterUpdate = useCallback((updatedChar: Partial<Character> | Character) => {
@@ -556,17 +839,133 @@ const AppContent: React.FC = () => {
   }, [activeCharacter]);
 
   const handleDMCharacterUpdate = async (updatedChar: Character) => {
-    // 1. Update the local observed character state
+    // 1. Validar character antes de guardar (Task 2-1)
+    const validation = isValidCharacter(updatedChar);
+    if (!validation.valid) {
+      console.error('[Sync] Validation failed:', validation.errors);
+      syncStatus.showError(validation.errors?.[0] || 'Validation error', updatedChar.id);
+      return; // No guardar si es inválido
+    }
+
+    // 2. Update the local observed character state
     setObservedCharacter(updatedChar);
 
-    // 2. Persist to cloud (Supabase)
-    // We try to preserve the original owner user_id if we have it in the character data
-    const ownerId = (updatedChar as CharacterWithOwner).user_id || user?.id || 'guest'; 
-    await saveCharacterToCloud(updatedChar, ownerId);
+    // 3. Show syncing state
+    syncStatus.showSync();
 
-    // 3. Broadcast to the party
+    // 4. Persist to cloud with rollback (Task 3-1)
+    try {
+      const ownerId = (updatedChar as CharacterWithOwner).user_id || user?.id || 'guest';
+      
+      // Create rollback handler - restore previous state on failure
+      const handleRollback = (snapshot: Character) => {
+        setObservedCharacter(snapshot);
+        console.error('[Sync] Rollback applied:', snapshot.id);
+      };
+
+      // Save with rollback capability
+      await saveCharacterWithRollback(updatedChar, ownerId, handleRollback);
+
+      // Success - update sync status (Task 3-2)
+      syncStatus.showSuccess(`${updatedChar.name} guardado`);
+      console.log('[Sync] Character saved successfully:', updatedChar.id);
+    } catch (error) {
+      // Error - show feedback (Task 3-2)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      syncStatus.showError(errorMessage, updatedChar.id);
+      console.error('[Sync] Failed to save character:', error);
+      return; // Stop here, don't broadcast on error
+    }
+
+    // 5. Broadcast to the party on success
     if (updatedChar.party_id) {
-        broadcastCharacterUpdate(updatedChar.party_id, updatedChar);
+      broadcastCharacterUpdate(updatedChar.party_id, updatedChar);
+    }
+  };
+
+  /**
+   * Task 4-2: Batch save multiple characters efficiently
+   * Used when editing multiple characters simultaneously (e.g., DM editing all enemy stats)
+   * Instead of N individual requests, reduces to 1 batch operation
+   * 
+   * @param updates Array of characters to save
+   * @returns Promise that resolves when batch save completes
+   */
+  const handleBatchUpdateCharacters = async (updates: Character[]): Promise<void> => {
+    // Validación inicial
+    if (!updates || updates.length === 0) {
+      console.warn('[BatchSave] No characters to save');
+      return;
+    }
+
+    // Mostrar estado de sincronización
+    syncStatus.showSync();
+    console.log(`[BatchSave] Starting batch save for ${updates.length} characters`);
+
+    try {
+      // Crear callback para saveCharacterWithRollback
+      // Cada personaje se guarda individualmente dentro del batch
+      const saveCallback = async (character: Character): Promise<{ data: { id: string }, error: null }> => {
+        const ownerId = (character as CharacterWithOwner).user_id || user?.id || 'guest';
+        
+        // Crear handler para rollback si falla el save
+        const handleRollback = (snapshot: Character) => {
+          setCharacters(prev => 
+            prev.map(c => c.id === snapshot.id ? snapshot : c)
+          );
+          console.error('[BatchSave] Rollback applied for:', snapshot.id);
+        };
+
+        // Guardar con capacidad de rollback
+        return await saveCharacterWithRollback(character, ownerId, handleRollback);
+      };
+
+      // Ejecutar batch save con el callback
+      const result = await batchSaveCharacters(updates, saveCallback);
+
+      // Actualizar characters locales con los que se guardaron exitosamente
+      setCharacters(prev => {
+        let modified = [...prev];
+        for (const successful of result.successful) {
+          const idx = modified.findIndex(c => c.id === successful.id);
+          if (idx !== -1) {
+            modified[idx] = successful;
+          }
+        }
+        return modified;
+      });
+
+      // Mostrar resultado según éxito/fallos
+      if (result.failed.length === 0) {
+        // Todos exitosos
+        const message = `✅ ${result.successful.length} personaje${result.successful.length !== 1 ? 's' : ''} guardado${result.successful.length !== 1 ? 's' : ''} en ${result.totalTime}ms`;
+        syncStatus.showSuccess(message);
+        console.log('[BatchSave] All characters saved successfully:', { successful: result.successful.length, time: result.totalTime });
+      } else {
+        // Algunos fallaron
+        const message = `⚠️ ${result.successful.length} guardado${result.successful.length !== 1 ? 's' : ''}, ${result.failed.length} fallo${result.failed.length !== 1 ? 's' : ''}`;
+        syncStatus.showError(message);
+        console.warn('[BatchSave] Batch completed with failures:', { successful: result.successful.length, failed: result.failed.length });
+      }
+
+      // Broadcast updates to party members si existen
+      const partyIds = new Set<string>();
+      for (const char of result.successful) {
+        if (char.party_id) {
+          partyIds.add(char.party_id);
+        }
+      }
+      for (const partyId of partyIds) {
+        for (const char of result.successful) {
+          if (char.party_id === partyId) {
+            broadcastCharacterUpdate(partyId, char);
+          }
+        }
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      syncStatus.showError(`Error al guardar: ${errorMessage}`);
+      console.error('[BatchSave] Batch save failed:', error);
     }
   };
 
@@ -655,7 +1054,7 @@ const AppContent: React.FC = () => {
     <div className="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
           <div className={`mx-auto ${isLandscape ? 'max-w-none' : 'max-w-md'} bg-background-light dark:bg-background-dark shadow-2xl min-h-screen relative overflow-hidden`}>
             
-            {/* OTA Update Spinner / Modal */}
+            {/* OTA Update Modal with Progress */}
             {updateAvailable && (
               <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
                 <div className="bg-white dark:bg-surface-dark rounded-3xl p-6 w-full max-w-xs shadow-2xl border border-primary/20 text-center animate-slideUp">
@@ -666,12 +1065,50 @@ const AppContent: React.FC = () => {
                   <p className="text-slate-600 dark:text-slate-300 text-sm mb-6 font-medium">
                     {updateAvailable.message}
                   </p>
-                  <div className="w-full bg-slate-100 dark:bg-white/5 h-2 rounded-full overflow-hidden">
-                      <div className="bg-primary h-full w-full animate-pulse"></div>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-full bg-slate-100 dark:bg-white/5 h-2 rounded-full overflow-hidden mb-2">
+                    <div 
+                      className="bg-primary h-full transition-all duration-300"
+                      style={{ width: `${downloadProgress}%` }}
+                    ></div>
                   </div>
-                  <p className="text-xs text-slate-400 mt-4 uppercase tracking-widest font-bold">Reiniciando automáticamente...</p>
+                  
+                  {/* Progress Percentage */}
+                  <p className="text-xs text-slate-400 mb-2">
+                    {downloadProgress === 0 ? 'Verificando...' : `${Math.round(downloadProgress)}%`}
+                  </p>
+                  
+                  <p className="text-xs text-slate-400 uppercase tracking-widest font-bold">
+                    {downloadProgress === 100 ? 'Descarga completada. Reiniciando...' : 'Descargando actualización...'}
+                  </p>
                 </div>
               </div>
+            )}
+
+            {/* Error Toast */}
+            {updateError && (
+              <Toast
+                type="error"
+                message={updateError}
+                duration={0}
+                onClose={() => setUpdateError(null)}
+                action={{
+                  label: 'Reintentar',
+                  onClick: () => {
+                    setUpdateError(null);
+                    setDownloadProgress(0);
+                    // Trigger update check again
+                    if (Capacitor.getPlatform() !== 'web') {
+                      CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+                        if (isActive) {
+                          // checkForUpdates will be called in the interval
+                        }
+                      });
+                    }
+                  }
+                }}
+              />
             )}
 
             {/* Sync Indicator */}
@@ -740,6 +1177,33 @@ const AppContent: React.FC = () => {
                     />
                   )}
                 </Suspense>
+
+                {/* Botón de migración — solo visible en la lista de personajes */}
+                {view === 'list' && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+                    <button
+                      onClick={() => setShowMigrationTool(true)}
+                      className="text-[10px] text-white/20 hover:text-white/50 transition-colors flex items-center gap-1"
+                    >
+                      <span className="material-symbols-outlined" style={{fontSize: '10px'}}>sync_alt</span>
+                      Migrar datos de Supabase
+                    </button>
+                  </div>
+                )}
+
+                {/* Modal de migración Supabase → Firebase */}
+                {showMigrationTool && user && (
+                  <Suspense fallback={null}>
+                    <MigrationTool
+                      currentUserId={user.id}
+                      currentUserEmail={user.name?.includes('@') ? user.name : null}
+                      onClose={() => {
+                        setShowMigrationTool(false);
+                        if (typeof window !== 'undefined') window.location.reload();
+                      }}
+                    />
+                  </Suspense>
+                )}
               </>
             )}
           </div>
@@ -766,20 +1230,34 @@ const AppContent: React.FC = () => {
                 </div>
             )}
 
+            {/* Task 3-3: SyncToast component for sync feedback */}
+            <SyncToast />
+
     </div>
   );
 };
 
 /**
- * App Wrapper with ThemeProvider
- * Envuelve la app con el proveedor de temas
+ * App Wrapper with ThemeProvider and SyncProvider
+ * Task 3-3: Integrate SyncProvider for rollback + sync feedback
  */
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <AppContent />
+      <SyncProvider>
+        <AppContentWithSync />
+      </SyncProvider>
     </ThemeProvider>
   );
+};
+
+/**
+ * Wrapper component that provides sync context to AppContent
+ * Task 3-3: Enables useSyncStatus hook usage in event handlers
+ */
+const AppContentWithSync: React.FC = () => {
+  const syncStatus = useSyncStatus();
+  return <AppContent syncStatus={syncStatus} />;
 };
 
 export default App;
