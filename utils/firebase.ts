@@ -1017,7 +1017,21 @@ export const removeFromParty = async (characterId: string) => {
     console.log(`[KICK-TRACE]   nested data.party_name: "${nestedData?.party_name}"`);
 
     if (!partyId) {
-      console.warn(`[KICK-TRACE] ⚠️ Character already has no party_id — leave is a no-op`);
+      // Edge case: party_id already cleared from top-level but nestedData still has it.
+      // Happens if a previous Firestore write only reached nestedData but not the root field.
+      const nestedPartyId = nestedData?.party_id;
+      if (nestedPartyId) {
+        console.warn(`[KICK-TRACE] ⚠️ Root party_id is null but nestedData.party_id="${nestedPartyId}" — cleaning nested`);
+        await firestoreTimeout(updateDoc(characterRef, {
+          'data.party_id': null,
+          'data.party_name': null,
+          updated_at: new Date().toISOString(),
+          user_id: authUid,
+        } as Record<string, unknown>), 8000, 'updateDoc(cleanNested)');
+        console.log(`[KICK-TRACE] ✅ Nested party_id cleaned`);
+      } else {
+        console.warn(`[KICK-TRACE] ⚠️ Character already has no party_id — leave is a no-op`);
+      }
       console.log(`[KICK-TRACE] ═══════════════════════════════════════════════════`);
       return { error: null };
     }
@@ -1058,11 +1072,15 @@ export const removeFromParty = async (characterId: string) => {
       }
     }
 
-    // 2. Remove RTDB entry
+    // 2. Remove RTDB entry (with 5s timeout so hang doesn't block leave)
     const rtdbStartTime = Date.now();
     if (partyId && database) {
       try {
-        await rtdbRemove(ref(database, `parties/${partyId}/characters/${characterId}`));
+        await firestoreTimeout(
+          rtdbRemove(ref(database, `parties/${partyId}/characters/${characterId}`)),
+          5000,
+          'rtdbRemove'
+        );
         console.log(`[KICK-TRACE] Step 2a - RTDB entry removed (${Date.now() - rtdbStartTime}ms)`);
       } catch (rtdbError) {
         const elapsed = Date.now() - rtdbStartTime;
