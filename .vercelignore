@@ -31,3 +31,15 @@ node_modules/
 
 # Dist (se genera en build)
 dist/
+
+# Entornos locales / CI
+.lcm/
+.opencode/
+opencode-telegram-agent/
+
+# Releases OTA (large binaries)
+ota-release/
+
+# Tests (no necesarios para build)
+test-results/
+testing/
