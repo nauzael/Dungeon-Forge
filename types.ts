@@ -15,7 +15,7 @@ export interface NoteItem {
 
 // Wizard (2024 D&D 5e): Spellbook + daily preparation mechanics
 export interface WizardSpecifics {
-  spellbook: string[];                              // All spells learned (permanent collection)
+  spellbook: string[]; // All spells learned (permanent collection)
   spellebookSources?: Record<string, 'learned' | 'leveled' | 'rituals'>; // Track spell origin
 }
 
@@ -129,8 +129,8 @@ export interface Character {
   savantSpells?: string[]; // Wizard Savant: hechizos gratuitos de la escuela
   wizard?: WizardSpecifics; // Wizard 2024: Spellbook mechanics (only if class === 'Wizard')
   featureUsages?: Record<string, FeatureUsage>; // Feature usage tracking (generic system)
-  snapshots?: any[]; // For Cloud sync of level snapshots
-  auditLog?: any[];  // For Cloud sync of audit logs
+  snapshots?: unknown[]; // For Cloud sync of level snapshots
+  auditLog?: unknown[]; // For Cloud sync of audit logs
 }
 
 export type ResetType = 'long_rest' | 'short_rest' | 'always' | 'never';
@@ -148,7 +148,18 @@ export interface FeatureUsage {
 }
 
 export interface FeatureUsageConfig {
-  maxFormula: 'STR' | 'DEX' | 'CON' | 'INT' | 'WIS' | 'CHA' | 'level' | 'proficiencyBonus' | '1' | '2' | '3';
+  maxFormula:
+    | 'STR'
+    | 'DEX'
+    | 'CON'
+    | 'INT'
+    | 'WIS'
+    | 'CHA'
+    | 'level'
+    | 'proficiencyBonus'
+    | '1'
+    | '2'
+    | '3';
   resetType: ResetType;
   costToRestore?: ResourceCost;
 }
@@ -336,10 +347,10 @@ export interface OTAUpdate {
   version: string;
   message: string;
   payload: unknown;
-  error?: string;        // Error message if download fails
+  error?: string; // Error message if download fails
   downloading?: boolean; // Is download in progress
-  progress?: number;     // Download progress 0-100
-  available?: boolean;   // Is update available
+  progress?: number; // Download progress 0-100
+  available?: boolean; // Is update available
 }
 
 export interface VersionJsonResponse {

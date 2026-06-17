@@ -1,0 +1,392 @@
+{
+  "context_envelope": {
+    "meta": {
+      "plan_id": "20260612-code-quality-fixes",
+      "created_at": "2026-06-12T00:00:00Z",
+      "last_updated": "2026-06-12T00:00:00Z",
+      "version": 1,
+      "source": ["code_review", "AGENTS.md", "types.ts"]
+    },
+    "scope": {
+      "purpose": ["Code quality bug fixes across Dungeon Forge codebase"],
+      "applies_to": ["utils/debugLogger.ts", "utils/googleSignInNative.ts", "utils/firestore-realtime.ts", "components/CharacterList.tsx", "hooks/useDMParty.ts", "components/Login.tsx", "components/DMDashboard/DebugPanel.tsx", "components/SheetTabs.tsx", "components/creator/Step1Identity.tsx", "components/CreatorSteps.tsx", "components/creator/Step3Details.tsx", "components/creator/Step5Review.tsx", "components/creator/Shared.tsx", "components/creator/FeatModal.tsx", "App.tsx", "utils/firebase.ts"],
+      "non_goals": ["New features", "Behavior changes", "Test framework setup", "Performance optimization"]
+    },
+    "tech_stack": [
+      {
+        "name": "React",
+        "version": "19",
+        "usage_context": "UI framework; auto-batches state updates in React 18+",
+        "config_files": ["package.json"]
+      },
+      {
+        "name": "TypeScript",
+        "version": "strict",
+        "usage_context": "Type system with strict: true; no any allowed per AGENTS.md",
+        "config_files": ["tsconfig.json"]
+      },
+      {
+        "name": "Vite",
+        "version": "latest",
+        "usage_context": "Build tool; target supports ES2023+ (findLast available)",
+        "config_files": ["vite.config.ts"]
+      },
+      {
+        "name": "Capacitor",
+        "version": "6",
+        "usage_context": "Mobile build (Android/iOS)",
+        "config_files": ["capacitor.config.ts"]
+      }
+    ],
+    "conventions": [
+      "strict: true → no any types allowed",
+      "React.FC<Props> for components",
+      "useState<T> with explicit generics",
+      "Functional components with hooks only",
+      "Import order: React → External → Types → Constants → Components",
+      "PascalCase components, camelCase functions, kebab-case files"
+    ],
+    "constraints": {
+      "hard": [
+        "No test framework exists; build is the only automated verification",
+        "All changes must be behavior-neutral (zero user-visible changes)",
+        "React 19 auto-batches; unstable_batchedUpdates is redundant for single setState"
+      ],
+      "soft": [
+        "UI in Spanish, comments mixed Spanish/English",
+        "Mobile-first PWA target"
+      ],
+      "compatibility": [
+        "ES2023+ target (findLast is available)",
+        "Vite build must succeed"
+      ],
+      "security_requirements": [
+        "No secrets or tokens in console.log output"
+      ]
+    },
+    "architecture_snapshot": {
+      "key_dirs": {
+        "utils/": ["debugLogger.ts", "googleSignInNative.ts", "firestore-realtime.ts", "firebase.ts"],
+        "components/": ["CharacterList.tsx", "Login.tsx", "SheetTabs.tsx", "CreatorSteps.tsx"],
+        "components/creator/": ["Step1Identity.tsx", "Step3Details.tsx", "Step5Review.tsx", "Shared.tsx", "FeatModal.tsx"],
+        "components/DMDashboard/": ["DebugPanel.tsx"],
+        "hooks/": ["useDMParty.ts"],
+        "types.ts": ["All shared type definitions"]
+      },
+      "patterns": [
+        "Singleton pattern for debugLogger",
+        "Callback-based realtime subscriptions",
+        "Memoized components with React.memo",
+        "Custom hooks for domain logic (useDMParty, useClasses, useSpecies)",
+        "Lazy loading via dynamic import"
+      ],
+      "key_components": [
+        {
+          "name": "DebugLogger",
+          "location": "utils/debugLogger.ts",
+          "responsibility": ["Event logging to memory + localStorage", "Singleton instance"],
+          "confidence": 1.0
+        },
+        {
+          "name": "firestore-realtime",
+          "location": "utils/firestore-realtime.ts",
+          "responsibility": ["Firestore realtime subscriptions", "Firebase DB broadcast", "Resource subscriptions"],
+          "confidence": 1.0
+        },
+        {
+          "name": "useDMParty",
+          "location": "hooks/useDMParty.ts",
+          "responsibility": ["DM party CRUD", "Member management", "Realtime subscription lifecycle"],
+          "confidence": 1.0
+        },
+        {
+          "name": "CreatorSteps",
+          "location": "components/CreatorSteps.tsx",
+          "responsibility": ["5-step character creation wizard", "Temporary character calculation"],
+          "confidence": 1.0
+        }
+      ]
+    },
+    "research_digest": {
+      "relevant_files": [
+        {
+          "path": "utils/debugLogger.ts",
+          "purpose": ["Debug event logging singleton"],
+          "why_relevant": ["Bug #1: .reverse() mutation at line 113"],
+          "key_elements": [
+            {
+              "element": "getSummary()",
+              "type": "function",
+              "location": "utils/debugLogger.ts:107-115",
+              "description": "Returns summary with lastError found via .reverse().find() which mutates events array",
+              "confidence": 1.0
+            }
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "utils/googleSignInNative.ts",
+          "purpose": ["Native Google Sign-In Capacitor bridge"],
+          "why_relevant": ["Bug #2: operator precedence at line 44, Bug #5: any type at line 44"],
+          "key_elements": [
+            {
+              "element": "Error logging in signInWithGoogleNative catch block",
+              "type": "function",
+              "location": "utils/googleSignInNative.ts:41-48",
+              "description": "Line 44 has string concat + || precedence bug and as any cast",
+              "confidence": 1.0
+            }
+          ],
+          "security_sensitivity": "internal",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "utils/firestore-realtime.ts",
+          "purpose": ["Firestore and Firebase DB realtime subscriptions"],
+          "why_relevant": ["Bug #3: no-op cleanupRealtimeSubscriptions, Bug #5: 5 any-type violations"],
+          "key_elements": [
+            {
+              "element": "cleanupRealtimeSubscriptions",
+              "type": "function",
+              "location": "utils/firestore-realtime.ts:313-316",
+              "description": "Exported no-op function; only logs, never unsubscribes. Never called anywhere.",
+              "confidence": 1.0
+            },
+            {
+              "element": "subscribeToPartyRealtime",
+              "type": "function",
+              "location": "utils/firestore-realtime.ts:22-246",
+              "description": "Main subscription function; onUpdate callback typed as (payload: any)",
+              "confidence": 1.0
+            }
+          ],
+          "security_sensitivity": "internal",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "components/CharacterList.tsx",
+          "purpose": ["Character list view with create/select/delete"],
+          "why_relevant": ["Bug #4: dead onExport prop"],
+          "key_elements": [
+            {
+              "element": "CharacterListProps interface",
+              "type": "interface",
+              "location": "components/CharacterList.tsx:9-18",
+              "description": "Defines onExport: () => void at line 14 but component destructures as _onExport and never uses",
+              "confidence": 1.0
+            }
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "hooks/useDMParty.ts",
+          "purpose": ["DM party management hook with realtime subscriptions"],
+          "why_relevant": ["Bug #6: 11 redundant unstable_batchedUpdates wrappers"],
+          "key_elements": [
+            {
+              "element": "unstable_batchedUpdates usage",
+              "type": "pattern",
+              "location": "hooks/useDMParty.ts:96,136,146,187,261,269,291,319,350,359,375,398,411",
+              "description": "Wraps single setState calls; redundant in React 18+ (project uses React 19)",
+              "confidence": 1.0
+            }
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "components/Login.tsx",
+          "purpose": ["Login page with Google OAuth and local mode"],
+          "why_relevant": ["Bug #7: console.log in component body at line 12"],
+          "key_elements": [
+            {
+              "element": "console.log in render body",
+              "type": "statement",
+              "location": "components/Login.tsx:12",
+              "description": "Runs on every render; debug noise, should be removed",
+              "confidence": 1.0
+            }
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "components/DMDashboard/DebugPanel.tsx",
+          "purpose": ["Debug log viewer with console interception"],
+          "why_relevant": ["Bug #8: console monkey-patching without guards"],
+          "key_elements": [
+            {
+              "element": "Console interception",
+              "type": "pattern",
+              "location": "components/DMDashboard/DebugPanel.tsx:17-85",
+              "description": "Replaces global console methods; multiple mounts accumulate layers",
+              "confidence": 1.0
+            }
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "types.ts",
+          "purpose": ["Shared TypeScript type definitions"],
+          "why_relevant": ["Source of truth for AsiDecision, Character, Ability, CreatorStep types needed for any fixes"],
+          "key_elements": [
+            {
+              "element": "AsiDecision interface",
+              "type": "interface",
+              "location": "types.ts:250-255",
+              "description": "type: 'stat' | 'feat'; stat1?: Ability; stat2?: Ability; feat?: string",
+              "confidence": 1.0
+            },
+            {
+              "element": "CreatorStep type",
+              "type": "type",
+              "location": "types.ts:245",
+              "description": "1 | 2 | 3 | 4 | 5",
+              "confidence": 1.0
+            }
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        }
+      ],
+      "patterns_found": [
+        {
+          "name": "unstable_batchedUpdates redundancy",
+          "category": "react-pattern",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": ["hooks/useDMParty.ts:96", "hooks/useDMParty.ts:136"]
+        },
+        {
+          "name": "as any type escape hatch",
+          "category": "typescript-antipattern",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": ["components/creator/Step1Identity.tsx:57", "components/CreatorSteps.tsx:483"]
+        },
+        {
+          "name": "console.log in render body",
+          "category": "react-antipattern",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": ["components/Login.tsx:12"]
+        }
+      ],
+      "dependencies": {
+        "internal": [
+          "utils/debugLogger.ts → used by firestore-realtime.ts, useDMParty.ts",
+          "types.ts → used by all creator components, firestore-realtime.ts",
+          "utils/firebase.ts → re-exports from firestore-realtime.ts"
+        ],
+        "external": [
+          "react (v19)",
+          "react-dom (unstable_batchedUpdates import)",
+          "firebase/firestore",
+          "firebase/database",
+          "@capacitor/core"
+        ]
+      },
+      "gotchas": [
+        {
+          "text": "No test framework exists; only npm run build for verification",
+          "confidence": 1.0
+        },
+        {
+          "text": "cleanupRealtimeSubscriptions is re-exported from firebase.ts; must clean both files",
+          "confidence": 1.0
+        },
+        {
+          "text": "CreatorSteps.tsx uses step as number type internally but CreatorStep type (1-5) exists in types.ts; casting needed",
+          "confidence": 1.0
+        }
+      ],
+      "domain_context": {
+        "security_considerations": [
+          {
+            "area": "Console logging in Login.tsx",
+            "location": "components/Login.tsx",
+            "concern": "Debug logs may leak OAuth state; removal is good hygiene"
+          }
+        ],
+        "testing_patterns": {
+          "framework": "none",
+          "coverage_areas": [],
+          "test_organization": "manual",
+          "mock_patterns": []
+        },
+        "error_handling": "try-catch with console.error and fallback to localStorage",
+        "data_flow": "React state → Firebase/Firestore realtime → subscription callbacks → setState"
+      },
+      "open_questions": [
+        {
+          "question": "Should cleanupRealtimeSubscriptions be implemented or removed?",
+          "context": "It's exported but never called; no-op function",
+          "type": "nice_to_know",
+          "affects": ["utils/firestore-realtime.ts", "utils/firebase.ts"]
+        }
+      ]
+    },
+    "prior_decisions": [
+      {
+        "decision": "React 19 auto-batching makes unstable_batchedUpdates redundant",
+        "rationale": ["React 18+ batches all setState automatically", "Project uses React 19", "Single setState calls definitely don't need wrapping"],
+        "evidence": ["package.json: react 19", "hooks/useDMParty.ts: multiple redundant wrappers"],
+        "confidence": 1.0,
+        "linked_constraints": ["React 19 auto-batches state updates"],
+        "linked_patterns": ["unstable_batchedUpdates redundancy"]
+      },
+      {
+        "decision": "findLast is safe to use for debugLogger fix",
+        "rationale": ["Vite target supports ES2023+", "findLast is non-mutating and semantically correct", "Available in all modern browsers"],
+        "evidence": ["vite.config.ts target settings"],
+        "confidence": 0.95,
+        "linked_constraints": ["ES2023+ target"],
+        "linked_patterns": []
+      },
+      {
+        "decision": "cleanupRealtimeSubscriptions should be removed as dead code",
+        "rationale": ["Never called anywhere in codebase", "Function only logs, no actual cleanup", "Re-export in firebase.ts is unused"],
+        "evidence": ["grep confirms no callers", "function body is only log statements"],
+        "confidence": 0.9,
+        "linked_constraints": [],
+        "linked_patterns": []
+      }
+    ],
+    "reuse_notes": {
+      "do_not_re_read": [
+        "types.ts — already fully parsed; AsiDecision at line 250, CreatorStep at line 245, Ability at line 247",
+        "AGENTS.md — already read; rules captured in conventions"
+      ],
+      "safe_to_assume": [
+        "React 19 auto-batches state updates",
+        "Vite target supports ES2023+ features like findLast",
+        "No test framework exists",
+        "All any-type fixes are behavior-neutral"
+      ],
+      "verify_before_use": [
+        "ClassData type location and shape (from Data/classes/index.ts)",
+        "subscribeWithRetry signature (from utils/firebase.ts)",
+        "subscribeWithRetry payload type (check what it actually passes to callbacks)"
+      ]
+    }
+  }
+}

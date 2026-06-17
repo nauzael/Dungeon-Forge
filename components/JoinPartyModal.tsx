@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { joinParty, removeFromParty } from '../utils/firebase';
 import { Character } from '../types';
@@ -19,7 +18,7 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
     setIsJoining(true);
     setError('');
     const { partyId, partyName, error: joinError } = await joinParty(character, code.toUpperCase());
-    
+
     if (partyId) {
       onJoined(partyId, partyName || '');
       onClose();
@@ -33,20 +32,29 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
     if (!character.party_id) return;
     setIsJoining(true);
     setError('');
-    
+
     try {
-      const success = await removeFromParty(character.id);
-      if (success) {
+      // BUG FIX: Race against 15s timeout so Firestore hangs don't freeze the UI forever
+      const result = await Promise.race([
+        removeFromParty(character.id),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout leaving party after 15 seconds')), 15000)
+        ),
+      ]);
+      if (!result.error) {
         onJoined('', ''); // Clear party info
         onClose();
       } else {
+        console.error('[LeaveParty] removeFromParty failed:', result.error);
         setError('Failed to leave party. Please try again.');
       }
     } catch (err) {
-      setError('Error leaving party. Please try again.');
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      setError(errorMsg.includes('Timeout') ? 'Connection timed out. Try again.' : 'Error leaving party. Please try again.');
       console.error('Leave party error:', err);
+    } finally {
+      setIsJoining(false);
     }
-    setIsJoining(false);
   };
 
   const isInParty = !!character.party_id;
@@ -57,17 +65,18 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
         <div className="size-16 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
           <span className="material-symbols-outlined text-3xl">{isInParty ? 'group' : 'hub'}</span>
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">{isInParty ? 'Leave Party' : 'Join Party'}</h2>
+        <h2 className="text-xl font-bold text-white mb-2">
+          {isInParty ? 'Leave Party' : 'Join Party'}
+        </h2>
         <p className="text-slate-400 text-xs mb-6 px-2">
-          {isInParty 
+          {isInParty
             ? `You are currently in: ${character.party_name || 'Active Campaign'}`
-            : 'Enter the code your DM gave you so they can see your stats in real time.'
-          }
+            : 'Enter the code your DM gave you so they can see your stats in real time.'}
         </p>
 
         {!isInParty && (
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="Code (e.g. DF-8291)"
@@ -77,7 +86,8 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
 
         {isInParty && (
           <p className="text-amber-500 text-[10px] mb-4 font-black uppercase italic leading-tight px-2 bg-amber-500/5 py-2 rounded-xl border border-amber-500/10">
-            ⚠️ Leaving will disconnect you from the DM's view.<br/>
+            ⚠️ Leaving will disconnect you from the DM&apos;s view.
+            <br />
             This action cannot be undone immediately.
           </p>
         )}
@@ -85,22 +95,28 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
         {error && <p className="text-red-500 text-[10px] mb-4 font-bold uppercase">{error}</p>}
 
         <div className="grid grid-cols-2 gap-3">
-          <button 
+          <button
             onClick={onClose}
             className="py-3 rounded-xl font-bold text-xs text-slate-500 bg-white/5 hover:bg-white/10 transition-colors"
           >
             Cancel
           </button>
-          <button 
+          <button
             onClick={isInParty ? handleLeave : handleJoin}
             disabled={isJoining || (!isInParty && !code.trim())}
             className={`py-3 rounded-xl font-black text-xs text-white transition-all active:scale-95 disabled:opacity-50 ${
-              isInParty 
-                ? 'bg-red-600 hover:bg-red-500 shadow-lg shadow-red-900/40' 
+              isInParty
+                ? 'bg-red-600 hover:bg-red-500 shadow-lg shadow-red-900/40'
                 : 'bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-900/40'
             }`}
           >
-            {isJoining ? (isInParty ? 'Leaving...' : 'Joining...') : (isInParty ? 'Leave Party' : 'Link')}
+            {isJoining
+              ? isInParty
+                ? 'Leaving...'
+                : 'Joining...'
+              : isInParty
+                ? 'Leave Party'
+                : 'Link'}
           </button>
         </div>
       </div>

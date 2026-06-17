@@ -41,7 +41,7 @@ export async function signInWithGoogleNative(): Promise<GoogleSignInResult> {
   } catch (error) {
     console.error('[GoogleSignInNative] ❌ NATIVE PLUGIN FAILED!');
     console.error('[GoogleSignInNative]   - Error message: ' + (error as Error).message);
-    console.error('[GoogleSignInNative]   - Error type: ' + (error as any).code || (error as Error).constructor.name);
+    console.error('[GoogleSignInNative]   - Error type: ' + ((error as { code?: string }).code || (error as Error).constructor.name));
     console.error('[GoogleSignInNative]   - Full error: ' + JSON.stringify(error));
     console.error('[GoogleSignInNative]   - Stack: ' + (error as Error).stack);
     throw error;

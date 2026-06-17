@@ -10,15 +10,13 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { runOAuthDiagnostics, printOAuthDiagnostics, testOAuthFlow, OAuthDiagnostic } from '../utils/oauthDiagnostics';
-import { supabase, fetchDeletedCharacters, restoreCharacter } from '../utils/firebase';
+import { auth, fetchDeletedCharacters, restoreCharacter } from '../utils/firebase';
 import { Character } from '../types';
 
 const OAuthDebugConsole: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [tab, setTab] = useState<'logs' | 'diagnostics' | 'session' | 'recovery'>('logs');
+  const [tab, setTab] = useState<'logs' | 'session' | 'recovery'>('logs');
   const [logs, setLogs] = useState<Array<{time: string, level: string, message: string}>>([]);
-  const [diagnostics, setDiagnostics] = useState<OAuthDiagnostic[]>([]);
   const [sessionInfo, setSessionInfo] = useState<string>('');
   const [deletedCharacters, setDeletedCharacters] = useState<Array<{id: string, character: Character, deleted_at: string}>>([]);
   const [isLoadingRecovery, setIsLoadingRecovery] = useState(false);
@@ -63,25 +61,20 @@ const OAuthDebugConsole: React.FC = () => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
-  // Run diagnostics
-  const handleRunDiagnostics = async () => {
-    try {
-      const results = await runOAuthDiagnostics();
-      setDiagnostics(results);
-      printOAuthDiagnostics(results);
-    } catch (e) {
-      console.error('Diagnostics error:', e);
-    }
-  };
-
   // Get session info
   const handleCheckSession = async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        setSessionInfo(`ERROR: ${error.message}`);
+      const currentUser = auth?.currentUser;
+      if (currentUser) {
+        const token = await currentUser.getIdTokenResult();
+        setSessionInfo(JSON.stringify({
+          uid: currentUser.uid,
+          email: currentUser.email,
+          displayName: currentUser.displayName,
+          tokenExpiry: token.expirationTime,
+        }, null, 2));
       } else {
-        setSessionInfo(JSON.stringify(session || { status: 'No active session' }, null, 2));
+        setSessionInfo(JSON.stringify({ status: 'No active session' }, null, 2));
       }
     } catch (e) {
       setSessionInfo(`ERROR: ${e instanceof Error ? e.message : String(e)}`);
@@ -90,16 +83,12 @@ const OAuthDebugConsole: React.FC = () => {
 
   // Test OAuth flow
   const handleTestOAuth = async () => {
-    console.log('[Debug] Starting OAuth test...');
-    try {
-      const success = await testOAuthFlow();
-      if (success) {
-        console.log('[Debug] ✓ OAuth test passed!');
-      } else {
-        console.log('[Debug] ✗ OAuth test failed - session not established');
-      }
-    } catch (e) {
-      console.error('[Debug] OAuth test error:', e);
+    console.log('[Debug] Testing auth state...');
+    const currentUser = auth?.currentUser;
+    if (currentUser) {
+      console.log('[Debug] ✓ User is signed in:', currentUser.email);
+    } else {
+      console.log('[Debug] ✗ No user signed in');
     }
   };
 
@@ -107,13 +96,13 @@ const OAuthDebugConsole: React.FC = () => {
   const handleLoadDeletedCharacters = async () => {
     try {
       setIsLoadingRecovery(true);
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error || !session?.user?.id) {
+      const currentUser = auth?.currentUser;
+      if (!currentUser) {
         setSessionInfo('ERROR: No active session');
         return;
       }
 
-      const deleted = await fetchDeletedCharacters(session.user.id);
+      const deleted = await fetchDeletedCharacters(currentUser.uid);
       setDeletedCharacters(deleted);
       console.log(`[Recovery] Found ${deleted.length} deleted characters`);
     } catch (e) {
@@ -181,12 +170,6 @@ const OAuthDebugConsole: React.FC = () => {
               Logs
             </button>
             <button
-              onClick={() => setTab('diagnostics')}
-              className={`flex-1 px-4 py-2 text-sm ${tab === 'diagnostics' ? 'text-purple-400 border-b-2 border-purple-400' : 'text-gray-400'}`}
-            >
-              Diagnostics
-            </button>
-            <button
               onClick={() => setTab('session')}
               className={`flex-1 px-4 py-2 text-sm ${tab === 'session' ? 'text-purple-400 border-b-2 border-purple-400' : 'text-gray-400'}`}
             >
@@ -211,25 +194,6 @@ const OAuthDebugConsole: React.FC = () => {
                   </div>
                 ))}
                 <div ref={logsEndRef} />
-              </div>
-            )}
-
-            {tab === 'diagnostics' && (
-              <div>
-                {diagnostics.length === 0 && (
-                  <p className="text-gray-600">Click "Run Diagnostics" to start...</p>
-                )}
-                {diagnostics.map((diag, i) => (
-                  <div key={i} className="mb-2 pb-2 border-b border-gray-700">
-                    <div className={diag.status === 'PASS' ? 'text-green-400' : diag.status === 'WARN' ? 'text-yellow-400' : 'text-red-400'}>
-                      [{diag.status}] {diag.check}
-                    </div>
-                    <div className="text-gray-400 ml-2">{diag.message}</div>
-                    {diag.suggestion && (
-                      <div className="text-purple-400 ml-2 text-xs">💡 {diag.suggestion}</div>
-                    )}
-                  </div>
-                ))}
               </div>
             )}
 
@@ -283,30 +247,13 @@ const OAuthDebugConsole: React.FC = () => {
               </button>
             )}
 
-            {tab === 'diagnostics' && (
+            {tab === 'session' && (
               <button
-                onClick={handleRunDiagnostics}
+                onClick={handleCheckSession}
                 className="col-span-2 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 px-2 rounded"
               >
-                Run Diagnostics
+                Get Session Info
               </button>
-            )}
-
-            {tab === 'session' && (
-              <>
-                <button
-                  onClick={handleCheckSession}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 px-2 rounded"
-                >
-                  Get Session Info
-                </button>
-                <button
-                  onClick={handleTestOAuth}
-                  className="bg-green-600 hover:bg-green-700 text-white text-xs py-1 px-2 rounded"
-                >
-                  Test OAuth Flow
-                </button>
-              </>
             )}
 
             {tab === 'recovery' && (

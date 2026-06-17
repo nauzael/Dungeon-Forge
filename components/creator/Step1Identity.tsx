@@ -14,6 +14,7 @@ import { useSpecies } from '../../Data/species';
 import { useGameData } from '../../hooks/useGameData';
 import { CLASS_AVATARS, SPECIES_AVATARS, GENERIC_SPECIES_AVATAR } from '../../Data/avatars';
 import { SKILL_LIST, SKILL_ABILITY_MAP } from '../../Data/skills';
+import { Trait } from '../../types';
 
 interface Step1Props {
     name: string;
@@ -54,8 +55,8 @@ const Step1Identity: React.FC<Step1Props> = ({
     const speciesList = useSpecies();
     const { backgrounds } = useGameData();
 
-    const classData = classes[selectedClass]?.details as any;
-    const speciesData = speciesList[selectedSpecies] as any;
+    const classData = classes[selectedClass]?.details as { name?: string; description?: string; traits?: Trait[] } | undefined;
+    const speciesData = speciesList[selectedSpecies];
     const backgroundData = backgrounds[selectedBackground];
     const availableSubclasses = SUBCLASS_OPTIONS[selectedClass] || [];
     const availableSubspecies = speciesData?.subspecies || [];

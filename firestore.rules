@@ -41,18 +41,36 @@ service cloud.firestore {
     // /characters/{charId}  ← Colección raíz (usada por la app)
     // ════════════════════════════════════════════════════════════════════════
     match /characters/{charId} {
-      // READ: solo el dueño puede leer sus personajes
-      allow read: if isAuth() && resource.data.user_id == uid();
+      // READ: owner or party DM can read (DM sees party members)
+      allow read: if isAuth() && (
+        resource.data.user_id == uid() ||
+        (resource.data.party_id != null && partyExists(resource.data.party_id) && isPartyDM(resource.data.party_id)) ||
+        // ORPHANED: Allow owner to read even if party was deleted
+        (resource.data.party_id != null && !partyExists(resource.data.party_id))
+      );
 
       // CREATE: user_id debe coincidir con uid del solicitante
       allow create: if isAuth() &&
         request.resource.data.user_id == uid() &&
         request.resource.data.id == charId;
 
-      // UPDATE: user_id no puede cambiar
-      allow update: if isAuth() &&
-        resource.data.user_id == uid() &&
-        request.resource.data.user_id == uid();
+      // UPDATE: user_id cannot change. Owner can update own; DM can update party members.
+      allow update: if isAuth() && (
+        // 1. Owner updating own character: both stored and new user_id must match auth UID
+        (resource.data.user_id == uid() && request.resource.data.user_id == uid()) ||
+        // 2. DM updating party member (user_id must remain unchanged)
+        (resource.data.party_id != null &&
+         partyExists(resource.data.party_id) &&
+         isPartyDM(resource.data.party_id) &&
+         resource.data.user_id == request.resource.data.user_id) ||
+        // 3. PLAYER LEAVING PARTY: Clear party_id on own character.
+        //    Only checks that the EXISTING doc's user_id matches the auth UID.
+        //    Does NOT require request.resource.data.user_id to be correct,
+        //    because code may fallback to stale user_id when auth state is uncertain.
+        //    Also handles orphaned characters (party deleted).
+        (request.resource.data.party_id == null &&
+         resource.data.user_id == uid())
+      );
 
       // DELETE: solo el dueño
       allow delete: if isAuth() && resource.data.user_id == uid();
@@ -94,6 +112,7 @@ service cloud.firestore {
           isPartyDM(partyId) ||
           uid() == memberId
         );
+        allow create: if isAuth() && uid() == memberId;
         allow write: if isAuth() && isPartyDM(partyId);
         allow delete: if isAuth() && isPartyDM(partyId);
       }

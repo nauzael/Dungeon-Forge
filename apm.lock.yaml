@@ -1,0 +1,43 @@
+lockfile_version: '1'
+generated_at: '2026-06-12T17:35:17.832776+00:00'
+apm_version: 0.20.0
+dependencies:
+- repo_url: mubaidr/gem-team
+  host: github.com
+  resolved_commit: 7422c0f94921f9d8fda773f5f9035ea6be48a56a
+  package_type: marketplace_plugin
+  deployed_files:
+  - .opencode/agents/gem-browser-tester.md
+  - .opencode/agents/gem-code-simplifier.md
+  - .opencode/agents/gem-critic.md
+  - .opencode/agents/gem-debugger.md
+  - .opencode/agents/gem-designer-mobile.md
+  - .opencode/agents/gem-designer.md
+  - .opencode/agents/gem-devops.md
+  - .opencode/agents/gem-documentation-writer.md
+  - .opencode/agents/gem-implementer-mobile.md
+  - .opencode/agents/gem-implementer.md
+  - .opencode/agents/gem-mobile-tester.md
+  - .opencode/agents/gem-orchestrator.md
+  - .opencode/agents/gem-planner.md
+  - .opencode/agents/gem-researcher.md
+  - .opencode/agents/gem-reviewer.md
+  - .opencode/agents/gem-skill-creator.md
+  deployed_file_hashes:
+    .opencode/agents/gem-browser-tester.md: sha256:df22e549db9925558c7e400fc2921844808355db2e31d47cb5d98221e8052c4e
+    .opencode/agents/gem-code-simplifier.md: sha256:4660f1dc1abace395e0e1b7002e40fd80c620b91ebdb2803e49e27a6644e21a0
+    .opencode/agents/gem-critic.md: sha256:bb3395cc394ab8736d804f7f8efbf76ffd7d517a8f591aee992cc8aea1d744e5
+    .opencode/agents/gem-debugger.md: sha256:3a996523d855da2c28c438c11001a706f96f38aa2f8cb008fdb7d5dea1760d39
+    .opencode/agents/gem-designer-mobile.md: sha256:b1195d9494ec4e178bf61fafb1821e625841c25299d753eba76be3dec16be551
+    .opencode/agents/gem-designer.md: sha256:fc1ab65ac7a2e44a08e30064c05da45e583b65b507cc99fbae0f29940cb2acb0
+    .opencode/agents/gem-devops.md: sha256:a71c1b584bae7b1860b991c2ffbcd20a018480ee217a6e3869f687d8f617de75
+    .opencode/agents/gem-documentation-writer.md: sha256:5a68f8e7a2c78592c66f026fde1286240aa59cd8d149f5c415e5ec3e67e1b8f3
+    .opencode/agents/gem-implementer-mobile.md: sha256:e3ba310d50f384e7b6153d31c90c7ea3d25a3eaffc7b2d460fd3e83002062e38
+    .opencode/agents/gem-implementer.md: sha256:6a5835b2a7b69fdda4175c70d4ea4325ec2bcc02bb4a1c0373b14cc7038f3e79
+    .opencode/agents/gem-mobile-tester.md: sha256:c60a925008558153e449cf2c0e92329abbfcf9b3197d2f2a82aa865a677f18bd
+    .opencode/agents/gem-orchestrator.md: sha256:671644323fdb730faa386d5e8775e6fe462c0ddaa479aa7b63828687c8e5e8cf
+    .opencode/agents/gem-planner.md: sha256:aac46b79d2f282f11d6be00a04884d713d93ef19413f0e21769ad8c3b3815d14
+    .opencode/agents/gem-researcher.md: sha256:89e604cb71486c6c46d9e24829d077b1b6ee0c7271f140123d70561c4de5dd2a
+    .opencode/agents/gem-reviewer.md: sha256:d92734453f238d8ecfe3e14b119abfee96627c53a0ce31184de2e5507262c3b7
+    .opencode/agents/gem-skill-creator.md: sha256:5fef9549ea493b81f58b42880ba6b4ae9bf6577ecb63ddbbcb410ccce57c3f41
+  content_hash: sha256:5aba3d73da6f05e2f43cb7e0313f6e064603fa1c09c6bcc82fc320f0dff9540c

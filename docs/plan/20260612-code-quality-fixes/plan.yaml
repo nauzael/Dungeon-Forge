@@ -1,0 +1,558 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# PLAN METADATA
+# ═══════════════════════════════════════════════════════════════════════════
+plan_id: "20260612-code-quality-fixes"
+objective: "Fix 8 code quality bugs: array mutation, operator precedence, dead code, no-op cleanup, any-type violations, redundant batching, console-in-body, and debug monkey-patching. All changes are behavior-neutral."
+created_at: "2026-06-12"
+created_by: "gem-planner"
+status: completed
+tldr: |
+  Fix code quality issues across 12 files. Grouped into 4 waves:
+  - Wave 1: 5 trivial single-file fixes (mutation, precedence, dead prop, console.log, redundant batching)
+  - Wave 2: Type safety fixes across creator components and firestore-realtime (eliminating `any`)
+  - Wave 3: Cleanup dead export + harden debug panel console patching
+  - Wave 4: Build verification and code review
+  Zero behavior change; all fixes are correctness/maintainability only.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PLAN-LEVEL METRICS
+# ═══════════════════════════════════════════════════════════════════════════
+plan_metrics:
+  wave_1_task_count: 5
+  total_dependencies: 6
+  risk_score: low
+quality_warnings:
+  - "No test framework in project; build check is the only automated verification"
+  - "ASI type fix (Record<number, AsiDecision>) must match usage patterns in CreatorSteps.tsx before applying"
+  - "cleanupRealtimeSubscriptions removal requires confirming no external consumers beyond firebase.ts re-export"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PLANNING ANALYSIS
+# ═══════════════════════════════════════════════════════════════════════════
+open_questions:
+  - question: "Should cleanupRealtimeSubscriptions be implemented with real tracking or simply removed as dead code?"
+    context: "Function is exported from firestore-realtime.ts and re-exported from firebase.ts but never called anywhere in the codebase. It only logs."
+    type: nice_to_know
+    affects: ["firestore-realtime.ts", "firebase.ts"]
+pre_mortem:
+  overall_risk_level: low
+  critical_failure_modes:
+    - scenario: "Type fix for asiDecisions (Record<number, AsiDecision>) doesn't match actual runtime shape, causing TS errors"
+      likelihood: low
+      impact: medium
+      mitigation: "Verify usage in CreatorSteps.tsx before applying type; AsiDecision already exists in types.ts"
+    - scenario: "Removing unstable_batchedUpdates causes state update batching issues in React 19"
+      likelihood: low
+      impact: low
+      mitigation: "React 18+ auto-batches; confirmed project uses React 19. Single setState calls don't need batching."
+    - scenario: "Removing onExport prop from CharacterList breaks a caller that passes it"
+      likelihood: low
+      impact: low
+      mitigation: "Grep confirmed only App.tsx passes it; CharacterList ignores it (_onExport)"
+  assumptions:
+    - "React 19 auto-batches state updates (confirmed from package.json)"
+    - "AsiDecision type from types.ts accurately represents runtime asiDecisions shape"
+    - "cleanupRealtimeSubscriptions has no external consumers beyond firebase.ts re-export"
+    - "No test framework exists; verification via npm run build only"
+implementation_specification:
+  - "All fixes are behavior-neutral; no user-visible changes"
+  - "Type replacements must match runtime shapes exactly"
+  - "Dead code removal must not break any imports"
+contracts:
+  - from_task: "T7_fix_creator_any_types"
+    to_task: "T10_build_verification"
+    interface: "CreatorSteps, Step1Identity, Step3Details, Step5Review, Shared, FeatModal, SheetTabs must compile without any-type errors"
+    format: "TypeScript strict mode compilation"
+  - from_task: "T9_remove_dead_cleanup_export"
+    to_task: "T10_build_verification"
+    interface: "firebase.ts re-export must not reference removed symbol"
+    format: "TypeScript compilation"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TASKS
+# ═══════════════════════════════════════════════════════════════════════════
+tasks:
+  # ───────────────────────────────────────────────────────────────────────
+  # WAVE 1 — Trivial single-file fixes (all parallel)
+  # ───────────────────────────────────────────────────────────────────────
+  - id: "T1_fix_debug_logger_reverse"
+    title: "Fix .reverse() array mutation in debugLogger.ts"
+    description: |
+      Line 113: `this.events.reverse().find(...)` mutates the events array in-place,
+      reversing log order on every call to getSummary(). Replace with `this.events.findLast(e => e.level === 'error')`
+      which is clean, non-mutating, and semantically correct. findLast is available in ES2023+
+      and Vite target supports it.
+    wave: 1
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "Bug #1: debugLogger.ts:113 — .reverse() mutates array"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "utils/debugLogger.ts"
+        description: "DebugLogger singleton; line 113 has the mutating .reverse().find()"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "getSummary().lastError returns the most recent error event without mutating events array"
+      - "Calling getSummary() multiple times does not change event order"
+    success_criteria:
+      - "Line 113 changed from `this.events.reverse().find((e) => e.level === 'error')` to `this.events.findLast((e) => e.level === 'error')`"
+      - "No other lines modified"
+      - "npm run build succeeds"
+    handoff:
+      do_not_reinvestigate:
+        - "Class structure of DebugLogger"
+        - "Other methods in debugLogger.ts"
+      required_test_first: "none"
+      target_files:
+        - "utils/debugLogger.ts"
+      minimal_change: "Replace line 113 only"
+      acceptance_checks:
+        - "grep -n 'findLast' utils/debugLogger.ts returns line 113"
+        - "grep -n 'reverse' utils/debugLogger.ts returns nothing"
+
+  - id: "T2_fix_operator_precedence"
+    title: "Fix operator precedence bug in googleSignInNative.ts"
+    description: |
+      Line 44: String concatenation (`'... ' + (error as any).code`) always produces a truthy
+      string, so the `|| (error as Error).constructor.name` fallback never fires.
+      Fix: wrap fallback in parens AND eliminate `as any` by using typed access.
+      Change to: `'... ' + ((error as { code?: string }).code || (error as Error).constructor.name)`
+    wave: 1
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "Bug #2: googleSignInNative.ts:44 — Operator precedence bug"
+      - "Bug #5: googleSignInNative.ts line 44 — any type violation"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "utils/googleSignInNative.ts"
+        description: "Native Google Sign-In bridge; line 44 has precedence + any bugs"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "When error has a .code property, the log output shows the code value"
+      - "When error has no .code property, the log output shows the constructor name"
+      - "No `any` type on line 44"
+    success_criteria:
+      - "Line 44 uses `(error as { code?: string }).code` instead of `(error as any).code`"
+      - "Line 44 wraps the fallback with parens: `+ ((error as { code?: string }).code || (error as Error).constructor.name)`"
+      - "npm run build succeeds"
+    handoff:
+      do_not_reinvestigate:
+        - "Full file structure of googleSignInNative.ts"
+      required_test_first: "none"
+      target_files:
+        - "utils/googleSignInNative.ts"
+      minimal_change: "Fix line 44 only"
+      acceptance_checks:
+        - "grep -n 'as any' utils/googleSignInNative.ts returns nothing"
+        - "grep -n 'code?:' utils/googleSignInNative.ts returns line 44"
+
+  - id: "T3_remove_dead_onexport"
+    title: "Remove dead onExport prop from CharacterList.tsx and App.tsx"
+    description: |
+      CharacterListProps defines onExport (line 14), App.tsx passes handleExportCharacters
+      (line 1239), but CharacterList destructures it as _onExport (line 216) and never uses it.
+      Fix: Remove onExport from CharacterListProps interface, remove from destructuring in
+      CharacterList component, and remove from App.tsx usage. The handleExportCharacters
+      function in App.tsx should remain (it may be used elsewhere or for future use).
+    wave: 1
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "Bug #4: CharacterList.tsx:216 — Dead code onExport prop"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "components/CharacterList.tsx"
+        description: "CharacterList component; interface line 14, destructuring line 216"
+      - path: "App.tsx"
+        description: "Passes onExport={handleExportCharacters} at line 1239"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "CharacterListProps no longer has onExport field"
+      - "CharacterList destructuring no longer references onExport/_onExport"
+      - "App.tsx no longer passes onExport prop to CharacterList"
+      - "handleExportCharacters function in App.tsx is preserved"
+    success_criteria:
+      - "grep 'onExport' components/CharacterList.tsx returns nothing"
+      - "grep 'onExport' App.tsx returns only the handleExportCharacters function definition"
+      - "npm run build succeeds"
+    handoff:
+      do_not_reinvestigate:
+        - "Other props in CharacterListProps"
+        - "What handleExportCharacters does"
+      required_test_first: "none"
+      target_files:
+        - "components/CharacterList.tsx"
+        - "App.tsx"
+      minimal_change: "Remove 3 lines: interface field, destructuring entry, JSX prop"
+      acceptance_checks:
+        - "grep -c 'onExport' components/CharacterList.tsx returns 0"
+        - "grep -c 'onExport' App.tsx returns 0 or 1 (only function def)"
+
+  - id: "T4_fix_login_console_log"
+    title: "Remove console.log from Login.tsx component body"
+    description: |
+      Line 12: `console.log('[V1.6] ... Login component loaded - NEW POPUP FLOW')` runs on
+      every render of the Login component. This is debug noise. Remove the line entirely.
+      The message is not needed for production or development diagnostics.
+    wave: 1
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "Bug #7: Login.tsx:12 — Console.log in component body"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "components/Login.tsx"
+        description: "Login component; line 12 has console.log in render body"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "No console.log statement executes on every render of Login component"
+      - "Login component still renders correctly"
+    success_criteria:
+      - "Line 12 (`console.log('[V1.6] ...')`) is removed"
+      - "npm run build succeeds"
+    handoff:
+      do_not_reinvestigate:
+        - "Other console.log calls inside functions in Login.tsx"
+        - "Login component structure"
+      required_test_first: "none"
+      target_files:
+        - "components/Login.tsx"
+      minimal_change: "Remove line 12 only"
+      acceptance_checks:
+        - "grep -n 'V1.6' components/Login.tsx returns nothing"
+
+  - id: "T5_remove_redundant_batching"
+    title: "Remove redundant unstable_batchedUpdates from useDMParty.ts"
+    description: |
+      useDMParty.ts wraps single setState calls in unstable_batchedUpdates at lines 96, 146,
+      261, 269, 291, 319, 350, 359, 375, 398, 411. React 18+ (this project uses React 19)
+      auto-batches state updates. These wrappers are unnecessary.
+      Fix: Remove all unstable_batchedUpdates wrappers, keeping only the inner setState calls.
+      Also remove the import of unstable_batchedUpdates from 'react-dom'.
+      EXCEPTION: Lines 136-140 and 187-197 group multiple setState calls — these CAN stay
+      as they batch setParties+setIsLoading+setIsRemoving. However, even these are redundant
+      in React 18+ since automatic batching covers them. Remove all wrappers.
+    wave: 1
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "Bug #6: useDMParty.ts — Redundant unstable_batchedUpdates"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "hooks/useDMParty.ts"
+        description: "DM party management hook; lines 2, 96, 136, 146, 187, 261, 269, 291, 319, 350, 359, 375, 398, 411"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "No import of unstable_batchedUpdates from 'react-dom'"
+      - "All setState calls execute without unstable_batchedUpdates wrapper"
+      - "Hook behavior unchanged: party CRUD, realtime subscription, member management all work"
+    success_criteria:
+      - "grep 'unstable_batchedUpdates' hooks/useDMParty.ts returns nothing"
+      - "grep 'react-dom' hooks/useDMParty.ts returns nothing"
+      - "npm run build succeeds"
+    handoff:
+      do_not_reinvestigate:
+        - "Other hooks in the project"
+        - "How useDMParty is consumed"
+      required_test_first: "none"
+      target_files:
+        - "hooks/useDMParty.ts"
+      minimal_change: "Remove import + all unstable_batchedUpdates wrappers, keeping inner callbacks"
+      acceptance_checks:
+        - "grep -c 'unstable_batchedUpdates' hooks/useDMParty.ts returns 0"
+        - "grep -c 'react-dom' hooks/useDMParty.ts returns 0"
+
+  # ───────────────────────────────────────────────────────────────────────
+  # WAVE 2 — Type safety fixes (all parallel, no deps on wave 1)
+  # ───────────────────────────────────────────────────────────────────────
+  - id: "T6_fix_firestore_any_types"
+    title: "Fix any types in firestore-realtime.ts"
+    description: |
+      firestore-realtime.ts has 5 `any` violations:
+      - Line 24: `onUpdate: (payload: any)` → define a proper payload type or use `unknown`
+      - Line 223: `catch (err: any)` → `catch (err: unknown)` with type narrowing
+      - Line 251: `Promise<{ error: null } | { error: any }>` → `Promise<{ error: null } | { error: Error }>`
+      - Line 268: `catch (e: any)` → `catch (e: unknown)` with type narrowing
+      - Line 277: `onUpdate: (resources: any)` → `onUpdate: (resources: Record<string, unknown> | null)`
+
+      For line 24 payload: define interface `RealtimeUpdatePayload` with `new?` and `eventType` fields matching actual usage.
+      For catch blocks: use `err instanceof Error ? err.message : String(err)` pattern.
+    wave: 2
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "Bug #5: firestore-realtime.ts any type violations (lines 24, 223, 251, 268, 277)"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "utils/firestore-realtime.ts"
+        description: "Firestore/Realtime DB subscription layer; 5 any-type violations"
+      - path: "types.ts"
+        description: "Existing type definitions; AsiDecision, Character already defined"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "No `any` keyword in firestore-realtime.ts"
+      - "Catch blocks properly narrow error types"
+      - "onUpdate callbacks have specific parameter types"
+    success_criteria:
+      - "grep -n 'any' utils/firestore-realtime.ts returns nothing (except possibly comments)"
+      - "TypeScript compilation succeeds with strict mode"
+      - "No runtime behavior change"
+    handoff:
+      do_not_reinvestigate:
+        - "Firebase SDK types (already imported)"
+        - "DebugLogger interface"
+      required_test_first: "none"
+      target_files:
+        - "utils/firestore-realtime.ts"
+      minimal_change: "Replace 5 any types with proper types; add 1-2 interface definitions"
+      acceptance_checks:
+        - "grep -c ': any' utils/firestore-realtime.ts returns 0"
+        - "grep -c 'as any' utils/firestore-realtime.ts returns 0"
+
+  - id: "T7_fix_creator_any_types"
+    title: "Fix any types across creator components and SheetTabs"
+    description: |
+      Fix `any` violations in 7 files:
+
+      1. SheetTabs.tsx:151 — `payload: any` → define payload type matching subscribeWithRetry shape
+      2. Step1Identity.tsx:57-58 — `as any` casts on classData/speciesData → use ClassData/DetailData types
+      3. CreatorSteps.tsx:483,522 — `tempChar: any` → define a `Partial<Character>` type for calculation input
+      4. CreatorSteps.tsx:656 — `(step - 1) as any` → cast as CreatorStep: `(step - 1) as CreatorStep`
+      5. Step3Details.tsx:20 — `setSpellcastingAbility: (v: any) => void` → `(v: Ability) => void`
+      6. Step5Review.tsx:23 — `asiDecisions: any` → `asiDecisions: Record<number, AsiDecision>`
+      7. Shared.tsx:25 — `classData as any` → use ClassData type directly
+      8. FeatModal.tsx:11 — `asiDecisions: any` → `asiDecisions: Record<number, AsiDecision>`
+
+      For CreatorSteps.tsx tempChar: define interface `CalculationInput` with the fields actually used
+      (level, class, subclass, species, feats, profBonus, inventory) as a subset of Character.
+    wave: 2
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "Bug #5: Multiple files any type violations"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "components/SheetTabs.tsx"
+        description: "Line 151: payload: any in subscribeWithRetry callback"
+      - path: "components/creator/Step1Identity.tsx"
+        description: "Lines 57-58: as any casts on class/species data"
+      - path: "components/CreatorSteps.tsx"
+        description: "Lines 483, 522: tempChar any; line 656: setStep as any"
+      - path: "components/creator/Step3Details.tsx"
+        description: "Line 20: setSpellcastingAbility any param"
+      - path: "components/creator/Step5Review.tsx"
+        description: "Line 23: asiDecisions any"
+      - path: "components/creator/Shared.tsx"
+        description: "Line 25: classData as any"
+      - path: "components/creator/FeatModal.tsx"
+        description: "Line 11: asiDecisions any"
+      - path: "types.ts"
+        description: "AsiDecision, Character, Ability types already defined"
+      - path: "Data/classes/index.ts"
+        description: "useClasses returns Record<string, ClassData>"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "No `any` keyword in any of the 7 affected files"
+      - "CreatorStep type is used for step state instead of number"
+      - "AsiDecision type is used for asiDecisions props"
+      - "ClassData type replaces as any casts"
+    success_criteria:
+      - "grep -c ': any\|as any' components/SheetTabs.tsx returns 0"
+      - "grep -c ': any\|as any' components/creator/Step1Identity.tsx returns 0"
+      - "grep -c ': any\|as any' components/CreatorSteps.tsx returns 0"
+      - "grep -c ': any\|as any' components/creator/Step3Details.tsx returns 0"
+      - "grep -c ': any\|as any' components/creator/Step5Review.tsx returns 0"
+      - "grep -c ': any\|as any' components/creator/Shared.tsx returns 0"
+      - "grep -c ': any\|as any' components/creator/FeatModal.tsx returns 0"
+      - "npm run build succeeds"
+    handoff:
+      do_not_reinvestigate:
+        - "subscribeWithRetry signature (check utils/firebase.ts)"
+        - "Full component logic in each file"
+        - "ClassData interface definition"
+      required_test_first: "none"
+      target_files:
+        - "components/SheetTabs.tsx"
+        - "components/creator/Step1Identity.tsx"
+        - "components/CreatorSteps.tsx"
+        - "components/creator/Step3Details.tsx"
+        - "components/creator/Step5Review.tsx"
+        - "components/creator/Shared.tsx"
+        - "components/creator/FeatModal.tsx"
+      minimal_change: "Replace any types with specific types; add CalculationInput interface in CreatorSteps.tsx"
+      acceptance_checks:
+        - "grep -rn 'as any\|: any' components/SheetTabs.tsx components/creator/ components/CreatorSteps.tsx | grep -v '//' returns empty"
+
+  # ───────────────────────────────────────────────────────────────────────
+  # WAVE 3 — Cleanup and hardening (parallel, no deps on wave 1/2)
+  # ───────────────────────────────────────────────────────────────────────
+  - id: "T8_harden_debug_panel"
+    title: "Harden DebugPanel.tsx console monkey-patching"
+    description: |
+      DebugPanel.tsx replaces global console.log/error/warn methods (lines 24-78).
+      Issues:
+      - Multiple mounts accumulate patching layers (each mount saves then replaces)
+      - No guard against multiple simultaneous patches
+
+      Fix: Add a module-level flag to prevent double-patching. Use a single reference
+      to track whether patching is active. On cleanup, only restore if we did the patching.
+      Also add a guard: if console.log is already patched (not the original), skip re-patching.
+
+      This is debug-only code so low impact, but should be correct.
+    wave: 3
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "Bug #8: DebugPanel.tsx:24-78 — Console monkey-patching"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "components/DMDashboard/DebugPanel.tsx"
+        description: "Debug panel with console interception; lines 17-85"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "Multiple mounts of DebugPanel do not accumulate console patches"
+      - "Cleanup correctly restores original console methods"
+      - "Debug filtering (Party/DMDashboard-Delete messages) still works"
+    success_criteria:
+      - "Module-level patching guard variable exists"
+      - "useEffect checks guard before patching"
+      - "Cleanup only restores if we did the patching"
+      - "npm run build succeeds"
+    handoff:
+      do_not_reinvestigate:
+        - "DebugPanel rendering logic"
+        - "How DebugPanel is mounted"
+      required_test_first: "none"
+      target_files:
+        - "components/DMDashboard/DebugPanel.tsx"
+      minimal_change: "Add module-level isPatched flag; wrap patch logic in guard; conditional restore"
+      acceptance_checks:
+        - "grep -n 'isPatched\|isConsolePatched' components/DMDashboard/DebugPanel.tsx returns at least 2 hits"
+
+  - id: "T9_remove_dead_cleanup_export"
+    title: "Remove dead cleanupRealtimeSubscriptions no-op export"
+    description: |
+      cleanupRealtimeSubscriptions in firestore-realtime.ts (line 313-316) only logs but
+      never unsubscribes anything. It's re-exported from firebase.ts (line 1466) but
+      never called anywhere in the codebase.
+
+      Fix: Remove the function from firestore-realtime.ts and remove the re-export from
+      firebase.ts. This is dead code. If subscription cleanup is needed in the future,
+      it should be implemented with actual tracking.
+    wave: 3
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "Bug #3: firestore-realtime.ts:313-316 — cleanupRealtimeSubscriptions is no-op"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "utils/firestore-realtime.ts"
+        description: "Lines 313-316: no-op cleanupRealtimeSubscriptions function"
+      - path: "utils/firebase.ts"
+        description: "Line 1466: re-export of cleanupRealtimeSubscriptions"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "cleanupRealtimeSubscriptions function no longer exists"
+      - "firebase.ts no longer re-exports it"
+      - "No compilation errors from missing export"
+    success_criteria:
+      - "grep 'cleanupRealtimeSubscriptions' utils/firestore-realtime.ts returns nothing"
+      - "grep 'cleanupRealtimeSubscriptions' utils/firebase.ts returns nothing"
+      - "npm run build succeeds"
+    handoff:
+      do_not_reinvestigate:
+        - "Other exports from firestore-realtime.ts"
+        - "Subscription lifecycle in the codebase"
+      required_test_first: "none"
+      target_files:
+        - "utils/firestore-realtime.ts"
+        - "utils/firebase.ts"
+      minimal_change: "Delete function from firestore-realtime.ts; delete re-export line from firebase.ts"
+      acceptance_checks:
+        - "grep -c 'cleanupRealtimeSubscriptions' utils/firestore-realtime.ts utils/firebase.ts returns 0 total"
+
+  # ───────────────────────────────────────────────────────────────────────
+  # WAVE 4 — Verification (depends on all previous waves)
+  # ───────────────────────────────────────────────────────────────────────
+  - id: "T10_build_verification"
+    title: "Build verification and code review"
+    description: |
+      After all fixes are applied:
+      1. Run npm run build to verify TypeScript compilation succeeds
+      2. Grep for remaining `any` types across the project to verify completeness
+      3. Review each changed file to ensure no behavior change
+      4. Document any remaining any types that couldn't be fixed (with reasons)
+    wave: 4
+    agent: gem-reviewer
+    status: completed
+    covers:
+      - "Verification of all previous tasks"
+    dependencies:
+      - "T1_fix_debug_logger_reverse"
+      - "T2_fix_operator_precedence"
+      - "T3_remove_dead_onexport"
+      - "T4_fix_login_console_log"
+      - "T5_remove_redundant_batching"
+      - "T6_fix_firestore_any_types"
+      - "T7_fix_creator_any_types"
+      - "T8_harden_debug_panel"
+      - "T9_remove_dead_cleanup_export"
+    conflicts_with: []
+    context_files:
+      - path: "package.json"
+        description: "Build scripts"
+      - path: "tsconfig.json"
+        description: "TypeScript configuration"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "`npm run build` completes with exit code 0"
+      - "No new TypeScript errors introduced"
+      - "All 8 original bugs are addressed"
+    success_criteria:
+      - "npm run build exit code 0"
+      - "grep -rn ': any\|as any' utils/ components/ hooks/ | grep -v 'node_modules' | grep -v '//' shows minimal remaining any (ideally 0)"
+    handoff: null
+    requires_review: true
+    review_depth: standard
+    review_security_sensitive: false

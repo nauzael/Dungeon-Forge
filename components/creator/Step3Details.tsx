@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { ALIGNMENTS, LANGUAGES } from '../../Data/characterOptions';
 import { FEAT_OPTIONS } from '../../Data/feats/index';
+import { Ability } from '../../types';
 import { UI } from '../../constants/ui';
 const t = UI;
 import { useGameData } from '../../hooks/useGameData';
@@ -17,7 +18,7 @@ interface Step3Props {
     selectedFeat: string;
     openFeatModal: (context: { type: 'human' }) => void;
     spellcastingAbility: string;
-    setSpellcastingAbility: (v: any) => void;
+    setSpellcastingAbility: (v: Ability) => void;
     useStartingGold: boolean;
     setUseStartingGold: (v: boolean) => void;
 }

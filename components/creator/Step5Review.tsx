@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Ability, BackgroundData } from '../../types';
+import { Ability, AsiDecision, BackgroundData } from '../../types';
 
 interface Step5Props {
     charImage: string;
@@ -20,7 +20,7 @@ interface Step5Props {
     backgroundData: BackgroundData;
     selectedFeat: string;
     asiLevels: number[];
-    asiDecisions: any;
+    asiDecisions: Record<number, AsiDecision>;
     activePassives: string[];
     selectedMetamagics: string[];
     languages: string[];

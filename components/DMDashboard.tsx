@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Character } from '../types';
 import { useDMParty } from '../hooks/useDMParty';
@@ -10,18 +9,19 @@ import PartySelector from './DMDashboard/PartySelector';
 import TabContent from './DMDashboard/TabContent';
 import BottomNav from './DMDashboard/BottomNav';
 import ConnectionDebugPanel from './DMDashboard/ConnectionDebugPanel';
+import { FloatingDebugLog } from './DMDashboard/FloatingDebugLog';
 
 interface DMDashboardProps {
   onBack: () => void;
   onViewCharacter: (char: Character) => void;
-  user: { name: string, id: string } | null;
+  user: { name: string; id: string } | null;
 }
 
 type DashboardTab = 'party' | 'resources' | 'compendium' | 'monsters' | 'initiative' | 'critical';
 
 const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user }) => {
   const [activeTab, setActiveTab] = useState<DashboardTab>('party');
-  
+
   // Party management hook
   const {
     party,
@@ -39,18 +39,22 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
   } = useDMParty(user?.id ?? null);
 
   // Initiative tracker hook
-  const { initiativeCombatants, setInitiativeCombatants } = useInitiativeTracker(party?.id ?? null, members);
+  const { initiativeCombatants, setInitiativeCombatants } = useInitiativeTracker(
+    party?.id ?? null,
+    members
+  );
 
   // WAVE 8: Lazy load listeners for multiple characters on edit
   const listeners = useRef<Map<string, { unsubscribe: () => Promise<void> }>>(new Map());
 
-  // ← LAZY: Abre listener al hacer click en "editar"
-  const handleStartEditCharacter = (characterId: string) => {
+  // ← LAZY: Abre listener al hacer click en "editar" (WAVE 8)
+  const _handleStartEditCharacter = (characterId: string) => {
     if (!party || !listeners.current.has(characterId)) {
       const subscription = subscribeWithRetry(
         party?.id || '',
-        (payload: any) => {
-          if (payload.new?.id === characterId) {
+        (payload: unknown) => {
+          const update = payload as { new?: { id?: string } };
+          if (update.new?.id === characterId) {
             // Update handled by parent component via context/props
             console.log(`[DMDashboard] Received update for ${characterId}`);
           }
@@ -59,14 +63,14 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
         undefined,
         characterId // WAVE 7: Selective sync
       );
-      
+
       listeners.current.set(characterId, subscription);
       console.log(`[DMDashboard] Opened listener for character ${characterId}`);
     }
   };
 
-  // ← Cierra listener cuando dejas de editar
-  const handleStopEditCharacter = async (characterId: string) => {
+  // ← Cierra listener cuando dejas de editar (WAVE 8)
+  const _handleStopEditCharacter = async (characterId: string) => {
     const listener = listeners.current.get(characterId);
     if (listener) {
       await listener.unsubscribe();
@@ -77,21 +81,39 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
 
   // Cleanup on unmount or party change
   useEffect(() => {
+    const currentListeners = listeners.current;
     return () => {
-      listeners.current.forEach((listener) => {
+      currentListeners.forEach((listener) => {
         listener.unsubscribe();
       });
-      listeners.current.clear();
+      currentListeners.clear();
     };
   }, [party?.id]);
 
   // Handlers
   const handleDeletePartyWithConfirm = async () => {
     if (!party) return;
-    if (window.confirm(`Are you sure you want to PERMANENTLY DELETE the table "${party.name}"? Players will be removed.`)) {
-      const success = await handleDeleteParty();
-      if (!success) {
-        alert("Error deleting table.");
+    if (
+      window.confirm(
+        `Are you sure you want to PERMANENTLY DELETE the table "${party.name}"? Players will be removed.`
+      )
+    ) {
+      console.log('[DMDashboard-Delete] Attempting to delete party:', party.id, party.name);
+      try {
+        const success = await handleDeleteParty();
+        console.log('[DMDashboard-Delete] Result:', success);
+        if (!success) {
+          const errorMsg = `❌ ERROR DELETING TABLE\n\nParty: ${party.name}\nID: ${party.id}\n\nCheck console for details.`;
+          console.error('[DMDashboard-Delete] FAILED:', errorMsg);
+          alert(errorMsg);
+        } else {
+          console.log('[DMDashboard-Delete] SUCCESS: Party deleted');
+          alert(`✅ Table "${party.name}" deleted successfully!`);
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        console.error('[DMDashboard-Delete] EXCEPTION:', errorMsg, error);
+        alert(`❌ Error deleting table: ${errorMsg}`);
       }
     }
   };
@@ -99,7 +121,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
   const handleCreatePartyWithName = async (partyName: string) => {
     const success = await handleCreateParty(partyName);
     if (!success) {
-      alert("Error creating party.");
+      alert('Error creating party.');
     }
   };
 
@@ -107,8 +129,12 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
     if (window.confirm(`Are you sure you want to kick ${name} from your table?`)) {
       const success = await handleKickCharacter(id, name);
       if (!success) {
-        debugLogger.log('[DMDashboard]', `Kick operation failed for ${name}`, 'error', { characterId: id });
-        alert(`❌ Error removing ${name} from the Nexus.\n\nOpen the Debug Panel (🔍 Diagnóstico) to see more details about what went wrong.`);
+        debugLogger.log('[DMDashboard]', `Kick operation failed for ${name}`, 'error', {
+          characterId: id,
+        });
+        alert(
+          `❌ Error removing ${name} from the Nexus.\n\nOpen the Debug Panel (🔍 Diagnóstico) to see more details about what went wrong.`
+        );
       } else {
         alert(`✅ ${name} has been removed from your table.`);
       }
@@ -154,13 +180,14 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
         )}
 
         {/* 🔍 Debug Panel - Solo en party selector */}
-        {!party && (
-          <ConnectionDebugPanel realtimeStatus={realtimeStatus} />
-        )}
+        {!party && <ConnectionDebugPanel realtimeStatus={realtimeStatus} />}
       </main>
 
       {/* Bottom Navigation */}
       {party && <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />}
+
+      {/* Floating Debug Log */}
+      {party && <FloatingDebugLog />}
     </div>
   );
 };

@@ -480,16 +480,29 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
       ),
     ].filter((f): f is string => !!f);
     const profBonus = Math.ceil(1 + level / 4);
-    const tempChar: any = {
+    const tempChar: Character = {
+      id: '',
+      name: '',
       level,
       class: selectedClass,
       subclass: selectedSubclass,
       species: selectedSpecies,
-      feats: allFeats,
+      background: '',
+      hp: { current: 0, max: 0, temp: 0 },
+      ac: 0,
+      init: 0,
+      speed: 0,
       profBonus,
+      stats: finalStats,
+      skills: [],
+      languages: [],
+      feats: allFeats,
+      imageUrl: '',
       inventory: [trinket, ...(backgroundData?.equipment || [])].map((itemStr) => ({
+        id: '',
         name: itemStr,
         equipped: true,
+        quantity: 1,
       })),
     };
     return getTotalInitiative(tempChar, finalStats);
@@ -519,16 +532,29 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
 
       // Build a temporary partial character for calculation
       const profBonus = Math.ceil(1 + level / 4);
-      const tempChar: any = {
+      const tempChar: Character = {
+        id: '',
+        name: '',
         level,
         class: selectedClass,
         subclass: selectedSubclass,
         species: selectedSpecies,
-        feats: allFeats,
+        background: '',
+        hp: { current: 0, max: 0, temp: 0 },
+        ac: 0,
+        init: 0,
+        speed: 0,
         profBonus,
+        stats: finalStats,
+        skills: [],
+        languages: [],
+        feats: allFeats,
+        imageUrl: '',
         inventory: [trinket, ...(backgroundData?.equipment || [])].map((itemStr) => ({
+          id: '',
           name: itemStr,
           equipped: true,
+          quantity: 1,
         })),
       };
       const calculatedInit = getTotalInitiative(tempChar, finalStats);
@@ -653,7 +679,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
     <div className="flex flex-col h-full min-h-screen relative bg-background-light dark:bg-background-dark">
       <header className="flex items-center justify-between p-4 pt-[calc(1.5rem+env(safe-area-inset-top))] z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm sticky top-0">
         <button
-          onClick={() => (step > 1 ? setStep((step - 1) as any) : onBack())}
+          onClick={() => (step > 1 ? setStep((step - 1) as CreatorStep) : onBack())}
           className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors"
         >
           <span className="material-symbols-outlined">arrow_back</span>
@@ -754,7 +780,7 @@ const CreatorSteps: React.FC<CreatorStepsProps> = ({ onBack, onFinish }) => {
             selectedSpecies={selectedSpecies}
             selectedFeat={selectedFeat}
             openFeatModal={(ctx) => {
-              setFeatModalContext(ctx as any);
+              setFeatModalContext(ctx);
               setShowFeatModal(true);
             }}
             spellcastingAbility={spellcastingAbility}

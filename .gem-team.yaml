@@ -1,0 +1,21 @@
+# Gem Team Configuration - Dungeon Forge
+# See: https://github.com/mubaidr/gem-team#configuration
+
+orchestrator:
+  max_concurrent_agents: 2
+  default_complexity_threshold: auto # auto | TRIVIAL | LOW | MEDIUM | HIGH
+
+planning:
+  enable_critic_for: [HIGH]
+
+quality:
+  visual_regression_enabled: true
+  visual_diff_threshold: 0.95
+  a11y_audit_level: basic # none | basic | full
+
+devops:
+  approval_required_for: [production]
+  auto_rollback_on_failure: false
+
+testing:
+  screenshot_on_failure: true

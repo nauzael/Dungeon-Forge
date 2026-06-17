@@ -111,6 +111,46 @@ export const kickLocal = async (partyId: string, characterId: string) => {
   }
 };
 
+const CHARACTERS_STORAGE_KEY = 'dnd-characters';
+
+/**
+ * Remueve un personaje de su party en localStorage (sin Firestore).
+ * Busca el character por ID en el array de dnd-characters y limpia
+ * party_id/party_name tanto a nivel raíz como dentro de `data`.
+ */
+export const removeFromPartyLocal = async (characterId: string): Promise<{ error: Error | null }> => {
+  try {
+    const raw = localStorage.getItem(CHARACTERS_STORAGE_KEY);
+    if (!raw) {
+      console.warn(`[LocalStorage] No characters found in storage for leave-party`);
+      return { error: null };
+    }
+    const characters: Record<string, unknown>[] = JSON.parse(raw);
+    const idx = characters.findIndex((c: Record<string, unknown>) => c.id === characterId);
+    if (idx === -1) {
+      console.warn(`[LocalStorage] Character ${characterId} not found for leave-party`);
+      return { error: null };
+    }
+
+    const char = characters[idx];
+    delete char.party_id;
+    delete char.party_name;
+    if (char.data && typeof char.data === 'object') {
+      const data = char.data as Record<string, unknown>;
+      delete data.party_id;
+      delete data.party_name;
+    }
+
+    characters[idx] = char;
+    localStorage.setItem(CHARACTERS_STORAGE_KEY, JSON.stringify(characters));
+    console.log(`[LocalStorage] Character ${characterId} removed from party (local mode)`);
+    return { error: null };
+  } catch (e) {
+    console.error('[LocalStorage] Failed to remove character from party:', e);
+    return { error: e instanceof Error ? e : new Error(String(e)) };
+  }
+};
+
 /**
  * Obtiene una party del localStorage por ID
  */

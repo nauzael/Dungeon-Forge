@@ -60,8 +60,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # Temporary files
-supabase/.temp/
-supabase/supabase/
 .mcp.json
 
 # Android build
@@ -81,6 +79,7 @@ opencode-telegram-agent/node_modules/
 # Secretos y credenciales
 AI_CONTEXT.md
 start-telegram-agent.bat
+service-account.json
 
 # Archivos temporales de trabajo
 *.txt
@@ -134,3 +133,9 @@ generate-*.cjs
 nul
 spells-extracted.json
 .opencode
+dungeon-forge-prod-firebase-adminsdk-fbsvc-08adfe3b9a.json
+
+
+# APM dependencies
+apm_modules/
+.vercel

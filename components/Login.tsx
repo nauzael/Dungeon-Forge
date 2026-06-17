@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { supabase } from '../utils/firebase';
+import { signInWithGoogleRedirect, signInWithGooglePopup, auth } from '../utils/firebase';
+import { GoogleAuthProvider, signInWithRedirect, signInWithPopup } from 'firebase/auth';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 
@@ -8,8 +9,6 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
-  // 🚀 V1.6 VERIFICATION - OAuth popup flow
-  console.log('[V1.6] 🚀 Login component loaded - NEW POPUP FLOW');
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -67,57 +66,26 @@ const Login: React.FC<LoginProps> = ({ onLocalModeActivated }) => {
       if (!isNative) {
         // Web platform: use redirect flow
         console.log('[Login] Using redirect OAuth flow for web');
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: redirectUrl,
-            queryParams: { prompt: 'select_account' }
-          }
-        });
-        
-        if (error) {
-          console.error('[Login] OAuth error:', error.message);
-          setLoading(false);
-          setError('OAuth error: ' + error.message);
-          alert("OAUTH ERROR: " + error.message);
-          return;
-        }
-        
-        // For redirect flow, the browser will navigate away
-        // Loading state remains until page reloads with user
+        if (!auth) throw new Error('Firebase Auth not initialized');
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        await signInWithRedirect(auth, provider);
+        // Browser will navigate away — loading state persists until page reloads
         console.log('[Login] Redirect flow initiated - waiting for Google OAuth...');
       } else {
         // Mobile: use popup flow for Capacitor (NO redirectTo, so firebase uses popup)
         console.log('[Login] Using POPUP OAuth flow for mobile');
         
         try {
-          // Use signInWithOAuth WITHOUT redirectTo for Capacitor
-          // This triggers popup flow in firebase.ts
-          const result = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-              // NO redirectTo for mobile - let firebase.ts use popup flow
-              queryParams: { prompt: 'select_account' }
-            }
-          });
+          if (!auth) throw new Error('Firebase Auth not initialized');
+          const provider = new GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+          const result = await signInWithPopup(auth, provider);
+          const user = result.user;
           
-          const { error, data } = result as any;
-          
-          if (error) {
-            console.error('[Login] OAuth error:', error.message);
-            setLoading(false);
-            setError('OAuth error: ' + error.message);
-            return;
-          }
-          
-          // SUCCESS path: Credential exchange completed
-          if (data?.user) {
-            console.log('[Login] OAuth succeeded for:', data.user.email);
-            setLoading(false);  // ← CRITICAL: Clear loading state immediately
-            // App.tsx onAuthStateChange will fire and navigate to CharacterSelect
-          } else {
-            console.log('[Login] OAuth response with no user, waiting for auth state change...');
-          }
+          console.log('[Login] OAuth succeeded for:', user.email);
+          setLoading(false);
+          // App.tsx onAuthStateChanged will fire and navigate to CharacterSelect
           
           // Safety timeout - if auth doesn't complete in 15 seconds, show error
           timeoutRef.current = setTimeout(() => {

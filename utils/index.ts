@@ -2,15 +2,23 @@
 export { isValidCharacter, type ValidationResult } from './validators';
 
 // Utilities
-export { debugLog } from './logger';
-export { supabase, initializeSupabase } from './supabase';
-export { firebase } from './firebase';
-export { createUUID } from './uuid';
-export { generateFormattedId } from './logger';
+export { generateUUID } from './uuid';
+export { debugLogger } from './debugLogger';
 
 // Feature-specific utils
-export { calculateAC, getFinalStats, getArmorClass } from './sheetUtils';
-export { initializeLevelResetUtils, resetLevelResources } from './levelResetUtils';
-export { isRagingOrReckless } from './rageUtils';
-export { getWildShapeForms, performWildShape } from './wildShapeUtils';
-export { calculateFeatureUsage, resetFeatureUsage } from './featureUsageCalculator';
+export { getAvailableBeasts, transformIntoBeast, restoreOriginalForm } from './wildShapeUtils';
+
+export {
+  calculateMaxUses,
+  initializeFeatureUsage,
+  getFeatureUsagesForCharacter,
+} from './featureUsageCalculator';
+
+export {
+  compressCharacterToSnapshot,
+  restoreCharacterFromSnapshot,
+  calculateLevelResetChanges,
+  getSnapshotsForCharacter,
+  saveSnapshotForCharacter,
+  deleteSnapshot,
+} from './levelResetUtils';

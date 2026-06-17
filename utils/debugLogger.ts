@@ -1,6 +1,6 @@
 /**
  * 🔍 Debug Logger - Sistema de logging para diagnosticar problemas en producción
- * 
+ *
  * Almacena eventos en memoria y localStorage para visualización en UI
  * Útil cuando no hay acceso a console (app instalada)
  */
@@ -11,7 +11,7 @@ export interface DebugEvent {
   source: string; // [Realtime], [DM], [Supabase], etc.
   level: 'info' | 'warn' | 'error';
   message: string;
-  data?: any;
+  data?: unknown;
 }
 
 class DebugLogger {
@@ -30,7 +30,7 @@ class DebugLogger {
     source: string,
     message: string,
     level: 'info' | 'warn' | 'error' = 'info',
-    data?: any
+    data?: unknown
   ) {
     const event: DebugEvent = {
       timestamp: Date.now(),
@@ -53,7 +53,7 @@ class DebugLogger {
     try {
       const toStore = this.events.slice(-20);
       localStorage.setItem(this.storageKey, JSON.stringify(toStore));
-    } catch (e) {
+    } catch {
       // localStorage lleno, ignorar
     }
 
@@ -82,7 +82,7 @@ class DebugLogger {
     this.events = [];
     try {
       localStorage.removeItem(this.storageKey);
-    } catch (e) {
+    } catch {
       // ignorar
     }
   }
@@ -94,9 +94,9 @@ class DebugLogger {
     try {
       const stored = localStorage.getItem(this.storageKey);
       if (stored) {
-        this.events = JSON.parse(stored);
+        this.events = JSON.parse(stored) as DebugEvent[];
       }
-    } catch (e) {
+    } catch {
       // ignorar
     }
   }
@@ -108,9 +108,9 @@ class DebugLogger {
     return {
       totalEvents: this.events.length,
       lastEvent: this.events[this.events.length - 1] || null,
-      errors: this.events.filter(e => e.level === 'error').length,
-      warnings: this.events.filter(e => e.level === 'warn').length,
-      lastError: this.events.reverse().find(e => e.level === 'error'),
+      errors: this.events.filter((e) => e.level === 'error').length,
+      warnings: this.events.filter((e) => e.level === 'warn').length,
+      lastError: this.events.findLast((e) => e.level === 'error'),
     };
   }
 }

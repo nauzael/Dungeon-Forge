@@ -1,0 +1,10 @@
+name: Dungeon Forge
+version: 1.0.0
+description: APM project for Dungeon Forge
+author: DungeonForge Migration
+dependencies:
+  apm:
+  - mubaidr/gem-team
+  mcp: []
+includes: auto
+scripts: {}

@@ -148,7 +148,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
       // Abrir listener SOLO cuando estamos viendo el sheet
       const subscription = subscribeWithRetry(
         character.party_id,
-        (payload: any) => {
+        (payload: { new?: { id: string; data: Character }; old?: { id: string }; eventType: string }) => {
           if (payload.new?.id === character.id) {
             onUpdate(payload.new.data as Character);
             console.log('[SheetTabs] Received update via listener');

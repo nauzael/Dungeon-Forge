@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { FEAT_OPTIONS } from '../../Data/feats/index';
+import { AsiDecision } from '../../types';
 import { UI } from '../../constants/ui';
 
 const t = UI;
@@ -8,7 +9,7 @@ const t = UI;
 interface FeatModalProps {
     featModalContext: { type: 'human' | 'asi', level?: number } | null;
     selectedFeat: string;
-    asiDecisions: any;
+    asiDecisions: Record<number, AsiDecision>;
     handleFeatSelect: (name: string) => void;
     onClose: () => void;
 }

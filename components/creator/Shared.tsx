@@ -22,7 +22,7 @@ export const ClassProgressionList = ({ selectedClass, subclassData, currentLevel
   const [isOpen, setIsOpen] = useState(false);
   const t = UI;
   const classes = useClasses();
-  const classData = (classes[selectedClass] as any);
+  const classData = classes[selectedClass] as { details?: { traits?: Trait[] }; progression?: Record<number, string[]> } | undefined;
 
   return (
     <div className="mt-6 space-y-3 px-6">
