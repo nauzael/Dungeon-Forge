@@ -63,7 +63,6 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
   const [updateAvailable, setUpdateAvailable] = useState<OTAUpdate | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [downloadProgress, setDownloadProgress] = useState<number>(0);
-  const [showMigrationTool, setShowMigrationTool] = useState(false);
 
   // Responsive hook for landscape/portrait detection
   const { orientation } = useResponsive();
@@ -1414,34 +1413,6 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
               )}
             </Suspense>
 
-            {/* Botón de migración — solo visible en la lista de personajes */}
-            {view === 'list' && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
-                <button
-                  onClick={() => setShowMigrationTool(true)}
-                  className="text-[10px] text-white/20 hover:text-white/50 transition-colors flex items-center gap-1"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>
-                    sync_alt
-                  </span>
-                  Migrar datos de Supabase
-                </button>
-              </div>
-            )}
-
-            {/* Modal de migración Supabase → Firebase */}
-            {showMigrationTool && user && (
-              <Suspense fallback={null}>
-                <MigrationTool
-                  currentUserId={user.id}
-                  currentUserEmail={user.name?.includes('@') ? user.name : null}
-                  onClose={() => {
-                    setShowMigrationTool(false);
-                    if (typeof window !== 'undefined') window.location.reload();
-                  }}
-                />
-              </Suspense>
-            )}
           </>
         )}
       </div>

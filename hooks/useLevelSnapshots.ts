@@ -14,6 +14,7 @@ import {
   generateSnapshotId,
   estimateMemoryUsage,
   getStorageData,
+  saveStorageData,
 } from '../utils/levelResetUtils';
 
 interface UseLevelSnapshotsReturn {
@@ -260,7 +261,7 @@ export const useLevelSnapshots = (
     const storage = getStorageData();
     if (storage.snapshots[characterId]) {
       delete storage.snapshots[characterId];
-      require('../utils/levelResetUtils').saveStorageData(storage);
+      saveStorageData(storage);
     }
     setSnapshots([]);
     setAuditLogs([]);
