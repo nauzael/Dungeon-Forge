@@ -136,6 +136,15 @@ export const database = databaseInstance;
 
 export const isRtdbAvailable = () => rtdbAvailable;
 
+/** Timeout helper for Firestore operations that can hang indefinitely when Firestore is unreachable */
+const firestoreTimeout = <T>(promise: Promise<T>, ms: number, label: string): Promise<T> =>
+  Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`[Timeout] ${label} timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+
 // Firebase Auth helpers (replaces removed Supabase compatibility shim)
 export const signInWithGooglePopup = async () => {
   if (!authInstance) throw new Error('Auth not initialized');
@@ -632,12 +641,16 @@ export const joinParty = async (character: Character, code: string) => {
 
     if (!firestoreInstance) throw new Error('Firestore not initialized');
 
-    // 1. Find party by code
-    const partiesSnapshot = await getDocs(
-      query(
-        collection(firestoreInstance, 'parties'),
-        where('code', '==', code.trim().toUpperCase())
-      )
+    // 1. Find party by code (10s timeout)
+    const partiesSnapshot = await firestoreTimeout(
+      getDocs(
+        query(
+          collection(firestoreInstance, 'parties'),
+          where('code', '==', code.trim().toUpperCase())
+        )
+      ),
+      10000,
+      'findPartyByCode'
     );
 
     if (partiesSnapshot.empty) {
@@ -661,44 +674,55 @@ export const joinParty = async (character: Character, code: string) => {
     // because resource.data.user_id == uid() check fails when user_id='guest'.
     const effectiveUserId = authInstance?.currentUser?.uid || character.user_id || 'guest';
 
-    // 3. Upsert character with party_id
+    // 3. Upsert character with party_id (8s timeout)
     const characterRef = doc(firestoreInstance, 'characters', characterId);
     const now = new Date().toISOString();
-    await setDoc(
-      characterRef,
-      {
-        id: characterId,
-        user_id: effectiveUserId,
-        data: updatedCharacter,
-        party_id: partyData.id,
-        updated_at: now,
-        deleted_at: null,
-      },
-      { merge: true }
+    await firestoreTimeout(
+      setDoc(
+        characterRef,
+        {
+          id: characterId,
+          user_id: effectiveUserId,
+          data: updatedCharacter,
+          party_id: partyData.id,
+          updated_at: now,
+          deleted_at: null,
+        },
+        { merge: true }
+      ),
+      8000,
+      'setDoc(character)'
     );
 
-    // BUG FIX #2: Write to /parties/{partyId}/members/{userId} subcollection
-    // This is critical for Firestore Security Rules (isPartyMember() check)
+    // BUG FIX #2: Write to /parties/{partyId}/members/{userId} subcollection (8s timeout)
     const memberRef = doc(firestoreInstance, 'parties', partyData.id, 'members', effectiveUserId);
-    await setDoc(
-      memberRef,
-      {
-        user_id: effectiveUserId,
-        character_id: characterId,
-        joined_at: now,
-      },
-      { merge: true }
+    await firestoreTimeout(
+      setDoc(
+        memberRef,
+        {
+          user_id: effectiveUserId,
+          character_id: characterId,
+          joined_at: now,
+        },
+        { merge: true }
+      ),
+      8000,
+      'setDoc(member)'
     );
 
-    // Update party members map with user_id entry
+    // Update party members map (8s timeout)
     const partyRef = doc(firestoreInstance, 'parties', partyData.id);
-    await updateDoc(partyRef, {
-      [`members.${effectiveUserId}`]: {
-        character_id: characterId,
-        joined_at: now,
-      },
-      updated_at: now,
-    });
+    await firestoreTimeout(
+      updateDoc(partyRef, {
+        [`members.${effectiveUserId}`]: {
+          character_id: characterId,
+          joined_at: now,
+        },
+        updated_at: now,
+      }),
+      8000,
+      'updateDoc(party)'
+    );
 
     // BUG FIX #5: Broadcast to RTDB immediately so DM sees the new member in realtime
     // Without this, the DM's RTDB listener would never know about this character
@@ -951,15 +975,6 @@ export const removeFromParty = async (characterId: string) => {
     console.log(`[KICK-TRACE] ✅ removeFromParty (local) COMPLETE`);
     return { error: null };
   }
-
-  // Timeout helper for Firestore operations that can hang indefinitely
-  const firestoreTimeout = <T>(promise: Promise<T>, ms: number, label: string): Promise<T> =>
-    Promise.race([
-      promise,
-      new Promise<T>((_, reject) =>
-        setTimeout(() => reject(new Error(`[Timeout] ${label} timed out after ${ms}ms`)), ms)
-      ),
-    ]);
 
   try {
     if (!firestoreInstance) {

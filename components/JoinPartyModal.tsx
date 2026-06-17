@@ -17,15 +17,27 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
     if (!code.trim()) return;
     setIsJoining(true);
     setError('');
-    const { partyId, partyName, error: joinError } = await joinParty(character, code.toUpperCase());
 
-    if (partyId) {
-      onJoined(partyId, partyName || '');
-      onClose();
-    } else {
-      setError(joinError || 'INVALID CODE OR CONNECTION ERROR.');
+    try {
+      const result = await Promise.race([
+        joinParty(character, code.toUpperCase()),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout joining party after 15 seconds')), 15000)
+        ),
+      ]);
+      if (result.partyId) {
+        onJoined(result.partyId, result.partyName || '');
+        onClose();
+      } else {
+        setError(result.error || 'INVALID CODE OR CONNECTION ERROR.');
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      setError(errorMsg.includes('Timeout') ? 'Connection timed out. Try again.' : 'Error joining party. Please try again.');
+      console.error('Join party error:', err);
+    } finally {
+      setIsJoining(false);
     }
-    setIsJoining(false);
   };
 
   const handleLeave = async () => {
