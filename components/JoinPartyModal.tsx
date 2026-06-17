@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { joinParty, removeFromParty } from '../utils/firebase';
+import { removeFromPartyLocal } from '../utils/localStorage';
 import { Character } from '../types';
 
 interface JoinPartyModalProps {
@@ -46,7 +47,7 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
     setError('');
 
     try {
-      // BUG FIX: Race against 15s timeout so Firestore hangs don't freeze the UI forever
+      // 1. Try Firestore first (with 15s timeout)
       const result = await Promise.race([
         removeFromParty(character.id),
         new Promise<never>((_, reject) =>
@@ -56,17 +57,24 @@ const JoinPartyModal: React.FC<JoinPartyModalProps> = ({ character, onClose, onJ
       if (!result.error) {
         onJoined('', ''); // Clear party info
         onClose();
-      } else {
-        console.error('[LeaveParty] removeFromParty failed:', result.error);
-        setError('Failed to leave party. Please try again.');
+        return;
       }
+      console.error('[LeaveParty] removeFromParty failed:', result.error);
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      setError(errorMsg.includes('Timeout') ? 'Connection timed out. Try again.' : 'Error leaving party. Please try again.');
-      console.error('Leave party error:', err);
-    } finally {
-      setIsJoining(false);
+      console.error('[LeaveParty] removeFromParty threw:', err);
     }
+
+    // 2. Fallback: always clear local state so user is never stuck
+    //    Handles: party deleted, Firestore unreachable, auth mismatch, etc.
+    console.warn('[LeaveParty] Falling back to removeFromPartyLocal');
+    const localResult = await removeFromPartyLocal(character.id);
+    if (!localResult.error) {
+      onJoined('', '');
+      onClose();
+      return;
+    }
+    setError('Failed to leave party. Please try again.');
+    setIsJoining(false);
   };
 
   const isInParty = !!character.party_id;
