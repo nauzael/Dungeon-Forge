@@ -61,6 +61,10 @@ let authInstance: Auth | null = null;
 let firestoreInstance: Firestore | null = null;
 let databaseInstance: Database | null = null;
 
+// MUST be before RTDB init below — onValue can fire synchronously for .info/connected
+// and accessing a `let`-declared variable in its TDZ throws ReferenceError.
+let rtdbAvailable = false;
+
 try {
   firebaseApp = initializeApp(firebaseConfig);
   authInstance = getAuth(firebaseApp);
@@ -88,7 +92,9 @@ try {
       console.warn('[Firebase] RTDB connectivity check timed out — database may not exist. Create it at https://console.firebase.google.com/project/dungeon-forge-prod/database');
       rtdbAvailable = false;
     }, 5000);
-    const unsub = onValue(rtdbRef, (snap) => {
+    let unsub: Unsubscribe | null = null;
+    // eslint-disable-next-line prefer-const -- unsub must be let to avoid TDZ when onValue fires synchronously
+    unsub = onValue(rtdbRef, (snap) => {
       clearTimeout(timeout);
       const connected = snap.val() === true;
       if (connected) {
@@ -98,7 +104,8 @@ try {
         rtdbAvailable = false;
         console.warn('[Firebase] RTDB not connected — realtime features may not work');
       }
-      unsub();
+      // Guard: onValue fires synchronously, so unsub may still be null on first call
+      if (unsub) unsub();
     }, (err) => {
       clearTimeout(timeout);
       rtdbAvailable = false;
@@ -127,9 +134,6 @@ export const auth = authInstance;
 export const firestore = firestoreInstance;
 export const database = databaseInstance;
 
-// Flag to indicate if RTDB is reachable. Set by the connectivity check.
-// Consumers should use this to decide whether to subscribe to RTDB or fall back to polling.
-let rtdbAvailable = false;
 export const isRtdbAvailable = () => rtdbAvailable;
 
 // Firebase Auth helpers (replaces removed Supabase compatibility shim)
@@ -1611,9 +1615,6 @@ export async function batchSaveCharacters(
   };
 }
 
-// Compatibility wrappers for Firestore Realtime integration
-export {
-  subscribeToPartyRealtime,
-  broadcastCharacterUpdateFirestore,
-  subscribeToPartyResourcesRealtime,
-} from './firestore-realtime';
+// NOTE: subscribeToPartyRealtime, broadcastCharacterUpdateFirestore,
+// and subscribeToPartyResourcesRealtime are in ./firestore-realtime.
+// Import directly from there to avoid circular dependency.
