@@ -133,8 +133,6 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
       console.error('Failed to check local mode:', e);
     }
 
-    let otaCleanup: (() => void) | null = null;
-
     // Check initial session via Firebase Auth
     if (auth?.currentUser) {
       const currentUser = auth.currentUser;
@@ -315,17 +313,10 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
       // Expose to UI for force-update button
       checkForUpdatesRef.current = checkForUpdates;
 
-      // Check on startup (respects cooldown)
-      checkForUpdates();
-
-      // Check every 30 minutes if the app remains open
-      const interval = setInterval(checkForUpdates, 30 * 60 * 1000);
-
-      // Check when the app returns from background (respects cooldown)
+      // Check when the app returns from background — auth only (no auto OTA)
       CapacitorApp.addListener('appStateChange', ({ isActive }) => {
         if (isActive) {
-          console.log('[App] App resumed — checking for updates and auth state');
-          checkForUpdates();
+          console.log('[App] App resumed — checking auth state');
 
           // Also trigger manual auth check in case user returned from OAuth popup
           if (!isAuthenticated) {
@@ -351,14 +342,6 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
         appStateListenerRef.current = listener;
       });
 
-      // Local cleanup function for OTA
-      otaCleanup = () => {
-        clearInterval(interval);
-        if (appStateListenerRef.current) {
-          appStateListenerRef.current.remove();
-          appStateListenerRef.current = null;
-        }
-      };
     }
 
     // Listen for auth changes via Firebase (synchronous registration — no dynamic import race)
@@ -421,7 +404,10 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
     const cleanupCheckInterval = () => clearInterval(checkLocalStorageInterval);
 
     return () => {
-      if (otaCleanup) otaCleanup();
+      if (appStateListenerRef.current) {
+        appStateListenerRef.current.remove();
+        appStateListenerRef.current = null;
+      }
       unsubscribeAuth();
       cleanupCheckInterval();
     };
