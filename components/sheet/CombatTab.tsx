@@ -440,7 +440,11 @@ const CombatTab: React.FC<CombatTabProps> = ({
             newCurrent = Math.max(0, newCurrent - remainingDamage);
         }
         // Broadcast a RTDB INMEDIATO (salta el debounce de 500ms para que el DM vea el cambio ya)
-        onFastUpdate?.({ ...character, hp: { ...character.hp, current: newCurrent, temp: newTemp } });
+        try {
+            onFastUpdate?.({ ...character, hp: { ...character.hp, current: newCurrent, temp: newTemp } });
+        } catch (e) {
+            console.warn('[CombatTab] onFastUpdate error (non-critical):', e);
+        }
         // Actualizar localmente, pero guardar a Firestore solo después del debounce de 500ms
         setPendingHpChange({ current: newCurrent, temp: newTemp });
         setHpModal(prev => ({ ...prev, show: false }));
