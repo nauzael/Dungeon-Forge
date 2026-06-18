@@ -41,7 +41,7 @@ const resetFeatureUsages = (char: Character, resetType: 'short_rest' | 'long_res
         const config = FEATURE_USAGE_CONFIGS[name];
         if (!config) return;
 
-        if (config.resetType === resetType || (resetType === 'long_rest' && config.resetType === 'long_rest')) {
+        if (resetType === 'long_rest' || config.resetType === resetType) {
             const newMax = calculateMaxForFeature(name, char);
             updatedUsages[name] = {
                 ...usage,
@@ -120,10 +120,8 @@ const RestModal: React.FC<RestModalProps> = ({ character, onComplete, onCancel }
 
         updated = resetFeatureUsages(updated, 'short_rest');
 
-        setTimeout(() => {
-            setIsProcessing(false);
-            onComplete(updated);
-        }, 300);
+        setIsProcessing(false);
+        onComplete(updated);
     };
 
     const handleLongRest = () => {
@@ -181,10 +179,8 @@ const RestModal: React.FC<RestModalProps> = ({ character, onComplete, onCancel }
         updated.lastLongRest = Date.now();
         updated.activeConcentration = undefined;
 
-        setTimeout(() => {
-            setIsProcessing(false);
-            onComplete(updated);
-        }, 300);
+        setIsProcessing(false);
+        onComplete(updated);
     };
 
     return (

@@ -1020,13 +1020,16 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
     [activeCharacter]
   );
 
-  /** Fast path: broadcasts to RTDB immediately without debounce, skips state update.
-   *  Used by CombatTab's HP changes so the GM sees damage/healing in real-time (~200ms)
-   *  while Firestore persistence still goes through the normal debounced path. */
+  /** Fast path: updates characters[] state AND broadcasts to RTDB immediately.
+   *  Unlike handleCharacterUpdate, this skips the 500ms debounce so HP changes / rest
+   *  are visible instantly and survive tab switches / component remounts.
+   *  Firestore persistence still goes through the normal debounced path. */
   const handleFastUpdate = useCallback(
     (partialChar: Partial<Character>) => {
       if (!activeCharacter) return;
       const fullUpdate: Character = { ...activeCharacter, ...partialChar } as Character;
+      setCharacters((prev) => prev.map((c) => (c.id === fullUpdate.id ? fullUpdate : c)));
+      setActiveCharacterId(fullUpdate.id);
       if (fullUpdate.party_id) {
         broadcastCharacterUpdate(fullUpdate.party_id, fullUpdate);
       }
