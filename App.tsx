@@ -57,6 +57,19 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
   const [sharedResource, setSharedResource] = useState<SharedResourceEvent | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string>('');
+  const [showSyncFeedback, setShowSyncFeedback] = useState(false);
+  const syncFeedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /** Show sync indicator and auto-hide after `delay` ms of inactivity */
+  const showSyncFor = (ms: number) => {
+    setShowSyncFeedback(true);
+    if (syncFeedbackTimerRef.current) clearTimeout(syncFeedbackTimerRef.current);
+    syncFeedbackTimerRef.current = setTimeout(() => {
+      setShowSyncFeedback(false);
+      setSyncMessage('');
+      syncFeedbackTimerRef.current = null;
+    }, ms);
+  };
   const [user, setUser] = useState<{ name: string; id: string } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLocalMode, setIsLocalMode] = useState(false);
@@ -404,6 +417,7 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
     const cleanupCheckInterval = () => clearInterval(checkLocalStorageInterval);
 
     return () => {
+      if (syncFeedbackTimerRef.current) clearTimeout(syncFeedbackTimerRef.current);
       if (appStateListenerRef.current) {
         appStateListenerRef.current.remove();
         appStateListenerRef.current = null;
@@ -621,6 +635,8 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
       const syncFromCloud = async () => {
         setIsSyncing(true);
         setSyncMessage('Sincronizando...');
+        setShowSyncFeedback(true);
+        if (syncFeedbackTimerRef.current) clearTimeout(syncFeedbackTimerRef.current);
         console.log('[Sync] Iniciando sincronización desde cloud...');
 
         const cloudChars = await fetchCharactersFromCloud(user.id);
@@ -698,10 +714,10 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
         }
 
         setSyncMessage('¡Listo!');
+        showSyncFor(2500);
         setTimeout(() => {
           setIsSyncing(false);
-          setSyncMessage('');
-        }, 1500);
+        }, 300);
         console.log('[Sync] Sincronización completada');
       };
       syncFromCloud();
@@ -774,6 +790,8 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
 
         setIsSyncing(true);
         setSyncMessage('Guardando...');
+        setShowSyncFeedback(true);
+        if (syncFeedbackTimerRef.current) clearTimeout(syncFeedbackTimerRef.current);
 
         // Save only changed characters, with small delays between writes
         for (let i = 0; i < dirtyChars.length; i++) {
@@ -791,10 +809,10 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
         }
 
         setSyncMessage('¡Guardado!');
+        showSyncFor(2500);
         setTimeout(() => {
           setIsSyncing(false);
-          setSyncMessage('');
-        }, 1000);
+        }, 300);
       } catch (error) {
         console.error('Failed to save characters:', error);
         if (
@@ -805,6 +823,7 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
         }
         setIsSyncing(false);
         setSyncMessage('');
+        showSyncFor(2500);
       }
     }, 500); // Increased from 300ms to 500ms
     return () => clearTimeout(saveData);
@@ -1294,9 +1313,9 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
           />
         )}
 
-        {/* Sync Indicator */}
-        {isAuthenticated && (
-          <div className="absolute top-4 right-12 z-50 flex items-center gap-1.5 bg-background-dark/50 backdrop-blur-md px-2 py-1 rounded-full border border-white/10">
+        {/* Sync Indicator — solo visible durante o justo después de un cambio */}
+        {isAuthenticated && showSyncFeedback && (
+          <div className="absolute top-4 right-12 z-50 flex items-center gap-1.5 bg-background-dark/50 backdrop-blur-md px-2 py-1 rounded-full border border-white/10 transition-opacity duration-300">
             {isSyncing ? (
               <>
                 <span className="material-symbols-outlined text-[10px] text-primary animate-spin">
@@ -1312,7 +1331,7 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
                   cloud_done
                 </span>
                 <span className="text-[8px] font-black uppercase text-white/30 tracking-tighter">
-                  Sincronizado
+                  {syncMessage || 'Sincronizado'}
                 </span>
               </>
             )}
