@@ -1020,6 +1020,20 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
     [activeCharacter]
   );
 
+  /** Fast path: broadcasts to RTDB immediately without debounce, skips state update.
+   *  Used by CombatTab's HP changes so the GM sees damage/healing in real-time (~200ms)
+   *  while Firestore persistence still goes through the normal debounced path. */
+  const handleFastUpdate = useCallback(
+    (partialChar: Partial<Character>) => {
+      if (!activeCharacter) return;
+      const fullUpdate: Character = { ...activeCharacter, ...partialChar } as Character;
+      if (fullUpdate.party_id) {
+        broadcastCharacterUpdate(fullUpdate.party_id, fullUpdate);
+      }
+    },
+    [activeCharacter, broadcastCharacterUpdate]
+  );
+
   const handleDMCharacterUpdate = async (updatedChar: Character) => {
     // KICK-TRACE: Detect if this save might be from a kicked character
     if (updatedChar.party_id === null || updatedChar.party_id === undefined) {
@@ -1405,6 +1419,7 @@ const AppContent: React.FC<{ syncStatus: SyncContextType }> = ({ syncStatus }) =
                   character={activeCharacter}
                   onBack={() => setView('list')}
                   onUpdate={handleCharacterUpdate}
+                  onFastUpdate={handleFastUpdate}
                 />
               )}
               {view === 'observer-sheet' && observedCharacter && (

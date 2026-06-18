@@ -47,6 +47,8 @@ import { BeastStats, WildShapeState } from '../../types';
 interface CombatTabProps {
     character: Character;
     onUpdate: (update: Partial<Character>) => void;
+    /** Immediate callback, bypasses the 500ms debounce. Used to broadcast HP changes to RTDB instantly. */
+    onFastUpdate?: (update: Partial<Character>) => void;
     isReadOnly?: boolean;
     onShowJoinParty?: () => void;
     onShowLevelReset?: () => void;
@@ -437,7 +439,9 @@ const CombatTab: React.FC<CombatTabProps> = ({
             }
             newCurrent = Math.max(0, newCurrent - remainingDamage);
         }
-        // Actualizar localmente INMEDIATO para UX, pero guardar a cloud solo después de debounce
+        // Broadcast a RTDB INMEDIATO (salta el debounce de 500ms para que el DM vea el cambio ya)
+        onFastUpdate?.({ ...character, hp: { ...character.hp, current: newCurrent, temp: newTemp } });
+        // Actualizar localmente, pero guardar a Firestore solo después del debounce de 500ms
         setPendingHpChange({ current: newCurrent, temp: newTemp });
         setHpModal(prev => ({ ...prev, show: false }));
     };

@@ -28,6 +28,7 @@ interface SheetTabsProps {
   character: Character;
   onBack: () => void;
   onUpdate: (update: Character | Partial<Character>) => void;
+  onFastUpdate?: (update: Partial<Character>) => void;
   isReadOnly?: boolean;
   isObserver?: boolean;
 }
@@ -36,6 +37,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
   character,
   onBack,
   onUpdate,
+  onFastUpdate,
   isReadOnly,
   isObserver,
 }) => {
@@ -739,6 +741,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
                   <CombatTab
                     character={character}
                     onUpdate={onUpdate}
+                    onFastUpdate={onFastUpdate}
                     isReadOnly={isReadOnly || isObserver}
                     onShowJoinParty={() => setShowJoinParty(true)}
                     onShowLevelReset={() => setShowLevelReset(true)}
@@ -843,6 +846,7 @@ const SheetTabs: React.FC<SheetTabsProps> = ({
               <CombatTab
                 character={character}
                 onUpdate={onUpdate}
+                onFastUpdate={onFastUpdate}
                 isReadOnly={isReadOnly || isObserver}
                 onShowJoinParty={() => setShowJoinParty(true)}
                 onShowLevelReset={() => setShowLevelReset(true)}
