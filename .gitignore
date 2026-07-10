@@ -19,6 +19,7 @@ out/
 .env.local
 .env.*.local.env.production
 .env.production.local
+.env.testing
 
 # Firebase & Google Cloud configuration (CONTAINS SENSITIVE API KEYS)
 **/google-services.json

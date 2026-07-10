@@ -109,7 +109,9 @@ echo [3/3] Building Android APK...
 cd android
 if not exist "local.properties" (
     if defined ANDROID_HOME (
-        echo sdk.dir=%ANDROID_HOME%> local.properties
+        > local.properties echo sdk.dir=!ANDROID_HOME!
+    ) else (
+        echo   W ANDROID_HOME not set — APK may fail if SDK is missing
     )
 )
 call gradlew.bat assembleDebug

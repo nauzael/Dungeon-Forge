@@ -1,0 +1,26 @@
+{
+  "rules": {
+    "parties": {
+      "$partyId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "characters": {
+          "$characterId": {
+            ".read": "auth != null",
+            ".write": "auth != null"
+          }
+        },
+        "resource-share": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        }
+      }
+    },
+    "characters": {
+      "$characterId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    }
+  }
+}

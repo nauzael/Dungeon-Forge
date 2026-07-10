@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Hook para aplicar debounce a un valor genérico
+ * Hook to apply debounce to a generic value
  * Retorna el valor debounced tras un delay especificado
  * 
  * @template T - Tipo del valor a debounce

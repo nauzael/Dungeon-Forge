@@ -9,7 +9,6 @@ import {
   isRtdbAvailable,
 } from '../utils/firebase';
 import { getDocs, collection, query, where } from 'firebase/firestore';
-import { debugLogger } from '../utils/debugLogger';
 import { Character } from '../types';
 
 interface Party {
@@ -71,9 +70,6 @@ export const useDMParty = (userId: string | null) => {
   const deduplicateAndMerge = useCallback(
     (current: Character[], incoming: Character, partyId?: string): Character[] => {
       if (!incoming.party_id && partyId) {
-        console.log(
-          `[DEDUP-GHOST-PREVENTION] Rechazando character ${incoming.id} - party_id es null`
-        );
         return current;
       }
 
@@ -128,9 +124,6 @@ export const useDMParty = (userId: string | null) => {
 
     try {
       if (!firestore) throw new Error('Firestore not initialized');
-
-      console.log(`[DM-Firebase] Fetching parties for user ${userId}`);
-
       // Query Firebase: parties where dm_uid == userId
       const partiesRef = collection(firestore, 'parties');
       const q = query(partiesRef, where('dm_uid', '==', userId));
@@ -144,20 +137,14 @@ export const useDMParty = (userId: string | null) => {
           code: d.code || '',
         };
       });
-
-      console.log(`[DM-Firebase] Loaded ${data.length} parties from Firebase`);
     } catch (err) {
-      console.error('[DM-Firebase] Failed to fetch parties:', err);
       // Fallback to localStorage
       try {
         const partiesStr = localStorage.getItem('dnd-parties-local');
         if (partiesStr) {
           data = JSON.parse(partiesStr) as Party[];
-          console.log(`[DM-Fallback] Using localStorage with ${data.length} parties`);
         }
-      } catch (e) {
-        console.error('[DM-Fallback] Failed to parse localStorage:', e);
-      }
+      } catch { /* ignore localStorage parse error */ }
     }
 
     if (data) setParties(data);
@@ -174,53 +161,35 @@ export const useDMParty = (userId: string | null) => {
 
       try {
         if (!firestore) throw new Error('Firestore not initialized');
-
-        console.log(`[DM-FetchMembers-Firebase] Loading party ${partyId}`);
-
         // Query Firebase: characters where party_id == partyId
         const charsRef = collection(firestore, 'characters');
         const q = query(charsRef, where('party_id', '==', partyId));
         const snapshot = await getDocs(q);
 
         // DIAGNOSTIC: Log every matching document to detect ghost characters
-        console.log(`[KICK-FETCH] Query returned ${snapshot.docs.length} docs:`);
         snapshot.docs.forEach((doc) => {
           const d = doc.data();
           const name = d.data?.name || d.name || 'unknown';
           const dataPartyId = d.data?.party_id || d.party_id || 'none';
-          console.log(`[KICK-FETCH]   📄 ${doc.id} → name="${name}", party_id="${dataPartyId}"`);
         });
 
         data = snapshot.docs.map((doc) => {
           const d = doc.data();
           return d.data as Character;
         });
-
-        console.log(
-          `[DM-FetchMembers-Firebase] Loaded ${data.length} members for party ${partyId}`
-        );
       } catch (err) {
-        console.error('[DM-FetchMembers-Firebase] Failed to fetch members:', err);
         // Fallback to localStorage
         try {
           const charsStr = localStorage.getItem('dnd-characters');
           if (charsStr) {
             const allChars = JSON.parse(charsStr) as Character[];
             data = allChars.filter((c) => c.party_id === partyId);
-            console.log(
-              `[DM-FetchMembers-Fallback] Using localStorage with ${data.length} members`
-            );
           }
-        } catch (e) {
-          console.error('[DM-FetchMembers-Fallback] Failed:', e);
-        }
+        } catch { /* ignore localStorage parse error */ }
       }
 
       if (data) {
         const deduplicated = removeDuplicates(data);
-        console.log(
-          `[DM] Loaded ${data.length} characters, deduplicated to ${deduplicated.length}`
-        );
         setMembers(deduplicated);
       }
       setIsLoading(false);
@@ -264,26 +233,20 @@ export const useDMParty = (userId: string | null) => {
   // Delete party
   const handleDeleteParty = useCallback(async (): Promise<boolean> => {
     if (!party || !userId) return false;
-    console.log('[DM-DeleteParty] Starting deletion for party:', party.id, party.name);
     const result: { error: unknown } | null = await deleteParty(party.id, userId);
-    console.log('[DM-DeleteParty] Result from deleteParty():', result);
     const hasError = result && result.error ? true : false;
     if (!hasError) {
-      console.log('[DM-DeleteParty] No error, proceeding with state update');
       // Clean up persisted kicked IDs from localStorage
       try { localStorage.removeItem(`df_kicked_${party.id}`); } catch { /* ignore */ }
       setParties((prev) => prev.filter((p) => p.id !== party.id));
       setParty(null);
       setMembers([]);
-      console.log('[DM-DeleteParty] Party deleted successfully:', party.id);
       return true;
     } else {
       const errorMsg =
         result && result.error instanceof Error
           ? result.error.message
           : String(result?.error || 'Unknown error');
-      console.error('[DM-DeleteParty] ❌ Error deleting party:', errorMsg);
-      console.error('[DM-DeleteParty] Full error object:', result?.error);
       return false;
     }
   }, [party, userId]);
@@ -291,16 +254,6 @@ export const useDMParty = (userId: string | null) => {
   // Kick character
   const handleKickCharacter = useCallback(async (id: string, name: string): Promise<boolean> => {
     const kickStartTime = Date.now();
-    console.log(`[KICK-UI] ────────────────────────────────────────────`);
-    console.log(`[KICK-UI] handleKickCharacter START`);
-    console.log(`[KICK-UI]   character id: ${id}`);
-    console.log(`[KICK-UI]   character name: "${name}"`);
-    console.log(`[KICK-UI]   party: ${party?.id} ("${party?.name}")`);
-    console.log(`[KICK-UI]   userId: ${userId}`);
-    console.log(`[KICK-UI]   members count BEFORE kick: ${members.length}`);
-    console.log(`[KICK-UI]   members list: ${members.map(m => `${m.id}("${m.name}")`).join(', ')}`);
-    console.log(`[KICK-UI]   kickedIdsRef: [${Array.from(kickedIdsRef.current).join(', ')}]`);
-
     // Mark as kicked IMMEDIATELY in the ref (no re-render, no subscription churn)
     kickedIdsRef.current.add(id);
     if (party?.id) {
@@ -308,47 +261,27 @@ export const useDMParty = (userId: string | null) => {
     }
     setIsRemoving(id);
     setIsLoading(true);
-
-    console.log(`[KICK-UI] Calling removeFromParty(${id})...`);
-
     try {
       const result = await removeFromParty(id);
       const success = !result.error;
-
-      console.log(`[KICK-UI] removeFromParty returned:`, { success, error: result.error?.message || null });
-
       if (success) {
         setMembers((prev) => {
           const newMembers = prev.filter((c) => c.id !== id);
-          console.log(`[KICK-UI] setMembers: ${prev.length} → ${newMembers.length} (removed ${id})`);
           return newMembers;
         });
-        debugLogger.log('[DM-Kick]', `Character ${name} (${id}) successfully kicked`, 'info', {
-          characterId: id, partyId: party?.id, elapsed: Date.now() - kickStartTime,
-        });
-        console.log(`[KICK-UI] ✅ ${name} kicked successfully (${Date.now() - kickStartTime}ms)`);
         // Force-refresh member list from Firestore to confirm the kick persisted
         if (party?.id) {
-          console.log(`[KICK-UI] Triggering debouncedFetchMembers for party ${party.id}...`);
           debouncedFetchMembers(party.id);
         }
       } else {
-        console.error(`[KICK-UI] ❌ Failed to kick ${name}:`, result.error);
       }
 
       setIsLoading(false);
       setIsRemoving(null);
-      console.log(`[KICK-UI] ────────────────────────────────────────────`);
       return success;
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      debugLogger.log('[DM-Kick]', `Exception kicking ${name}: ${errorMsg}`, 'error', {
-        characterId: id, characterName: name, error: errorMsg,
-      });
-      console.error(`[KICK-UI] ❌ Exception kicking ${name}:`, err);
       setIsLoading(false);
       setIsRemoving(null);
-      console.log(`[KICK-UI] ────────────────────────────────────────────`);
       return false;
     }
   }, [party?.id, party?.name, userId, members.length, saveKickedIds, debouncedFetchMembers]);
@@ -415,7 +348,6 @@ export const useDMParty = (userId: string | null) => {
               if (merged.has(kickedId)) {
                 merged.delete(kickedId);
                 hasChanges = true;
-                console.log(`[DM-Realtime] Kicked character ${kickedId} removed from merged`);
               }
             }
 
@@ -423,7 +355,6 @@ export const useDMParty = (userId: string | null) => {
             for (const [charId, charData] of Object.entries(charsMap)) {
               // KICK-TRACE: Check if this character is in the kicked set
               if (kickedIds.has(charId)) {
-                console.log(`[KICK-RTDB] Character ${charId} is in kickedIds — will be filtered out`);
               }
 
               if (!charData || typeof charData !== 'object') continue;
@@ -433,7 +364,6 @@ export const useDMParty = (userId: string | null) => {
                 if (merged.has(charId)) {
                   merged.delete(charId);
                   hasChanges = true;
-                  console.log(`[DM-Realtime-GHOST-PREVENTED] Character ${charId} removed (party_id mismatch)`);
                 }
                 continue;
               }
@@ -450,7 +380,6 @@ export const useDMParty = (userId: string | null) => {
                   syncTimestamp: charData.syncTimestamp || Date.now(),
                 });
                 hasChanges = true;
-                console.log(`[DM-Realtime] Character added: ${charData.name || charId}`);
               } else {
                 // Update existing - use syncTimestamp for dedup
                 const incomingTime = charData.syncTimestamp || 0;
@@ -472,43 +401,13 @@ export const useDMParty = (userId: string | null) => {
             // Members are ONLY removed via kickedIds (explicit kick) or party_id mismatch.
 
             if (hasChanges) {
-              console.log(`[DM-Realtime] Members updated: ${merged.size} total`);
             }
 
             return Array.from(merged.values());
           });
         },
-        (broadcastChar: unknown) => {
-          const char = broadcastChar as Character;
-
-          // Check kicked IDs from ref (always current, no stale closure)
-          if (kickedIdsRef.current.has(char.id)) {
-            console.log(
-              `[DM-Broadcast-GHOST-PREVENTED] Ignoring kicked character: ${char.name}`
-            );
-            return;
-          }
-
-          if (!char.party_id || char.party_id !== party.id) {
-            console.log(
-              `[DM-Broadcast-GHOST-PREVENTED] Ignoring character outside party: ${char.name} (party_id=${char.party_id})`
-            );
-            return;
-          }
-
-          setMembers((prev) => {
-            const updated = deduplicateAndMerge(prev, char, party.id);
-            if (updated.length > prev.length) {
-              console.log(
-                `[DM-Broadcast] Character added via broadcast: ${char.name} (total members: ${updated.length})`
-              );
-            }
-            return updated;
-          });
-        },
         (status) => {
           setRealtimeStatus(status);
-          console.log(`[DM-Realtime] Status changed to: ${status}`);
         }
       );
 
@@ -526,7 +425,6 @@ export const useDMParty = (userId: string | null) => {
     // Case 1: RTDB returned 'error' immediately (database not initialized, security rules, etc.)
     // Start polling RIGHT AWAY instead of waiting 15s.
     if (realtimeStatus === 'error') {
-      console.warn('[DM-Realtime] RTDB unavailable — starting Firestore polling immediately');
       fetchMembers(party.id);
       if (partyPollingRef.current) {
         clearInterval(partyPollingRef.current);
@@ -541,7 +439,6 @@ export const useDMParty = (userId: string | null) => {
     if (realtimeStatus !== 'connecting') return;
 
     const stuckTimeout = setTimeout(() => {
-      console.warn('[DM-Realtime] Stuck on connecting for 15s — falling back to Firestore polling');
       setRealtimeStatus('error');
       // Start polling as fallback if RTDB never connected
       if (party) {

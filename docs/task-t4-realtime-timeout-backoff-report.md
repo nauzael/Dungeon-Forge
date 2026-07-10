@@ -1,7 +1,7 @@
 # T4: Realtime Timeout + Exponential Backoff - Implementation Report
 
 ## Summary
-✅ Implementado: `subscribeWithRetry()` function en `utils/supabase.ts` con:
+✅ Implementado: `subscribeWithRetry()` function en `utils/firebase.ts` con:
 - Timeout: 5 segundos
 - Exponential backoff: 1s → 2s → 4s → 8s → 8s (máx)
 - Jitter: ±10% random para evitar thundering herd
@@ -10,7 +10,7 @@
 
 ## Files Modified
 
-### 1. utils/supabase.ts (lineas 216-340)
+### 1. utils/firebase.ts (lineas 216-340)
 ✅ Added:
 - `RealtimeSubscription` interface
 - `subscribeWithRetry()` function with full timeout + retry logic
@@ -128,7 +128,7 @@ const cleanup = async () => {
   if (timeoutHandle) clearTimeout(timeoutHandle);      // Clear timeout
   if (retryTimeoutHandle) clearTimeout(retryTimeoutHandle); // Clear retry timer
   if (currentChannel) {
-    await currentChannel.unsubscribe();                 // Unsubscribe from Supabase
+    await currentChannel.unsubscribe();                 // Unsubscribe from Firebase
   }
 };
 ```
@@ -183,14 +183,14 @@ New `subscribeWithRetry()` is an improved wrapper with same interface.
 
 ## Summary Metrics
 
-- ✅ Files modified: 3 (supabase.ts, DMDashboard.tsx, App.tsx)
+- ✅ Files modified: 3 (firebase.ts, DMDashboard.tsx, App.tsx)
 - ✅ Lines added: ~130 (subscribeWithRetry implementation)
 - ✅ Acceptance criteria: 5/5 passed
 - ✅ Tests: 5/5 passed
 - ✅ TypeScript build: PASS
 - ✅ Memory leaks: NONE DETECTED
 - ⏱️ Complexity: Medium (timeout + backoff + state management)
-- 🔧 Ready for integration testing with real Supabase network
+- 🔧 Ready for integration testing with real Firebase network
 
 ---
 

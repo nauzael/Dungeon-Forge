@@ -1,0 +1,418 @@
+{
+  "context_envelope": {
+    "meta": {
+      "plan_id": "20260618-long-rest-rollback-fix",
+      "created_at": "2026-06-18T05:12:00Z",
+      "last_updated": "2026-06-18T05:12:00Z",
+      "version": 1,
+      "source": [
+        "docs/plan/20260618-long-rest-rollback-fix/plan.yaml",
+        "App.tsx",
+        "components/sheet/RestModal.tsx",
+        "utils/firebase.ts",
+        "utils/sheetUtils.ts",
+        "types.ts"
+      ]
+    },
+    "scope": {
+      "purpose": [
+        "Fix the Long Rest rollback bug caused by RTDB loopback canceling cloud save timeout",
+        "Fix missing syncTimestamp in update handlers",
+        "Add spell slot restoration, fix Wizard preparedSpells, add Arcane Recovery and Warlock pact slot restoration to long rest",
+        "Cache findings for future agent sessions working on sync, rest, or spell slot management"
+      ],
+      "applies_to": [
+        "App.tsx handleCharacterUpdate and handleFastUpdate",
+        "App.tsx persist effect and RTDB listener",
+        "components/sheet/RestModal.tsx handleLongRest"
+      ],
+      "non_goals": [
+        "Not rewriting the persist/sync architecture",
+        "Not adding tests (no test framework in project)",
+        "Not adding UI for spell preparation on long rest"
+      ]
+    },
+    "tech_stack": [
+      {
+        "name": "React",
+        "version": "19",
+        "usage_context": "Frontend UI framework with hooks and functional components. Uses useCallback, useEffect, useState patterns. State updates via setCharacters cause persist effect re-runs.",
+        "config_files": ["package.json"]
+      },
+      {
+        "name": "TypeScript",
+        "version": "~5.7",
+        "usage_context": "Strict mode (strict: true). Character type defined in types.ts. All component props typed.",
+        "config_files": ["tsconfig.json"]
+      },
+      {
+        "name": "Firebase Firestore",
+        "version": "latest",
+        "usage_context": "Primary cloud database for character persistence. onSnapshot listener at utils/firebase.ts:1394 syncs cloud changes to local state. Timestamp comparison determines write winner.",
+        "config_files": [".env", "firebase.json"]
+      },
+      {
+        "name": "Firebase RTDB",
+        "version": "latest",
+        "usage_context": "Real-time party sync. broadcastCharacterUpdate writes character data for party DM view. subscribeWithRetry listens for changes. RTDB loopback is the root cause of this bug.",
+        "config_files": [".env", "firebase.json"]
+      },
+      {
+        "name": "Tailwind CSS",
+        "version": "latest",
+        "usage_context": "Styling framework with dark mode support. CSS variables for theming.",
+        "config_files": ["tailwind.config.js"]
+      }
+    ],
+    "conventions": [
+      "Functional components with React.FC<Props> pattern",
+      "Hooks (useState, useEffect, useCallback, useRef) for state management",
+      "Character state managed in App.tsx via useState<Character[]> and passed down via props",
+      "onUpdate callback pattern for child components to modify character state",
+      "handleFastUpdate for instant state + RTDB broadcast; handleCharacterUpdate for full debounced update",
+      "Spanish UI text mixed with English code identifiers",
+      "isDuplicateEvent dedup pattern with 100ms window and event ID tracking",
+      "Character.syncTimestamp used as conflict resolution tiebreaker"
+    ],
+    "constraints": {
+      "hard": [
+        "TypeScript strict: no any types, explicit generics on useState<T>",
+        "broadcastCharacterUpdate is fire-and-forget RTDB write (no await)",
+        "isDuplicateEvent uses 100ms dedup window",
+        "Persist effect debounce is 500ms (increased from 300ms in prior fix)"
+      ],
+      "soft": [
+        "broadcast should happen as soon as possible for party DM visibility",
+        "Changes should be minimal and focused - no architectural rewrites"
+      ],
+      "compatibility": [
+        "Capacitor 6 for Android/iOS builds",
+        "Vite 6 for web builds",
+        "React 19 automatic batching"
+      ],
+      "security_requirements": [
+        "No secrets in logs",
+        "RTDB data is party-scoped"
+      ]
+    },
+    "architecture_snapshot": {
+      "key_dirs": {
+        "path": [
+          "components/sheet/",
+          "utils/",
+          "src/contexts/",
+          "src/components/"
+        ]
+      },
+      "patterns": [
+        "Persist effect (useEffect on characters[]) saves to localStorage immediately, Firestore after 500ms debounce",
+        "Dirty tracking via JSON.stringify snapshots comparison to detect which characters changed",
+        "isDuplicateEvent dedup via Set of event IDs with 100ms TTL",
+        "subscribeWithRetry for RTDB realtime with exponential backoff",
+        "subscribeToOwnCharacters for Firestore onSnapshot with initial load skip",
+        "handleFastUpdate vs handleCharacterUpdate dual path for different urgency levels"
+      ],
+      "key_components": [
+        {
+          "name": "App.tsx",
+          "location": "App.tsx",
+          "responsibility": [
+            "Main app component: character list state management, cloud sync, RTDB broadcasting",
+            "handleCharacterUpdate (line 1004): full character update with debounced cloud save",
+            "handleFastUpdate (line 1027): immediate state update + RTDB broadcast",
+            "persist effect (line 772): debounced Firestore save triggered by characters state changes",
+            "dirty tracking effect (line 754): detects which characters changed between renders",
+            "RTDB broadcast handler (line 540): subscribeWithRetry callback that can trigger infinite loop",
+            "Firestore listener (line 942): subscribeToOwnCharacters with timestamp comparison for conflict resolution",
+            "isDuplicateEvent (line 611): 100ms dedup window for listener events"
+          ],
+          "confidence": 1.0,
+          "security_sensitivity": "none"
+        },
+        {
+          "name": "RestModal.tsx",
+          "location": "components/sheet/RestModal.tsx",
+          "responsibility": [
+            "Handles short rest (handleShortRest line 77) and long rest (handleLongRest line 127) resource restoration",
+            "Per-class resource recovery: rage, channel divinity, bardic inspiration, wild shape, etc.",
+            "Hit dice recovery for short rest and half hit dice recovery for long rest",
+            "Missing: spell slot restoration, non-destructive Wizard preparedSpells, Arcane Recovery, Warlock pact slots"
+          ],
+          "confidence": 1.0,
+          "security_sensitivity": "none"
+        },
+        {
+          "name": "firebase.ts",
+          "location": "utils/firebase.ts",
+          "responsibility": [
+            "broadcastCharacterUpdate (line 924): writes character to RTDB for party sync",
+            "subscribeToOwnCharacters (line 1380): Firestore onSnapshot for cloud→local sync",
+            "subscribeWithRetry (line ~783): RTDB listener with reconnection logic",
+            "saveCharacterToCloud: writes char to Firestore characters collection"
+          ],
+          "confidence": 1.0,
+          "security_sensitivity": "internal"
+        },
+        {
+          "name": "sheetUtils.ts",
+          "location": "utils/sheetUtils.ts",
+          "responsibility": [
+            "getSpellSlotSummary (line 988): computes current/max spell slots from usedSlots",
+            "getSlots (line 1007, private): calculates max slots by caster type, level, and spell level",
+            "FULL_CASTER_SLOTS (line 1006): matrix of spell slots per effective level"
+          ],
+          "confidence": 1.0,
+          "security_sensitivity": "none"
+        },
+        {
+          "name": "types.ts",
+          "location": "types.ts",
+          "responsibility": [
+            "Character type with all class-specific resource trackers",
+            "spellSlots?: Record<number, { current: number; max: number }> (line 99)",
+            "usedSlots?: Record<string, boolean> (line 98) — individual slot tracking keyed by 'level-index'",
+            "syncTimestamp?: number (line 124) — used for conflict resolution",
+            "arcaneRecovery?: { uses: number } (line 109) — Wizard Arcane Recovery counter",
+            "pactSlotLevel?: number (line 106) — Warlock pact slot level",
+            "preparedSpells?: string[] (line 80) — Wizard prepared spell IDs"
+          ],
+          "confidence": 1.0,
+          "security_sensitivity": "none"
+        }
+      ]
+    },
+    "research_digest": {
+      "relevant_files": [
+        {
+          "path": "App.tsx",
+          "purpose": ["Main app component with character state, sync, and update handlers"],
+          "why_relevant": ["Contains all 3 critical bug locations: handleCharacterUpdate, handleFastUpdate, persist effect, RTDB listener"],
+          "key_elements": [
+            {
+              "element": "handleCharacterUpdate",
+              "type": "function",
+              "location": "App.tsx:1004",
+              "description": "Full character update: setCharacters then broadcastCharacterUpdate. Missing syncTimestamp."
+            },
+            {
+              "element": "handleFastUpdate",
+              "type": "function",
+              "location": "App.tsx:1027",
+              "description": "Fast path update: setCharacters then broadcastCharacterUpdate. Same bugs as handleCharacterUpdate."
+            },
+            {
+              "element": "persist effect",
+              "type": "function",
+              "location": "App.tsx:772",
+              "description": "Debounced (500ms) save to Firestore+localStorage. Cleanup cancels pending save if deps change."
+            },
+            {
+              "element": "RTDB broadcast handler",
+              "type": "function",
+              "location": "App.tsx:540",
+              "description": "subscribeWithRetry broadcast callback — calls setCharacters with no dedup check."
+            },
+            {
+              "element": "isDuplicateEvent",
+              "type": "function",
+              "location": "App.tsx:611",
+              "description": "Dedup helper with 100ms window. Used by Firestore listener but NOT by RTDB broadcast handler."
+            },
+            {
+              "element": "Firestore listener timestamp comparison",
+              "type": "pattern",
+              "location": "App.tsx:966-974",
+              "description": "const localTime = localChar?.syncTimestamp || 0; if ((char.syncTimestamp || 0) > localTime) cloud wins."
+            }
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "components/sheet/RestModal.tsx",
+          "purpose": ["Rest modal with short and long rest resource recovery"],
+          "why_relevant": ["handleLongRest missing spell slot restoration, Wizard preparedSpells clearing is destructive, missing Arcane Recovery and Warlock pact slots"],
+          "key_elements": [
+            {
+              "element": "handleLongRest",
+              "type": "function",
+              "location": "RestModal.tsx:127",
+              "description": "Long rest handler: restores HP, half hit dice, class resources. Missing spell slot restoration."
+            },
+            {
+              "element": "Wizard preparedSpells clearing",
+              "type": "expression",
+              "location": "RestModal.tsx:173-175",
+              "description": "Destructively sets updated.preparedSpells = [] for Wizard on long rest."
+            },
+            {
+              "element": "handleShortRest Warlock block",
+              "type": "pattern",
+              "location": "RestModal.tsx:103-106",
+              "description": "Reference pattern: Warlock pact slot restoration on short rest. Uses pactSlotLevel for slot count and level."
+            }
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        }
+      ],
+      "patterns_found": [
+        {
+          "name": "isDuplicateEvent dedup pattern",
+          "category": "sync",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": ["App.tsx:611"]
+        },
+        {
+          "name": "Character update → persist effect → cloud save pipeline",
+          "category": "sync",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": ["App.tsx:772-830", "App.tsx:1004-1021"]
+        },
+        {
+          "name": "usedSlots spell tracking",
+          "category": "data",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": ["types.ts:98", "utils/sheetUtils.ts:988-1003", "components/sheet/SpellsTab.tsx:384-385"]
+        }
+      ],
+      "dependencies": {
+        "internal": [
+          "App.tsx → utils/firebase.ts (broadcastCharacterUpdate, subscribeWithRetry, subscribeToOwnCharacters)",
+          "RestModal.tsx → utils/sheetUtils.ts (getFinalStats)",
+          "RestModal.tsx → utils/rageUtils.ts (getRageUses)",
+          "RestModal.tsx → types.ts (Character)"
+        ],
+        "external": [
+          "firebase/firestore (onSnapshot, doc, collection, query, where)",
+          "firebase/database (ref, set, onValue)",
+          "React 19 (useState, useEffect, useCallback, useRef, lazy, Suspense)"
+        ]
+      },
+      "gotchas": [
+        {
+          "text": "broadcastCharacterUpdate is fire-and-forget (no await). Moving it into the persist effect means the broadcast races with potential React re-renders, but this is the same behavior as before — just now it runs after cloud save.",
+          "confidence": 1.0
+        },
+        {
+          "text": "The RTDB broadcast handler (line 540) receives the character object as-is from set(updateRef, character). This is a plain object with all Character properties serialized through Firebase. syncTimestamp WILL be present if the broadcast happens after persist effect sets it.",
+          "confidence": 0.9
+        },
+        {
+          "text": "usedSlots reset ({}) vs spellSlots reset: SpellsTab primarily tracks individual slot usage via usedSlots. Clearing usedSlots is sufficient for slot restoration. spellSlots is a derived/computed field that getSpellSlotSummary generates.",
+          "confidence": 0.8
+        },
+        {
+          "text": "Warlock pact slots use a 'pact' caster type (not 'full', 'half', or 'third'). The getSlots function handles this with special pact slot calculation.",
+          "confidence": 1.0
+        }
+      ],
+      "domain_context": {
+        "testing_patterns": {
+          "framework": "none",
+          "coverage_areas": [],
+          "test_organization": "No test framework in project. Verification via npm run build only.",
+          "mock_patterns": []
+        },
+        "error_handling": "try/catch with console.error. Character cloud save errors are non-blocking. QuotaExceededError shows alert().",
+        "data_flow": "User action → onUpdate callback → handleCharacterUpdate/fastUpdate → setCharacters() → persist effect (debounce) → saveCharacterToCloud (Firestore) → broadcastCharacterUpdate (RTDB, after fix). Firestore onSnapshot → timestamp comparison → conditional setCharacters()."
+      },
+      "open_questions": [
+        {
+          "question": "Does the RTDB broadcast handler need a dedup check after moving broadcast into persist effect?",
+          "context": "Without dedup, the RTDB loopback would trigger another persist effect after Firestore save, causing a second unnecessary cloud save.",
+          "type": "decision_blocker",
+          "affects": ["T1 implementation approach"]
+        }
+      ]
+    },
+    "prior_decisions": [
+      {
+        "decision": "Move broadcastCharacterUpdate INTO the persist effect AFTER Firestore save, not before",
+        "rationale": [
+          "Breaking the RTDB loopback requires that broadcast happens AFTER cloud save completes",
+          "This way, if the RTDB listener triggers a state update and persist effect cleanup, the Firestore data is already persisted",
+          "Acceptable UX trade-off: broadcast is delayed by ~500ms debounce"
+        ],
+        "evidence": ["App.tsx:772-830 (persist effect)", "App.tsx:540-546 (RTDB handler)", "App.tsx:1004-1038 (handlers)"],
+        "confidence": 0.95,
+        "linked_constraints": ["broadcastCharacterUpdate is fire-and-forget"],
+        "linked_patterns": ["isDuplicateEvent dedup pattern"]
+      },
+      {
+        "decision": "Add isDuplicateEvent check to RTDB broadcast handler to prevent infinite loop",
+        "rationale": [
+          "After broadcast moves to persist effect, RTDB write triggers listener at line 540",
+          "Listener calls setCharacters() which triggers persist effect again → another broadcast → infinite loop",
+          "isDuplicateEvent with 100ms window is already used for other listeners and will catch this"
+        ],
+        "evidence": ["App.tsx:611 (isDuplicateEvent)", "App.tsx:540-546 (no current dedup check)"],
+        "confidence": 0.9,
+        "linked_constraints": ["DEDUP_WINDOW_MS = 100"],
+        "linked_patterns": ["isDuplicateEvent dedup pattern"]
+      },
+      {
+        "decision": "Set syncTimestamp before setCharacters() in both update handlers",
+        "rationale": [
+          "Without syncTimestamp, localTime=0 in Firestore listener comparison, so stale cloud data always wins",
+          "Setting syncTimestamp = Date.now() before state update ensures local timestamp is always newer than stale cloud"
+        ],
+        "evidence": ["App.tsx:966-974 (timestamp comparison)"],
+        "confidence": 1.0,
+        "linked_constraints": ["syncTimestamp is number | undefined"],
+        "linked_patterns": ["Timestamp-based conflict resolution"]
+      },
+      {
+        "decision": "Clear usedSlots = {} for spellcaster classes on long rest instead of recalculating spellSlots",
+        "rationale": [
+          "SpellsTab toggles individual slots via usedSlots",
+          "getSpellSlotSummary computes current = max - used from usedSlots",
+          "Clearing usedSlots effectively restores all slots to max without duplicating slot calculation logic",
+          "Simpler, less error-prone, and consistent with how the spells tab manages state"
+        ],
+        "evidence": ["utils/sheetUtils.ts:988-1003", "components/sheet/SpellsTab.tsx:384-385"],
+        "confidence": 0.9,
+        "linked_constraints": [],
+        "linked_patterns": ["usedSlots-based slot tracking"]
+      },
+      {
+        "decision": "Remove destructive Wizard preparedSpells = [] and replace with non-destructive handling",
+        "rationale": [
+          "Clearing prepared spells on every long rest is destructive and loses player's previous selections",
+          "Player should retain previous prepared spells as default for the new day"
+        ],
+        "evidence": ["RestModal.tsx:173-175"],
+        "confidence": 1.0,
+        "linked_constraints": [],
+        "linked_patterns": []
+      }
+    ],
+    "reuse_notes": {
+      "do_not_re_read": [
+        "Root cause analysis in plan preamble",
+        "broadcastCharacterUpdate is at utils/firebase.ts:924",
+        "isDuplicateEvent is at App.tsx:611",
+        "getSlots is private in sheetUtils.ts:1007"
+      ],
+      "safe_to_assume": [
+        "React 19 batches setCharacters calls",
+        "Persist effect cleanup via clearTimeout cancels pending Firestore save",
+        "Character.syncTimestamp is number | undefined, used for conflict resolution",
+        "usedSlots keys follow pattern 'level-index' (e.g., '3-0')",
+        "No test framework exists — npm run build is the only gate"
+      ],
+      "verify_before_use": [
+        "broadcastCharacterUpdate signature may have changed between versions",
+        "subscribeWithRetry callback signature — verify callback parameter types",
+        "Exact line numbers may shift after patches are applied"
+      ]
+    }
+  }
+}

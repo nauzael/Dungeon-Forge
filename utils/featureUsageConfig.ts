@@ -9,26 +9,30 @@ export const FEATURE_USAGE_CONFIGS: Record<string, FeatureUsageConfig> = {
   'Action Surge': {
     maxFormula: '1',
     resetType: 'short_rest',
+    progression: [[17, 2], [1, 1]],
   },
   'Indomitable': {
-    maxFormula: 'level',
+    maxFormula: '1',
     resetType: 'long_rest',
+    progression: [[17, 3], [13, 2], [9, 1]],
   },
   'Rage': {
-    maxFormula: 'level',
-    resetType: 'long_rest',
+    maxFormula: '1',
+    resetType: 'short_rest',
+    progression: [[17, 6], [12, 5], [6, 4], [3, 3], [1, 2]],
   },
   'Channel Divinity': {
-    maxFormula: '2',
+    maxFormula: '1',
     resetType: 'short_rest',
+    progression: [[18, 4], [15, 3], [11, 3], [1, 2]],
   },
   'Lay On Hands': {
-    maxFormula: 'level',
+    maxFormula: '5xLevel',
     resetType: 'long_rest',
   },
   'Wild Shape': {
-    maxFormula: 'level',
-    resetType: 'long_rest',
+    maxFormula: '2',
+    resetType: 'short_rest',
   },
   'Bardic Inspiration': {
     maxFormula: 'CHA',
@@ -36,7 +40,7 @@ export const FEATURE_USAGE_CONFIGS: Record<string, FeatureUsageConfig> = {
   },
   'Focus': {
     maxFormula: 'level',
-    resetType: 'long_rest',
+    resetType: 'short_rest',
   },
   'Arcane Recovery': {
     maxFormula: 'level',
@@ -53,7 +57,7 @@ export const FEATURE_USAGE_CONFIGS: Record<string, FeatureUsageConfig> = {
     resetType: 'long_rest',
   },
   "Dark One's Own Luck": {
-    maxFormula: '1',
+    maxFormula: 'CHA',
     resetType: 'long_rest',
   },
   'Eldritch Master': {
@@ -83,7 +87,7 @@ export const FEATURE_USAGE_CONFIGS: Record<string, FeatureUsageConfig> = {
 
   // === Paladin ===
   'Divine Sense': {
-    maxFormula: '1',
+    maxFormula: 'proficiencyBonus',
     resetType: 'long_rest',
   },
   'Second Breath': {
@@ -187,8 +191,9 @@ export const FEATURE_USAGE_CONFIGS: Record<string, FeatureUsageConfig> = {
 
   // === Fighter Subclasses ===
   'Combat Superiority': {
-    maxFormula: 'level',
+    maxFormula: '1',
     resetType: 'short_rest',
+    progression: [[7, 5], [3, 4]],
   },
   'Know Your Enemy': {
     maxFormula: 'proficiencyBonus',
@@ -201,8 +206,9 @@ export const FEATURE_USAGE_CONFIGS: Record<string, FeatureUsageConfig> = {
 
   // === Psi Warrior ===
   'Psionic Power': {
-    maxFormula: 'level',
+    maxFormula: '1',
     resetType: 'short_rest',
+    progression: [[17, 12], [13, 10], [9, 8], [5, 6], [3, 4]],
   },
   'Bulwark of Force': {
     maxFormula: '1',
@@ -338,5 +344,27 @@ export const FEATURE_USAGE_CONFIGS: Record<string, FeatureUsageConfig> = {
   'Steel Will': {
     maxFormula: '1',
     resetType: 'always',
+  },
+
+  // === Sorcerer ===
+  'Sorcery Points': {
+    maxFormula: 'level',
+    resetType: 'long_rest',
+  },
+  'Warding Flare': {
+    maxFormula: 'WIS',
+    resetType: 'long_rest',
+  },
+  'Bardic Inspiration Short': {
+    maxFormula: 'CHA',
+    resetType: 'short_rest',
+  },
+  "Hunter's Mark": {
+    maxFormula: 'proficiencyBonus',
+    resetType: 'long_rest',
+  },
+  'Healing Light': {
+    maxFormula: 'level',
+    resetType: 'long_rest',
   },
 };

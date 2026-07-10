@@ -1,0 +1,20 @@
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './e2e',
+  timeout: 60000,
+  retries: 1,
+  use: {
+    baseURL: 'https://dungeon-forge-liard.vercel.app',
+    viewport: { width: 390, height: 844 }, // mobile-first
+    actionTimeout: 15000,
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { browserName: 'chromium' },
+    },
+  ],
+});

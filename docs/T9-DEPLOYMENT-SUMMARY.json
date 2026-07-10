@@ -148,7 +148,7 @@
       ],
       "modified": [
         "components/DMDashboard.tsx",
-        "utils/supabase.ts",
+        "utils/firebase.ts",
         "App.tsx",
         "CHANGELOG.md"
       ]

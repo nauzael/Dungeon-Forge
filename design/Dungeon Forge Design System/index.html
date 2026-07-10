@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#0F172A">
+<meta name="color-scheme" content="dark light">
+<title>Dungeon Forge — Sistema de Diseño</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;700;900&family=Noto+Sans:wght@400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0F172A;--bg-secondary:#1E293B;--surface:#1E293B;--surface-highlight:#334155;--fg:#F8FAFC;--fg-2:#E2E8F0;--muted:#94A3B8;--accent:#359EFF;--accent-dark:#2B7DE0;--accent-alt:#9ADBFF;--secondary:#64748B;--success:#22C55E;--warning:#F59E0B;--danger:#EF4444;--info:#3B82F6;--border:rgba(154,219,255,0.1);--border-hover:rgba(154,219,255,0.2);--font-display:'Spline Sans',system-ui,sans-serif;--font-body:'Noto Sans',system-ui,sans-serif;--font-icon:'Material Symbols Outlined';--text-xs:12px;--text-sm:14px;--text-base:16px;--text-lg:18px;--text-xl:20px;--text-2xl:24px;--text-3xl:30px;--text-4xl:36px;--text-5xl:48px;--text-6xl:60px;--text-8xl:96px;--leading-body:1.5;--leading-tight:1.06;--tracking-display:-0.02em;--elev-flat:none;--elev-ring:0 0 0 1px var(--border);--elev-raised:0 4px 6px -1px rgba(0,0,0,0.5);--elev-modal:0 10px 15px -3px rgba(0,0,0,0.5);--elev-glow:0 0 20px rgba(154,219,255,0.3);--accent-glow:0 0 20px rgba(154,219,255,0.3),0 0 40px rgba(154,219,255,0.1);--motion-fast:150ms;--motion-base:300ms;--motion-slow:500ms;--motion-hp:700ms;--ease-standard:cubic-bezier(0.2,0,0,1);--ease-spring:cubic-bezier(0.16,1,0.3,1);--focus-ring:0 0 0 3px rgba(53,158,255,0.5);--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-12:48px;--space-16:64px;--radius-sm:4px;--radius-md:8px;--radius-lg:12px;--radius-xl:16px;--radius-2xl:24px;--radius-pill:9999px;--section-y-phone:32px;--section-y-tablet:48px;--section-y-desktop:64px;--container-max:1200px;--container-gutter-phone:16px;--container-gutter-tablet:24px;--container-gutter-desktop:36px;--sat:env(safe-area-inset-top);--sar:env(safe-area-inset-right);--sab:env(safe-area-inset-bottom);--sal:env(safe-area-inset-left);--icon-fill:1;--icon-weight:400;--icon-grade:0;--icon-opsz:20}
+[data-theme="daylight"]{--bg:#F8FAFC;--bg-secondary:#F1F5F9;--surface:#FFFFFF;--surface-highlight:#E2E8F0;--fg:#0F172A;--fg-2:#334155;--muted:#64748B;--accent:#2563EB;--accent-dark:#1D4ED8;--accent-alt:#60A5FA;--secondary:#94A3B8;--border:rgba(0,0,0,0.1);--border-hover:rgba(0,0,0,0.2);--elev-raised:0 1px 3px rgba(0,0,0,0.1);--elev-modal:0 4px 6px -1px rgba(0,0,0,0.1);--elev-glow:0 0 20px rgba(37,99,235,0.15);--accent-glow:0 0 20px rgba(37,99,235,0.15)}
+[data-theme="dragon-blood"]{--bg:#0C0A0A;--bg-secondary:#1A1414;--surface:#1A1414;--surface-highlight:#2D2424;--fg:#FEE2E2;--fg-2:#FECACA;--muted:#A8A29E;--accent:#DC2626;--accent-dark:#B91C1C;--accent-alt:#F87171;--secondary:#78716C;--border:rgba(220,38,38,0.2);--border-hover:rgba(220,38,38,0.4);--elev-glow:0 0 20px rgba(220,38,38,0.3);--accent-glow:0 0 20px rgba(220,38,38,0.3),0 0 40px rgba(220,38,38,0.1)}
+[data-theme="elven-forest"]{--bg:#0A1F1A;--bg-secondary:#142E26;--surface:#142E26;--surface-highlight:#1F4D3D;--fg:#ECFDF5;--fg-2:#D1FAE5;--muted:#6EE7B7;--accent:#10B981;--accent-dark:#059669;--accent-alt:#6EE7B7;--secondary:#6B7280;--border:rgba(16,185,129,0.2);--border-hover:rgba(16,185,129,0.4);--elev-glow:0 0 20px rgba(16,185,129,0.3);--accent-glow:0 0 20px rgba(16,185,129,0.3),0 0 40px rgba(16,185,129,0.1)}
+[data-theme="high-contrast"]{--bg:#000000;--bg-secondary:#1A1A1A;--surface:#1A1A1A;--surface-highlight:#333333;--fg:#FFFFFF;--fg-2:#E5E5E5;--muted:#A3A3A3;--accent:#FFFF00;--accent-dark:#E5E500;--accent-alt:#FF00FF;--secondary:#A3A3A3;--border:#FFFFFF;--border-hover:#CCCCCC;--elev-raised:none;--elev-modal:none;--elev-glow:0 0 20px rgba(255,255,0,0.3);--accent-glow:0 0 20px rgba(255,255,0,0.3)}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:var(--text-sm);line-height:var(--leading-body);-webkit-font-smoothing:antialiased;transition:background var(--motion-base),color var(--motion-base)}
+.material-symbols-outlined{font-family:var(--font-icon);font-variation-settings:'FILL'1,'wght'400,'GRAD'0,'opsz'20}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent-dark)}
+
+/* ── Layout ── */
+.ds-header{position:sticky;top:0;z-index:100;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:var(--space-3) var(--space-6);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3)}
+.ds-logo{font-family:var(--font-display);font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:var(--tracking-display);background:linear-gradient(135deg,var(--accent-alt),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ds-logo-sub{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);-webkit-text-fill-color:var(--muted)}
+.theme-pills{display:flex;gap:6px;flex-wrap:wrap}
+.theme-pill{padding:6px 14px;border-radius:var(--radius-pill);border:1px solid var(--border);background:transparent;color:var(--fg-2);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;transition:all var(--motion-fast);font-family:inherit}
+.theme-pill:hover{border-color:var(--accent)}
+.theme-pill.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.ds-main{max-width:var(--container-max);margin:0 auto;padding:var(--space-6)}
+.ds-section{margin-bottom:var(--space-12)}
+.ds-section-title{font-family:var(--font-display);font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:var(--tracking-display);margin:0 0 var(--space-2)}
+.ds-section-desc{color:var(--muted);font-size:13px;margin:0 0 var(--space-6)}
+.ds-sub-title{font-family:var(--font-display);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent-alt);margin:var(--space-6) 0 var(--space-3)}
+
+/* ── Color Swatch Grid ── */
+.color-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:var(--space-3)}
+.swatch{display:flex;flex-direction:column;gap:4px}
+.swatch-block{height:56px;border-radius:var(--radius-md);border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.3);transition:all var(--motion-fast)}
+[data-theme="daylight"] .swatch-block{box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+.swatch-name{font-size:11px;font-weight:700}
+.swatch-value{font-size:10px;color:var(--muted);font-family:monospace;word-break:break-all}
+.swatch-hex{font-size:9px;color:color-mix(in srgb,var(--muted) 60%,transparent);font-family:monospace;margin-top:2px}
+
+/* ── Typography ── */
+.type-row{display:flex;gap:var(--space-6);align-items:baseline;padding:var(--space-2) 0;border-bottom:1px solid var(--border)}
+.type-label{width:120px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);flex-shrink:0}
+.type-sample{flex:1}
+.font-display{font-family:var(--font-display)}
+
+/* ── Spacing ── */
+.space-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--space-3)}
+.space-item{display:flex;align-items:center;gap:var(--space-3)}
+.space-bar{background:var(--accent-alt);border-radius:var(--radius-sm);opacity:0.5;flex-shrink:0;height:12px}
+.space-name{font-size:12px;font-weight:700}
+.space-value{font-size:10px;color:var(--muted);font-family:monospace}
+
+/* ── Radius ── */
+.radius-grid{display:flex;gap:var(--space-4);flex-wrap:wrap}
+.radius-demo{display:flex;flex-direction:column;align-items:center;gap:var(--space-2)}
+.radius-shape{width:72px;height:72px;background:var(--accent);opacity:0.5}
+.radius-label{font-size:10px;color:var(--muted);text-align:center}
+
+/* ── Elevation ── */
+.elev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:var(--space-3)}
+.elev-card{background:var(--surface);border-radius:var(--radius-md);padding:var(--space-4);text-align:center;font-size:12px;border:1px solid var(--border)}
+.elev-card-title{font-weight:700;margin-bottom:4px}
+
+/* ── Component Showcase ── */
+.comp-group{margin-bottom:var(--space-8)}
+.comp-group-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent-alt);margin-bottom:var(--space-3)}
+.comp-row{display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;margin-bottom:var(--space-4)}
+.comp-col{display:flex;flex-direction:column;gap:var(--space-2);margin-bottom:var(--space-4)}
+
+/* ── BUTTONS ── */
+.btn-primary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 20px;border:none;border-radius:var(--radius-lg);font-family:inherit;font-size:14px;font-weight:700;background:var(--accent);color:var(--bg);cursor:pointer;box-shadow:0 4px 6px -1px color-mix(in srgb,var(--accent) 30%,transparent);transition:all var(--motion-fast)}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn-primary:active{transform:scale(0.98)}
+
+.btn-gradient{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 16px;border:none;border-radius:var(--radius-lg);font-weight:700;font-size:14px;cursor:pointer;color:white;transition:all var(--motion-fast)}
+.btn-gradient-sr{background:linear-gradient(to right,#F59E0B,#EA580C)}
+.btn-gradient-lr{background:linear-gradient(to right,#10B981,#059669)}
+.btn-gradient-rage{background:linear-gradient(to right,#F97316,#DC2626)}
+
+.btn-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 20px;border:none;border-radius:var(--radius-lg);font-weight:700;font-size:13px;cursor:pointer;background:color-mix(in srgb,var(--fg) 10%,transparent);color:var(--fg);transition:all var(--motion-fast)}
+.btn-secondary:hover{background:color-mix(in srgb,var(--fg) 18%,transparent)}
+
+.btn-destructive{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border:none;border-radius:var(--radius-lg);font-weight:700;font-size:13px;cursor:pointer;background:var(--danger);color:white;transition:all var(--motion-fast)}
+
+.btn-cta-circle{display:inline-flex;align-items:center;gap:var(--space-4);padding:12px 24px;border:1px solid var(--border);border-radius:var(--radius-pill);background:color-mix(in srgb,var(--bg) 70%,var(--surface));color:var(--fg);cursor:pointer;transition:all var(--motion-base);position:relative;overflow:hidden}
+.btn-cta-circle:hover{border-color:var(--accent)}
+.btn-cta-circle:active{transform:scale(0.95)}
+.btn-cta-icon{width:40px;height:40px;border-radius:var(--radius-pill);background:color-mix(in srgb,var(--accent) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent)}
+
+.btn-icon-round{width:40px;height:40px;border-radius:var(--radius-pill);background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);display:flex;align-items:center;justify-content:center;color:var(--accent);cursor:pointer;transition:all var(--motion-fast)}
+.btn-icon-round:hover{background:var(--accent);color:var(--bg)}
+.btn-icon-round-sm{width:32px;height:32px;border-radius:var(--radius-pill);background:color-mix(in srgb,var(--fg) 10%,transparent);border:none;display:flex;align-items:center;justify-content:center;color:var(--fg-2);cursor:pointer;transition:all var(--motion-fast)}
+.btn-icon-round-sm:hover{background:color-mix(in srgb,var(--fg) 18%,transparent)}
+
+/* ── CARDS ── */
+.card-character{background:color-mix(in srgb,var(--surface) 70%,#000);border-radius:var(--radius-lg);overflow:hidden;box-shadow:inset 0 0 0 1px var(--border),0 0 20px rgba(0,0,0,0.5);width:240px;cursor:pointer;transition:all var(--motion-slow)}
+.card-character:hover{transform:translateY(-4px);box-shadow:inset 0 0 0 1px var(--accent-alt),0 8px 30px rgba(0,0,0,0.5)}
+.card-character-image{height:160px;background:linear-gradient(135deg,var(--surface-highlight),var(--bg));position:relative}
+.card-character-info{padding:var(--space-4)}
+.card-character-name{font-family:var(--font-display);font-weight:900;font-size:15px;margin-bottom:4px}
+.card-character-detail{color:var(--muted);font-size:12px}
+
+.card-sheet{background:var(--surface);border:1px solid color-mix(in srgb,var(--fg) 8%,transparent);border-radius:var(--radius-xl);padding:var(--space-5);box-shadow:var(--elev-raised);min-width:180px}
+
+.card-note{background:var(--surface);border-radius:var(--radius-xl);padding:var(--space-5);border:1px solid color-mix(in srgb,var(--fg) 8%,transparent);position:relative;overflow:hidden;max-width:300px}
+.card-note-bar{position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(to bottom,var(--accent),color-mix(in srgb,var(--accent) 40%,transparent))}
+
+.card-feature{display:flex;align-items:flex-start;gap:var(--space-3);background:color-mix(in srgb,var(--accent) 6%,transparent);border:1px solid color-mix(in srgb,var(--accent) 12%,transparent);padding:var(--space-3);border-radius:var(--radius-lg);max-width:300px}
+
+.card-stat{width:88px;display:flex;flex-direction:column;align-items:center;padding:var(--space-3);border-radius:var(--radius-xl);background:var(--surface);border:1px solid color-mix(in srgb,var(--fg) 8%,transparent);cursor:pointer;transition:all var(--motion-fast)}
+.card-stat:hover{transform:translateY(-2px);box-shadow:var(--elev-raised)}
+.card-stat:active{transform:scale(0.95)}
+.card-stat-value{font-family:var(--font-display);font-size:20px;font-weight:900;line-height:1}
+
+.card-radio{width:180px;border-radius:var(--radius-2xl);padding:var(--space-4);background:var(--surface);border:2px solid transparent;cursor:pointer;transition:all var(--motion-base)}
+.card-radio:hover{border-color:color-mix(in srgb,var(--accent) 50%,transparent)}
+.card-radio.selected{border-color:var(--accent);box-shadow:0 0 10px color-mix(in srgb,var(--accent) 30%,transparent)}
+
+.card-member{background:var(--surface);border-radius:var(--radius-xl);padding:var(--space-4);border:1px solid color-mix(in srgb,var(--fg) 8%,transparent);min-width:160px;display:flex;align-items:center;gap:var(--space-3)}
+
+/* ── FORMS ── */
+.input-text{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;font-size:14px;font-weight:500;color:var(--fg);outline:none;transition:all var(--motion-fast);font-family:inherit;width:260px}
+.input-text:focus{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 50%,transparent);border-color:transparent}
+.input-text::placeholder{color:var(--muted)}
+
+.select-wrap{position:relative;width:240px}
+.select-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;font-size:14px;font-weight:700;color:var(--fg);outline:none;appearance:none;cursor:pointer;transition:all var(--motion-fast);font-family:inherit}
+.select-input:focus{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 50%,transparent);border-color:transparent}
+
+.toggle{display:inline-flex;align-items:center;gap:var(--space-2);cursor:pointer}
+.toggle-track{width:40px;height:20px;border-radius:var(--radius-pill);background:var(--surface-highlight);transition:all var(--motion-fast);position:relative}
+.toggle-track.active{background:var(--accent)}
+.toggle-dot{width:16px;height:16px;background:white;border-radius:var(--radius-pill);box-shadow:0 2px 4px rgba(0,0,0,0.2);position:absolute;top:2px;left:2px;transition:all var(--motion-fast)}
+.toggle-track.active .toggle-dot{transform:translateX(20px)}
+
+.range-slider{width:260px;height:8px;background:color-mix(in srgb,var(--fg) 12%,transparent);border-radius:var(--radius-pill);appearance:none;cursor:pointer;accent-color:var(--warning)}
+
+/* ── MODALS ── */
+.modal-mini{background:var(--surface);border-radius:var(--radius-2xl) var(--radius-2xl) 0 0;box-shadow:var(--elev-modal);max-height:85vh;display:flex;flex-direction:column;border:1px solid var(--border);overflow:hidden}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-title{font-family:var(--font-display);font-size:16px;font-weight:700}
+.modal-body{overflow-y:auto;flex:1;padding:var(--space-4)}
+.modal-footer{padding:var(--space-3) var(--space-4);border-top:1px solid var(--border)}
+
+.modal-centered-mini{background:var(--surface);border-radius:var(--radius-xl);padding:var(--space-5);box-shadow:var(--elev-modal);border:1px solid var(--border);max-width:300px;width:100%}
+
+/* ── NAV ── */
+.tab-bar{display:inline-flex;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 85%,transparent);border-radius:var(--radius-pill);padding:6px;gap:6px;box-shadow:0 8px 30px rgba(0,0,0,0.12);border:1px solid var(--border)}
+.tab-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 14px;border-radius:var(--radius-lg);font-size:10px;font-weight:900;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all var(--motion-base);border:none;background:transparent;font-family:inherit}
+.tab-item.active{background:var(--accent);color:var(--bg);box-shadow:0 2px 8px color-mix(in srgb,var(--accent) 30%,transparent)}
+.tab-item:hover{color:var(--fg-2)}
+
+.dm-nav{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-2xl);padding:var(--space-2);display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:300px}
+.dm-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border:none;background:transparent;cursor:pointer;color:var(--muted);transition:all var(--motion-fast);border-radius:var(--radius-lg);font-family:inherit}
+.dm-item.active{color:var(--accent)}
+.dm-item:hover{color:var(--fg-2)}
+.dm-label{font-size:8px;font-weight:900;text-transform:uppercase}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:var(--radius-pill);font-size:10px;font-weight:500;background:color-mix(in srgb,var(--fg) 10%,transparent);color:var(--fg-2)}
+.badge-success{background:color-mix(in srgb,var(--success) 20%,transparent);color:var(--success)}
+.badge-warning{background:color-mix(in srgb,var(--warning) 20%,transparent);color:var(--warning)}
+.badge-error{background:color-mix(in srgb,var(--danger) 20%,transparent);color:var(--danger)}
+
+/* ── PROGRESS ── */
+.progress-bar{height:8px;width:260px;background:color-mix(in srgb,var(--fg) 10%,transparent);border-radius:var(--radius-pill);overflow:hidden}
+.progress-fill{height:100%;border-radius:var(--radius-pill);transition:width var(--motion-hp);width:72%}
+.progress-fill.hp{background:linear-gradient(to right,var(--success),var(--accent))}
+.progress-fill.rage{background:linear-gradient(to right,#F97316,#DC2626);width:45%}
+
+/* ── STAT GRID ── */
+.stat-grid-6{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;max-width:400px}
+.stat-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2)}
+.stat-item{display:flex;flex-direction:column;align-items:center;padding:8px 4px;background:color-mix(in srgb,var(--fg) 3%,transparent);border-radius:var(--radius-md)}
+.stat-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)}
+.stat-value{font-family:var(--font-display);font-size:18px;font-weight:900;line-height:1.2}
+.stat-mod{font-size:11px;color:var(--fg-2)}
+
+/* ── EMPTY STATE ── */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--space-12) var(--space-5);text-align:center;border:1px dashed var(--border);border-radius:var(--radius-xl);background:color-mix(in srgb,var(--fg) 2%,transparent)}
+.empty-state-icon{font-size:48px;color:color-mix(in srgb,var(--fg) 8%,transparent);margin-bottom:var(--space-4)}
+.section-separator{position:relative;padding:var(--space-6) 0;display:flex;align-items:center;justify-content:center}
+.section-sep-label{background:var(--bg);padding:4px 16px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius-pill)}
+.step-progress{display:flex;gap:var(--space-2);align-items:center;max-width:300px}
+.step-dot{height:6px;flex:1;border-radius:var(--radius-pill);background:color-mix(in srgb,var(--fg) 10%,transparent);transition:all var(--motion-base)}
+.step-dot.active{background:var(--accent);box-shadow:0 0 10px color-mix(in srgb,var(--accent) 50%,transparent)}
+.step-dot.done{background:var(--success)}
+
+/* ── DECORATIVE ── */
+.gold-shimmer{background:linear-gradient(135deg,var(--accent-alt),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.iron-border{box-shadow:inset 0 0 0 1px var(--border),0 0 20px rgba(0,0,0,0.5)}
+.app-title-glow{text-shadow:0 0 20px color-mix(in srgb,var(--accent) 30%,transparent),0 0 40px color-mix(in srgb,var(--accent) 10%,transparent)}
+.sheet-header-demo{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-4);background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0}
+
+/* ── Usage Rules ── */
+.rule-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--space-4)}
+.rule-card{background:var(--surface);border-radius:var(--radius-lg);padding:var(--space-4);border:1px solid var(--border)}
+.rule-card-do{border-left:3px solid var(--success)}
+.rule-card-dont{border-left:3px solid var(--danger)}
+.rule-title{font-size:12px;font-weight:700;margin-bottom:var(--space-2)}
+.rule-list{margin:0;padding-left:var(--space-4);font-size:12px;color:var(--fg-2)}
+.rule-list li{margin-bottom:4px}
+
+/* ── Theme metadata ── */
+.theme-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:var(--radius-pill);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);margin-bottom:var(--space-4)}
+.sheet-header-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)}
+
+/* ── Motion demo keyframes ── */
+@keyframes pulse-width{from{opacity:0.7}to{opacity:1}}
+
+/* ── animation utilities ── */
+.animate-fadeIn{animation:fadeIn 0.3s ease-out}
+.animate-slideUp{animation:slideUp 0.4s var(--ease-spring)}
+.animate-scaleIn{animation:scaleIn 0.2s ease-out}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes scaleIn{from{transform:scale(0.95);opacity:0}to{transform:scale(1);opacity:1}}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.7s var(--ease-spring),transform 0.7s var(--ease-spring)}.reveal.in-view{opacity:1;transform:translateY(0)}.reveal-delay-1{transition-delay:0.1s}.reveal-delay-2{transition-delay:0.2s}.reveal-delay-3{transition-delay:0.3s}
+
+/* ── Focus visible (a11y) ── */
+:focus-visible{outline:none;box-shadow:var(--focus-ring);border-radius:var(--radius-sm)}
+.btn-primary:focus-visible,.btn-gradient:focus-visible,.btn-secondary:focus-visible,.btn-destructive:focus-visible,.btn-cta-circle:focus-visible,.btn-icon-round:focus-visible,.btn-icon-round-sm:focus-visible,.theme-pill:focus-visible,.tab-item:focus-visible,.dm-item:focus-visible,.card-radio:focus-visible,.card-character:focus-visible,.card-stat:focus-visible{box-shadow:var(--focus-ring)}
+a:focus-visible{border-radius:var(--radius-sm);box-shadow:var(--focus-ring)}
+
+/* ── Scroll offset for sticky header ── */
+.ds-section{scroll-margin-top:80px}
+
+/* ── reduced motion ── */
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}.animate-fadeIn,.animate-slideUp,.animate-scaleIn,.reveal{animation:none!important;opacity:1!important;transform:none!important}}
+
+/* ── responsive ── */
+@media(max-width:600px){.ds-main{padding:var(--space-4)}.ds-header{padding:var(--space-3)}.type-row{flex-direction:column;gap:4px}.stat-grid-6{grid-template-columns:repeat(3,1fr)}.modal-mini{width:100%!important}}
+</style>
+</head>
+<body>
+<header class="ds-header">
+  <div>
+    <div class="ds-logo">Dungeon Forge</div>
+    <div class="ds-logo-sub">Sistema de Diseño</div>
+  </div>
+  <div class="theme-pills" id="themePills">
+    <button class="theme-pill active" data-theme-id="classic-dnd" aria-pressed="true">Mazmorra Clásica</button>
+    <button class="theme-pill" data-theme-id="daylight" aria-pressed="false">Luz Diurna</button>
+    <button class="theme-pill" data-theme-id="dragon-blood" aria-pressed="false">Sangre de Dragón</button>
+    <button class="theme-pill" data-theme-id="elven-forest" aria-pressed="false">Bosque Élfico</button>
+    <button class="theme-pill" data-theme-id="high-contrast" aria-pressed="false">Alto Contraste</button>
+  </div>
+</header>
+
+<main class="ds-main">
+  <!-- HERO -->
+  <section class="ds-section reveal">
+    <span id="themeBadge" class="theme-badge">Tema: Mazmorra Clásica</span>
+    <h1 class="ds-section-title">Design System</h1>
+    <p class="ds-section-desc" style="max-width:640px">Sistema de diseño para Dungeon Forge — gestor de personajes de D&amp;D 5e (2024). 72 tokens, 5 temas oficiales, 35+ componentes. Oscuro por defecto, mobile-first, con temática de fantasía oscura.</p>
+    <div style="display:flex;gap:var(--space-2);flex-wrap:wrap">
+      <a class="theme-pill" href="#tokens-colores" style="padding:6px 14px;font-size:11px;cursor:pointer">Colores</a>
+      <a class="theme-pill" href="#tokens-tipografia" style="padding:6px 14px;font-size:11px;cursor:pointer">Tipografía</a>
+      <a class="theme-pill" href="#tokens-espaciado" style="padding:6px 14px;font-size:11px;cursor:pointer">Espaciado</a>
+      <a class="theme-pill" href="#componentes" style="padding:6px 14px;font-size:11px;cursor:pointer">Componentes</a>
+      <a class="theme-pill" href="#reglas" style="padding:6px 14px;font-size:11px;cursor:pointer">Reglas de uso</a>
+    </div>
+  </section>
+
+  <!-- ════ COLOR TOKENS ════ -->
+  <section class="ds-section" id="tokens-colores">
+    <h2 class="ds-section-title">Colores</h2>
+    <p class="ds-section-desc">16 tokens de color + bordes. Cambian con cada tema.</p>
+
+    <h3 class="ds-sub-title">Fondos</h3>
+    <div class="color-grid">
+      <div class="swatch" data-var="--bg"><div class="swatch-block" style="background:var(--bg)"></div><span class="swatch-name">--bg</span><span class="swatch-value">Fondo principal</span><span class="swatch-hex"></span></div>
+      <div class="swatch" data-var="--bg-secondary"><div class="swatch-block" style="background:var(--bg-secondary)"></div><span class="swatch-name">--bg-secondary</span><span class="swatch-value">Fondo secundario</span><span class="swatch-hex"></span></div>
+      <div class="swatch" data-var="--surface"><div class="swatch-block" style="background:var(--surface)"></div><span class="swatch-name">--surface</span><span class="swatch-value">Superficie de tarjetas</span><span class="swatch-hex"></span></div>
+      <div class="swatch" data-var="--surface-highlight"><div class="swatch-block" style="background:var(--surface-highlight)"></div><span class="swatch-name">--surface-highlight</span><span class="swatch-value">Superficie hover</span><span class="swatch-hex"></span></div>
+    </div>
+
+    <h3 class="ds-sub-title">Texto</h3>
+    <div class="color-grid">
+      <div class="swatch" data-var="--fg"><div class="swatch-block" style="background:var(--fg)"></div><span class="swatch-name">--fg</span><span class="swatch-value">Texto principal</span><span class="swatch-hex"></span></div>
+      <div class="swatch" data-var="--fg-2"><div class="swatch-block" style="background:var(--fg-2)"></div><span class="swatch-name">--fg-2</span><span class="swatch-value">Texto secundario</span><span class="swatch-hex"></span></div>
+      <div class="swatch" data-var="--muted"><div class="swatch-block" style="background:var(--muted)"></div><span class="swatch-name">--muted</span><span class="swatch-value">Texto atenuado</span><span class="swatch-hex"></span></div>
+    </div>
+
+    <h3 class="ds-sub-title">Acentos</h3>
+    <div class="color-grid">
+      <div class="swatch" data-var="--accent"><div class="swatch-block" style="background:var(--accent)"></div><span class="swatch-name">--accent</span><span class="swatch-value">Acción principal</span><span class="swatch-hex"></span></div>
+      <div class="swatch" data-var="--accent-dark"><div class="swatch-block" style="background:var(--accent-dark)"></div><span class="swatch-name">--accent-dark</span><span class="swatch-value">Accent hover</span><span class="swatch-hex"></span></div>
+      <div class="swatch" data-var="--accent-alt"><div class="swatch-block" style="background:var(--accent-alt)"></div><span class="swatch-name">--accent-alt</span><span class="swatch-value">Brillos decorativos</span><span class="swatch-hex"></span></div>
+      <div class="swatch" data-var="--secondary"><div class="swatch-block" style="background:var(--secondary)"></div><span class="swatch-name">--secondary</span><span class="swatch-value">Acciones secundarias</span><span class="swatch-hex"></span></div>
+    </div>
+
+    <h3 class="ds-sub-title">Semántica</h3>
+    <div class="color-grid">
+      <div class="swatch" data-var="--success"><div class="swatch-block" style="background:var(--success)"></div><span class="swatch-name">--success</span><span class="swatch-value">HP, curación</span><span class="swatch-hex"></span></div>
+      <div class="swatch" data-var="--warning"><div class="swatch-block" style="background:var(--warning)"></div><span class="swatch-name">--warning</span><span class="swatch-value">Alertas</span><span class="swatch-hex"></span></div>
+      <div class="swatch" data-var="--danger"><div class="swatch-block" style="background:var(--danger)"></div><span class="swatch-name">--danger</span><span class="swatch-value">Daño, error</span><span class="swatch-hex"></span></div>
+      <div class="swatch" data-var="--info"><div class="swatch-block" style="background:var(--info)"></div><span class="swatch-name">--info</span><span class="swatch-value">Información</span><span class="swatch-hex"></span></div>
+    </div>
+
+    <h3 class="ds-sub-title">Bordes</h3>
+    <div class="color-grid">
+      <div class="swatch" data-var="--border"><div class="swatch-block" style="background:var(--border);border:1px solid var(--border-hover)"></div><span class="swatch-name">--border</span><span class="swatch-value">Borde sutil</span><span class="swatch-hex"></span></div>
+      <div class="swatch" data-var="--border-hover"><div class="swatch-block" style="background:var(--border-hover);border:1px solid var(--accent-alt)"></div><span class="swatch-name">--border-hover</span><span class="swatch-value">Borde hover</span><span class="swatch-hex"></span></div>
+    </div>
+  </section>
+
+  <!-- ════ TYPOGRAPHY ════ -->
+  <section class="ds-section" id="tokens-tipografia">
+    <h2 class="ds-section-title">Tipografía</h2>
+    <p class="ds-section-desc">Spline Sans para títulos, Noto Sans para cuerpo. Material Symbols Outlined para iconos.</p>
+
+    <div class="type-row"><span class="type-label">Display</span><div><div class="type-sample font-display" style="font-size:28px;font-weight:900;letter-spacing:-0.02em">Spline Sans 900</div><div class="type-label" style="width:auto;margin-top:4px">Títulos, HP, logos</div></div></div>
+    <div class="type-row"><span class="type-label">Body</span><div><div class="type-sample" style="font-size:14px">Noto Sans 400 / 700</div><div class="type-label" style="width:auto;margin-top:4px">Cuerpo, botones, etiquetas</div></div></div>
+    <div class="type-row"><span class="type-label">Iconos</span><div><div class="type-sample"><span class="material-symbols-outlined" style="font-size:20px">swords</span> <span class="material-symbols-outlined" style="font-size:20px">auto_stories</span> <span class="material-symbols-outlined" style="font-size:20px">backpack</span> <span class="material-symbols-outlined" style="font-size:20px">stars</span> <span class="material-symbols-outlined" style="font-size:20px">healing</span></div></div></div>
+
+    <h3 class="ds-sub-title">Escala tipográfica</h3>
+    <div class="type-row"><span class="type-label">text-xs (12px)</span><div class="type-sample" style="font-size:var(--text-xs);color:var(--muted)">Etiquetas, metadatos</div></div>
+    <div class="type-row"><span class="type-label">text-sm (14px)</span><div class="type-sample" style="font-size:var(--text-sm)">Cuerpo base — el core de la interfaz</div></div>
+    <div class="type-row"><span class="type-label">text-base (16px)</span><div class="type-sample" style="font-size:var(--text-base)">Texto estándar destacado</div></div>
+    <div class="type-row"><span class="type-label">text-lg (18px)</span><div class="type-sample font-display" style="font-size:var(--text-lg);font-weight:700">Énfasis / subtítulos</div></div>
+    <div class="type-row"><span class="type-label">text-xl (20px)</span><div class="type-sample font-display" style="font-size:var(--text-xl);font-weight:700">Encabezados de sección</div></div>
+    <div class="type-row"><span class="type-label">text-2xl (24px)</span><div class="type-sample font-display" style="font-size:var(--text-2xl);font-weight:900">Títulos de modal</div></div>
+    <div class="type-row"><span class="type-label">text-3xl (30px)</span><div class="type-sample font-display" style="font-size:var(--text-3xl);font-weight:900">Títulos de página</div></div>
+    <div class="type-row"><span class="type-label">text-4xl (36px)</span><div class="type-sample font-display" style="font-size:var(--text-4xl);font-weight:900">Nombres de personaje</div></div>
+    <div class="type-row"><span class="type-label">text-5xl (48px)</span><div class="type-sample font-display" style="font-size:var(--text-5xl);font-weight:900">HP, valores grandes</div></div>
+    <div class="type-row"><span class="type-label">text-6xl (60px)</span><div class="type-sample font-display" style="font-size:var(--text-6xl);font-weight:900;line-height:1.1">Hero / título grande</div></div>
+
+    <h3 class="ds-sub-title">Tracking (letter-spacing)</h3>
+    <div class="type-row"><span class="type-label">-0.02em</span><div class="type-sample font-display" style="letter-spacing:-0.02em;font-weight:900">DUNGEON FORGE — títulos</div></div>
+    <div class="type-row"><span class="type-label">0.05em</span><div class="type-sample" style="letter-spacing:0.05em;font-weight:700;text-transform:uppercase;font-size:12px">Secciones en mayúsculas</div></div>
+    <div class="type-row"><span class="type-label">0.1em</span><div class="type-sample" style="letter-spacing:0.1em;font-weight:900;text-transform:uppercase;font-size:10px;color:var(--muted)">ETIQUETAS DE STAT</div></div>
+  </section>
+
+  <!-- ════ ICON SYSTEM ════ -->
+  <section class="ds-section" id="iconos">
+    <h2 class="ds-section-title">Iconos</h2>
+    <p class="ds-section-desc">Material Symbols Outlined — rellenos por defecto (<code>FILL 1</code>). Fuente única para toda la app.</p>
+
+    <h3 class="ds-sub-title">Escala de tamaños</h3>
+    <div class="comp-row">
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:var(--text-xs)">swords</span><div class="swatch-name">xs 12px</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:var(--text-sm)">swords</span><div class="swatch-name">sm 14px</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:var(--text-base)">swords</span><div class="swatch-name">md 16px</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:var(--text-lg)">swords</span><div class="swatch-name">lg 18px</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:var(--text-xl)">swords</span><div class="swatch-name">xl 20px</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:var(--text-2xl)">swords</span><div class="swatch-name">2xl 24px</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:var(--text-3xl)">swords</span><div class="swatch-name">3xl 30px</div></div>
+    </div>
+
+    <h3 class="ds-sub-title">Iconos más usados</h3>
+    <div class="comp-row">
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:20px">swords</span><div class="swatch-name">swords</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:20px">auto_stories</span><div class="swatch-name">auto_stories</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:20px">backpack</span><div class="swatch-name">backpack</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:20px">stars</span><div class="swatch-name">stars</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:20px">healing</span><div class="swatch-name">healing</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:20px">shield</span><div class="swatch-name">shield</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:20px">magic_button</span><div class="swatch-name">magic_button</div></div>
+      <div style="text-align:center"><span class="material-symbols-outlined" style="font-size:20px">edit_note</span><div class="swatch-name">edit_note</div></div>
+    </div>
+
+    <h3 class="ds-sub-title">Contenedores de iconos</h3>
+    <div class="comp-row">
+      <div style="width:40px;height:40px;border-radius:var(--radius-pill);background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);display:flex;align-items:center;justify-content:center"><span class="material-symbols-outlined" style="color:var(--accent)">stars</span></div>
+      <div style="width:48px;height:48px;border-radius:var(--radius-pill);background:color-mix(in srgb,var(--success) 12%,transparent);border:1px solid color-mix(in srgb,var(--success) 20%,transparent);display:flex;align-items:center;justify-content:center"><span class="material-symbols-outlined" style="color:var(--success);font-size:24px">healing</span></div>
+      <div style="width:32px;height:32px;border-radius:var(--radius-pill);background:color-mix(in srgb,var(--fg) 10%,transparent);display:flex;align-items:center;justify-content:center"><span class="material-symbols-outlined" style="font-size:16px;color:var(--fg-2)">close</span></div>
+    </div>
+  </section>
+
+  <!-- ════ SPACING & RADIUS ════ -->
+  <section class="ds-section" id="tokens-espaciado">
+    <h2 class="ds-section-title">Espaciado y radios</h2>
+    <p class="ds-section-desc">Escala de 4px basada en Tailwind. 9 niveles de espaciado, 6 radios.</p>
+
+    <h3 class="ds-sub-title">Escala de espaciado</h3>
+    <div class="space-grid">
+      <div class="space-item"><div class="space-bar" style="width:4px"></div><div class="space-name">--space-1</div><div class="space-value">4px</div></div>
+      <div class="space-item"><div class="space-bar" style="width:8px"></div><div class="space-name">--space-2</div><div class="space-value">8px</div></div>
+      <div class="space-item"><div class="space-bar" style="width:12px"></div><div class="space-name">--space-3</div><div class="space-value">12px</div></div>
+      <div class="space-item"><div class="space-bar" style="width:16px"></div><div class="space-name">--space-4</div><div class="space-value">16px</div></div>
+      <div class="space-item"><div class="space-bar" style="width:20px"></div><div class="space-name">--space-5</div><div class="space-value">20px</div></div>
+      <div class="space-item"><div class="space-bar" style="width:24px"></div><div class="space-name">--space-6</div><div class="space-value">24px</div></div>
+      <div class="space-item"><div class="space-bar" style="width:32px"></div><div class="space-name">--space-8</div><div class="space-value">32px</div></div>
+      <div class="space-item"><div class="space-bar" style="width:48px"></div><div class="space-name">--space-12</div><div class="space-value">48px</div></div>
+      <div class="space-item"><div class="space-bar" style="width:64px"></div><div class="space-name">--space-16</div><div class="space-value">64px</div></div>
+    </div>
+
+    <h3 class="ds-sub-title">Contenedores</h3>
+    <div class="space-grid">
+      <div class="space-item"><div class="space-value" style="font-weight:700;color:var(--fg);font-family:inherit">Móvil</div><div class="space-value">gutter var(--container-gutter-phone): 16px</div></div>
+      <div class="space-item"><div class="space-value" style="font-weight:700;color:var(--fg);font-family:inherit">Tablet</div><div class="space-value">gutter var(--container-gutter-tablet): 24px</div></div>
+      <div class="space-item"><div class="space-value" style="font-weight:700;color:var(--fg);font-family:inherit">Desktop</div><div class="space-value">gutter var(--container-gutter-desktop): 36px · max var(--container-max): 1200px</div></div>
+    </div>
+
+    <h3 class="ds-sub-title">Border radius</h3>
+    <div class="radius-grid">
+      <div class="radius-demo"><div class="radius-shape" style="border-radius:var(--radius-sm)"></div><span class="radius-label">sm 4px<br/>Inputs, badges</span></div>
+      <div class="radius-demo"><div class="radius-shape" style="border-radius:var(--radius-md)"></div><span class="radius-label">md 8px<br/>Cards, modales</span></div>
+      <div class="radius-demo"><div class="radius-shape" style="border-radius:var(--radius-lg)"></div><span class="radius-label">lg 12px<br/>Botones, paneles</span></div>
+      <div class="radius-demo"><div class="radius-shape" style="border-radius:var(--radius-xl)"></div><span class="radius-label">xl 16px<br/>Tarjetas grandes</span></div>
+      <div class="radius-demo"><div class="radius-shape" style="border-radius:var(--radius-2xl)"></div><span class="radius-label">2xl 24px<br/>Modales, CTAs</span></div>
+      <div class="radius-demo"><div class="radius-shape" style="border-radius:var(--radius-pill);width:60px"></div><span class="radius-label">pill 9999px<br/>Tab bar, avatares</span></div>
+    </div>
+
+    <h3 class="ds-sub-title">Elevación</h3>
+    <div class="elev-grid">
+      <div class="elev-card" style="box-shadow:var(--elev-flat)"><div class="elev-card-title">Flat</div>--elev-flat: none</div>
+      <div class="elev-card" style="box-shadow:var(--elev-ring)"><div class="elev-card-title">Ring</div>--elev-ring: inset border</div>
+      <div class="elev-card" style="box-shadow:var(--elev-raised)"><div class="elev-card-title">Raised</div>Tarjetas estándar</div>
+      <div class="elev-card" style="box-shadow:var(--elev-modal)"><div class="elev-card-title">Modal</div>Diálogos, modales</div>
+      <div class="elev-card" style="box-shadow:var(--elev-glow)"><div class="elev-card-title">Glow</div>Brillo decorativo</div>
+    </div>
+
+    <h3 class="ds-sub-title">Sección espaciado responsive</h3>
+    <div class="space-grid">
+      <div class="space-item"><div class="space-value" style="font-weight:700;color:var(--fg);font-family:inherit">Móvil</div><div class="space-value">section-y: 32px</div></div>
+      <div class="space-item"><div class="space-value" style="font-weight:700;color:var(--fg);font-family:inherit">Tablet</div><div class="space-value">section-y: 48px</div></div>
+      <div class="space-item"><div class="space-value" style="font-weight:700;color:var(--fg);font-family:inherit">Desktop</div><div class="space-value">section-y: 64px</div></div>
+    </div>
+
+    <h3 class="ds-sub-title">Safe area (notch)</h3>
+    <div class="space-grid">
+      <div class="space-item"><div class="space-value" style="font-weight:700;color:var(--fg);font-family:inherit">--sat</div><div class="space-value"><code>env(safe-area-inset-top)</code></div></div>
+      <div class="space-item"><div class="space-value" style="font-weight:700;color:var(--fg);font-family:inherit">--sab</div><div class="space-value"><code>env(safe-area-inset-bottom)</code></div></div>
+      <div class="space-item"><div class="space-value" style="font-weight:700;color:var(--fg);font-family:inherit">--sar</div><div class="space-value"><code>env(safe-area-inset-right)</code></div></div>
+      <div class="space-item"><div class="space-value" style="font-weight:700;color:var(--fg);font-family:inherit">--sal</div><div class="space-value"><code>env(safe-area-inset-left)</code></div></div>
+    </div>
+  </section>
+
+  <!-- ════ MOTION ════ -->
+  <section class="ds-section" id="tokens-motion">
+    <h2 class="ds-section-title">Movimiento y animación</h2>
+    <p class="ds-section-desc">6 tokens de duración + 2 easings. Transiciones coherentes en toda la app.</p>
+
+    <h3 class="ds-sub-title">Duración</h3>
+    <div class="comp-row" style="flex-direction:column;align-items:stretch;max-width:600px">
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="swatch-name">--motion-fast</span><span class="swatch-value">150ms — micro-interacciones</span></div><div class="progress-bar"><div class="progress-fill hp" style="width:20%;transition:width 150ms var(--ease-standard);animation:pulse-width 1.5s ease-in-out infinite alternate"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="swatch-name">--motion-base</span><span class="swatch-value">300ms — transiciones estándar</span></div><div class="progress-bar"><div class="progress-fill hp" style="width:45%;transition:width 300ms var(--ease-standard);animation:pulse-width 2s ease-in-out infinite alternate"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="swatch-name">--motion-slow</span><span class="swatch-value">500ms — hover en tarjetas</span></div><div class="progress-bar"><div class="progress-fill hp" style="width:70%;transition:width 500ms var(--ease-standard);animation:pulse-width 2.5s ease-in-out infinite alternate"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="swatch-name">--motion-hp</span><span class="swatch-value">700ms — barra de HP</span></div><div class="progress-bar"><div class="progress-fill hp" style="width:88%;transition:width 700ms var(--ease-spring);animation:pulse-width 3s ease-in-out infinite alternate"></div></div></div>
+    </div>
+
+    <h3 class="ds-sub-title">Easings</h3>
+    <div class="comp-row">
+      <div style="padding:var(--space-3);background:var(--surface);border-radius:var(--radius-md);border:1px solid var(--border)"><span class="swatch-name">--ease-standard</span><div class="swatch-value" style="margin-top:2px">cubic-bezier(0.2, 0, 0, 1) — transiciones generales</div></div>
+      <div style="padding:var(--space-3);background:var(--surface);border-radius:var(--radius-md);border:1px solid var(--border)"><span class="swatch-name">--ease-spring</span><div class="swatch-value" style="margin-top:2px">cubic-bezier(0.16, 1, 0.3, 1) — modales, sheets</div></div>
+    </div>
+
+    <h3 class="ds-sub-title">Animaciones predefinidas</h3>
+    <div class="comp-row">
+      <div style="padding:var(--space-3);background:var(--surface);border-radius:var(--radius-md);border:1px solid var(--border);text-align:center"><span class="swatch-name">animate-fadeIn</span><div class="swatch-value">0.3s ease-out — overlays</div></div>
+      <div style="padding:var(--space-3);background:var(--surface);border-radius:var(--radius-md);border:1px solid var(--border);text-align:center"><span class="swatch-name">animate-slideUp</span><div class="swatch-value">0.4s ease-spring — modales</div></div>
+      <div style="padding:var(--space-3);background:var(--surface);border-radius:var(--radius-md);border:1px solid var(--border);text-align:center"><span class="swatch-name">animate-scaleIn</span><div class="swatch-value">0.2s ease-out — diálogos</div></div>
+    </div>
+  </section>
+
+  <!-- ════ COMPONENTS ════ -->
+  <section class="ds-section" id="componentes">
+    <h2 class="ds-section-title">Componentes</h2>
+    <p class="ds-section-desc">35+ componentes, todos reaccionan al tema activo. Usa los pills del header para cambiar de tema.</p>
+
+    <div class="comp-group">
+      <div class="comp-group-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:4px">smart_button</span> Botones</div>
+      <div class="comp-row">
+        <button class="btn-primary">Continuar</button>
+        <button class="btn-primary"><span class="material-symbols-outlined" style="margin-right:6px;font-size:16px">check</span>Guardar</button>
+        <button class="btn-gradient btn-gradient-sr">Short Rest</button>
+        <button class="btn-gradient btn-gradient-lr">Long Rest</button>
+        <button class="btn-gradient btn-gradient-rage">Rage</button>
+      </div>
+      <div class="comp-row">
+        <button class="btn-secondary">Cancelar</button>
+        <button class="btn-destructive"><span class="material-symbols-outlined" style="margin-right:6px;font-size:16px">delete</span>Eliminar</button>
+        <button class="btn-cta-circle">
+          <span class="btn-cta-icon"><span class="material-symbols-outlined" style="color:var(--accent)">add</span></span>
+          <div style="text-align:left"><div style="font-weight:700;font-size:13px">Vincular Alma</div><div style="font-size:11px;color:var(--muted)">Crear personaje</div></div>
+        </button>
+      </div>
+      <div class="comp-row">
+        <button class="btn-icon-round"><span class="material-symbols-outlined">close</span></button>
+        <button class="btn-icon-round" style="color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,transparent);border-color:color-mix(in srgb,var(--danger) 20%,transparent)"><span class="material-symbols-outlined">delete</span></button>
+        <button class="btn-icon-round-sm"><span class="material-symbols-outlined">close</span></button>
+      </div>
+    </div>
+
+    <div class="comp-group">
+      <div class="comp-group-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:4px">dashboard</span> Tarjetas</div>
+      <div class="comp-row">
+        <div class="card-character">
+          <div class="card-character-image" style="display:flex;align-items:flex-end;padding:var(--space-3)">
+            <span class="material-symbols-outlined" style="font-size:36px;color:var(--muted);opacity:0.5">person</span>
+          </div>
+          <div class="card-character-info">
+            <div class="card-character-name">Sylas Nightbane</div>
+            <div class="card-character-detail">Humano Paladín · Lv 5 · PG 44/56</div>
+          </div>
+        </div>
+        <div class="card-sheet">
+          <div class="stat-label" style="margin-bottom:var(--space-2)">FUE</div>
+          <div class="card-stat-value" style="font-size:32px">18</div>
+          <div style="color:var(--muted);font-size:12px">Modificador +4</div>
+        </div>
+        <div class="card-feature">
+          <span class="material-symbols-outlined" style="color:var(--accent)">stars</span>
+          <div>
+            <div style="font-weight:700;font-size:13px">Divine Smite</div>
+            <div style="color:var(--muted);font-size:12px">Al golpear con arma cuerpo a cuerpo...</div>
+          </div>
+        </div>
+      </div>
+      <div class="comp-row">
+        <div class="card-note">
+          <div class="card-note-bar"></div>
+          <div style="padding-left:var(--space-3)">
+            <div style="font-weight:700;margin-bottom:4px">Notas de sesión</div>
+            <div style="color:var(--muted);font-size:12px">El grupo derrotó al dragón en las Cuevas del Norte.</div>
+          </div>
+        </div>
+        <div class="card-stat"><div class="stat-label">FUE</div><div class="card-stat-value">18</div><div class="stat-mod">+4</div></div>
+        <div class="card-stat"><div class="stat-label">DES</div><div class="card-stat-value">14</div><div class="stat-mod">+2</div></div>
+        <div class="card-stat"><div class="stat-label">CON</div><div class="card-stat-value">16</div><div class="stat-mod">+3</div></div>
+      </div>
+      <div class="comp-row">
+        <div class="card-radio selected">
+          <div class="stat-label" style="margin-bottom:var(--space-2)">CLASE</div>
+          <div style="font-weight:900;font-size:18px;font-family:var(--font-display)">Paladín</div>
+          <div style="color:var(--muted);font-size:11px">Guerrero sagrado</div>
+        </div>
+        <div class="card-radio">
+          <div class="stat-label" style="margin-bottom:var(--space-2)">CLASE</div>
+          <div style="font-weight:900;font-size:18px;font-family:var(--font-display)">Mago</div>
+          <div style="color:var(--muted);font-size:11px">Lanzador arcano</div>
+        </div>
+        <div class="card-member">
+          <div style="width:36px;height:36px;border-radius:var(--radius-pill);background:color-mix(in srgb,var(--accent) 15%,transparent);display:flex;align-items:center;justify-content:center"><span class="material-symbols-outlined" style="font-size:18px;color:var(--accent)">person</span></div>
+          <div><div style="font-weight:700;font-size:13px">Aelar</div><div style="color:var(--muted);font-size:10px">Elfo Mago Lv6</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-group">
+      <div class="comp-group-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:4px">keyboard</span> Formularios</div>
+      <div class="comp-row">
+        <input type="text" class="input-text" placeholder="Nombre del personaje..." value="Sylas"/>
+        <div class="select-wrap">
+          <select class="select-input"><option>Humano</option><option selected>Elfo</option><option>Enano</option></select>
+          <span class="material-symbols-outlined" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)">expand_more</span>
+        </div>
+      </div>
+      <div class="comp-row">
+        <label class="toggle"><span class="toggle-track active"><span class="toggle-dot"></span></span><span style="font-size:13px;color:var(--fg-2)">Auto-gestión</span></label>
+        <div style="width:260px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:var(--fg-2)">Dados de Golpe</span><span style="font-size:12px;font-weight:700">3 / 5</span></div>
+          <input type="range" class="range-slider" min="0" max="5" value="3"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-group">
+      <div class="comp-group-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:4px">open_in_full</span> Modales</div>
+      <div class="comp-row" style="align-items:stretch">
+        <div class="modal-mini animate-slideUp" style="width:320px">
+          <div class="modal-header">
+            <button class="btn-icon-round-sm"><span class="material-symbols-outlined">arrow_back</span></button>
+            <div class="modal-title">Subir de Nivel</div>
+            <button class="btn-icon-round-sm"><span class="material-symbols-outlined">close</span></button>
+          </div>
+          <div class="modal-body">
+            <p style="color:var(--fg-2);font-size:13px;margin:0 0 var(--space-3)">¡Has llegado al nivel 4!</p>
+            <div class="card-feature" style="max-width:none">
+              <span class="material-symbols-outlined" style="color:var(--accent)">auto_stories</span>
+              <div><div style="font-weight:700;font-size:13px">Dote disponible</div><div style="color:var(--muted);font-size:12px">Elige una nueva dote o incrementa puntuaciones.</div></div>
+            </div>
+          </div>
+          <div class="modal-footer"><button class="btn-primary" style="width:100%">Confirmar nivel</button></div>
+        </div>
+        <div class="modal-centered-mini" style="align-self:center">
+          <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3)">
+            <span class="material-symbols-outlined" style="color:var(--danger)">warning</span>
+            <span style="font-weight:700">Eliminar personaje</span>
+          </div>
+          <p style="color:var(--fg-2);font-size:13px;margin:0 0 var(--space-4)">Esta acción no se puede deshacer.</p>
+          <div style="display:flex;gap:var(--space-2)">
+            <button class="btn-secondary" style="flex:1">Cancelar</button>
+            <button class="btn-destructive" style="flex:1">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-group">
+      <div class="comp-group-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:4px">navigation</span> Navegación</div>
+      <div class="comp-col">
+        <div class="tab-bar" role="tablist" aria-label="Navegación de personaje">
+          <button class="tab-item active" role="tab" aria-selected="true"><span class="material-symbols-outlined" style="font-size:18px">swords</span> Combate</button>
+          <button class="tab-item" role="tab" aria-selected="false"><span class="material-symbols-outlined" style="font-size:18px">backpack</span> Objetos</button>
+          <button class="tab-item" role="tab" aria-selected="false"><span class="material-symbols-outlined" style="font-size:18px">auto_stories</span> Conjuros</button>
+          <button class="tab-item" role="tab" aria-selected="false"><span class="material-symbols-outlined" style="font-size:18px">stars</span> Dotes</button>
+          <button class="tab-item" role="tab" aria-selected="false"><span class="material-symbols-outlined" style="font-size:18px">edit_note</span> Notas</button>
+        </div>
+        <div class="dm-nav">
+          <button class="dm-item active"><span class="material-symbols-outlined" style="font-size:18px">monitoring</span><span class="dm-label">Panel</span></button>
+          <button class="dm-item"><span class="material-symbols-outlined" style="font-size:18px">groups</span><span class="dm-label">Grupo</span></button>
+          <button class="dm-item"><span class="material-symbols-outlined" style="font-size:18px">forum</span><span class="dm-label">Chat</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-group">
+      <div class="comp-group-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:4px">monitoring</span> Estados y progreso</div>
+      <div class="comp-row">
+        <span class="badge"><span class="material-symbols-outlined" style="font-size:12px">check</span> Activo</span>
+        <span class="badge-success"><span class="material-symbols-outlined" style="font-size:12px">favorite</span> Saludable</span>
+        <span class="badge-warning"><span class="material-symbols-outlined" style="font-size:12px">warning</span> Herido</span>
+        <span class="badge-error"><span class="material-symbols-outlined" style="font-size:12px">dangerous</span> Caído</span>
+      </div>
+      <div class="comp-col">
+        <div style="max-width:300px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;font-weight:700">PG</span><span style="font-size:12px">44 / 56</span></div>
+          <div class="progress-bar"><div class="progress-fill hp"></div></div>
+        </div>
+        <div style="max-width:300px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;font-weight:700">Ira</span><span style="font-size:12px">2 / 4</span></div>
+          <div class="progress-bar"><div class="progress-fill rage"></div></div>
+        </div>
+        <div class="step-progress">
+          <div class="step-dot done"></div>
+          <div class="step-dot done"></div>
+          <div class="step-dot active"></div>
+          <div class="step-dot"></div>
+          <div class="step-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-group">
+      <div class="comp-group-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:4px">grid_view</span> Layouts</div>
+      <div class="comp-col">
+        <div class="stat-grid-6">
+          <div class="stat-item"><div class="stat-label">FUE</div><div class="stat-value">18</div><div class="stat-mod">+4</div></div>
+          <div class="stat-item"><div class="stat-label">DES</div><div class="stat-value">14</div><div class="stat-mod">+2</div></div>
+          <div class="stat-item"><div class="stat-label">CON</div><div class="stat-value">16</div><div class="stat-mod">+3</div></div>
+          <div class="stat-item"><div class="stat-label">INT</div><div class="stat-value">10</div><div class="stat-mod">+0</div></div>
+          <div class="stat-item"><div class="stat-label">SAB</div><div class="stat-value">12</div><div class="stat-mod">+1</div></div>
+          <div class="stat-item"><div class="stat-label">CAR</div><div class="stat-value">16</div><div class="stat-mod">+3</div></div>
+        </div>
+        <div class="empty-state" style="max-width:320px">
+          <span class="material-symbols-outlined empty-state-icon">search_off</span>
+          <p style="font-weight:700;margin:0 0 4px">Sin personajes</p>
+          <p style="color:var(--muted);font-size:12px;margin:0">Crea tu primer personaje para empezar.</p>
+        </div>
+        <div class="section-separator"><span class="section-sep-label">Equipo</span></div>
+      </div>
+    </div>
+
+    <div class="comp-group">
+      <div class="comp-group-label"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;margin-right:4px">palette</span> Decorativos</div>
+      <div class="comp-row" style="flex-direction:column;align-items:flex-start">
+        <div style="padding:var(--space-4);border-radius:var(--radius-lg);background:var(--surface);display:inline-block" class="iron-border">
+          <span style="font-family:var(--font-display);font-weight:900;font-size:24px" class="gold-shimmer">Dungeon Forge</span>
+        </div>
+        <div>
+          <span style="font-family:var(--font-display);font-size:24px;font-weight:900" class="app-title-glow gold-shimmer">Dungeon Forge</span>
+        </div>
+        <div class="sheet-header-demo" style="width:100%;max-width:400px">
+          <div style="display:flex;align-items:center;gap:var(--space-2)">
+            <button class="btn-icon-round-sm"><span class="material-symbols-outlined">arrow_back</span></button>
+            <span style="font-weight:700">Hoja de Personaje</span>
+          </div>
+          <button class="btn-icon-round-sm"><span class="material-symbols-outlined">more_vert</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ USAGE RULES ════ -->
+  <section class="ds-section" id="reglas">
+    <h2 class="ds-section-title">Reglas de uso</h2>
+    <p class="ds-section-desc">Convenciones del sistema de diseño para mantener coherencia visual.</p>
+
+    <div class="rule-grid">
+      <div class="rule-card rule-card-do"><div class="rule-title">✅ Hacer</div>
+        <ul class="rule-list">
+          <li>Usar <code>var(--accent)</code> para acciones principales e interactivos</li>
+          <li>Usar <code>var(--accent-alt)</code> para brillos decorativos</li>
+          <li>Material Symbols con <code>FILL 1</code> — llenos por defecto</li>
+          <li>Safe areas: <code>env(safe-area-inset-*)</code> en layouts completos</li>
+          <li>Animar con <code>.animate-fadeIn</code> y <code>.animate-slideUp</code></li>
+          <li>Targets táctiles mínimos de 44px de altura</li>
+        </ul>
+      </div>
+      <div class="rule-card rule-card-dont"><div class="rule-title">❌ Evitar</div>
+        <ul class="rule-list">
+          <li>Hex raw fuera del bloque <code>:root</code> — siempre CSS variables</li>
+          <li>Iconos sin relleno (FILL 0) — rompe la identidad visual</li>
+          <li>Mezclar estilos de distintos temas en la misma pantalla</li>
+          <li>Quitar <code>backdrop-filter: blur()</code> de modales</li>
+          <li>Gradientes en todos los fondos — uno por pantalla es suficiente</li>
+          <li>Usar colores semánticos para decoración</li>
+        </ul>
+      </div>
+      <div class="rule-card"><div class="rule-title">🎨 Temas</div>
+        <ul class="rule-list">
+          <li><strong>Mazmorra Clásica</strong> — default, fondos navy + acento azul</li>
+          <li><strong>Luz Diurna</strong> — modo claro, blanco/pizarra</li>
+          <li><strong>Sangre de Dragón</strong> — rojo oscuro, fantasía épica</li>
+          <li><strong>Bosque Élfico</strong> — verde esmeralda, druídico</li>
+          <li><strong>Alto Contraste</strong> — WCAG AAA, amarillo sobre negro</li>
+        </ul>
+      </div>
+      <div class="rule-card"><div class="rule-title">📐 Tipografía</div>
+        <ul class="rule-list">
+          <li>Títulos: Spline Sans 900, <code>letter-spacing: -0.02em</code></li>
+          <li>Cuerpo: Noto Sans 14px, <code>line-height: 1.5</code></li>
+          <li>Etiquetas: 10px uppercase, <code>letter-spacing: 0.1em</code>, font-black</li>
+          <li>Stat values: font-black para máxima legibilidad</li>
+          <li>HP display: text-5xl (48px) o mayor</li>
+        </ul>
+      </div>
+      <div class="rule-card"><div class="rule-title">🖱️ Interacción</div>
+        <ul class="rule-list">
+          <li>Presionar: <code>active:scale-95</code> en todo clickeable</li>
+          <li>Hover en tarjetas: <code>hover:shadow-lg</code></li>
+          <li>Modal: fadeIn fondo + slideUp contenido</li>
+          <li>Focus: <code>ring-2 ring-primary/50</code> en elementos interactivos</li>
+          <li>Respetar <code>prefers-reduced-motion</code></li>
+        </ul>
+      </div>
+      <div class="rule-card"><div class="rule-title">🔧 Iconos comunes</div>
+        <ul class="rule-list">
+          <li>Navegación: <code>close, arrow_back, edit_note, delete</code></li>
+          <li>Combate: <code>swords, shield, bolt, favorite, healing</code></li>
+          <li>Magia: <code>auto_stories, magic_button, stars</code></li>
+          <li>Objetos: <code>backpack, inventory, search</code></li>
+          <li>RPG: <code>casino, military_tech, hourglass_bottom</code></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer style="padding:var(--space-8) 0;text-align:center;color:var(--muted);font-size:12px;border-top:1px solid var(--border)">
+    Dungeon Forge Design System · 72 tokens · 5 temas · 35+ componentes<br/>
+    Extraído de <code>G:\Apks\Dungeon Forge</code> · Compatible con Open Design
+  </footer>
+</main>
+
+<script>
+(function(){
+  const root = document.documentElement;
+  const pills = document.querySelectorAll('.theme-pill');
+  const badge = document.getElementById('themeBadge');
+  const pillLabels = { 'classic-dnd':'Mazmorra Clásica','daylight':'Luz Diurna','dragon-blood':'Sangre de Dragón','elven-forest':'Bosque Élfico','high-contrast':'Alto Contraste' };
+  const colorVars = ['--bg','--bg-secondary','--surface','--surface-highlight','--fg','--fg-2','--muted','--accent','--accent-dark','--accent-alt','--secondary','--success','--warning','--danger','--info','--border','--border-hover'];
+
+  function rgbToHex(r,g,b){
+    return '#' + [r,g,b].map(c => Math.round(c).toString(16).padStart(2,'0')).join('');
+  }
+
+  function updateHexValues(){
+    const style = getComputedStyle(root);
+    document.querySelectorAll('.swatch[data-var]').forEach(el => {
+      const v = el.dataset.var;
+      const raw = style.getPropertyValue(v).trim();
+      if(!raw) return;
+      let hex = raw;
+      if(raw.startsWith('#')){
+        hex = raw.length > 7 ? raw.slice(0,7) : raw;
+      } else if(raw.startsWith('rgba(') || raw.startsWith('rgb(')){
+        const m = raw.match(/[\d.]+/g);
+        if(m) hex = rgbToHex(+m[0],+m[1],+m[2]);
+      }
+      el.querySelector('.swatch-hex').textContent = hex;
+    });
+  }
+
+  function applyTheme(id){
+    root.setAttribute('data-theme', id);
+    localStorage.setItem('df-theme-active', id);
+    pills.forEach(p => { p.classList.toggle('active', p.dataset.themeId === id); p.setAttribute('aria-pressed', p.dataset.themeId === id ? 'true' : 'false'); });
+    if(badge) badge.textContent = 'Tema: ' + pillLabels[id];
+    updateHexValues();
+  }
+
+  const saved = localStorage.getItem('df-theme-active');
+  if(saved && pillLabels[saved]) applyTheme(saved);
+  else updateHexValues();
+
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => applyTheme(pill.dataset.themeId));
+  });
+
+  /* ── Scroll reveal (emilkowalski-motion) ── */
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){entry.target.classList.add('in-view');revealObserver.unobserve(entry.target)}
+    });
+  }, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if(rect.top < window.innerHeight + 40){el.classList.add('in-view')}
+    else{revealObserver.observe(el)}
+  });
+})();
+</script>
+</body>
+</html>

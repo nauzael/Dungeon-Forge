@@ -6,9 +6,9 @@ export const ranger = {
     name: 'Ranger', 
     description: 'Warriors of nature who guard the frontiers of civilization. They combine lethal combat, tracking, and primal magic to protect the world from monsters and tyrants.', 
     traits: [
-        { name: 'Spellcasting', description: 'Wisdom-based primal magic. You are a prepared spellcaster.' }, 
-        { name: 'Favored Enemy', description: 'You always have Hunter\'s Mark prepared. You can cast it for free several times per day.' }, 
-        { name: 'Weapon Mastery', description: 'You master the mastery properties of two types of weapons.' }
+        { name: 'Spellcasting', description: 'You have learned to channel the magical essence of nature to cast spells. You are a prepared spellcaster. Wisdom is your spellcasting ability. You use a Druidic Focus.' }, 
+        { name: 'Favored Enemy', description: 'You always have the spell Hunter\'s Mark prepared. You can cast it twice without expending a spell slot. You regain all uses when you finish a Long Rest. The number of uses increases at levels 5, 9, 13, and 17.' }, 
+        { name: 'Weapon Mastery', description: 'Your training lets you use the mastery properties of two weapon types. When you finish a Long Rest, you can change your choice.' }
     ] 
   } as DetailData,
   hitDie: 10,
@@ -42,10 +42,10 @@ export const ranger = {
         name: 'Beast Master',
         description: 'Bond with a Primal Beast. A Beast Master forms a mystical bond with a special animal, drawing on primal magic and a deep connection to the natural world.',
         features: {
-            3: [{ name: 'Primal Companion', description: 'You magically summon a primal beast (Beast of the Land, Beast of the Sea, or Beast of the Sky). In Combat, the beast acts during your turn. It can move and use its Reaction on its own, but the only action it takes is the Dodge action unless you take a Bonus Action to command it. You can also sacrifice one of your attacks when you take the Attack action to command the beast to take the Beast\'s Strike action. If you have the Incapacitated condition, the beast acts on its own.' }],
-            7: [{ name: 'Exceptional Training', description: 'When you take a Bonus Action to command your Primal Companion beast to take an action, you can also command it to take the Dash, Disengage, Dodge, or Help action using its Bonus Action. In addition, whenever it hits with an attack roll and deals damage, it can deal your choice of Force damage or its normal damage type.' }],
-            11: [{ name: 'Bestial Fury', description: 'When you command your Primal Companion beast to take the Beast\'s Strike action, the beast can use it twice. In addition, the first time each turn it hits a creature under the effect of your Hunter\'s Mark spell, the beast deals extra Force damage equal to the bonus damage of that spell.' }],
-            15: [{ name: 'Share Spells', description: 'When you cast a spell targeting yourself, you can also affect your Primal Companion beast with the spell if the beast is within 30 feet of you.' }]
+            3: [{ name: 'Primal Companion', description: 'You magically summon a primal beast (Beast of Land, Air, or Sea). In combat, it acts on your turn; it only Dodges unless you command it with a Bonus Action or sacrifice an attack. If you are Incapacitated, it acts on its own. If it dies, Magic action + spell slot to revive it within 1 hour. New beast on Long Rest.' }],
+            7: [{ name: 'Exceptional Training', description: 'When you command your Companion with a Bonus Action, it can also take Dash, Disengage, Dodge, or Help with its Bonus Action. Its attacks can deal Force damage.' }],
+            11: [{ name: 'Bestial Fury', description: 'When you command Beast\'s Strike, the beast uses it twice. The first time it hits a creature under Hunter\'s Mark, it deals extra Force damage equal to that spell\'s bonus.' }],
+            15: [{ name: 'Share Spells', description: 'When you cast a spell that targets you, it also affects your Companion if it is within 30 feet.' }]
         }
     },
     {
@@ -53,13 +53,13 @@ export const ranger = {
         description: 'Wield Fey Mirth and Fury. A fey mystique surrounds you, thanks to the boon of an archfey or a location in the Feywild that transformed you.',
         features: {
             3: [
-                { name: 'Dreadful Strikes', description: 'You can augment your weapon strikes with mind-scarring magic drawn from the murky hollows of the Feywild. When you hit a creature with a weapon, you can deal an extra 1d4 Psychic damage to the target. The extra damage increases to 1d6 when you reach Ranger level 11.' },
-                { name: 'Fey Wanderer Spells', description: 'L3: Charm Person. L5: Misty Step. L9: Summon Fey. L13: Dimension Door. L17: Mislead.' },
-                { name: 'Otherworldly Glamour', description: 'Whenever you make a Charisma check, you gain a bonus to the check equal to your Wisdom modifier. You also gain proficiency in one of these skills of your choice: Deception, Performance, or Persuasion.' }
+                { name: 'Dreadful Strikes', description: 'When you hit with a weapon, you deal an extra 1d4 Psychic damage (1d6 at level 11). Only once per turn.' },
+                { name: 'Fey Wanderer Spells', description: 'You always have prepared: level 3: Charm Person; 5: Misty Step; 9: Summon Fey; 13: Dimension Door; 17: Mislead.' },
+                { name: 'Otherworldly Glamour', description: 'You add your Wisdom modifier to Charisma checks. Proficiency in one skill: Deception, Performance, or Persuasion.' }
             ],
-            7: [{ name: 'Beguiling Twist', description: 'You have advantage on saving throws to avoid or end the Charmed or Frightened condition. Whenever you or a creature you can see within 120 feet of you succeeds on a saving throw to avoid or end the Charmed or Frightened condition, you can take a Reaction to force a different creature you can see within 120 feet to make a Wisdom save against your spell save DC.' }],
-            11: [{ name: 'Fey Reinforcements', description: 'You can cast Summon Fey without a Material component. You can also cast it once without a spell slot, and you regain the ability to cast it in this way when you finish a Long Rest. Whenever you start casting the spell, you can modify it so that it doesn\'t require Concentration.' }],
-            15: [{ name: 'Misty Wanderer', description: 'You can cast Misty Step without expending a spell slot. You can do so a number of times equal to your Wisdom modifier, and you regain all expended uses when you finish a Long Rest. Whenever you cast Misty Step, you can bring along one willing creature you can see within 5 feet of yourself.' }]
+            7: [{ name: 'Beguiling Twist', description: 'Advantage on saves against Charmed/Frightened. When you or an ally within 120 feet succeeds on one, Reaction to force another creature to make a Wisdom save or be Charmed/Frightened for 1 minute.' }],
+            11: [{ name: 'Fey Reinforcements', description: 'You cast Summon Fey without a material component. Once without a spell slot per Long Rest. You can modify it to not require Concentration (duration 1 minute).' }],
+            15: [{ name: 'Misty Wanderer', description: 'You cast Misty Step without a spell slot. Uses = Wisdom per Long Rest. When you cast it, you bring a willing creature within 5 feet.' }]
         }
     },
     {
@@ -67,13 +67,13 @@ export const ranger = {
         description: 'Draw on Shadow Magic to Fight Your Foes. Gloom Stalkers are at home in the darkest places, wielding magic drawn from the Shadowfell to combat enemies that lurk in darkness.',
         features: {
             3: [
-                { name: 'Dread Ambusher', description: 'Ambusher\'s Leap: At the start of your first turn of each combat, your speed increases by 10 feet until the end of that turn. Dreadful Strike: When you attack a creature and hit it with a weapon, you can deal an extra 2d6 Psychic damage. Initiative Bonus: When you roll Initiative, you can add your Wisdom modifier to the roll.' },
-                { name: 'Gloom Stalker Spells', description: 'L3: Disguise Self. L5: Rope Trick. L9: Fear. L13: Greater Invisibility. L17: Seeming.' },
-                { name: 'Umbral Sight', description: 'You gain Darkvision with a range of 60 feet. If you already have Darkvision when you gain this feature, its range increases by 60 feet. You are also adept at evading creatures that rely on Darkvision. While entirely in Darkness, you have the Invisible condition to any creature that relies on Darkvision to see you in that Darkness.' }
+                { name: 'Dread Ambusher', description: 'Ambusher\'s Leap: first turn, speed +10 feet. Dreadful Strike: when you hit, you deal an extra 2d6 Psychic damage. Uses = Wis per Long Rest. Initiative: you add Wisdom.' },
+                { name: 'Gloom Stalker Spells', description: 'Always prepared: 3: Disguise Self; 5: Rope Trick; 9: Fear; 13: Greater Invisibility; 17: Seeming.' },
+                { name: 'Umbral Sight', description: 'Darkvision 60 feet (or +60). In total Darkness, you are Invisible to creatures that rely on Darkvision.' }
             ],
-            7: [{ name: 'Iron Mind', description: 'You have honed your ability to resist mind-altering powers. You gain proficiency in Wisdom saving throws. If you already have this proficiency, you instead gain proficiency in Intelligence or Charisma saving throws.' }],
-            11: [{ name: 'Stalker\'s Flurry', description: 'The Psychic damage of your Dreadful Strike becomes 2d8. In addition, when you use the Dreadful Strike effect, you can use one of the following: Sudden Strike (make another attack with the same weapon against a different creature within 5 feet of the original target) or Mass Fear (target and each creature within 10 feet must make a Wisdom save or be Frightened until the start of your next turn).' }],
-            15: [{ name: 'Shadowy Dodge', description: 'When a creature makes an attack roll against you, you can take a Reaction to impose Disadvantage on that roll. Whether the attack hits or misses, you can teleport up to 30 feet to an unoccupied space that you can see.' }]
+            7: [{ name: 'Iron Mind', description: 'Proficiency in Wisdom (or Intelligence/Charisma if you already have it).' }],
+            11: [{ name: 'Stalker\'s Flurry', description: 'Dreadful Strike damage becomes 2d8. When you use it: Sudden Strike (attack another creature within 5 feet) or Mass Fear (target and creatures within 10 feet Wis save or Frightened).' }],
+            15: [{ name: 'Shadowy Dodge', description: 'When you are attacked, Reaction to impose Disadvantage. Hit or miss, teleport 30 feet.' }]
         }
     },
     {
@@ -81,12 +81,12 @@ export const ranger = {
         description: 'Protect Nature and People from Destruction. You stalk prey in the wilds and elsewhere, using your abilities as a Hunter to protect nature and people everywhere from forces that would destroy them.',
         features: {
             3: [
-                { name: 'Hunter\'s Lore', description: 'While a creature is marked by your Hunter\'s Mark, you know whether the creature has any Immunities, Resistances, or Vulnerabilities, and if the creature has any, you know what they are.' },
-                { name: 'Hunter\'s Prey', description: 'You gain one of the following feature options of your choice: Colossus Slayer (When you hit a creature with a weapon, the weapon deals extra 1d8 damage if it\'s missing any of its Hit Points) or Horde Breaker (Once on each of your turns when you make an attack with a weapon, you can make another attack with the same weapon against a different creature within 5 feet of the original target).' }
+                { name: 'Hunter\'s Lore', description: 'While a creature is marked by your Hunter\'s Mark, you know its Immunities, Resistances, and Vulnerabilities.' },
+                { name: 'Hunter\'s Prey', description: 'Choose: Colossus Slayer (1d8 extra if it is missing HP, once per turn) or Horde Breaker (an extra attack against a creature within 5 feet of the original target). Changeable on a Rest.' }
             ],
-            7: [{ name: 'Defensive Tactics', description: 'Escape the Horde: Opportunity Attacks have Disadvantage against you. OR Multiattack Defense: When a creature hits you with an attack roll, that creature has Disadvantage on all other attack rolls against you this turn.' }],
-            11: [{ name: 'Superior Hunter\'s Prey', description: 'Once per turn when you deal damage to a creature marked by your Hunter\'s Mark, you can also deal that spell\'s extra damage to a different creature that you can see within 30 feet of the first creature.' }],
-            15: [{ name: 'Superior Hunter\'s Defense', description: 'When you take damage, you can take a Reaction to give yourself Resistance to that damage and any other damage of the same type until the end of the current turn.' }]
+            7: [{ name: 'Defensive Tactics', description: 'Choose: Escape the Horde (Opportunity Attacks with Disadvantage) or Multiattack Defense (if they hit you, they have Disadvantage on other attacks this turn). Changeable.' }],
+            11: [{ name: 'Superior Hunter\'s Prey', description: 'Once per turn, when you damage a marked creature, you deal the extra Mark damage to another creature within 30 feet.' }],
+            15: [{ name: 'Superior Hunter\'s Defense', description: 'When you take damage, Reaction for Resistance to that type until end of turn.' }]
         }
     }
   ] as SubclassData[],

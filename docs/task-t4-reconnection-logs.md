@@ -156,7 +156,7 @@ Attempt  | Timeout | Backoff | Jitter     | Total Wait | Cumulative
 ### Before cleanup
 - `timeoutHandle`: Active NodeJS.Timeout
 - `retryTimeoutHandle`: Active NodeJS.Timeout
-- `currentChannel`: Active Supabase channel subscription
+- `currentChannel`: Active Firebase channel subscription
 
 ### After subscription.unsubscribe()
 ```typescript

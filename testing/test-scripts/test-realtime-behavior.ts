@@ -6,7 +6,7 @@
 // 4. Máx 10 intentos
 // 5. Estados correctos: connecting → connected | error → reconnecting
 
-import { supabase, subscribeWithRetry } from './utils/firebase';
+import { subscribeWithRetry } from './utils/firebase';
 
 // ========== TEST 1: Exponential Backoff Calculation ==========
 console.log('\n========== TEST 1: Exponential Backoff Calculation ==========');

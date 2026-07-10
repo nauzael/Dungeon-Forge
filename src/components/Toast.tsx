@@ -63,7 +63,7 @@ const Toast: React.FC<ToastProps> = ({
     <div
       className={`
         fixed top-4 left-1/2 -translate-x-1/2 z-[200]
-        ${bgColor} text-white px-4 py-3 rounded-lg
+        ${bgColor} text-white px-4 py-3 rounded-radius-md
         shadow-xl flex items-center gap-3 max-w-sm
         animate-slideDown border border-white/20
       `}
@@ -82,7 +82,7 @@ const Toast: React.FC<ToastProps> = ({
             action.onClick();
             handleClose();
           }}
-          className="px-3 py-1 text-xs font-bold bg-white/20 hover:bg-white/30 rounded transition-colors flex-shrink-0"
+          className="px-3 py-1 text-xs font-bold bg-white/20 hover:bg-white/30 rounded-radius-sm transition-colors flex-shrink-0"
         >
           {action.label}
         </button>

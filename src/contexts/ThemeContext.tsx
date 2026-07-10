@@ -1,6 +1,6 @@
 /**
  * Contexto de Temas - Dungeon Forge
- * Proveedor de temas para toda la aplicación
+ * Theme provider for the entire application
  */
 import React, { createContext, useContext, ReactNode, useCallback, useEffect, useState } from 'react';
 import { AppTheme, ThemeId } from '../types/theme';
@@ -99,7 +99,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     root.style.setProperty('--color-border', colors.border);
     root.style.setProperty('--color-border-hover', colors.borderHover);
 
-    // Establecer tipografía
+    // Set typography
     root.style.setProperty('--font-family-display', currentTheme.typography.fontFamilyDisplay);
     root.style.setProperty('--font-family-body', currentTheme.typography.fontFamilyBody);
     root.style.setProperty('--font-size-base', currentTheme.typography.fontSizeBase);
@@ -112,9 +112,15 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     root.style.setProperty('--box-shadow', currentTheme.shape.boxShadow);
     root.style.setProperty('--box-shadow-lg', currentTheme.shape.boxShadowLg);
 
-    // Actualizar atributos para dark mode
+    // Actualizar clase dark de Tailwind y atributo color-scheme
+    if (currentTheme.isDark) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
     root.setAttribute('data-theme', currentTheme.id);
     root.setAttribute('data-color-scheme', currentTheme.isDark ? 'dark' : 'light');
+    root.style.colorScheme = currentTheme.isDark ? 'dark' : 'light';
 
     // Actualizar meta theme-color para la barra de estado del navegador
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');

@@ -45,7 +45,7 @@ Dungeon Forge v1.1.1 completes a comprehensive DM Panel optimization cycle (Wave
 - **Solution**: Timeout (5s) + exponential backoff (1s→2s→4s→8s, max 10 retries)
 - **Impact**: Deterministic error recovery
 - **Files**: 
-  - NEW: `utils/supabase.ts::subscribeWithRetry()` (125 lines)
+  - NEW: `utils/firebase.ts::subscribeWithRetry()` (125 lines)
   - MODIFIED: `DMDashboard.tsx` + `App.tsx` (Observer View integration)
 - **Status**: ✅ VERIFIED
 
@@ -81,11 +81,11 @@ Dungeon Forge v1.1.1 completes a comprehensive DM Panel optimization cycle (Wave
 ### ✅ Wave 3: Integration & Testing (T8)
 
 #### **T8-FIX: RLS Fallback Implementation** ✅ COMPLETE
-- **Problem**: Local dev mode blocked by Supabase RLS policies
-- **Solution**: Fallback pattern → Try Supabase → Catch RLS (42501) → Use localStorage
+- **Problem**: Local dev mode blocked by Firebase RLS policies
+- **Solution**: Fallback pattern → Try Firebase → Catch RLS (42501) → Use localStorage
 - **Files**: 
   - NEW: `utils/localStorage.ts` (150 lines)
-  - MODIFIED: `utils/supabase.ts` (createParty, updatePartyName, removeFromParty)
+  - MODIFIED: `utils/firebase.ts` (createParty, updatePartyName, removeFromParty)
 - **Status**: ✅ VERIFIED
 
 #### **T8: Integration Testing (5 Scenarios)** ✅ COMPLETE
@@ -159,7 +159,7 @@ Dungeon Forge v1.1.1 completes a comprehensive DM Panel optimization cycle (Wave
 ### Modified Files (4)
 ```
 📝 components/DMDashboard.tsx (687→116 lines)
-📝 utils/supabase.ts (added subscribeWithRetry + RLS fallback)
+📝 utils/firebase.ts (added subscribeWithRetry + RLS fallback)
 📝 App.tsx (UUID generation for local dev)
 📝 CHANGELOG.md (v1.1.1 entry + detailed changes)
 ```
@@ -241,7 +241,7 @@ npm run ota  # Builds OTA version
 ```
 
 **Step 4: Monitor**
-- Watch Supabase realtime connections
+- Watch Firebase realtime connections
 - Monitor DM Panel error rates (should be <0.1%)
 - Track performance metrics in Lighthouse CI
 

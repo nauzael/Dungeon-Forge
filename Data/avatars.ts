@@ -47,6 +47,10 @@ export const CLASS_AVATARS: Record<string, { male: string[], female: string[] }>
     'Monk': {
         male: ['/assets/avatars/fighter_m.png'],
         female: ['/assets/avatars/fighter.png']
+    },
+    'Pugilist': {
+        male: ['/assets/avatars/fighter_m.png', '/assets/avatars/barbarian.png'],
+        female: ['/assets/avatars/barbarian.png']
     }
 };
 

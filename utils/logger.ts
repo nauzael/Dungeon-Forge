@@ -18,13 +18,6 @@ export interface LevelUpLogEntry {
 const MAX_LOG_ENTRIES = 100;
 
 export function logLevelUp(entry: LevelUpLogEntry): void {
-  if (import.meta.env.DEV) {
-    console.log(
-      `%c[LevelUp] ${entry.characterName} (${entry.characterId}): Lv${entry.fromLevel} → Lv${entry.toLevel}`,
-      'color: #22c55e; font-weight: bold;',
-      entry.changes
-    );
-  }
 
   try {
     const logs = JSON.parse(localStorage.getItem('dungeon_forge_level_logs') || '[]') as LevelUpLogEntry[];
@@ -34,18 +27,10 @@ export function logLevelUp(entry: LevelUpLogEntry): void {
     }
     localStorage.setItem('dungeon_forge_level_logs', JSON.stringify(logs));
   } catch (error) {
-    console.warn('[Logger] Failed to persist level up log:', error);
   }
 }
 
 export function logLevelReset(entry: LevelUpLogEntry): void {
-  if (import.meta.env.DEV) {
-    console.log(
-      `%c[LevelReset] ${entry.characterName} (${entry.characterId}): Lv${entry.fromLevel} → Lv${entry.toLevel}`,
-      'color: #ef4444; font-weight: bold;',
-      entry.changes
-    );
-  }
 
   try {
     const logs = JSON.parse(localStorage.getItem('dungeon_forge_level_logs') || '[]') as LevelUpLogEntry[];
@@ -55,7 +40,6 @@ export function logLevelReset(entry: LevelUpLogEntry): void {
     }
     localStorage.setItem('dungeon_forge_level_logs', JSON.stringify(logs));
   } catch (error) {
-    console.warn('[Logger] Failed to persist level reset log:', error);
   }
 }
 
@@ -71,7 +55,6 @@ export function clearLevelUpLogs(): void {
   try {
     localStorage.removeItem('dungeon_forge_level_logs');
   } catch (error) {
-    console.warn('[Logger] Failed to clear level up logs:', error);
   }
 }
 

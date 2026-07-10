@@ -58,7 +58,6 @@ export const useInitiativeTracker = (partyId: string | null, members: Character[
 
       setInitiativeCombatants(parsed);
     } catch (e) {
-      console.error('Failed to load initiative tracker:', e);
       setInitiativeCombatants([]);
     }
   }, [partyId]);
@@ -70,9 +69,7 @@ export const useInitiativeTracker = (partyId: string | null, members: Character[
     const timer = setTimeout(() => {
       try {
         localStorage.setItem(`df-dm-initiative-${partyId}`, JSON.stringify(initiativeCombatants));
-      } catch (e) {
-        console.error('Failed to save initiative tracker:', e);
-      }
+      } catch { /* ignore localStorage write error */ }
     }, 300);
 
     return () => clearTimeout(timer);

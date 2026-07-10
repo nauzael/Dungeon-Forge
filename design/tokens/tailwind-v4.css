@@ -1,0 +1,61 @@
+/* design-systems/dungeon-forge/tailwind-v4.css
+ * Tailwind v4 @theme block derived from the Dungeon Forge tokens.css.
+ * Paste this into your project's CSS entry point when migrating to Tailwind v4.
+ */
+
+@theme {
+  /* ── Colors ── */
+  --color-primary: var(--accent);
+  --color-primary-dark: var(--accent-dark);
+  --color-background: var(--bg);
+  --color-background-secondary: var(--bg-secondary);
+  --color-surface: var(--surface);
+  --color-surface-highlight: var(--surface-highlight);
+  --color-text-primary: var(--fg);
+  --color-text-secondary: var(--fg-2);
+  --color-text-muted: var(--muted);
+  --color-secondary: #64748B;
+  --color-accent: var(--accent-alt);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--danger);
+  --color-info: var(--info);
+  --color-border: var(--border);
+
+  /* ── Fonts ── */
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+
+  /* ── Border Radius ── */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+
+  /* ── Box Shadows ── */
+  --shadow-sm: var(--elev-ring);
+  --shadow: var(--elev-raised);
+  --shadow-lg: var(--elev-modal);
+  --shadow-glow: var(--elev-glow);
+
+  /* ── Animations ── */
+  --animate-fadeIn: fadeIn 0.3s ease-out forwards;
+  --animate-slideUp: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-scaleIn: scaleIn 0.2s ease-out forwards;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    0% { transform: translateY(100px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes scaleIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+}

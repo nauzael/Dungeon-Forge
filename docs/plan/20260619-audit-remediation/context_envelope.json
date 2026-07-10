@@ -1,0 +1,80 @@
+{
+  "plan_id": "20260619-audit-remediation",
+  "objective": "Ejecutar las 18 acciones de la auditoría ordenadas por riesgo creciente",
+  "complexity": "MEDIUM",
+  "tech_stack": {
+    "frontend": "React 19, TypeScript 5.9 (strict), Tailwind CSS 3.4",
+    "build": "Vite 5.4",
+    "mobile": "Capacitor 6",
+    "backend": "Firebase (Auth, Firestore, RTDB)",
+    "legacy_migrated": "Supabase (ya migrado a Firebase)"
+  },
+  "constraints": [
+    "No romper build (npm run build debe pasar)",
+    "No romper tests existentes (npm test debe pasar con el 1 fail conocido)",
+    "Cada Tier debe dejar el proyecto en estado funcional",
+    "Tier 4 requiere approval explícito antes de ejecutar",
+    "Commits separados por Tier, no mezclar cambios"
+  ],
+  "known_issues": {
+    "failing_test": {
+      "file": "LevelResetModal.test.tsx",
+      "description": "Busca 'Current Level:' pero el componente renderiza '<strong>Level:</strong>'",
+      "impact": "test-only, no afecta producción"
+    },
+    "dead_code_files": [
+      "components/AuthDebugOverlay.tsx (177 LOC, nunca importado)",
+      "components/OAuthDebugConsole.tsx (275 LOC, nunca importado)",
+      "src/components/ThemeExample.tsx (~80 LOC, duplicado de ThemeSelector)",
+      "src/hooks/useTheme.ts (~30 LOC, duplicado de ThemeContext)"
+    ],
+    "dead_code_functions": [
+      "handleBatchUpdateCharacters en App.tsx (nunca llamado)",
+      "onBroadcast param en subscribeWithRetry (documentado como muerto)"
+    ],
+    "empty_catch_blocks": [
+      "App.tsx lines ~192, ~211"
+    ],
+    "magic_strings": {
+      "df_session": "8 ocurrencias en App.tsx",
+      "dnd-characters": "5 ocurrencias en App.tsx"
+    },
+    "weak_uuids": [
+      "App.tsx:1191 — Math.random() para IDs de import",
+      "utils/localStorage.ts:42 — Math.random() para party codes",
+      "utils/firebase.ts:509 — Math.random() para party codes"
+    ],
+    "dangerouslySetInnerHTML": [
+      "components/dm/Compendium.tsx:147",
+      "components/dm/Compendium.tsx:182"
+    ],
+    "typescript_bypasses": {
+      "as_any": 42,
+      "as_unknown_as_X": 3,
+      "concentrated_in": "src/utils/validators.ts mayormente"
+    }
+  },
+  "architecture_snapshot": {
+    "app_structure": "SPA monolítica con useState<ViewState> en App.tsx",
+    "views": ["list", "create", "sheet", "dm-dashboard", "observer-sheet"],
+    "state": "React state + localStorage + Firebase Firestore + RTDB",
+    "large_files": {
+      "App.tsx": "1444 LOC — auth, routing, CRUD, sync, OTA, import/export",
+      "utils/firebase.ts": "1203 LOC — Firebase init, auth, CRUD, RTDB, parties",
+      "SheetTabs.tsx": "~1000 LOC — 5 tabs con estado complejo"
+    },
+    "dual_component_dirs": {
+      "components/": "58 archivos (principal)",
+      "src/components/": "6 archivos (ThemeExample, ThemeSelector, SyncStatus, SyncToast, ThemeTest, Toast)"
+    }
+  },
+  "conventions": [
+    "TypeScript strict mode habilitado",
+    "React.FC<Props> para componentes",
+    "Functional components con hooks",
+    "Lazy loading para vistas pesadas",
+    "Mobile-first, dark mode con Tailwind",
+    "Import ordering: React → External → Types → Constants → Components",
+    "Naming: PascalCase componentes, camelCase funciones/vars, kebab-case files"
+  ]
+}

@@ -2,12 +2,12 @@
   "status": "blocked",
   "task_id": "T8",
   "plan_id": "dm-sync-investigation-2026-05-13",
-  "summary": "Integration testing BLOCKED por arquitectura incompleta de local mode. Waves 1-2 están implementadas y compiladas (✅), pero no pueden ser testeadas sin Supabase auth o RLS bypass. Identificado: createParty() y otras operaciones fallan con RLS policy violation (code 42501).",
+  "summary": "Integration testing BLOCKED por arquitectura incompleta de local mode. Waves 1-2 están implementadas y compiladas (✅), pero no pueden ser testeadas sin Firebase auth o RLS bypass. Identificado: createParty() y otras operaciones fallan con RLS policy violation (code 42501).",
   "failure_type": "architecture_gap",
   "blocker_details": {
     "error_code": 42501,
     "error_message": "new row violates row-level security policy for table 'parties'",
-    "root_cause": "Local mode genera UUID válido, pero Supabase RLS bloquea inserciones sin autenticación",
+    "root_cause": "Local mode genera UUID válido, pero Firebase RLS bloquea inserciones sin autenticación",
     "affected_operations": ["createParty", "deleteParty", "updatePartyName"],
     "missing_feature": "Fallback a localStorage cuando RLS falla en local mode"
   },
@@ -65,14 +65,14 @@
     "blockers": [
       {
         "type": "RLS_Policy_Violation",
-        "details": "Supabase RLS policy prevents unauthenticated writes to 'parties' table",
+        "details": "Firebase RLS policy prevents unauthenticated writes to 'parties' table",
         "affected_tables": ["parties", "characters"],
         "code": 42501,
         "severity": "CRITICAL"
       },
       {
         "type": "Architecture_Gap",
-        "details": "Local mode incomplete - no fallback storage when Supabase fails",
+        "details": "Local mode incomplete - no fallback storage when Firebase fails",
         "location": "App.tsx local mode setup",
         "severity": "CRITICAL"
       }
@@ -90,7 +90,7 @@
       "option": "B - Add localStorage fallback (FULL FIX)",
       "status": "❌ NOT IMPLEMENTED",
       "effort": "30-60 min",
-      "impact": "Permite local mode sin Supabase",
+      "impact": "Permite local mode sin Firebase",
       "required_changes": [
         "createParty(): Check RLS error → fallback a localStorage",
         "fetchAllParties(): Check RLS error → fallback a localStorage",
@@ -99,14 +99,14 @@
       ]
     },
     {
-      "option": "C - Use Supabase Auth (INFRASTRUCTURE FIX)",
+      "option": "C - Use Firebase Auth (INFRASTRUCTURE FIX)",
       "status": "❌ NOT APPLICABLE",
       "effort": "N/A",
       "impact": "Requiere OAuth setup/test account",
       "blocker": "No credenciales disponibles"
     },
     {
-      "option": "D - Disable RLS in Supabase (DB ADMIN FIX)",
+      "option": "D - Disable RLS in Firebase (DB ADMIN FIX)",
       "status": "❌ NOT APPLICABLE",
       "effort": "N/A",
       "impact": "Permite cualquier insert sin auth",

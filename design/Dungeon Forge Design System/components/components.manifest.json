@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "od-components-manifest/v1",
+  "generatedAt": "2026-06-19T00:00:00.000Z",
+  "designSystem": "dungeon-forge",
+  "totalComponents": 35,
+  "groups": [
+    {
+      "group": "Buttons",
+      "count": 8,
+      "components": [
+        { "id": "btn-primary", "name": "Primary Action", "selector": ".btn-primary", "description": "Full-width primary CTA with accent color and shadow" },
+        { "id": "btn-gradient", "name": "Gradient Action", "selector": ".btn-gradient-short-rest, .btn-gradient-long-rest, .btn-gradient-rage", "description": "Themed gradient buttons for rest, rage, and contextual actions" },
+        { "id": "btn-cta-circle", "name": "CTA Circle Pill", "selector": ".btn-cta-circle", "description": "Rounded pill button with icon, shine effect, and sub-label" },
+        { "id": "btn-secondary", "name": "Secondary / Outline", "selector": ".btn-secondary", "description": "Subtle background secondary button" },
+        { "id": "btn-destructive", "name": "Destructive", "selector": ".btn-destructive", "description": "Red destructive action button with red shadow" },
+        { "id": "btn-icon-round", "name": "Icon Round", "selector": ".btn-icon-round", "description": "Circular icon-only button with accent background" },
+        { "id": "btn-tab", "name": "Tab Pill", "selector": ".tab-item", "description": "Pill-shaped tab button for bottom navigation" },
+        { "id": "btn-small", "name": "Small Resource", "selector": ".badge", "description": "Compact resource button with uppercase label" }
+      ]
+    },
+    {
+      "group": "Cards",
+      "count": 7,
+      "components": [
+        { "id": "card-character", "name": "Character Card", "selector": ".card-character", "description": "Character list card with image area, name, level, class" },
+        { "id": "card-sheet", "name": "Sheet Card", "selector": ".card-sheet", "description": "Standard data card for combat/sheet tabs" },
+        { "id": "card-note", "name": "Note Card", "selector": ".card-note", "description": "Card with left accent bar for notes" },
+        { "id": "card-feature", "name": "Feature Card", "selector": ".card-feature", "description": "Feature/feat display card with icon and description" },
+        { "id": "card-stat", "name": "Stat Card", "selector": ".card-stat", "description": "Compact stat/ability score card" },
+        { "id": "card-radio", "name": "Radio Selection Card", "selector": ".card-radio", "description": "Selectable card for class/species picker" },
+        { "id": "card-member", "name": "Member Card", "selector": ".card-member", "description": "DM dashboard party member card" }
+      ]
+    },
+    {
+      "group": "Form Elements",
+      "count": 5,
+      "components": [
+        { "id": "input-text", "name": "Text Input", "selector": ".input-text", "description": "Standard text input with rounded corners" },
+        { "id": "select-input", "name": "Select Dropdown", "selector": ".select-input", "description": "Custom select with chevron icon" },
+        { "id": "toggle-switch", "name": "Toggle Switch", "selector": ".toggle-track", "description": "Toggle switch for binary settings" },
+        { "id": "range-slider", "name": "Range Slider", "selector": ".range-slider", "description": "Hit dice / resource slider" },
+        { "id": "textarea", "name": "Textarea", "selector": "textarea", "description": "Auto-resizing inline textarea for notes" }
+      ]
+    },
+    {
+      "group": "Modals & Dialogs",
+      "count": 3,
+      "components": [
+        { "id": "modal-bottom-sheet", "name": "Bottom Sheet Modal", "selector": ".modal-panel", "description": "Mobile-friendly modal that slides up from bottom, desktop centered" },
+        { "id": "modal-centered", "name": "Centered Dialog", "selector": ".modal-centered-panel", "description": "Compact centered confirmation dialog" },
+        { "id": "modal-fullscreen", "name": "Full-Screen Page", "selector": ".modal-overlay", "description": "Full-screen modal with toolbar for creators/wizards" }
+      ]
+    },
+    {
+      "group": "Navigation",
+      "count": 2,
+      "components": [
+        { "id": "tab-bar", "name": "Sheet Tab Bar", "selector": ".tab-bar", "description": "Floating pill tab bar for character sheet (Combat, Items, Spells, Features, Notes)" },
+        { "id": "dm-nav", "name": "DM Dashboard Nav", "selector": ".dm-nav", "description": "Grid-based bottom nav for DM dashboard" }
+      ]
+    },
+    {
+      "group": "Status & Progress",
+      "count": 3,
+      "components": [
+        { "id": "badge", "name": "Status Badge", "selector": ".badge", "description": "Status badge with icon (active, healthy, bloodied, down)" },
+        { "id": "progress-bar", "name": "HP/Resource Bar", "selector": ".progress-bar", "description": "Themed progress bar for HP, resources, XP" },
+        { "id": "step-progress", "name": "Step Progress", "selector": ".step-dot", "description": "Step indicator dots for creator flow" }
+      ]
+    },
+    {
+      "group": "Layout & Utilities",
+      "count": 7,
+      "components": [
+        { "id": "stat-grid-6", "name": "6-Col Stat Grid", "selector": ".stat-grid-6", "description": "Grid for ability scores (STR/DEX/CON/INT/WIS/CHA)" },
+        { "id": "empty-state", "name": "Empty State", "selector": ".empty-state", "description": "Empty state placeholder with icon and message" },
+        { "id": "section-separator", "name": "Section Separator", "selector": ".section-separator", "description": "Pill-shaped section divider label" },
+        { "id": "sheet-header", "name": "Sheet Header", "selector": ".sheet-header", "description": "Sticky header with backdrop blur" },
+        { "id": "scroll-fade", "name": "Scroll Fade Overlay", "selector": ".scroll-fade-left", "description": "Gradient fade overlay for horizontal scroll containers" },
+        { "id": "safe-area", "name": "Safe Area Utilities", "selector": ".safe-top, .safe-bottom", "description": "Safe area padding for device notches" },
+        { "id": "decorative", "name": "Decorative Utilities", "selector": ".leather-bg, .gold-shimmer, .iron-border", "description": "Themed background texture, gold text, inset border" }
+      ]
+    }
+  ]
+}

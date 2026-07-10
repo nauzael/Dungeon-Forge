@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Dungeon Forge - Colors</title>
+<style>:root{--bg:#0F172A;--surface:#1E293B;--fg:#F8FAFC;--muted:#94A3B8;--accent:#359EFF;--accent-alt:#9ADBFF;--border:rgba(154,219,255,0.1)}*,*::before,*::after{box-sizing:border-box}body{background:var(--bg);color:var(--fg);font-family:'Noto Sans',sans-serif;padding:24px;margin:0}h1{font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:-0.02em;margin:0 0 24px}h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin:24px 0 12px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}.swatch{display:flex;flex-direction:column;gap:6px}.color-block{height:60px;border-radius:8px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.3)}.label{font-size:11px;color:var(--muted)}.value{font-size:10px;color:var(--muted);font-family:monospace}.accent-block{background:linear-gradient(135deg,#9ADBFF,#359EFF)}</style></head>
+<body>
+<h1>Dungeon Forge <span style="color:var(--accent)">Colors</span></h1>
+<p style="color:var(--muted);font-size:13px;margin-bottom:16px">Classic D&D (default dark theme) — 5 themes available at runtime</p>
+
+<h2>Backgrounds</h2>
+<div class="grid">
+<div class="swatch"><div class="color-block" style="background:#0F172A"></div><span class="label">--bg</span><span class="value">#0F172A</span></div>
+<div class="swatch"><div class="color-block" style="background:#1E293B"></div><span class="label">--bg-secondary</span><span class="value">#1E293B</span></div>
+<div class="swatch"><div class="color-block" style="background:#1E293B"></div><span class="label">--surface</span><span class="value">#1E293B</span></div>
+<div class="swatch"><div class="color-block" style="background:#334155"></div><span class="label">--surface-highlight</span><span class="value">#334155</span></div>
+</div>
+
+<h2>Text</h2>
+<div class="grid">
+<div class="swatch"><div class="color-block" style="background:#F8FAFC"></div><span class="label">--fg (text-primary)</span><span class="value">#F8FAFC</span></div>
+<div class="swatch"><div class="color-block" style="background:#E2E8F0"></div><span class="label">--fg-2 (text-secondary)</span><span class="value">#E2E8F0</span></div>
+<div class="swatch"><div class="color-block" style="background:#94A3B8"></div><span class="label">--muted (text-muted)</span><span class="value">#94A3B8</span></div>
+</div>
+
+<h2>Accents & Semantic</h2>
+<div class="grid">
+<div class="swatch"><div class="color-block" style="background:#359EFF"></div><span class="label">--accent (primary)</span><span class="value">#359EFF</span></div>
+<div class="swatch"><div class="color-block" style="background:#2B7DE0"></div><span class="label">--accent-dark</span><span class="value">#2B7DE0</span></div>
+<div class="swatch"><div class="color-block" style="background:#9ADBFF"></div><span class="label">--accent-alt</span><span class="value">#9ADBFF</span></div>
+<div class="swatch"><div class="color-block" style="background:#64748B"></div><span class="label">--secondary</span><span class="value">#64748B</span></div>
+<div class="swatch"><div class="color-block" style="background:#22C55E"></div><span class="label">--success</span><span class="value">#22C55E</span></div>
+<div class="swatch"><div class="color-block" style="background:#F59E0B"></div><span class="label">--warning</span><span class="value">#F59E0B</span></div>
+<div class="swatch"><div class="color-block" style="background:#EF4444"></div><span class="label">--danger (error)</span><span class="value">#EF4444</span></div>
+<div class="swatch"><div class="color-block" style="background:#3B82F6"></div><span class="label">--info</span><span class="value">#3B82F6</span></div>
+<div class="swatch"><div class="color-block" style="background:rgba(154,219,255,0.1);border:1px solid rgba(154,219,255,0.2)"></div><span class="label">--border</span><span class="value">rgba(154,219,255,0.1)</span></div>
+</div>
+
+<h2>Theme Variations</h2>
+<div class="grid">
+<div class="swatch"><div class="color-block" style="background:linear-gradient(135deg,#F8FAFC,#E2E8F0)"></div><span class="label">Daylight</span><span class="value">Light theme</span></div>
+<div class="swatch"><div class="color-block" style="background:linear-gradient(135deg,#0C0A0A,#DC2626)"></div><span class="label">Dragon Blood</span><span class="value">Red dark theme</span></div>
+<div class="swatch"><div class="color-block" style="background:linear-gradient(135deg,#0A1F1A,#10B981)"></div><span class="label">Elven Forest</span><span class="value">Green dark theme</span></div>
+<div class="swatch"><div class="color-block" style="background:#000000;border:1px solid #FFFF00"></div><span class="label">High Contrast</span><span class="value">AAA dark theme</span></div>
+</div>
+</body>
+</html>

@@ -81,7 +81,7 @@ implementation 'com.google.android.gms:play-services-auth:21.0.0'
 ### 2. utils/firebase.ts
 **Lines Modified:** 
 - Import section (added `signInWithCredential` from Firebase Auth, added `import { signInWithGoogleNative }`)
-- `supabase.auth.signInWithOAuth()` function
+- `Firebase Auth sign-in` function
 - Added new function: `signInWithGoogleNativeFirebase()`
 
 **Key Changes:**
@@ -101,7 +101,7 @@ signInWithGoogleNativeFirebase():
 
 ### 3. components/Login.tsx
 **No Changes Required**
-- Already detects platform and calls `supabase.auth.signInWithOAuth()`
+- Already detects platform and calls `Firebase Auth sign-in`
 - firebase.ts now automatically routes to native implementation on Android
 
 ## Validation Signals ✅

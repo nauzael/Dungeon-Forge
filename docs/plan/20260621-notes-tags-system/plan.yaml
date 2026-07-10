@@ -1,0 +1,514 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# PLAN: Notes Tab — Tags + Search System (REVISED)
+# ═══════════════════════════════════════════════════════════════════════════
+plan_id: "20260621-notes-tags-system"
+objective: >
+  Implementar sistema de tags + búsqueda full-text en NotesTab de Dungeon Forge.
+  Agregar NoteTag a types.ts, crear sub-componentes TagChip/SearchBar/TagFilterBar/TagEditor,
+  integrar en NotesTab con filtro AND, búsqueda con debounce (desde NotesTab), y pin de notas (máx 3).
+created_at: "2026-06-21T12:00:00Z"
+created_by: "gem-planner"
+status: completed
+updated_at: "2026-06-21"
+tldr: |
+  4 waves, 7 tareas. Wave 1: types + searchbar controlada (sin deps). Wave 2: constants + tagchip + filterbar.
+  Wave 3: tageditor con animaciones slide-up/down + prefers-reduced-motion. Wave 4: integración en NotesTab con
+  functional updaters obligatorios, handlers separados (updateNoteField, togglePinNote, saveNoteTags),
+  matchSearch como función helper pura, pin overflow feedback con dialog.showAlert, y verificación
+  de rounded-radius-pill en tailwind.config. Sin cambios a Campaign Atlas ni Alignment/Languages.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PLAN-LEVEL METRICS
+# ═══════════════════════════════════════════════════════════════════════════
+plan_metrics:
+  wave_1_task_count: 2
+  total_dependencies: 9
+  risk_score: medium
+
+quality_warnings:
+  - "TagEditor bottom sheet vs popover: verificar implementación responsive con useResponsive"
+  - "Backwards compatibility: notas existentes (sin tags) deben renderizarse sin cambios — tags undefined → empty array"
+  - "Pin overflow: mostrar dialog.showAlert('Máximo 3 notas fijadas', 'Límite alcanzado') al intentar pin > 3"
+  - "Debounce de persistencia (800ms) debe convivir con debounce de search (300ms en NotesTab) — no interferir"
+  - "rounded-radius-pill: VERIFICAR que existe en tailwind.config.js antes de usar en TagChip/TagFilterBar — fallback a rounded-full si no existe"
+  - "Animación TagEditor: respetar prefers-reduced-motion — deshabilitar transiciones CSS si el usuario lo tiene activo via @media query"
+  - "matchSearch helper: función pura fuera del componente, sin hooks ni closures"
+  - "Functional updaters: addNote, updateNoteField, togglePinNote, saveNoteTags — TODOS usan setNotesList(prev => ...), NUNCA capturan notesList en closure"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PLANNING ANALYSIS (MEDIUM complexity)
+# ═══════════════════════════════════════════════════════════════════════════
+open_questions:
+  - question: "¿TagEditor debe abrirse como bottom sheet (mobile) o popover centrado (desktop)?"
+    context: "Se requiere lógica responsive. useResponsive existe en hooks/useResponsive.ts con isMobile"
+    type: decision_blocker
+    affects: [task-06-tageditor, task-07-integration]
+  - question: "¿Los tags creados en el TagEditor son globales (se reúsan entre notas) o locales a la nota?"
+    context: "Los tags se guardan dentro de NoteItem.tags[], no hay un registro global. Autocomplete debe extraer tags de otras notas."
+    type: research
+    affects: [task-02-constants, task-06-tageditor]
+
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "TagEditor bottom sheet no se renderiza correctamente en iOS Safari (viewport/clip issues)"
+      likelihood: medium
+      impact: high
+      mitigation: "Usar createPortal + fixed inset-0 + z-[300] como patrón existente en atlasViewer. Safe area padding con env(safe-area-inset-bottom)."
+    - scenario: "Stale closure en handlers causa pérdida de tags/pin state"
+      likelihood: low
+      impact: high
+      mitigation: "Los 3 handlers (updateNoteField, togglePinNote, saveNoteTags) usan setNotesList(prev => prev.map(...)) — functional updater SIEMPRE. addNote también usa functional updater prev => [...]. NUNCA capturar notesList desde fuera del updater."
+    - scenario: "Pin system conflict con el guardado debounced — pin toggle se pierde por el debounce de 800ms"
+      likelihood: low
+      impact: medium
+      mitigation: "Pin toggle llama a setNotesList con spread desde prev, el effect detecta cambio y persiste usando char.syncTimestamp existente."
+    - scenario: "Autocompletado de tags en TagEditor lento con muchas notas"
+      likelihood: low
+      impact: low
+      mitigation: "Usar useMemo para computed unique tags, limitar sugerencias a 20."
+  assumptions:
+    - "Notas existentes sin tags → notes.tags es undefined, tratado como [] en filtros"
+    - "Pin máximo 3 notas, controlado por validación en togglePinNote con dialog.showAlert"
+    - "Material Symbols Outlined tiene todos los iconos especificados (search, person, priority_high, push_pin, etc.)"
+    - "useResponsive está disponible en hooks/useResponsive.ts para determinar mobile vs desktop"
+    - "rounded-radius-pill existe en tailwind.config.js o se usa rounded-full como fallback"
+    - "dialog.showAlert es accesible como API global o importable (window.confirm o bridge nativo)"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TASKS
+# ═══════════════════════════════════════════════════════════════════════════
+tasks:
+  # ─── WAVE 1: Types & Constants ───────────────────────────────────────
+  - id: task-01-types
+    completed_at: "2026-06-21"
+    title: "Añadir NoteTag interface y actualizar NoteItem"
+    description: >
+      Agregar interfaz NoteTag a types.ts con id, label, color, icon (opcional).
+      Actualizar NoteItem para incluir tags?: NoteTag[] y pinned?: boolean.
+      No romper interfaces existentes — tags y pinned son opcionales (backwards compatible).
+      Las nuevas notas deben crearse con tags: [] y pinned: false por defecto (aplica en task-07).
+    wave: 1
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "types.ts — NoteTag interface + NoteItem update"
+    dependencies: []
+    context_files:
+      - path: "types.ts"
+        description: "Archivo de tipos principal. NoteItem está en línea 9-14."
+    acceptance_criteria:
+      - "NoteTag interface exportable con id, label, color, icon?"
+      - "NoteItem tiene tags?: NoteTag[] opcional (backwards compatible)"
+      - "NoteItem tiene pinned?: boolean opcional"
+      - "TypeScript strict mode no se queja — no any, tipos explícitos"
+      - "newNote creada con tags: [] y pinned: false por defecto (aplica en task-07)"
+    handoff:
+      do_not_reinvestigate:
+        - "NoteItem está en types.ts línea 9-14, NO está en src/types/"
+      target_files:
+        - "types.ts"
+    success_criteria:
+      - "npm run build pasa sin type errors"
+      - "NotesTab existente compila sin cambios (tags undefined en notas legacy)"
+
+  - id: task-02-constants
+    title: "Crear constantes de tags + utilidad de color"
+    description: >
+      Crear src/constants/tags.ts con:
+      - TAG_CATEGORIES: array de categorías (Quest, Entity, Lore, Location, Item, Meta, Combat)
+        cada una con id, label, icon (Material Symbols name), y array de tags predefinidos.
+      - Cada tag predefinido: { id, label, icon, category }
+      - TAG_COLOR_PALETTE: 12 colores hex array
+      - getTagColor(label: string): string — deterministic hash del label para asignar color
+      - getAllPredefinedTags(): NoteTag[] — flat list para import
+    wave: 2
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "src/constants/tags.ts — constantes y utilidad de color"
+    dependencies: [task-01-types]
+    context_files:
+      - path: "types.ts"
+        description: "NoteTag type reference"
+      - path: "src/constants/themes.ts"
+        description: "Convención de constantes existente en src/constants/"
+    acceptance_criteria:
+      - "7 categorías de tags con iconos Material Symbols"
+      - "Tags predefinidos con colores según spec (Amber #f59e0b, Blue #3b82f6, etc.)"
+      - "getTagColor(label) asigna mismo color para mismo label (deterministic hash)"
+      - "getTagColor usa palette rotativa de 12 colores"
+      - "getTagColor para tags predefinidos retorna su color fijo de categoría"
+    handoff:
+      do_not_reinvestigate:
+        - "Convención: src/constants/ ya existe con themes.ts"
+        - "Material Symbols icons list — usar los nombres especificados en el spec"
+      target_files:
+        - "src/constants/tags.ts"
+    success_criteria:
+      - "Import sin errors en cualquier componente"
+      - "getTagColor('same-label') siempre retorna el mismo color"
+
+  # ─── WAVE 2: Atomic Components ──────────────────────────────────────
+  - id: task-03-tagchip
+    title: "Crear sub-componente TagChip"
+    description: >
+      Crear src/components/sheet/components/TagChip.tsx.
+      Píldora pequeña con:
+      - Color de fondo según tag.color
+      - Label en texto blanco
+      - Icono Material Symbols pequeño (opcional)
+      - Botón X para remover (solo si onRemove está definido — modo edición)
+      - active:scale-95 en tap (haptic-like feedback)
+      - Tamaño: text-[10px] leading-none, px-2 py-0.5, rounded-radius-pill (verificar en tailwind.config)
+      - Dark mode: opacidad ajustada (dark:bg-opacity-80)
+    wave: 2
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "src/components/sheet/components/TagChip.tsx — nuevo componente TagChip"
+    dependencies: [task-01-types]
+    context_files:
+      - path: "types.ts"
+        description: "NoteTag type reference"
+      - path: "src/components/sheet/NotesTab.tsx"
+        description: "Estilo visual de referencia (rounded-radius-pill, active:scale-95, dark: prefijos)"
+      - path: "src/components/sheet/components/RageIndicator.tsx"
+        description: "Referencia de componente atómico en sheet/components/"
+      - path: "tailwind.config.js"
+        description: "Verificar que rounded-radius-pill existe; si no, usar rounded-full"
+    acceptance_criteria:
+      - "Renderiza píldora con bg color, label blanco, icono opcional"
+      - "onRemove? muestra botón X con hover state"
+      - "active:scale-95 en :active pseudo-clase"
+      - "Dark mode: bg con opacidad ajustada"
+      - "Tooltip o title con label completo"
+      - "rounded-radius-pill verificado en tailwind.config.js — fallback a rounded-full si no existe"
+    handoff:
+      do_not_reinvestigate:
+        - "Patrón de componentes: src/components/sheet/components/ ya tiene RageIndicator.tsx"
+        - "Usar rounded-radius-pill consistente con el resto de la app — verificar en tailwind.config.js primero"
+        - "Si rounded-radius-pill no está definido, usar rounded-full como fallback"
+      target_files:
+        - "src/components/sheet/components/TagChip.tsx"
+    success_criteria:
+      - "TagChip acepta NoteTag y se renderiza correctamente"
+      - "Modo edición muestra X, modo display no"
+
+  - id: task-04-searchbar
+    title: "Crear componente SearchBar (puramente controlado)"
+    description: >
+      Crear src/components/sheet/components/SearchBar.tsx.
+      Input de búsqueda puramente controlado (SIN debounce interno):
+      - Icono Material Symbols (search) a la izquierda
+      - Placeholder "Buscar en tus notas..."
+      - Botón X para limpiar cuando hay texto — llama onChange('')
+      - Props: value: string, onChange: (value: string) => void, placeholder?: string
+      - NO usa useDebounce internamente — el debounce se maneja en NotesTab
+      - Dark mode consistente
+      - Estilo: bg-surface, border, rounded-radius-xl, pl-10 para icono
+    wave: 1
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "src/components/sheet/components/SearchBar.tsx — nuevo componente"
+    dependencies: []
+    context_files:
+      - path: "hooks/useDebounce.ts"
+        description: "Hook de debounce existente — NO se usa dentro de SearchBar, se usa en NotesTab"
+      - path: "src/components/sheet/NotesTab.tsx"
+        description: "Referencia visual para dark mode y estilos"
+    acceptance_criteria:
+      - "Renderiza input con icono search a la izquierda"
+      - "Placeholder 'Buscar en tus notas...'"
+      - "Botón X aparece cuando hay texto, al hacer click llama onChange('')"
+      - "Puramente controlado: value + onChange props, SIN lógica de estado interna ni hooks"
+      - "Dark mode: bg-surface-dark, text consistente"
+    handoff:
+      do_not_reinvestigate:
+        - "NO usar useDebounce dentro de SearchBar — el debounce se maneja en NotesTab con useDebounce(rawQuery, 300)"
+        - "SearchBar es un componente controlado puro — solo renderiza el input, no tiene estado"
+        - "onChange recibe el string value directamente (no un evento)"
+      target_files:
+        - "src/components/sheet/components/SearchBar.tsx"
+    success_criteria:
+      - "Input renderizado, placeholder visible"
+      - "onChange se dispara en cada cambio del input"
+      - "Botón X llama onChange('')"
+
+  - id: task-05-tagfilterbar
+    title: "Crear componente TagFilterBar"
+    description: >
+      Crear src/components/sheet/components/TagFilterBar.tsx.
+      Barra horizontal scrolleable con pills inline (no depende de TagChip para evitar serialización):
+      - overflow-x-auto, scrollbar-hide, snap-x snap-mandatory
+      - Primer item siempre "All" con total de notas (count auto-calculado)
+      - Tags únicos con count: label "clue 4"
+      - Active tag: filled bg con tag.color; inactive: outline/border sutil
+      - Múltiples tags activos = AND filter
+      - Animación suave al cambiar (transition-colors)
+      - Props: allTags (NoteTag[] aggregated), noteCount total, activeTagIds, onToggle
+      - Pills inline con mismo estilo visual que TagChip pero sin dependencia directa
+      - rounded-radius-pill: verificar en tailwind.config.js, fallback a rounded-full
+    wave: 2
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "src/components/sheet/components/TagFilterBar.tsx — nuevo componente"
+    dependencies: [task-01-types]
+    context_files:
+      - path: "types.ts"
+        description: "NoteTag type reference"
+      - path: "src/components/sheet/NotesTab.tsx"
+        description: "Referencia visual: Campaign Atlas scroll horizontal (línea 176) usa snap-x"
+      - path: "tailwind.config.js"
+        description: "Verificar rounded-radius-pill"
+    acceptance_criteria:
+      - "Barra horizontal scrolleable con snap scroll"
+      - "Item 'All (N)' siempre primero con count total"
+      - "Tags con count 'label N'"
+      - "Active tag: bg color sólido; inactive: border sutil"
+      - "Múltiples tags activos = AND (todos deben estar presentes en la nota)"
+    handoff:
+      do_not_reinvestigate:
+        - "El scroll horizontal snap-x ya se usa en Campaign Atlas (línea 176 de NotesTab)"
+        - "Usar scrollbar-hide + snap-x snap-mandatory"
+        - "Pills inline con mismo estilo visual que TagChip (bg color, label blanco, rounded-radius-pill) pero sin dependencia directa"
+        - "Verificar rounded-radius-pill en tailwind.config.js primero"
+      target_files:
+        - "src/components/sheet/components/TagFilterBar.tsx"
+    success_criteria:
+      - "Scroll horizontal funcional en mobile"
+      - "Tags filtran correctamente con AND logic"
+      - "Active/inactive states visualmente distintos"
+
+  - id: task-06-tageditor
+    title: "Crear componente TagEditor (popover/bottom sheet con animaciones)"
+    description: >
+      Crear src/components/sheet/components/TagEditor.tsx.
+      Editor de tags para una nota, responsive, con animaciones de entrada/salida:
+      
+      LAYOUT:
+      - Mobile (< 768px): Bottom sheet con drag handle, fixed bottom-0, createPortal
+      - Desktop (>= 768px): Popover centrado con overlay semitransparente
+      
+      ANIMACIONES:
+      - Entrada: slide-up desde abajo (transform: translateY(100%) → translateY(0))
+      - Salida: slide-down (transform: translateY(0) → translateY(100%))
+      - Overlay: opacity 0 → 1 en entrada, opacity 1 → 0 en salida
+      - CSS transitions: transform 250ms ease-out, opacity 200ms ease-out
+      - prefers-reduced-motion: @media (prefers-reduced-motion: reduce) { transition: none; }
+      - Animar con clases CSS + state-driven (isOpen boolean → aplicar clase .open / .closing)
+      
+      FUNCIONALIDAD:
+      - Categorías de tags predefinidos (import de src/constants/tags.ts) agrupadas
+      - Cada tag sugerido clickeable para toggle add/remove
+      - Input de texto para crear tags custom
+      - Autocompletado: sugiere tags ya usados en otras notas (allUsedTags prop)
+      - Deterministic color via getTagColor() para custom tags
+      - Botón "Done" para cerrar y guardar
+      - Safe area padding: pb-[max(1rem,env(safe-area-inset-bottom))]
+      - Props: noteCurrentTags, allUsedTags, onSave, onClose
+      - Selected tags renderizados con inline pills (mismo estilo visual que TagChip, sin dependencia directa)
+    wave: 3
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "src/components/sheet/components/TagEditor.tsx — nuevo componente"
+    dependencies: [task-01-types, task-02-constants]
+    context_files:
+      - path: "types.ts"
+        description: "NoteTag type reference"
+      - path: "src/constants/tags.ts"
+        description: "TAG_CATEGORIES, getTagColor import"
+      - path: "hooks/useResponsive.ts"
+        description: "useResponsive para detectar mobile vs desktop"
+      - path: "src/components/sheet/NotesTab.tsx"
+        description: "Patrón createPortal existente (líneas 287-351), safe-area padding"
+      - path: "src/components/sheet/RestModal.tsx"
+        description: "Patrón de modal existente para referencia de overlay"
+    acceptance_criteria:
+      - "Mobile: bottom sheet con drag handle visual, overlay semitransparente"
+      - "Desktop: popover centrado con overlay"
+      - "Animación entrada: slide-up desde abajo (translateY(100%) → 0) con CSS transition 250ms ease-out"
+      - "Animación salida: slide-down con CSS transition, overlay fade 200ms ease-out"
+      - "prefers-reduced-motion: transitions deshabilitadas via @media query (transition: none)"
+      - "Categorías de tags predefinidos agrupadas y colapsables"
+      - "Tags clickeables: si ya está agregado → se remueve; si no → se agrega"
+      - "Input custom tag con submit on Enter"
+      - "Autocomplete dropdown con tags ya usados en otras notas (allUsedTags)"
+      - "Color deterministic para custom tags via getTagColor()"
+      - "Botón Done cierra el editor y llama onSave con tags actualizados"
+      - "Safe area padding consistente"
+    handoff:
+      do_not_reinvestigate:
+        - "useResponsive en hooks/useResponsive.ts tiene isMobile, isDesktop"
+        - "useModalScrollLock en hooks/useModalScrollLock.ts existe para scroll lock en modales"
+        - "createPortal se usa consistentemente en la app (NotesTab línea 287)"
+        - "Safe area pattern: pb-[max(1rem,env(safe-area-inset-bottom))]"
+        - "Selected tags inline pills: mismo estilo visual que TagChip (bg color, label blanco) sin import directo"
+        - "Animaciones: usar CSS transitions con transform y opacity. NO usar librerías externas. State-driven con clases open/closing."
+        - "prefers-reduced-motion: @media (prefers-reduced-motion: reduce) { .tag-editor-panel { transition: none !important; } }"
+      target_files:
+        - "src/components/sheet/components/TagEditor.tsx"
+    success_criteria:
+      - "Bottom sheet en mobile (< 768px), popover en desktop"
+      - "Animaciones fluidas en entrada/salida"
+      - "prefers-reduced-motion: sin animaciones visibles"
+      - "Tags predefinidos y custom tags funcionales"
+      - "Autocomplete sugiere tags de allUsedTags"
+
+  # ─── WAVE 4: Integration ────────────────────────────────────────────
+  - id: task-07-integration
+    title: "Integrar tags + search + pin en NotesTab"
+    description: >
+      Refactorizar src/components/sheet/NotesTab.tsx para integrar todos los componentes.
+      
+      ESTADO NUEVO:
+      - rawQuery: string (input del SearchBar, cambia en cada keystroke)
+      - searchQuery: string = useDebounce(rawQuery, 300) (valor debounced para filtrar)
+      - activeTags: string[] (ids de tags activos en filtro)
+      - tagEditorTarget: string | null (id de nota siendo editada, o null)
+      
+      HELPER — matchSearch (función pura fuera del componente):
+      > function matchSearch(note: NoteItem, query: string): boolean
+      >   const q = query.toLowerCase();
+      >   return note.title.toLowerCase().includes(q)
+      >       || note.content.toLowerCase().includes(q)
+      >       || (note.tags ?? []).some(tag => tag.label.toLowerCase().includes(q));
+      - Función pura: sin hooks, sin closures, sin side effects
+      - Definida fuera del componente NotesTab (no necesita re-crearse en cada render)
+      
+      HANDLERS — TODOS usan functional updater (setNotesList(prev => ...)):
+      
+      1) addNote:
+         setNotesList(prev => [{
+           ...createNewNote(),
+           tags: [],
+           pinned: false,
+         }, ...prev])
+      
+      2) updateNoteField(id, field: 'title' | 'content', value: string):
+         setNotesList(prev => prev.map(n =>
+           n.id === id ? { ...n, [field]: value } : n
+         ))
+      
+      3) togglePinNote(id):
+         setNotesList(prev => {
+           const target = prev.find(n => n.id === id);
+           if (!target) return prev;
+           if (target.pinned) {
+             return prev.map(n => n.id === id ? { ...n, pinned: false } : n);
+           }
+           const pinnedCount = prev.filter(n => n.pinned).length;
+           if (pinnedCount >= 3) {
+             dialog.showAlert('Máximo 3 notas fijadas', 'Límite alcanzado');
+             return prev;
+           }
+           return prev.map(n => n.id === id ? { ...n, pinned: true } : n);
+         })
+      
+      4) saveNoteTags(id, tags: NoteTag[]):
+         setNotesList(prev => prev.map(n =>
+           n.id === id ? { ...n, tags } : n
+         ))
+      
+      FILTRADO:
+      - filteredNotes usa searchQuery (debounced):
+          notesList
+            .filter(n => !searchQuery || matchSearch(n, searchQuery))
+            .filter(n => activeTags.length === 0 || activeTags.every(tagId => n.tags?.some(t => t.id === tagId)))
+      - Pinned notes flotan al inicio dentro del filtrado
+      
+      HEADER:
+      - SearchBar: value=rawQuery, onChange=setRawQuery (SIN debounce interno)
+      - TagFilterBar entre header y note list
+      
+      NOTECARD (sub-componente dentro de NotesTab):
+      - Props onUpdate: (id, field: 'title' | 'content', value: string) — solo title y content
+      - Pin icon (push_pin) si pinned; al tap → togglePinNote(id)
+      - Fila de TagChips entre título y textarea (solo si tiene tags)
+      - Botón "+" junto a tags → abre TagEditor para esa nota
+      - TagEditor recibe currentTags de la nota target, allUsedTags de todo notesList
+      - Al guardar en TagEditor → saveNoteTags(targetId, savedTags)
+      
+      BACKWARDS COMPAT:
+      - Notas sin tags → n.tags ?? [] en filtros y matchSearch
+      - Notas legacy (string content) → se migran automáticamente como hasta ahora
+      
+      VERIFICACIÓN:
+      - Confirmar que rounded-radius-pill existe en tailwind.config.js
+      - Si no existe, usar rounded-full como fallback en componentes nuevos
+      
+      NO MODIFICAR:
+      - Campaign Atlas section
+      - Alignment + Languages cards
+      - Debounce persistencia (800ms) existente
+    wave: 4
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "src/components/sheet/NotesTab.tsx — refactor principal"
+    dependencies:
+      - task-03-tagchip
+      - task-04-searchbar
+      - task-05-tagfilterbar
+      - task-06-tageditor
+    flags:
+      requires_design_validation: true
+    context_files:
+      - path: "src/components/sheet/NotesTab.tsx"
+        description: "Archivo a modificar (358 líneas, componente principal)"
+      - path: "types.ts"
+        description: "NoteItem actualizado con tags y pinned"
+      - path: "src/components/sheet/components/TagChip.tsx"
+        description: "Sub-componente TagChip"
+      - path: "src/components/sheet/components/SearchBar.tsx"
+        description: "Componente SearchBar puramente controlado"
+      - path: "src/components/sheet/components/TagFilterBar.tsx"
+        description: "Componente TagFilterBar"
+      - path: "src/components/sheet/components/TagEditor.tsx"
+        description: "Componente TagEditor con animaciones"
+      - path: "hooks/useDebounce.ts"
+        description: "Hook de debounce para searchQuery = useDebounce(rawQuery, 300)"
+      - path: "tailwind.config.js"
+        description: "Verificar que rounded-radius-pill existe antes de usar"
+    acceptance_criteria:
+      - "addNote usa setNotesList(prev => ...) — functional updater, no closure capture"
+      - "newNote creada con tags: [] y pinned: false por defecto"
+      - "updateNoteField: solo acepta 'title' | 'content' como field, usa functional updater"
+      - "togglePinNote: functional updater, verifica límite de 3 pinned, muestra dialog.showAlert si excede"
+      - "saveNoteTags: functional updater, guarda tags array completo"
+      - "matchSearch: función pura fuera del componente, busca en title + content + tag labels"
+      - "SearchBar en header es puramente controlado — debounce via useDebounce(rawQuery, 300) en NotesTab"
+      - "TagFilterBar filtra notas con AND logic entre tags activos"
+      - "NoteCard muestra fila de TagChips entre título y textarea"
+      - "NoteCard onUpdate: solo acepta 'title' | 'content' como field"
+      - "Pin toggle funcional, máximo 3 notas pinned, flotan al inicio"
+      - "Pin overflow: dialog.showAlert('Máximo 3 notas fijadas', 'Límite alcanzado')"
+      - "Backwards compatible: notas existentes sin tags se renderizan sin errores"
+      - "rounded-radius-pill verificado en tailwind.config.js — fallback a rounded-full si no existe"
+      - "Campaign Atlas y Alignment/Languages no se modifican"
+      - "npm run build sin errors"
+    handoff:
+      do_not_reinvestigate:
+        - "NoteCard es sub-componente DENTRO de NotesTab, no en archivo separado"
+        - "Campaign Atlas: líneas 161-205, NO tocar"
+        - "Alignment/Languages: líneas 208-240, NO tocar"
+        - "Debounce persistencia: useEffect líneas 125-132, mantener intacto"
+        - "useMemo para computed unique tags + filtered notes"
+        - "NUNCA capturar notesList en closure — usar functional updater setNotesList(prev => ...)"
+        - "matchSearch no necesita useCallback — es función pura, no se pasa como prop"
+        - "SearchBar NO tiene debounce interno — rawQuery liga directamente al input"
+        - "searchQuery = useDebounce(rawQuery, 300) es la fuente para filtrar"
+        - "rounded-radius-pill: verificar en tailwind.config.js antes de usar"
+      target_files:
+        - "src/components/sheet/NotesTab.tsx"
+      acceptance_checks:
+        - "npm run build pasa sin type errors"
+        - "Notas legacy sin tags renderizan correctamente"
+        - "Pin toggle no permite más de 3 pinned (muestra alert)"
+        - "Filtros AND funcionan: seleccionar 2 tags muestra solo notas con ambos"
+        - "Search busca en title, content, y tag labels con debounce 300ms"
+        - "Functional updaters: dos cambios rápidos consecutivos no se pierden"
+        - "rounded-radius-pill existe o se usa rounded-full como fallback"

@@ -25,20 +25,20 @@ export type MonsterType =
   | 'undead';
 
 export const MONSTER_TYPES: Record<MonsterType, { label: string; icon: string }> = {
-  aberration: { label: 'Aberración', icon: 'bubble_chart' },
-  beast: { label: 'Bestia', icon: 'pets' },
+  aberration: { label: 'Aberration', icon: 'bubble_chart' },
+  beast: { label: 'Beast', icon: 'pets' },
   celestial: { label: 'Celestial', icon: 'auto_awesome' },
-  construct: { label: 'Constructo', icon: 'precision_manufacturing' },
-  dragon: { label: 'Dragón', icon: 'dragon' },
+  construct: { label: 'Construct', icon: 'precision_manufacturing' },
+  dragon: { label: 'Dragon', icon: 'dragon' },
   elemental: { label: 'Elemental', icon: 'whirlwind' },
-  fey: { label: 'Hada', icon: 'forest' },
-  fiend: { label: 'Demonio', icon: 'local_fire_department' },
-  giant: { label: 'Gigante', icon: 'height' },
-  humanoid: { label: 'Humanoide', icon: 'person' },
-  monstrosity: { label: 'Monstruosidad', icon: 'warning' },
-  ooze: { label: 'Moco', icon: 'water_drop' },
-  plant: { label: 'Planta', icon: 'grass' },
-  undead: { label: 'No-muerto', icon: 'air' },
+  fey: { label: 'Fey', icon: 'forest' },
+  fiend: { label: 'Fiend', icon: 'local_fire_department' },
+  giant: { label: 'Giant', icon: 'height' },
+  humanoid: { label: 'Humanoid', icon: 'person' },
+  monstrosity: { label: 'Monstrosity', icon: 'warning' },
+  ooze: { label: 'Ooze', icon: 'water_drop' },
+  plant: { label: 'Plant', icon: 'grass' },
+  undead: { label: 'Undead', icon: 'air' },
 };
 
 export const SRD_MONSTERS: MonsterData[] = [
@@ -255,6 +255,44 @@ export const SRD_MONSTERS: MonsterData[] = [
     type: 'monstrosity',
     alignment: 'unaligned',
   },
+
+  // --- PUGILIST CREATURES (Homebrew) ---
+  {
+    name: 'Streetfighter',
+    cr: '1/2',
+    hp: 13,
+    ac: 14,
+    type: 'humanoid',
+    alignment: 'neutral',
+    description: 'Streetfighters can be found hanging around shady establishments and shaking down easy marks in alleys. They aren\'t the type to take orders from a boss unless the threat of violence is involved.',
+  },
+  {
+    name: 'Wrestler',
+    cr: '3',
+    hp: 52,
+    ac: 15,
+    type: 'humanoid',
+    alignment: 'neutral',
+    description: 'Wrestlers are trained athletes that grapple competitively for money and sometimes glory.',
+  },
+  {
+    name: 'Belligerent Brawler',
+    cr: '4',
+    hp: 105,
+    ac: 16,
+    type: 'humanoid',
+    alignment: 'neutral',
+    description: 'There\'s not a belligerent brawler in every tavern but every belligerent brawler can be found in one. They smell strongly of whatever drink they\'re carrying in their flask.',
+  },
+  {
+    name: 'Boxer',
+    cr: '6',
+    hp: 102,
+    ac: 16,
+    type: 'humanoid',
+    alignment: 'neutral',
+    description: 'Boxers get paid to beat people up and get beaten up in return. It\'s generally best to avoid being within arm\'s reach of one in a fight.',
+  },
 ];
 
 export const POPULAR_MONSTERS = SRD_MONSTERS.filter((m) =>
@@ -273,6 +311,10 @@ export const POPULAR_MONSTERS = SRD_MONSTERS.filter((m) =>
     'Ogre',
     ' Hobgoblin',
     'Dragon Turtle',
+    'Streetfighter',
+    'Wrestler',
+    'Belligerent Brawler',
+    'Boxer',
   ].includes(m.name)
 );
 

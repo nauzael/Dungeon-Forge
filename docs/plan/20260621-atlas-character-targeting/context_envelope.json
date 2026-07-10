@@ -1,0 +1,63 @@
+{
+  "plan_id": "20260621-atlas-character-targeting",
+  "objective": "Implementar compartición selectiva de recursos del Atlas por personaje en el DM Panel",
+  "complexity": "MEDIUM",
+  "tech_stack": {
+    "frontend": "React 19, TypeScript (strict)",
+    "styling": "Tailwind CSS, Material Symbols",
+    "build": "Vite",
+    "mobile": "Capacitor 6",
+    "backend": "Firebase (Auth, Firestore, Realtime DB)",
+    "pwa": true
+  },
+  "constraints": {
+    "typescript_strict": true,
+    "no_any": true,
+    "react_functional_components": true,
+    "lazy_loading": true,
+    "mobile_first": true,
+    "dark_mode": "dark: prefix + CSS variables",
+    "import_order": "React → external → types → constants → components",
+    "naming_components": "PascalCase",
+    "naming_files": "kebab-case"
+  },
+  "architecture_snapshot": {
+    "resource_sharing_flow": "DM → broadcastResourceShare() → RTDB parties/{partyId}/resource-share → subscribeToPartyResources() → setSharedResource → App.tsx modal",
+    "broadcastResourceShare_signature": "broadcastResourceShare(partyId, resource, viewingCharacterIds?)",
+    "broadcastResourceShare_current_behavior": "Writes viewingCharacterIds: viewingCharacterIds || [] to RTDB (undefined→[] normalización, rompe distinción 'todos' vs 'nadie')",
+    "broadcastResourceShare_fix": "Solo incluir viewingCharacterIds en payload si !== undefined. Usar ['*'] como sentinela para 'todos'",
+    "current_subscription": "subscribeToPartyResources callback recibe CampaignResource[], descarta viewingCharacterIds",
+    "current_ui": "CampaignResources.tsx tiene Reveal/Hide toggle simple, broadcasts a TODOS sin filtro",
+    "player_view": "App.tsx renderiza SharedResource modal cuando setSharedResource es no-null",
+    "party_members_flow": "useDMParty(partyId) → DMDashboard → TabContent members prop → CampaignResources (AÚN NO)",
+    "effect8_location": "src/hooks/useSync.ts lines 462-481"
+  },
+  "plan_summary": {
+    "waves": 3,
+    "tasks": 6,
+    "design_decisions": [
+      "SharedResourceEvent NO recibe viewingCharacterIds — es tipo de render, no metadata",
+      "broadcastResourceShare omite viewingCharacterIds cuando undefined para distinguir 'todos' vs 'nadie'",
+      "subscribeToPartyResources callback cambia a ResourceSharePayload (resource + viewingCharacterIds)",
+      "Effect 8 usa useRef + activeCharacter?.id en deps para evitar stale closure (mismo bug de Long Rest)",
+      "Filtrado es UX-only, NO es seguridad — documentado explícitamente",
+      "Selección de personajes se resetea al cambiar de recurso",
+      "client_side_filtering_is_not_security: true"
+    ]
+  },
+  "conventions": {
+    "import_order": "React → external → types → constants → components",
+    "component_style": "React.FC<Props>",
+    "state_management": "useState<T>, useReducer, localStorage debounce 300ms",
+    "error_handling": "try/catch with console.error fallback"
+  },
+  "prior_decisions": {
+    "empty_viewingCharacterIds_means_visible_to_all": true,
+    "viewingCharacterIds_sentinel_for_all": "'*'",
+    "use_existing_createPortal_pattern": true,
+    "broadcastResourceShare_fix_required": true,
+    "subscribeToPartyResources_api_needs_change": true,
+    "effect8_needs_useref_for_stale_closure": true,
+    "no_changes_to_App.tsx_modal_rendering": true
+  }
+}

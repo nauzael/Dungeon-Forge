@@ -1,5 +1,5 @@
 /**
- * Genera un UUID v4 válido usando crypto.getRandomValues()
+ * Generates a valid UUID v4 using crypto.getRandomValues()
  * Compatible con navegadores modernos y Node.js
  */
 export const generateUUID = (): string => {

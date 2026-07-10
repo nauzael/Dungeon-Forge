@@ -6,11 +6,20 @@ export interface InventoryItem {
   customStat?: Ability; // Added to support custom scaling (Hexblade, Battle Ready, etc.)
 }
 
+export interface NoteTag {
+  id: string;
+  label: string;
+  color: string;
+  icon?: string; // Material Symbols opcional, ej: "search", "person", "priority_high"
+}
+
 export interface NoteItem {
   id: string;
   title: string;
   content: string;
   date: string;
+  tags?: NoteTag[];    // Opcional: tags para categorizar la nota
+  pinned?: boolean;    // Opcional: si la nota está fijada al tope
 }
 
 // Wizard (2024 D&D 5e): Spellbook + daily preparation mechanics
@@ -27,6 +36,29 @@ export interface InitiativeCombatant {
   isCurrentTurn: boolean;
   ac?: number;
   hp?: { current: number; max: number };
+}
+
+export interface CustomItem {
+  name: string;
+  type: 'Weapon' | 'Armor' | 'Gear';
+  // Weapon fields
+  category?: 'Simple' | 'Martial';
+  rangeType?: 'Melee' | 'Ranged';
+  damage?: string;
+  damageType?: string;
+  properties?: string[];
+  mastery?: string;
+  // Armor fields
+  armorType?: 'Light' | 'Medium' | 'Heavy' | 'Shield';
+  baseAC?: number;
+  stealthDisadvantage?: boolean;
+  strengthReq?: number;
+  maxDex?: number;
+  // All items
+  weight: number;
+  cost: string;
+  description: string;
+  requiresAttunement?: boolean;
 }
 
 export interface Character {
@@ -77,7 +109,9 @@ export interface Character {
   expertise?: string[];
   imageUrl: string;
   inventory: InventoryItem[];
+  customItems?: CustomItem[];
   preparedSpells?: string[];
+  featSpells?: string[]; // Spells from feats (Magic Initiate) - free, don't count against class limits
   innateSpells?: string[]; // Spells that don't consume slots (species innate, etc.)
   weaponMasteries?: string[]; // Added for 2024 Weapon Mastery
   spellcastingAbility?: Ability; // To pick INT/WIS/CHA for species spells
@@ -99,6 +133,7 @@ export interface Character {
   spellSlots?: Record<number, { current: number; max: number }>; // Added for 2024 spell slot tracking
   sorceryPoints?: { current: number; max: number }; // Sorcerer
   innateSorcery?: { current: number; max: number }; // Sorcerer uses (Lv1=2)
+  extraSavingThrows?: Ability[]; // Additional save proficiencies from subclass features (e.g., Gloom Stalker Iron Mind)
   extraAttacks?: number; // Number of attacks per Attack action (Fighter: 1 at Lv5, 2 at Lv11, 3 at Lv20)
   hunterMarkUses?: { current: number; max: number }; // Ranger: uses of Hunter's Mark (Lv1=2, +1 at 5,9,13,17)
   fightingStyle?: string; // Ranger/Fighter: chosen fighting style
@@ -159,7 +194,9 @@ export interface FeatureUsageConfig {
     | 'proficiencyBonus'
     | '1'
     | '2'
-    | '3';
+    | '3'
+    | '5xLevel';
+  progression?: [number, number][];
   resetType: ResetType;
   costToRestore?: ResourceCost;
 }
@@ -341,6 +378,11 @@ export interface SharedResourceEvent {
   url: string;
   title: string;
   description?: string;
+}
+
+export interface ResourceSharePayload {
+  resource?: CampaignResource;
+  viewingCharacterIds?: string[];
 }
 
 export interface OTAUpdate {

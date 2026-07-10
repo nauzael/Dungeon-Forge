@@ -1,0 +1,526 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# PLAN: Dungeon Forge Design System Integration
+# ═══════════════════════════════════════════════════════════════════════════
+plan_id: df-design-system-001
+objective: Integrate the Dungeon Forge Design System (reverse-engineered from codebase, ~72 tokens) into the production app by adding ~50 new CSS custom properties, extending TypeScript theme interfaces, updating 5 theme definitions, extending Tailwind config, and ensuring utility class parity. No Tailwind v4 migration. All changes additive-only.
+created_at: "2026-06-19T05:36:00Z"
+created_by: gem-planner
+status: pending
+tldr: |
+  Add ~50 new design tokens as CSS vars in index.css (type scale, spacing, motion, elevation,
+  container, icon, decorative, DS aliases). Extend ThemeType interfaces with optional fields.
+  Update all 5 themes with new values. Extend tailwind.config.js with new mappings.
+  Update ThemeContext to apply new runtime vars. Verify utility class parity.
+  Build after each wave. No renames, no v4, no breaking changes.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PLAN-LEVEL METRICS
+# ═══════════════════════════════════════════════════════════════════════════
+plan_metrics:
+  wave_1_task_count: 3
+  total_dependencies: 6
+  risk_score: low
+quality_warnings:
+  - "All changes are additive — no existing values modified, no renames, no v4 migration."
+  - "~50 new CSS vars introduced; 5 themes need updates to leverage new optional fields."
+  - "radius-lg (12px) and radius-xl (16px) have different values from existing --border-radius-lg (8px) and --border-radius-xl (12px) — verify intent during review."
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PLANNING ANALYSIS (LOW complexity → minimal)
+# ═══════════════════════════════════════════════════════════════════════════
+open_questions:
+  - question: "Should radius-lg (12px) and radius-xl (16px) replace or coexist with --border-radius-lg (8px) and --border-radius-xl (12px)?"
+    context: "DS defines --radius-lg:12px and --radius-xl:16px which differ from existing --border-radius-lg:8px and --border-radius-xl:12px. Rule says 'never rename existing' — so both sets coexist."
+    type: decision_blocker
+    affects: ["T1:index.css", "T5:ThemeContext", "T6:Build Verify"]
+
+pre_mortem:
+  overall_risk_level: low
+  critical_failure_modes:
+    - scenario: "TypeScript strict mode rejects optional fields on existing interfaces"
+      likelihood: low
+      impact: medium
+      mitigation: "All new fields marked optional (?), no required changes to existing theme objects."
+    - scenario: "CSS circular references in DS alias vars (--bg: var(--color-background) resolves correctly)"
+      likelihood: very_low
+      impact: low
+      mitigation: "Aliases reference existing --color-* vars which are set by ThemeContext at runtime."
+    - scenario: "Build succeeds but runtime theme context tries to access undefined optional fields"
+      likelihood: low
+      impact: low
+      mitigation: "Use ?? operator with fallback values in ThemeContext.setProperty calls."
+  assumptions:
+    - "All existing --color-* CSS vars remain unchanged."
+    - "Tailwind v3 compatibility is maintained — no v4 syntax or directives."
+    - "New DS alias vars (--bg, --fg, etc.) reference existing --color-* vars, duplicating none."
+    - "Build verification after each wave catches regressions immediately."
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TASKS
+# ═══════════════════════════════════════════════════════════════════════════
+tasks:
+  # ═════════════════════════════════════════════════════════════════════════
+  # WAVE 1 — Parallel: CSS vars + Types + Tailwind config (no deps)
+  # ═════════════════════════════════════════════════════════════════════════
+  - id: T1
+    title: "Add new CSS custom properties and DS alias tokens to :root in index.css"
+    description: |
+      Add ~50 new CSS custom properties to index.css :root block. All additions are
+      purely additive — no existing vars renamed or modified. Includes:
+
+      TYPE SCALE (11 vars): --text-xs/12px, --text-sm/14px, --text-base/16px,
+      --text-lg/18px, --text-xl/20px, --text-2xl/24px, --text-3xl/30px,
+      --text-4xl/36px, --text-5xl/48px, --text-6xl/60px, --text-8xl/96px,
+      --leading-body/1.5, --leading-tight/1.06, --tracking-display/-0.02em
+
+      SPACING (9 vars): --space-1/4px through --space-16/64px
+      SECTION SPACING (3 vars): --section-y-phone/32px, --section-y-tablet/48px,
+      --section-y-desktop/64px
+
+      RADIUS (6 vars): --radius-sm/4px, --radius-md/8px, --radius-lg/12px,
+      --radius-xl/16px, --radius-2xl/24px, --radius-pill/9999px
+
+      ELEVATION (5 vars): --elev-flat/none, --elev-ring/0 0 0 1px var(--border),
+      --elev-raised/var(--box-shadow), --elev-modal/var(--box-shadow-lg),
+      --elev-glow/0 0 20px rgba(154,219,255,0.3)
+
+      MOTION (4 vars): --motion-fast/150ms, --motion-base/300ms,
+      --motion-slow/500ms, --motion-hp/700ms
+
+      EASING (2 vars): --ease-standard/cubic-bezier(0.2,0,0,1),
+      --ease-spring/cubic-bezier(0.16,1,0.3,1)
+
+      FOCUS (1 var): --focus-ring/0 0 0 3px rgba(53,158,255,0.5)
+
+      CONTAINER (4 vars): --container-max/1200px,
+      --container-gutter-phone/16px, --container-gutter-tablet/24px,
+      --container-gutter-desktop/36px
+
+      ICON (4 vars): --icon-fill/1, --icon-weight/400, --icon-grade/0, --icon-opsz/20
+
+      FONT ICON (1 var): --font-icon/"Material Symbols Outlined"
+
+      DECORATIVE (2 vars): --leather-texture/url(...), --accent-glow/...
+
+      DS ALIASES (19 vars): --bg, --bg-secondary, --surface, --surface-highlight,
+      --fg, --fg-2, --muted, --accent, --accent-dark, --accent-alt, --secondary,
+      --success, --warning, --danger, --info, --border, --border-hover,
+      --font-display, --font-body — all pointing to existing --color-* / --font-* vars.
+    wave: 1
+    agent: gem-implementer
+    status: pending
+    covers:
+      - "Phase 1 — CSS variables"
+      - "DS alias tokens for backward compatibility"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "G:\Apks\Dungeon Forge\index.css"
+        description: "Target file — add vars to existing :root block"
+      - path: "G:\Apks\Dungeon Forge\design\Dungeon Forge Design System\tokens\tokens.css"
+        description: "Source of truth for all 72 DS tokens"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "All ~50 new CSS vars present in :root"
+      - "No existing CSS vars renamed or modified"
+      - "All DS alias vars (--bg, --fg, etc.) reference existing --color-* vars via var()"
+      - "--leather-texture uses the working texture URL from the DS"
+      - "Build succeeds with npm run build"
+    success_criteria:
+      - "index.css :root block contains all new vars organized by category with comments"
+      - "Existing vars untouched — grep for each existing --color-* confirms same values"
+      - "All DS aliases resolve via var(--color-*) reference (not hardcoded values)"
+    handoff:
+      do_not_reinvestigate:
+        - "index.css existing vars above the new additions"
+        - "DS tokens.css — all token values already extracted above"
+        - "Build verification — run npm run build after changes"
+      target_files:
+        - "index.css"
+      minimal_change: "Add new vars to existing :root block. Group by category with DS section comments. Do not touch anything outside the :root block."
+      acceptance_checks:
+        - "npm run build succeeds"
+        - "grep --text-xs index.css confirms type scale present"
+        - "grep --bg: index.css confirms alias points to var(--color-background)"
+    tech_stack:
+      - "CSS Custom Properties"
+      - "Tailwind CSS v3"
+
+  - id: T2
+    title: "Extend TypeScript theme interfaces with optional new fields"
+    description: |
+      Add optional new fields to ThemeShape and ThemeTypography interfaces in
+      src/types/theme.ts. All new fields are optional (?) to avoid breaking
+      existing theme objects.
+
+      ThemeShape additions (all optional):
+      - radiusSm?: string (maps to --radius-sm)
+      - radiusMd?: string (maps to --radius-md)
+      - radiusLg?: string (maps to --radius-lg)
+      - radiusXl?: string (maps to --radius-xl)
+      - radius2xl?: string (maps to --radius-2xl)
+      - radiusPill?: string (maps to --radius-pill)
+      - elevFlat?: string (maps to --elev-flat)
+      - elevRing?: string (maps to --elev-ring)
+      - elevRaised?: string (maps to --elev-raised)
+      - elevModal?: string (maps to --elev-modal)
+      - elevGlow?: string (maps to --elev-glow)
+      - motionFast?: string (maps to --motion-fast)
+      - motionBase?: string (maps to --motion-base)
+      - motionSlow?: string (maps to --motion-slow)
+      - motionHp?: string (maps to --motion-hp)
+      - easeStandard?: string (maps to --ease-standard)
+      - easeSpring?: string (maps to --ease-spring)
+      - focusRing?: string (maps to --focus-ring)
+      - containerMax?: string (maps to --container-max)
+      - containerGutterPhone?: string (maps to --container-gutter-phone)
+      - containerGutterTablet?: string (maps to --container-gutter-tablet)
+      - containerGutterDesktop?: string (maps to --container-gutter-desktop)
+
+      ThemeTypography additions (all optional):
+      - fontIcon?: string (maps to --font-icon)
+      - leadingTight?: string (maps to --leading-tight)
+      - trackingDisplay?: string (maps to --tracking-display)
+
+      No changes to ThemeColors or AppTheme interfaces.
+    wave: 1
+    agent: gem-implementer
+    status: pending
+    covers:
+      - "Phase 2 — Theme types updates"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "G:\Apks\Dungeon Forge\src\types\theme.ts"
+        description: "Target file — add optional fields to ThemeShape, ThemeTypography"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "All new fields marked optional with ?"
+      - "Existing interfaces not modified — only extended"
+      - "Build succeeds with npm run build (strict mode)"
+    success_criteria:
+      - "ThemeShape has 22 new optional fields"
+      - "ThemeTypography has 3 new optional fields"
+      - "No compile errors from strict null checks"
+    handoff:
+      do_not_reinvestigate:
+        - "ThemeColors, AppTheme, ThemeId interfaces — not modified"
+        - "Actual values for the fields — defined in themes.ts"
+      target_files:
+        - "src/types/theme.ts"
+      minimal_change: "Add optional fields to existing interfaces only. Do not create new interfaces."
+      acceptance_checks:
+        - "npm run build succeeds"
+        - "npx tsc --noEmit passes with strict mode"
+    tech_stack:
+      - "TypeScript (strict)"
+      - "React 19"
+
+  - id: T3
+    title: "Extend tailwind.config.js with new design system mappings"
+    description: |
+      Add new Tailwind theme extensions referencing the new CSS vars. All additions
+      use the theme.extend block — no existing values modified.
+
+      Additions:
+      - fontFamily: { icon: ["var(--font-icon, \"Material Symbols Outlined\")"] }
+      - animation: Add scaleUp if not already present, plus reference to DS animations
+        using the new --motion-* and --ease-* vars:
+        { fadeIn: 'fadeIn var(--motion-base, 300ms) var(--ease-standard, ...) forwards',
+          slideUp: 'slideUp var(--motion-base, 300ms) var(--ease-spring, ...) forwards',
+          scaleUp: 'scaleUp var(--motion-fast, 200ms) var(--ease-standard, ...) forwards' }
+      - fontSize: Reference new --text-* vars (optional — Tailwind already has
+        text-xs/sm/base/etc. but can add JS-level aliases if needed; skip if redundant)
+      - borderRadius: Add radius-* entries referencing new --radius-* vars
+        (e.g., radius-sm: 'var(--radius-sm, 4px)') without modifying existing DEFAULT/lg/xl
+      - boxShadow: Add elev-* entries referencing new --elev-* vars
+      - transitionDuration: Add motion-* entries referencing --motion-* vars
+      - transitionTimingFunction: Add ease-* entries referencing --ease-* vars
+      - spacing: Can optionally map --space-* vars if needed, but Tailwind's default
+        spacing scale already covers 1:1 (space-1=4px etc.) — only add if DS-specific
+        classes needed
+
+      IMPORTANT: Never change existing values — only extend. Never add Tailwind v4 syntax.
+    wave: 1
+    agent: gem-implementer
+    status: pending
+    covers:
+      - "Phase 3 — Tailwind config updates"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "G:\Apks\Dungeon Forge\tailwind.config.js"
+        description: "Target file — extend theme with new DS mappings"
+      - path: "G:\Apks\Dungeon Forge\index.css"
+        description: "CSS vars to reference in config extensions"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "All extensions in theme.extend block"
+      - "No existing config values changed"
+      - "No Tailwind v4 directives or syntax"
+      - "Build succeeds with npm run build"
+    success_criteria:
+      - "New fontFamily.icon available in Tailwind"
+      - "New boxShadow.elev-* classes work"
+      - "New borderRadius.radius-* classes work"
+    handoff:
+      do_not_reinvestigate:
+        - "Existing color, fontFamily, borderRadius, boxShadow entries — do not touch"
+        - "Tailwind v4 — not used, never reference"
+      target_files:
+        - "tailwind.config.js"
+      minimal_change: "Add new entries to theme.extend only. Do not modify theme object directly (only extend)."
+      acceptance_checks:
+        - "npm run build succeeds"
+        - "grep 'extend:' tailwind.config.js — confirm all new entries inside extend block"
+    tech_stack:
+      - "Tailwind CSS v3"
+      - "JavaScript"
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # WAVE 2 — Depends on T2 (new types available)
+  # ═════════════════════════════════════════════════════════════════════════
+  - id: T4
+    title: "Update theme constants with new optional field values"
+    description: |
+      Add new optional field values to all 5 official theme objects in
+      src/constants/themes.ts. Fields that are unchanged from default or not
+      relevant to a theme can be omitted (they're optional).
+
+      Per-theme strategy:
+      - CLASSIC_DND: Define all new fields with values matching tokens.css :root.
+        radius-lg: '12px', radius-xl: '16px' etc. (coexist with existing borderRadius fields)
+      - DAYLIGHT: Same as CLASSIC_DND but with light-theme-appropriate values
+        for elevation (elevRaised: '0 1px 3px 0 rgba(0,0,0,0.1)', elevModal: '0 4px 6px -1px rgba(0,0,0,0.1)')
+      - DRAGON_BLOOD: Use CLASSIC_DND defaults (shared typography/shape) or specify if different
+      - ELVEN_FOREST: Same as DRAGON_BLOOD pattern
+      - HIGH_CONTRAST: Specific values (elevRaised: 'none', elevModal: 'none',
+        focusRing: '0 0 0 3px #FFFF00' as in tokens.css)
+
+      Themes that currently share typography/shape via `CLASSIC_DND.typography`
+      / `CLASSIC_DND.shape` will auto-inherit, but if adding new fields to shape,
+      they must also be added to the shared objects or the override.
+    wave: 2
+    agent: gem-implementer
+    status: pending
+    covers:
+      - "Phase 2 — Theme constants"
+    dependencies:
+      - T2
+    conflicts_with: []
+    context_files:
+      - path: "G:\Apks\Dungeon Forge\src\constants\themes.ts"
+        description: "Target file — add new optional fields to all 5 themes"
+      - path: "G:\Apks\Dungeon Forge\design\Dungeon Forge Design System\tokens\tokens.css"
+        description: "Reference for per-theme token values"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "All 5 themes updated with appropriate new field values"
+      - "Themes sharing CLASSIC_DND.typography/.shape auto-inherit"
+      - "Build succeeds"
+    success_criteria:
+      - "CLASSIC_DND.shape has all new radius, elev, motion, ease, focusRing fields"
+      - "HIGH_CONTRAST.shape has its specific elev/focusRing overrides"
+      - "Spreading themes that share CLASSIC_DND's shape still work"
+    handoff:
+      do_not_reinvestigate:
+        - "Theme interfaces — already updated in T2"
+        - "Color values in themes — unchanged"
+      target_files:
+        - "src/constants/themes.ts"
+      minimal_change: "Add new fields as object properties. Do not change any existing field values."
+      acceptance_checks:
+        - "npm run build succeeds"
+    tech_stack:
+      - "TypeScript (strict)"
+      - "React 19"
+
+  - id: T5
+    title: "Update ThemeContext to apply new dynamic CSS variables"
+    description: |
+      Update the apply-theme-to-DOM effect in ThemeContext.tsx to set new CSS
+      custom properties at runtime. Each new property gets its value from the
+      theme's new optional fields, with CSS fallback for themes that don't define them.
+
+      Add after existing shape block (lines 106-110):
+      - New radius vars: --radius-sm through --radius-pill
+        (use theme.shape.radiusSm ?? '4px' pattern)
+      - New elevation vars: --elev-flat through --elev-glow
+      - New motion vars: --motion-fast through --motion-hp
+      - New easing vars: --ease-standard, --ease-spring
+      - Focus ring: --focus-ring
+      - Container vars: --container-max, --container-gutter-*
+      - Font icon: --font-icon
+      - Leading tight: --leading-tight
+      - Tracking display: --tracking-display
+      - Decorative: --leather-texture (static URL), --accent-glow
+
+      Each call should use nullish coalescing for fallback:
+      root.style.setProperty('--radius-sm', currentTheme.shape.radiusSm ?? '4px');
+
+      Do NOT change any existing setProperty calls. Do NOT remove anything.
+    wave: 2
+    agent: gem-implementer
+    status: pending
+    covers:
+      - "Phase 2 — ThemeContext updates"
+    dependencies:
+      - T2
+    conflicts_with: []
+    context_files:
+      - path: "G:\Apks\Dungeon Forge\src\contexts\ThemeContext.tsx"
+        description: "Target file — add new setProperty calls in the theme effect"
+      - path: "G:\Apks\Dungeon Forge\src\types\theme.ts"
+        description: "Reference for new optional field names"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "All new setProperty calls use ?? fallback"
+      - "No existing setProperty calls modified"
+      - "Build succeeds"
+    success_criteria:
+      - "Every new var from T1 has a corresponding setProperty call"
+      - "Fallback values match the static defaults in index.css :root"
+    handoff:
+      do_not_reinvestigate:
+        - "Existing setProperty calls — do not touch"
+        - "Theme type interfaces — already updated in T2"
+      target_files:
+        - "src/contexts/ThemeContext.tsx"
+      minimal_change: "Add new root.style.setProperty lines after existing shape block. Do not modify any existing logic."
+      acceptance_checks:
+        - "npm run build succeeds"
+    tech_stack:
+      - "TypeScript (strict)"
+      - "React 19"
+      - "CSS Custom Properties"
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # WAVE 3 — Build verification (depends on all changes)
+  # ═════════════════════════════════════════════════════════════════════════
+  - id: T6
+    title: "Build verification — compile and fix any issues"
+    description: |
+      Run npm run build to verify all changes compile without errors. If any
+      TypeScript or build errors occur:
+      - Fix TypeScript strict errors (type mismatches, null checks)
+      - Fix any CSS issues uncovered during build
+      - Verify no regression from existing functionality
+      - Confirm bundle size impact is minimal (new vars are zero-runtime-cost)
+
+      Target: clean build with 0 errors, 0 warnings.
+    wave: 3
+    agent: gem-implementer
+    status: pending
+    covers:
+      - "Build verification"
+    dependencies:
+      - T1
+      - T3
+      - T4
+      - T5
+    conflicts_with: []
+    context_files: []
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "npm run build exits with code 0"
+      - "No TypeScript errors"
+      - "No CSS build warnings"
+    success_criteria:
+      - "Build completes under 5 seconds"
+      - "No new warnings compared to pre-change build"
+    handoff:
+      do_not_reinvestigate:
+        - "All previous task implementations"
+        - "Build tooling — Vite + Tailwind v3 setup"
+      target_files: []
+      minimal_change: "Fix errors only — do not refactor."
+      acceptance_checks:
+        - "npm run build"
+    tech_stack:
+      - "Vite 5"
+      - "TypeScript (strict)"
+      - "Tailwind CSS v3"
+
+  # ═════════════════════════════════════════════════════════════════════════
+  # WAVE 4 — Utility class verification
+  # ═════════════════════════════════════════════════════════════════════════
+  - id: T7
+    title: "Verify utility class parity with design system"
+    description: |
+      Compare utility classes in index.css against the Design System's expected
+      utilities. The DS was extracted from this codebase, so most should already
+      match. Specific checks:
+
+      UPDATE existing classes to use new CSS vars:
+      - .leather-bg: Replace inline texture URL with var(--leather-texture) reference
+      - .app-title-glow: Replace inline shadow with var(--accent-glow)
+
+      VERIFY present (should already exist):
+      - .gold-shimmer ✓, .iron-border ✓, .no-scrollbar ✓, .grimoire-scroll ✓
+      - .safe-* ✓, .icon-* ✓ (xs, sm, md, lg, xl)
+      - .animate-* ✓ (fadeIn, slideUp, scaleIn)
+
+      ADD any missing:
+      - Check DS components.html for any new utility classes not in index.css
+      - Add if found
+
+      If nothing missing, document that all utilities are present.
+    wave: 4
+    agent: gem-implementer
+    status: pending
+    covers:
+      - "Phase 4 — Documentation / utility class verification"
+    dependencies:
+      - T1
+    conflicts_with: []
+    context_files:
+      - path: "G:\Apks\Dungeon Forge\index.css"
+        description: "Target file — update .leather-bg and .app-title-glow to use new CSS vars"
+      - path: "G:\Apks\Dungeon Forge\design\Dungeon Forge Design System\preview\colors.html"
+        description: "Reference for expected utility classes"
+      - path: "G:\Apks\Dungeon Forge\design\Dungeon Forge Design System\components\components.html"
+        description: "Check for any new utility classes"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - ".leather-bg uses var(--leather-texture)"
+      - ".app-title-glow uses var(--accent-glow)"
+      - "No missing utility classes vs DS"
+      - "Build succeeds"
+    success_criteria:
+      - "Utility classes reference DS vars instead of hardcoded values"
+      - "All DS utilities present and functional"
+    handoff:
+      do_not_reinvestigate:
+        - "CSS vars — already defined in T1"
+        - "Other utility classes — only check for completeness"
+      target_files:
+        - "index.css"
+      minimal_change: "Update .leather-bg and .app-title-glow to use CSS vars. Add any missing utility class."
+      acceptance_checks:
+        - "npm run build succeeds"
+        - "grep 'var(--leather-texture)' index.css"
+        - "grep 'var(--accent-glow)' index.css"
+    tech_stack:
+      - "CSS"
+      - "Tailwind CSS v3"

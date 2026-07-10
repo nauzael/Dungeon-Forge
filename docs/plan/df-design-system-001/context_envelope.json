@@ -1,0 +1,383 @@
+{
+  "context_envelope": {
+    "meta": {
+      "plan_id": "df-design-system-001",
+      "created_at": "2026-06-19T05:36:00Z",
+      "last_updated": "2026-06-19T05:36:00Z",
+      "version": 1,
+      "source": ["codebase_analysis", "design_system_handoff"]
+    },
+    "scope": {
+      "purpose": [
+        "Integrate Dungeon Forge Design System tokens into production app",
+        "Provide reusable context for implementing CSS vars, TS interfaces, theme objects, Tailwind config, and utility classes",
+        "Document current state vs DS target to avoid re-discovery"
+      ],
+      "applies_to": [
+        "index.css — CSS custom properties and utilities",
+        "src/types/theme.ts — ThemeShape, ThemeTypography interfaces",
+        "src/constants/themes.ts — 5 theme definitions",
+        "src/contexts/ThemeContext.tsx — runtime CSS var injection",
+        "tailwind.config.js — Tailwind theme extension",
+        "design/Dungeon Forge Design System/tokens/tokens.css — source of truth for DS tokens"
+      ],
+      "non_goals": [
+        "No Tailwind v4 migration",
+        "No renaming of existing CSS vars",
+        "No modifying existing Tailwind config values",
+        "No architectural changes to theme system",
+        "No new themes — only extending existing 5",
+        "No Firebase, Capacitor, or Android changes"
+      ]
+    },
+    "tech_stack": [
+      {
+        "name": "React",
+        "version": "19",
+        "usage_context": "UI framework — functional components, hooks, lazy loading",
+        "config_files": []
+      },
+      {
+        "name": "TypeScript",
+        "version": "strict mode",
+        "usage_context": "Type safety — strict: true, no any, explicit generics",
+        "config_files": ["tsconfig.json"]
+      },
+      {
+        "name": "Tailwind CSS",
+        "version": "3.4.4",
+        "usage_context": "Utility-first CSS — v3 via PostCSS plugin",
+        "config_files": ["tailwind.config.js", "postcss.config.js"]
+      },
+      {
+        "name": "Vite",
+        "version": "5",
+        "usage_context": "Build tool — production build ~4s",
+        "config_files": ["vite.config.ts"]
+      },
+      {
+        "name": "Material Symbols Outlined",
+        "version": "latest",
+        "usage_context": "Icon library — font-variation-settings pattern",
+        "config_files": []
+      }
+    ],
+    "conventions": [
+      "PascalCase for components and interfaces",
+      "camelCase for functions and variables",
+      "kebab-case for file names",
+      "CSS vars use --color-* convention (--color-background, --color-primary, etc.)",
+      "DS alias convention: --bg (short) references --color-background",
+      "All themes share CLASSIC_DND typography/shape unless overridden",
+      "Theme switching via ThemeContext — sets :root CSS properties at runtime",
+      "Mobile-first: safe area padding, mobile-bottom-sheet modals",
+      "Dark mode by default: --color-background: #0F172A"
+    ],
+    "constraints": {
+      "hard": [
+        "NEVER rename existing CSS variables — add new ones only",
+        "NEVER change existing Tailwind config values — extend only",
+        "NEVER migrate to Tailwind v4",
+        "All new TypeScript fields must be optional (?)",
+        "All new CSS vars must have fallback values for themes that don't define them",
+        "Build must pass after each wave"
+      ],
+      "soft": [
+        "DS naming (--bg, --fg, etc.) should be aliases pointing to existing --color-* vars",
+        "Group new CSS vars by category with section comments matching DS organization",
+        "Prefer ?? operator for fallback values in ThemeContext",
+        "Do not create new interfaces — only extend existing ones"
+      ],
+      "compatibility": [
+        "Tailwind v3 + PostCSS plugin only — no v4 @import/@theme/@config directives",
+        "React 19 strict mode — cleanup in useEffect required",
+        "TypeScript strict: no implicit any, strict null checks",
+        "Capacitor 6 Android — no changes needed for this plan"
+      ],
+      "security_requirements": [
+        "No secrets in CSS vars",
+        "No eval() or dynamic CSS injection vulnerabilities"
+      ]
+    },
+    "architecture_snapshot": {
+      "key_dirs": {
+        "path": ["src/types/", "src/constants/", "src/contexts/", "design/Dungeon Forge Design System/tokens/"]
+      },
+      "patterns": [
+        "CSS vars in :root → Tailwind references via var() → ThemeContext overrides at runtime",
+        "5 theme objects as AppTheme with colors/typography/shape → ThemeProvider → setProperty on element.style",
+        "PostCSS with tailwindcss + autoprefixer plugins only",
+        "index.css contains all utility classes (.leather-bg, .gold-shimmer, .animate-*)",
+        "Dragon Blood and Elven Forest share CLASSIC_DND's typography and shape via reference"
+      ],
+      "key_components": [
+        {
+          "name": "index.css",
+          "location": "index.css (root, not src/)",
+          "responsibility": [
+            "Global CSS: Tailwind directives, :root CSS vars, utility classes, animations",
+            "22 existing CSS vars in :root (colors, typography, shape, safe-area)",
+            "Utility classes: .leather-bg, .gold-shimmer, .iron-border, .app-title-glow, .no-scrollbar, .grimoire-scroll, .safe-*, .icon-*, .animate-*"
+          ],
+          "confidence": 1.0
+        },
+        {
+          "name": "ThemeShape interface",
+          "location": "src/types/theme.ts:61-67",
+          "responsibility": [
+            "Interface for border-radius and box-shadow tokens",
+            "Current fields: borderRadius, borderRadiusLg, borderRadiusXl, boxShadow, boxShadowLg"
+          ],
+          "confidence": 1.0
+        },
+        {
+          "name": "ThemeTypography interface",
+          "location": "src/types/theme.ts:51-56",
+          "responsibility": [
+            "Interface for font and typography tokens",
+            "Current fields: fontFamilyDisplay, fontFamilyBody, fontSizeBase, lineHeightBase"
+          ],
+          "confidence": 1.0
+        },
+        {
+          "name": "CLASSIC_DND theme",
+          "location": "src/constants/themes.ts:12-51",
+          "responsibility": [
+            "Default theme used by DRAGON_BLOOD and ELVEN_FOREST via reference",
+            "All 22 color tokens, 4 typography tokens, 5 shape tokens"
+          ],
+          "confidence": 1.0
+        },
+        {
+          "name": "ThemeContext",
+          "location": "src/contexts/ThemeContext.tsx:31-210",
+          "responsibility": [
+            "React context provider for theme state and persistence",
+            "Runtime CSS var injection via root.style.setProperty in useEffect",
+            "Auto mode follows prefers-color-scheme",
+            "Current: 16 color vars + 4 typography vars + 5 shape vars = 25 setProperty calls"
+          ],
+          "confidence": 1.0
+        },
+        {
+          "name": "tailwind.config.js",
+          "location": "tailwind.config.js",
+          "responsibility": [
+            "Tailwind theme extension — all values reference CSS vars",
+            "Extends: colors (16+), fontFamily (display, body), borderRadius (DEFAULT, lg, xl, 2xl, 3xl, full), boxShadow (DEFAULT, lg), keyframes/animation (fadeIn, scaleUp)"
+          ],
+          "confidence": 1.0
+        },
+        {
+          "name": "DS tokens.css",
+          "location": "design/Dungeon Forge Design System/tokens/tokens.css",
+          "responsibility": [
+            "Source of truth for 72 design tokens",
+            ":root block with all 72 vars + 5 per-theme [data-theme] overrides",
+            "Includes DS alias naming (--bg, --fg, --accent, etc.)",
+            "Non-color tokens (type scale, spacing, motion) are static in :root only"
+          ],
+          "confidence": 1.0
+        }
+      ]
+    },
+    "research_digest": {
+      "relevant_files": [
+        {
+          "path": "index.css",
+          "purpose": ["Global CSS with 22 existing :root vars, utilities, animations"],
+          "why_relevant": ["Target for Phase 1 — add ~50 new CSS vars", "Target for Phase 4 — update utilities to use new vars"],
+          "key_elements": [
+            {"element": ":root block", "type": "pattern", "location": "index.css:5-43", "description": "22 existing CSS vars grouped by category with comments"},
+            {"element": ".material-symbols-outlined", "type": "class", "location": "index.css:71-78", "description": "Icon font-variation-settings matching DS --icon-* vars"},
+            {"element": ".leather-bg", "type": "class", "location": "index.css:141-147", "description": "Has hardcoded texture URL instead of using --leather-texture var"},
+            {"element": ".app-title-glow", "type": "class", "location": "index.css:159-161", "description": "Has hardcoded shadow values instead of using --accent-glow var"}
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "src/types/theme.ts",
+          "purpose": ["TypeScript interfaces for theme system"],
+          "why_relevant": ["Target for Phase 2 — add optional fields to ThemeShape and ThemeTypography"],
+          "key_elements": [
+            {"element": "ThemeShape", "type": "interface", "location": "src/types/theme.ts:61-67", "description": "5 fields: borderRadius, borderRadiusLg, borderRadiusXl, boxShadow, boxShadowLg"},
+            {"element": "ThemeTypography", "type": "interface", "location": "src/types/theme.ts:51-56", "description": "4 fields: fontFamilyDisplay, fontFamilyBody, fontSizeBase, lineHeightBase"}
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "src/constants/themes.ts",
+          "purpose": ["5 theme definitions with color/typography/shape values"],
+          "why_relevant": ["Target for Phase 2 — add new optional field values to all themes"],
+          "key_elements": [
+            {"element": "CLASSIC_DND.shape", "type": "object", "location": "src/constants/themes.ts:44-50", "description": "Shared shape object referenced by DRAGON_BLOOD and ELVEN_FOREST"},
+            {"element": "CLASSIC_DND.typography", "type": "object", "location": "src/constants/themes.ts:38-43", "description": "Shared typography object referenced by DRAGON_BLOOD and ELVEN_FOREST"},
+            {"element": "HIGH_CONTRAST.shape", "type": "object", "location": "src/constants/themes.ts:202-208", "description": "Has specific values: borderRadius: 0.125rem, boxShadow: none"}
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "src/contexts/ThemeContext.tsx",
+          "purpose": ["React context that injects theme vars into DOM at runtime"],
+          "why_relevant": ["Target for Phase 2 — add new setProperty calls for new CSS vars"],
+          "key_elements": [
+            {"element": "Theme effect (useEffect)", "type": "function", "location": "src/contexts/ThemeContext.tsx:74-121", "description": "Sets CSS vars on document.documentElement.style when theme changes"},
+            {"element": "Color setProperty block", "type": "code", "location": "src/contexts/ThemeContext.tsx:80-97", "description": "16 setProperty calls for --color-* vars"},
+            {"element": "Shape setProperty block", "type": "code", "location": "src/contexts/ThemeContext.tsx:105-110", "description": "5 setProperty calls for --border-radius, --box-shadow, etc."}
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "tailwind.config.js",
+          "purpose": ["Tailwind config with CSS var bindings"],
+          "why_relevant": ["Target for Phase 3 — extend with new DS token mappings"],
+          "key_elements": [
+            {"element": "theme.extend block", "type": "code", "location": "tailwind.config.js:13-60", "description": "All extensions: colors, fontFamily, borderRadius, boxShadow, keyframes, animation"},
+            {"element": "fontFamily", "type": "config", "location": "tailwind.config.js:37-40", "description": "display and body fonts — need to add icon font"}
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "design/Dungeon Forge Design System/tokens/tokens.css",
+          "purpose": ["Source of truth for 72 design tokens across 5 themes"],
+          "why_relevant": ["Reference for all new CSS vars to add", "Per-theme [data-theme] overrides for color/elevation tokens"],
+          "key_elements": [
+            {"element": ":root block", "type": "css", "location": "design/.../tokens.css:7-119", "description": "72 CSS custom properties covering all categories"},
+            {"element": "[data-theme] blocks", "type": "css", "location": "design/.../tokens.css:122-187", "description": "5 per-theme overrides for color and elevation tokens"},
+            {"element": "--leading-body", "type": "var", "location": "design/.../tokens.css:52", "description": "Value 1.5 matches existing --line-height-base"},
+            {"element": "--radius-lg: 12px", "type": "var", "location": "design/.../tokens.css:74", "description": "DIFFERENT value from existing --border-radius-lg: 8px (0.5rem)"}
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "docs",
+          "confidence": 1.0
+        }
+      ],
+      "patterns_found": [
+        {
+          "name": "CSS var aliases",
+          "category": "naming",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": ["DS tokens.css: --bg → var(--color-background)"]
+        },
+        {
+          "name": "Runtime theme injection",
+          "category": "architecture",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": ["src/contexts/ThemeContext.tsx:74-121"]
+        },
+        {
+          "name": "Shared theme references",
+          "category": "data",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": ["src/constants/themes.ts:128-129 (DRAGON_BLOOD uses CLASSIC_DND.typography)"]
+        },
+        {
+          "name": "Tailwind CSS var binding",
+          "category": "config",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": ["tailwind.config.js:16: 'var(--color-primary, #359EFF)'"]
+        }
+      ],
+      "dependencies": {
+        "internal": ["index.css → tailwind.config.js (var references)", "theme.ts → themes.ts → ThemeContext.tsx (type chain)"],
+        "external": ["Tailwind CSS v3.4.4", "PostCSS + autoprefixer", "Vite 5", "Material Symbols Outlined (Google Fonts)"]
+      },
+      "gotchas": [
+        {
+          "text": "DS --radius-lg (12px) and --radius-xl (16px) have DIFFERENT values from existing --border-radius-lg (8px) and --border-radius-xl (12px) — both coexist, do not align them",
+          "confidence": 1.0
+        },
+        {
+          "text": "DRAGON_BLOOD and ELVEN_FOREST reference CLASSIC_DND.typography and CLASSIC_DND.shape by object reference — adding new fields to CLASSIC_DND's objects automatically propagates",
+          "confidence": 1.0
+        },
+        {
+          "text": "HIGH_CONTRAST theme has specific elevation (elevRaised/elevModal: 'none') and focusRing values that must be set explicitly",
+          "confidence": 1.0
+        },
+        {
+          "text": "DS alias tokens (--bg, --fg, --border, etc.) must reference existing --color-* vars via var() so they update dynamically when themes change",
+          "confidence": 1.0
+        },
+        {
+          "text": ".leather-bg currently hardcodes the texture URL — must be updated to use var(--leather-texture) after T1 defines it",
+          "confidence": 1.0
+        }
+      ],
+      "domain_context": {
+        "security_considerations": [],
+        "testing_patterns": {
+          "framework": "none (no test framework in project)",
+          "coverage_areas": [],
+          "test_organization": "No tests exist — verify via build only",
+          "mock_patterns": []
+        },
+        "error_handling": "ThemeContext uses try/catch around localStorage and defaults to DEFAULT_THEME on error. CSS var fallbacks handle missing values.",
+        "data_flow": "User selects theme → ThemeContext saves to localStorage → useEffect sets :root CSS vars → Tailwind references var() → all components update reactively"
+      },
+      "open_questions": [
+        {
+          "question": "Should --leading-body alias be added when --line-height-base already exists with same value?",
+          "context": "DS tokens.css defines --leading-body: 1.5 which matches existing --line-height-base: 1.5. Adding as alias for DS compatibility.",
+          "type": "nice_to_know",
+          "affects": ["T1"]
+        }
+      ]
+    },
+    "prior_decisions": [
+      {
+        "decision": "Add DS alias tokens as var() references to existing --color-* vars, not as hardcoded values",
+        "rationale": ["Ensures aliases update dynamically when ThemeContext changes themes at runtime", "Avoids duplicating color values that would become stale"],
+        "evidence": ["index.css:13-29 (existing --color-* var pattern)", "DS tokens.css:8-33 (--bg references to colors)"],
+        "confidence": 1.0,
+        "linked_constraints": ["Keep the DS naming (--bg, --fg, etc.) as aliases, NOT replacements"],
+        "linked_patterns": ["CSS var aliases"]
+      },
+      {
+        "decision": "Coexist --radius-* and --border-radius-* with their respective values — do not merge or align",
+        "rationale": ["DS--radius-lg:12px differs from existing --border-radius-lg:8px", "Rule says 'never rename existing' — both live in parallel", "Introduces more granular radius scale (6 values vs 3)"],
+        "evidence": ["index.css:38-40 (existing border-radius vars)", "DS tokens.css:72-78 (radius vars)"],
+        "confidence": 1.0,
+        "linked_constraints": ["NEVER rename existing CSS variables — add new ones only"],
+        "linked_patterns": []
+      }
+    ],
+    "reuse_notes": {
+      "do_not_re_read": [
+        "design/Dungeon Forge Design System/README.md — overview only, tokens.css has the actual values",
+        "design/Dungeon Forge Design System/DESIGN-HANDOFF.md — generic implementation guide, not specific to this codebase"
+      ],
+      "safe_to_assume": [
+        "Existing --color-* vars remain unchanged throughout this plan",
+        "All 5 themes in themes.ts are complete and valid",
+        "Build passes before any changes",
+        "Tailwind v3 with PostCSS plugin (not v4)"
+      ],
+      "verify_before_use": [
+        "DS --radius-* values vs existing --border-radius-* values before adding to index.css (values differ)",
+        "HIGH_CONTRAST theme specific overrides in tokens.css vs themes.ts",
+        ".material-symbols-outlined font-variation-settings in index.css matches DS --icon-* var values"
+      ]
+    }
+  }
+}

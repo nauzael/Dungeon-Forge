@@ -929,7 +929,7 @@ When you use your Breath of the Dragon or Wings of the Dragon features, you can 
         id: 'mercy',
         category: 'Subclass',
         title: 'Mercy (Monk)',
-        content: 'Sanador y asesino. Mana也不知疲倦滴治愈伤口。',
+        content: 'Healer and killer. Mana tirelessly heals wounds.',
         fullInfo: `### Mercy
 *Monk Subclass*
 
@@ -959,7 +959,7 @@ When a creature would drop to 0 Hit Points while within 5 feet of you, you can u
         id: 'shadows',
         category: 'Subclass',
         title: 'Shadow (Monk)',
-        content: 'Manipulador de oscuridad. Crea oscuridad, teletransportate y pasa desapercibido.',
+        content: 'Darkness manipulator. Create darkness, teleport, and go unnoticed.',
         fullInfo: `### Shadow
 *Monk Subclass*
 
@@ -986,7 +986,7 @@ As an Action, you can cast Darkness without expending a spell slot. The spell do
         id: 'four-elements',
         category: 'Subclass',
         title: 'Four Elements (Monk)',
-        content: 'Controla los cuatro elementos. Fuegos, agua, tierra y aire.',
+        content: 'Controls the four elements. Fire, water, earth, and air.',
         fullInfo: `### Four Elements
 *Monk Subclass*
 
@@ -1059,7 +1059,7 @@ As a Bonus Action, you can become an avatar of justice. For 1 minute, you shed B
         id: 'oath-of-the-ancients',
         category: 'Subclass',
         title: 'Oath of the Ancients (Paladin)',
-        content: 'Protector de la magia y la naturaleza. Resiste hechizos y Aura de Warding.',
+        content: 'Protector of magic and nature. Resists spells and Aura of Warding.',
         fullInfo: `### Oath of the Ancients
 *Paladin Subclass*
 
@@ -1095,7 +1095,7 @@ As a Bonus Action, you can assume the form of an ancient champion for 1 minute. 
         id: 'oath-of-vengeance',
         category: 'Subclass',
         title: 'Oath of Vengeance (Paladin)',
-        content: 'Caza악마 sin descanso. Velocidad y golpe potencial contra enemigos.',
+        content: 'Hunts demons without rest. Speed and potential strike against enemies.',
         fullInfo: `### Oath of Vengeance
 *Paladin Subclass*
 
@@ -1202,7 +1202,7 @@ As a Bonus Action, you can emanate a bewitching aura for 1 minute. Creatures of 
         id: 'gloom-stalker',
         category: 'Subclass',
         title: 'Gloom Stalker (Ranger)',
-        content: 'Cazador de las sombras. Ataque inicial devastador y sigilo supreme.',
+        content: 'Shadow hunter. Devastating initial attack and supreme stealth.',
         fullInfo: `### Gloom Stalker
 *Ranger Subclass*
 

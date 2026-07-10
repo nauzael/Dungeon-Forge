@@ -6,9 +6,9 @@ export const warlock = {
     name: 'Warlock', 
     description: 'Seekers of hidden knowledge who forge pacts with powerful entities. Warlocks combine short-range magic with mystic invocations that alter their reality.', 
     traits: [
-        { name: 'Eldritch Invocations', description: 'Fragments of forbidden knowledge that grant you permanent magical abilities. You gain one at level 1 (like Pact of the Tome).' }, 
-        { name: 'Pact Magic', description: 'Unique Charisma-based magic. Your spell slots are always the highest level you can cast and recover on short rests.' }, 
-        { name: 'Magical Cunning', description: 'Action (1 min): You recover half your Pact Magic slots (rounded up). 1/Long Rest.' }
+        { name: 'Eldritch Invocations', description: 'You have discovered Eldritch Invocations, fragments of forbidden knowledge that grant you magical abilities. You gain 1 invocation at level 1. When you level up, you can replace one.' }, 
+        { name: 'Pact Magic', description: 'You have forged a pact with a mysterious entity. You know 2 cantrips (more at levels 4 and 10). You prepare level 1+ spells. Your spell slots are always the same level and are regained on a Short Rest. Charisma is your spellcasting ability.' }, 
+        { name: 'Magical Cunning', description: 'You perform a 1-minute esoteric rite. You regain Pact slots up to half your maximum (rounded up). Once per Long Rest.' }
     ] 
   } as DetailData,
   hitDie: 8,
@@ -19,9 +19,11 @@ export const warlock = {
     1: ['Eldritch Invocations', 'Pact Magic'], 
     2: ['Magical Cunning'], 
     3: ['Warlock Subclass'], 
-    4: ['Ability Score Improvement'], 
-    6: ['Subclass Feature'], 
-    8: ['Ability Score Improvement'], 
+     4: ['Ability Score Improvement'],
+     5: ['—'],
+     6: ['Subclass Feature'],
+     7: ['—'],
+     8: ['Ability Score Improvement'], 
     9: ['Contact Patron'], 
     10: ['Subclass Feature'], 
     11: ['Mystic Arcanum (Level 6)'], 
@@ -30,8 +32,9 @@ export const warlock = {
     14: ['Subclass Feature'], 
     15: ['Mystic Arcanum (Level 8)'], 
     16: ['Ability Score Improvement'], 
-    17: ['Mystic Arcanum (Level 9)'], 
-    19: ['Epic Boon Feat'], 
+     17: ['Mystic Arcanum (Level 9)'],
+     18: ['—'],
+     19: ['Epic Boon Feat'], 
     20: ['Eldritch Master'] 
   } as Record<number, string[]>,
   subclasses: [
@@ -40,12 +43,12 @@ export const warlock = {
         description: 'Pact with a noble of the Fey Court, masters of illusion and playful teleportation.',
         features: {
             3: [
-                { name: 'Archfey Spells', description: 'Always prepared spells like Misty Step, Faerie Fire, Sleep, and Calm Emotions. More at levels 5, 7, and 9.' },
-                { name: 'Steps of the Fey', description: 'You can cast Misty Step for free a number of times equal to your Charisma mod. When using it, choose an effect: Refreshing Step (THP) or Taunting Step (Disadvantage for enemies).' }
+                 { name: 'Archfey Spells', description: 'Always prepared: 3: Calm Emotions, Faerie Fire, Misty Step, Phantasmal Force, Sleep; 5: Blink, Plant Growth; 7: Dominate Beast, Greater Invisibility; 9: Dominate Person, Glibness.' },
+                 { name: 'Steps of the Fey', description: 'You cast Misty Step without a spell slot. Uses = Charisma per Long Rest. Additional effects: Refreshing Step (THP 1d10) or Taunting Step (Wis save or Disadvantage on attacks against others).' }
             ],
-            6: [{ name: 'Misty Escape', description: 'Reaction when hit: You become Invisible and teleport 30 feet. You gain the benefits of Steps of the Fey when doing so.' }],
-            10: [{ name: 'Beguiling Defenses', description: 'Immunity to Charmed. Reaction when hit: Reduce the damage in half and the attacker must save Wisdom or take Psychic damage.' }],
-            14: [{ name: 'Bewitching Magic', description: 'When casting an Illusion or Enchantment spell, you can cast Misty Step as part of the same action without spending a slot.' }]
+            6: [{ name: 'Misty Escape', description: 'Misty Step as a Reaction when taking damage. Additional options: Vanishing Step (Invisible until start of next turn) or Frightful Step (2d10 Psychic to creatures within 5 feet).' }],
+            10: [{ name: 'Beguiling Defenses', description: 'Immunity to Charmed. When taking damage, Reaction halves the damage and forces a Wis save on the attacker or takes equal Psychic damage. Once per Long Rest or spell slot.' }],
+            14: [{ name: 'Bewitching Magic', description: 'After casting an Enchantment/Illusion spell with an action and spell slot, you cast Misty Step as part of the same action without expending a slot.' }]
         },
         alwaysPreparedSpells: {
             3: ['Misty Step', 'Faerie Fire', 'Sleep', 'Calm Emotions'],
@@ -59,12 +62,12 @@ export const warlock = {
         description: 'Your patron is a being from the upper planes, an entity of purifying light and eternal hope.',
         features: {
             3: [
-                { name: 'Celestial Spells', description: 'Spells like Cure Wounds, Guiding Bolt, Lesser Restoration, and Daylight.' },
-                { name: 'Healing Light', description: 'Reserve of d6s (1 + Warlock Level). Bonus action: Spend dice (max CHA mod) to heal a creature within 60 feet.' }
+                 { name: 'Celestial Spells', description: 'Spells: Cure Wounds, Guiding Bolt, Lesser Restoration, Daylight.' },
+                 { name: 'Healing Light', description: 'Pool of d6s (1 + level). Bonus Action: expend dice (max Charisma) to heal a creature within 60 feet.' }
             ],
-            6: [{ name: 'Radiant Soul', description: 'Resistance to Radiant damage. Add Charisma to the damage of a spell that deals Radiant or Fire damage.' }],
-            10: [{ name: 'Celestial Resilience', description: 'When finishing a rest or using Magical Cunning, you and up to 5 allies gain THP (Level + CHA mod).' }],
-            14: [{ name: 'Searing Vengeance', description: 'Reaction when rolling a death save: You rise with half HP, deal Radiant damage (2d8+CHA) and blind nearby enemies.' }]
+            6: [{ name: 'Radiant Soul', description: 'Resistance to Radiant. You add Charisma to damage of spells that deal Radiant or Fire damage.' }],
+            10: [{ name: 'Celestial Resilience', description: 'When you finish a rest or use Magical Cunning, you and up to 5 allies gain THP = level + Charisma.' }],
+            14: [{ name: 'Searing Vengeance', description: 'Reaction when rolling a death save: you rise with half HP, deal 2d8+Cha Radiant damage and blind nearby enemies.' }]
         },
         alwaysPreparedSpells: {
             3: ['Cure Wounds', 'Guiding Bolt', 'Lesser Restoration', 'Daylight'],
@@ -78,12 +81,12 @@ export const warlock = {
         description: 'You have forged a pact with a demon or devil, granting you destructive power and infernal resilience.',
         features: {
             3: [
-                { name: 'Fiend Spells', description: 'Spells like Burning Hands, Command, Scorching Ray, and Fireball.' },
-                { name: 'Dark One\'s Blessing', description: 'When reducing an enemy to 0 HP (you or someone within 10 feet), you gain THP equal to Warlock Level + Charisma modifier.' }
+                 { name: 'Fiend Spells', description: 'Spells: Burning Hands, Command, Scorching Ray, Fireball.' },
+                 { name: 'Dark One\'s Blessing', description: 'When you reduce an enemy to 0 HP (you or someone within 10 feet), you gain THP = level + Charisma.' }
             ],
-            6: [{ name: 'Dark One\'s Own Luck', description: 'Add 1d10 to an ability check or save. 1/Long Rest or spend a Pact Magic slot.' }],
-            10: [{ name: 'Fiendish Resilience', description: 'Choose a damage type (not Force) when finishing a rest to gain Resistance to it until the next rest.' }],
-            14: [{ name: 'Hurl Through Hell', description: 'When hitting with an attack: Send the target to the lower planes. They disappear until the end of your turn and take 8d10 Psychic damage (if not a Fiend).' }]
+            6: [{ name: 'Dark One\'s Own Luck', description: 'Add 1d10 to a check or saving throw. Once per Long Rest or by expending a spell slot.' }],
+            10: [{ name: 'Fiendish Resilience', description: 'When you finish a rest, choose a damage type (not Force). Resistance until the next rest.' }],
+            14: [{ name: 'Hurl Through Hell', description: 'On hit: you send the target to the lower planes. It disappears until end of your turn and takes 8d10 Psychic damage (unless Fiend). Once per Long Rest.' }]
         },
         alwaysPreparedSpells: {
             3: ['Burning Hands', 'Command', 'Scorching Ray', 'Fireball'],
@@ -97,16 +100,16 @@ export const warlock = {
         description: 'Your patron is an unspeakable entity from distant realms, whose mere presence alters sanity.',
         features: {
             3: [
-                { name: 'Great Old One Spells', description: 'Spells like Dissonant Whispers, Tasha\'s Hideous Laughter, and Detect Thoughts.' },
-                { name: 'Awakened Mind', description: 'Telepathy with one creature within 30 feet for Warlock Level minutes. You can mentally speak at miles away if there is already a bond.' },
-                { name: 'Psychic Spells', description: 'You can change your warlock spells\' damage to Psychic. Illusion/Enchantment spells don\'t require Verbal/Somatic components.' }
+                 { name: 'Great Old One Spells', description: 'Spells: Dissonant Whispers, Tasha\'s Hideous Laughter, Detect Thoughts.' },
+                 { name: 'Awakened Mind', description: 'Telepathy with a creature within 30 feet for minutes = your level. You can speak mentally over miles if there is a connection.' },
+                 { name: 'Psychic Spells', description: 'You can change spell damage to Psychic. Illusion/Enchantment spells don\'t require V/S components.' }
             ],
-            6: [{ name: 'Clairvoyant Combatant', description: 'Using Awakened Mind, you can force a Wisdom save: The target has Disadvantage on attacks against you and you have Advantage against them.' }],
+            6: [{ name: 'Clairvoyant Combatant', description: 'Using Awakened Mind, force Wis save: Disadvantage on attacks against you and Advantage against them.' }],
             10: [
-                { name: 'Eldritch Hex', description: 'When casting Hex, the target has Disadvantage on saving throws of the chosen ability.' },
-                { name: 'Thought Shield', description: 'Resistance to Psychic damage and you reflect received psychic damage to the attacker.' }
+                 { name: 'Eldritch Hex', description: 'When you cast Hex, the target has Disadvantage on saving throws of the chosen ability.' },
+                 { name: 'Thought Shield', description: 'Resistance to Psychic. You reflect Psychic damage to the attacker.' }
             ],
-            14: [{ name: 'Create Thrall', description: 'You always have Summon Aberration prepared. You can cast it without components and without concentration for 1 minute with extra THP.' }]
+            14: [{ name: 'Create Thrall', description: 'You always have Summon Aberration prepared. You can cast it without components and without Concentration for 1 minute with extra THP.' }]
         },
         alwaysPreparedSpells: {
             3: ['Dissonant Whispers', 'Tasha\'s Hideous Laughter', 'Detect Thoughts'],
@@ -120,12 +123,12 @@ export const warlock = {
         description: 'Your pact is with a vestige, the remains of a dying god seeking to regain its power through you.',
         features: {
             3: [
-                { name: 'Vestige Companion', description: 'Summon a Vestige (Celestial, Fiend, or Undead) that acts on your turn. It has its own stat block that scales with your Warlock level.' },
-                { name: 'Vestige Spells', description: 'Choose a Cleric Domain (Life, Light, Trickery, or War) to have their spells always prepared as Warlock spells.' }
+                 { name: 'Vestige Companion', description: 'You summon a Vestige (Celestial, Fiend, or Undead) that acts on your turn. It has its own stat block that scales with level.' },
+                 { name: 'Vestige Spells', description: 'Choose a Cleric domain (Life, Light, Trickery, or War) to have its spells always prepared.' }
             ],
-            6: [{ name: 'Vestige Recovery', description: 'Your Vestige recovers the use of its Divine Power when finishing a short or long rest, or when using your Magical Cunning.' }],
-            10: [{ name: 'Aura of Power', description: 'As a Magic action, the Vestige emits a 30-foot aura (Resistance to Fire, Necrotic, and Radiant; immunity to Charm and Fear). If you fall to 0 HP in the aura, you remain at 1 HP.' }],
-            14: [{ name: 'Semblance of Life', description: 'As a Magic action, the Vestige temporarily adopts a more powerful form (Summon Celestial, Fiend, or Undead) without requiring concentration.' }]
+            6: [{ name: 'Vestige Recovery', description: 'Your Vestige regains Divine Power on a Short/Long Rest or when you use Magical Cunning.' }],
+            10: [{ name: 'Aura of Power', description: 'Magic action: the Vestige emits a 30-foot aura (Resistance to Fire, Necrotic, Radiant; Immunity to Charmed, Frightened). If you drop to 0 in the aura, you stay at 1 HP.' }],
+            14: [{ name: 'Semblance of Life', description: 'Magic action: the Vestige takes a more powerful form (Summon Celestial, Fiend, or Undead) without concentration.' }]
         }
     }
   ] as SubclassData[],

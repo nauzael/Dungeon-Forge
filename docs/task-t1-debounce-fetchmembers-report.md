@@ -131,15 +131,15 @@ Click 4 (t=350ms) → timer expires, fetchMembers() executes
 ## Testing Notes
 
 **Local Dev Limitations**: 
-- Testing completo requiere autenticación Supabase real
+- Testing completo requiere autenticación Firebase real
 - Local dev mode con UUID "local-dev-mode" causa errores de crear party
 - Build verificó sintaxis TypeScript y módulos
 
 **Manual Testing Plan**:
-1. Autenticarse con Supabase en prod
+1. Autenticarse con Firebase en prod
 2. Crear party con múltiples miembros
 3. Abrir DevTools → Network tab
-4. Filtrar por `characters` (tabla Supabase)
+4. Filtrar por `characters` (tabla Firebase)
 5. Hacer click rápido en refresh button 5 veces
 6. Verificar: Solo 1 query en Network tab (no 5)
 7. Confirmar: Member data carga correctamente sin stale data

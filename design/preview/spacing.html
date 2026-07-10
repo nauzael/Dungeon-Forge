@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Dungeon Forge - Spacing</title>
+<style>:root{--bg:#0F172A;--fg:#F8FAFC;--muted:#94A3B8;--accent:#359EFF;--accent-alt:#9ADBFF;--border:rgba(154,219,255,0.1)}*,*::before,*::after{box-sizing:border-box}body{background:var(--bg);color:var(--fg);font-family:'Noto Sans',sans-serif;padding:24px;margin:0}h1{font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:-0.02em;margin:0 0 8px}h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin:24px 0 12px}p{color:var(--muted);font-size:13px;margin:0 0 16px}.space-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}.space-item{display:flex;align-items:center;gap:12px}.space-bar{background:var(--accent-alt);border-radius:4px;opacity:0.4;flex-shrink:0}.space-info{font-size:11px}.space-name{font-weight:700}.space-value{color:var(--muted);font-family:monospace;font-size:10px}.radius-grid{display:flex;gap:16px;flex-wrap:wrap}.radius-block{display:flex;flex-direction:column;align-items:center;gap:8px}.radius-shape{width:80px;height:80px;background:var(--accent);opacity:0.6}.radius-label{font-size:10px;color:var(--muted);text-align:center}.elev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}.elev-card{background:#1E293B;border-radius:12px;padding:16px;text-align:center;font-size:12px}.elev-card.title{font-weight:700;margin-bottom:4px}</style></head>
+<body>
+<h1>Dungeon Forge <span style="color:var(--accent)">Spacing</span></h1>
+<p>Spacing scale follows Tailwind defaults — 4px base increment.</p>
+
+<h2>Spacing Scale</h2>
+<div class="space-grid">
+<div class="space-item"><div class="space-bar" style="width:4px;height:12px"></div><div class="space-info"><div class="space-name">--space-1</div><div class="space-value">4px</div></div></div>
+<div class="space-item"><div class="space-bar" style="width:8px;height:12px"></div><div class="space-info"><div class="space-name">--space-2</div><div class="space-value">8px</div></div></div>
+<div class="space-item"><div class="space-bar" style="width:12px;height:12px"></div><div class="space-info"><div class="space-name">--space-3</div><div class="space-value">12px</div></div></div>
+<div class="space-item"><div class="space-bar" style="width:16px;height:12px"></div><div class="space-info"><div class="space-name">--space-4</div><div class="space-value">16px</div></div></div>
+<div class="space-item"><div class="space-bar" style="width:20px;height:12px"></div><div class="space-info"><div class="space-name">--space-5</div><div class="space-value">20px</div></div></div>
+<div class="space-item"><div class="space-bar" style="width:24px;height:12px"></div><div class="space-info"><div class="space-name">--space-6</div><div class="space-value">24px</div></div></div>
+<div class="space-item"><div class="space-bar" style="width:32px;height:12px"></div><div class="space-info"><div class="space-name">--space-8</div><div class="space-value">32px</div></div></div>
+<div class="space-item"><div class="space-bar" style="width:48px;height:12px"></div><div class="space-info"><div class="space-name">--space-12</div><div class="space-value">48px</div></div></div>
+<div class="space-item"><div class="space-bar" style="width:64px;height:12px"></div><div class="space-info"><div class="space-name">--space-16</div><div class="space-value">64px</div></div></div>
+</div>
+
+<h2>Border Radius</h2>
+<div class="radius-grid">
+<div class="radius-block"><div class="radius-shape" style="border-radius:4px;background:var(--accent)"></div><div class="radius-label">sm (4px)<br/>Inputs, badges</div></div>
+<div class="radius-block"><div class="radius-shape" style="border-radius:8px;background:var(--accent)"></div><div class="radius-label">md (8px)<br/>Cards, modals</div></div>
+<div class="radius-block"><div class="radius-shape" style="border-radius:12px;background:var(--accent)"></div><div class="radius-label">lg (12px)<br/>Buttons, panels</div></div>
+<div class="radius-block"><div class="radius-shape" style="border-radius:16px;background:var(--accent)"></div><div class="radius-label">xl (16px)<br/>Major cards</div></div>
+<div class="radius-block"><div class="radius-shape" style="border-radius:24px;background:var(--accent)"></div><div class="radius-label">2xl (24px)<br/>Modals, CTAs</div></div>
+<div class="radius-block"><div class="radius-shape" style="border-radius:9999px;width:60px;background:var(--accent)"></div><div class="radius-label">pill (9999px)<br/>Tab bar, avatars</div></div>
+</div>
+
+<h2>Elevation</h2>
+<div class="elev-grid">
+<div class="elev-card" style="box-shadow:none"><div style="font-weight:700;margin-bottom:4px">Flat</div>--elev-flat: none</div>
+<div class="elev-card" style="box-shadow:0 0 0 1px rgba(154,219,255,0.1)"><div style="font-weight:700;margin-bottom:4px">Ring</div>--elev-ring</div>
+<div class="elev-card" style="box-shadow:0 4px 6px -1px rgba(0,0,0,0.5)"><div style="font-weight:700;margin-bottom:4px">Raised</div>--elev-raised</div>
+<div class="elev-card" style="box-shadow:0 10px 15px -3px rgba(0,0,0,0.5)"><div style="font-weight:700;margin-bottom:4px">Modal</div>--elev-modal</div>
+<div class="elev-card" style="box-shadow:0 0 20px rgba(154,219,255,0.3)"><div style="font-weight:700;margin-bottom:4px">Glow</div>--elev-glow</div>
+</div>
+</body>
+</html>

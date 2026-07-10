@@ -20,7 +20,7 @@ Antes de cualquier commit:
 const apiKey = "sk-proj-xxxxx"
 
 // ✅ SIEMPRE usar variables de entorno
-const apiKey = import.meta.env.VITE_SUPABASE_KEY
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY
 ```
 
 ## Seguridad Web

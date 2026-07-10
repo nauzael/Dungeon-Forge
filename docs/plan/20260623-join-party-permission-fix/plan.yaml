@@ -1,0 +1,433 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# PLAN METADATA
+# ═══════════════════════════════════════════════════════════════════════════
+plan_id: "20260623-join-party-permission-fix"
+objective: "Fix 'Missing or insufficient permissions' when players join a party via code — caused by updateDoc(partyRef, {members.{uid}}) failing Firestore rules. Fix isPartyMember() to check members subcollection instead of party doc members map, and remove failing updateDoc from joinParty()."
+created_at: "2026-06-23"
+created_by: "gem-planner"
+status: approved
+tldr: |
+  Root cause: joinParty() step 4 calls updateDoc(partyRef, {[`members.${uid}`]: {...}}) to update
+  the party document's members map. Firestore rules require isPartyDM(partyId) for party doc updates,
+  which fails for players joining via code (they are NOT the DM). This causes the entire joinParty()
+  call to throw "Missing or insufficient permissions".
+
+  Additionally, isPartyMember() reads partyDoc.members[uid()] from the party doc's members map.
+  Since step 4 always fails for non-DM joiners, the map is never populated for players who join via
+  code. So isPartyMember() always returns false for these players, blocking access to campaign
+  resources and party resources.
+
+  Fix (Option C — Both):
+  - Change isPartyMember() to check the members subcollection via exists() instead of the party
+    doc's members map. The subcollection is already successfully written by joinParty() step 3
+    (allow create: if isAuth() && uid() == memberId).
+  - Remove the failing updateDoc step 4 from joinParty() entirely — it's no longer needed.
+  - Clean up: remove dead members map initialization from createParty().
+  - Clean up: remove dead members map cleanup from removeFromParty() (subcollection is source of truth).
+
+  Migration safety: Existing parties with members map data are unaffected — the map just becomes
+  unused read-only data. No data migration needed.
+
+  Wave 1 (parallel, no deps):
+    T1: Fix isPartyMember() in firestore.rules — use exists() on members/{uid} subcollection
+    T2: Remove updateDoc step 4 from joinParty() — failing call is no longer needed
+    T3: Remove members: {} initialization from createParty() — dead field
+    T4: Remove members map cleanup from removeFromParty() — dead code, subcollection is source of truth
+  Wave 2:
+    T5: Deploy Firestore rules to Firebase
+  Wave 3:
+    T6: Build verification + smoke test the join flow
+
+plan_metrics:
+  wave_1_task_count: 4
+  total_dependencies: 3
+  risk_score: medium
+quality_warnings:
+  - "Rules change affects isPartyMember() used by campaign_resources and party resources — verify players can access resources after joining"
+  - "No test framework; npm run build and manual smoke test are the only gates"
+  - "Deploy (T5) should target production rules; have rollback plan ready"
+
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "isPartyMember() returns false for existing party members who joined before this fix and whose subcollection entry was never created (e.g., if joinParty failed before step 3)"
+      likelihood: low
+      impact: high
+      mitigation: "The subcollection entry (step 3 in joinParty) runs BEFORE the failing step 4. Most join attempts that hit the error at step 4 still have step 3's subcollection entry written. For edge cases where subcollection doesn't exist, the player can re-join via code. DM can also manually re-create if needed."
+    - scenario: "Firestore security rules syntax error causes all party operations to fail"
+      likelihood: low
+      impact: critical
+      mitigation: "Deploy to a test Firebase project first, or use firebase emulators to validate rules before production deploy. T5 specifically validates rules syntax."
+  assumptions:
+    - "The members subcollection doc written by joinParty() step 3 always succeeds because the security rule allows create: if isAuth() && uid() == memberId"
+    - "No other code reads the party doc's members map field for functional purposes (only isPartyMember() in rules uses it)"
+    - "Firebase CLI is available for rules deployment"
+    - "Existing parties with stale members map data are unaffected by this change"
+
+implementation_specification:
+  - "T1: Change isPartyMember() in firestore.rules from get()-based field check to exists()-based subcollection check. No other rule changes needed."
+  - "T2: Remove the updateDoc(partyRef, {[`members.${effectiveUserId}`]: {...}}) block from joinParty() in utils/firebase/db.ts (lines 416-428). Keep the broadcastCharacterUpdate block that follows."
+  - "T3: Remove members: {} from createParty() party data (db.ts line 297)."
+  - "T4: Remove the '2c. Clean up party members map' block from removeFromParty() in db.ts (lines 587-596). The subcollection cleanup at 2b (lines 576-585) remains as the source of truth."
+  - "T5: Deploy rules via firebase deploy --only firestore:rules"
+  - "T6: Manual smoke test: create party with DM, join with player, verify member appears in DM list, verify player can access campaign resources."
+
+tasks:
+  # ───────────────────────────────────────────────────────────────────────
+  # WAVE 1 — Core fixes (parallel, independent)
+  # ───────────────────────────────────────────────────────────────────────
+  - id: "T1_fix_isPartyMember_rules"
+    title: "Change isPartyMember() to check members subcollection using exists()"
+    description: |
+      ROOT CAUSE FIX: The current isPartyMember() function reads the party document's `members`
+      map field and checks if the current user's UID exists as a key:
+        let partyDoc = get(/databases/$(database)/documents/parties/$(partyId)).data;
+        return partyDoc.members[uid()] != null;
+
+      This fails for players who join via code because joinParty() step 4 (which writes to this
+      map) is rejected by Firestore rules. The map never gets populated for non-DM joiners.
+
+      FIX: Change isPartyMember() to check the members subcollection instead:
+        function isPartyMember(partyId) {
+          return exists(/databases/$(database)/documents/parties/$(partyId)/members/$(uid()));
+        }
+
+      This works because joinParty() step 3 already successfully writes to this subcollection:
+        allow create: if isAuth() && uid() == memberId;
+
+      Benefits:
+      - Uses exists() which is 1 read (same cost as get()) but semantically cleaner
+      - Doesn't depend on the party doc's members map being populated
+      - Works correctly for all join flows
+
+      Downstream effects: isPartyMember() is used in:
+      - /parties/{partyId}/resources read (line 123)
+      - /campaign_resources/{resourceId} read (line 153)
+      These will now correctly grant access to players who joined via code.
+    wave: 1
+    agent: gem-implementer
+    status: pending
+    covers:
+      - "Root cause: isPartyMember() checks wrong data source"
+      - "firestore.rules function isPartyMember() — line 35-38"
+      - "Downstream uses: /parties/{partyId}/resources read (line 123), /campaign_resources/{resourceId} read (line 153)"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "firestore.rules"
+        description: "Security rules file — isPartyMember() at lines 35-38"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "isPartyMember() uses exists() on /parties/{partyId}/members/{uid} instead of get() on partyDoc.members[uid()]"
+      - "No other rule functions or match blocks are modified"
+      - "Rules syntax is valid Firestore rules v2"
+    success_criteria:
+      - "Code review: isPartyMember() now checks subcollection via exists()"
+      - "Manual review: all other rules unchanged"
+      - "Rules syntax validated (e.g., via firebase deploy --dry-run or rules emulator)"
+    tech_stack:
+      - "Firestore Security Rules v2"
+    handoff:
+      do_not_reinvestigate:
+        - "Root cause analysis — in plan preamble"
+        - "Current isPartyMember() implementation at firestore.rules:35-38"
+        - "joinParty() step 3 already writes to members/{uid} subcollection successfully"
+        - "isPartyMember() is only used in read rules for campaign_resources and parties/{partyId}/resources"
+      target_files:
+        - "firestore.rules"
+      minimal_change: "Only modify the isPartyMember() function body (lines 35-38). Do NOT change any other rules, match blocks, or functions."
+      acceptance_checks:
+        - "Replace lines 35-38 with: function isPartyMember(partyId) { return exists(/databases/$(database)/documents/parties/$(partyId)/members/$(uid())); }"
+        - "Verify the function signature is unchanged (still takes partyId parameter)"
+        - "Verify no other rules were modified"
+
+  - id: "T2_remove_updateDoc_from_joinParty"
+    title: "Remove failing updateDoc step 4 from joinParty()"
+    description: |
+      ROOT CAUSE FIX: joinParty() step 4 (lines 416-428 in utils/firebase/db.ts) calls:
+        updateDoc(partyRef, {[`members.${effectiveUserId}`]: {...}})
+
+      This fails with "Missing or insufficient permissions" because the Firestore rules require
+      isPartyDM(partyId) for party document updates, and a player joining via code is NOT the DM.
+
+      With T1 fixing isPartyMember() to check the members subcollection (which step 3 already
+      successfully writes to), this updateDoc is unnecessary. The members subcollection is the
+      source of truth for membership.
+
+      FIX: Remove the entire step 4 block (lines 416-428), including the `const partyRef` and
+      the `await firestoreTimeout(updateDoc(...))` call. The broadcastCharacterUpdate at lines
+      430-437 remains unchanged.
+
+      IMPORTANT: The partyRef variable is declared at line 417 and only used in lines 418-428.
+      After removal, verify no dangling reference to partyRef remains in this function.
+    wave: 1
+    agent: gem-implementer
+    status: pending
+    covers:
+      - "Root cause: updateDoc on party doc fails for non-DM joiners"
+      - "utils/firebase/db.ts joinParty() lines 416-428"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "utils/firebase/db.ts"
+        description: "joinParty() function at lines 342-447, step 4 at lines 416-428"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "Lines 416-428 (updateDoc of party members map) are removed from joinParty()"
+      - "No dangling references to partyRef variable in joinParty()"
+      - "The broadcastCharacterUpdate block (lines 430-437) remains unchanged"
+      - "npm run build compiles without errors"
+    success_criteria:
+      - "Code review: step 4 removed, broadcast block preserved"
+      - "Build succeeds with no TypeScript errors"
+      - "Manual trace: joinParty flow only does 3 writes (getDoc, setDoc char, setDoc member) + broadcast"
+    tech_stack:
+      - "TypeScript strict"
+      - "Firebase Firestore"
+    handoff:
+      do_not_reinvestigate:
+        - "Root cause: updateDoc fails because only DM can update party doc"
+        - "T1 already fixes isPartyMember() to check subcollection instead"
+        - "Step 3 (setDoc to members/{uid}) already creates the membership record"
+        - "broadcastCharacterUpdate at lines 430-437 is a separate, best-effort operation"
+      target_files:
+        - "utils/firebase/db.ts"
+      minimal_change: "Only touch lines 416-428 within joinParty(). Remove the partyRef declaration, the updateDoc call, and the surrounding timeout wrapper. Do not modify any other part of joinParty or any other function."
+      acceptance_checks:
+        - "Remove lines 416-428: 'const partyRef = doc(firestore, 'parties', partyData.id);' through the closing of the await firestoreTimeout(updateDoc(...)) block"
+        - "Ensure no trailing/leftover references to partyRef variable"
+        - "Run npm run build to verify compilation"
+
+  - id: "T3_remove_members_from_createParty"
+    title: "Remove dead members: {} field from createParty()"
+    description: |
+      CLEANUP: createParty() initializes the party document with `members: {}` (line 297 in
+      utils/firebase/db.ts). This was previously used by isPartyMember() to check party membership
+      via the party doc's members map.
+
+      Since T1 changes isPartyMember() to check the members subcollection instead, the `members`
+      field on the party document is no longer read by any code or rules. Keeping it is harmless
+      but confusing for future developers.
+
+      FIX: Remove `members: {},` from the partyData object in createParty().
+    wave: 1
+    agent: gem-implementer
+    status: pending
+    covers:
+      - "Cleanup: dead members field in createParty()"
+      - "utils/firebase/db.ts createParty() line 297"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "utils/firebase/db.ts"
+        description: "createParty() function — members field at line 297"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "members: {} removed from createParty partyData object"
+      - "npm run build compiles without errors"
+    success_criteria:
+      - "Code review: only one line removed, no other changes"
+      - "Build succeeds"
+    tech_stack:
+      - "TypeScript strict"
+    handoff:
+      do_not_reinvestigate:
+        - "members field was only used by the old isPartyMember() implementation"
+        - "T1 changes isPartyMember() to check subcollection, making this field dead"
+      target_files:
+        - "utils/firebase/db.ts"
+      minimal_change: "Remove 'members: {},' at line 297. Do not modify any other part of createParty."
+      acceptance_checks:
+        - "Remove line 297: 'members: {}, // BUG FIX #2: Initialize members map'"
+        - "Run npm run build to verify compilation"
+
+  - id: "T4_remove_members_cleanup_from_removeFromParty"
+    title: "Remove dead members map cleanup from removeFromParty()"
+    description: |
+      CLEANUP: removeFromParty() has two cleanup steps for DM kicks:
+        - 2b (lines 576-585): Delete from members subcollection — SOURCE OF TRUTH, keep this
+        - 2c (lines 587-596): Clean up party members map — DEAD CODE, remove this
+
+      The members map cleanup (2c) calls updateDoc(partyRef, {[`members.${userId}`]: deleteField()})
+      to remove the user from the party document's members map. Since T1 changes isPartyMember()
+      to check the subcollection instead, this map cleanup is unnecessary.
+
+      The code is already best-effort (wrapped in try-catch). Removing it eliminates confusion
+      and keeps the codebase consistent with the new security model where membership is tracked
+      exclusively via the subcollection.
+
+      FIX: Remove the "2c. Clean up party members map" block (lines 587-596), including the
+      try-catch, the partyRef declaration, and the updateDoc call.
+    wave: 1
+    agent: gem-implementer
+    status: pending
+    covers:
+      - "Cleanup: dead members map cleanup in removeFromParty()"
+      - "utils/firebase/db.ts removeFromParty() lines 587-596"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "utils/firebase/db.ts"
+        description: "removeFromParty() function — members map cleanup at lines 587-596"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "Lines 587-596 (members map cleanup block) are removed from removeFromParty()"
+      - "The subcollection cleanup (2b, lines 576-585) remains unchanged"
+      - "npm run build compiles without errors"
+    success_criteria:
+      - "Code review: only the members map cleanup block removed"
+      - "Build succeeds"
+      - "Manual review: subcollection cleanup (memberRef deleteDoc) is preserved"
+    tech_stack:
+      - "TypeScript strict"
+    handoff:
+      do_not_reinvestigate:
+        - "Subcollection cleanup (lines 576-585) is the source of truth and must be preserved"
+        - "The members map cleanup was DM-only and best-effort; removing it is safe"
+        - "T1 already fixes isPartyMember() to check subcollection only"
+      target_files:
+        - "utils/firebase/db.ts"
+      minimal_change: "Remove lines 587-596 (the entire '2c. Clean up party members map' block with its try-catch). Do NOT touch the subcollection cleanup (2b) or any other part of removeFromParty."
+      acceptance_checks:
+        - "Remove lines 587-596: from '// 2c. Clean up party members map' through the closing brace of that try-catch block"
+        - "Verify the subcollection cleanup (2b, lines 576-585) is still present"
+        - "Run npm run build to verify compilation"
+
+  # ───────────────────────────────────────────────────────────────────────
+  # WAVE 2 — Deploy
+  # ───────────────────────────────────────────────────────────────────────
+  - id: "T5_deploy_firestore_rules"
+    title: "Deploy updated Firestore security rules to Firebase"
+    description: |
+      Deploy the updated firestore.rules to Firebase production project.
+
+      The rules change is in isPartyMember() — from get()-based field check to exists()-based
+      subcollection check. This is a targeted, low-risk change.
+
+      Deployment command:
+        firebase deploy --only firestore:rules
+
+      Rollback plan: If the deploy causes unexpected permission issues, rollback with:
+        firebase deploy --only firestore:rules --config <backup>
+
+      Or restore from git:
+        git checkout HEAD~1 -- firestore.rules && firebase deploy --only firestore:rules
+    wave: 2
+    agent: gem-devops
+    status: pending
+    covers:
+      - "Deploy updated firestore.rules to Firebase"
+      - "Firebase rules deployment"
+    dependencies:
+      - "T1_fix_isPartyMember_rules"
+    conflicts_with: []
+    context_files:
+      - path: "firestore.rules"
+        description: "Updated rules with fixed isPartyMember()"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "firebase deploy --only firestore:rules exits successfully"
+      - "Deployed rules reflect the isPartyMember() change"
+      - "No other rules or configurations are modified by the deploy"
+    success_criteria:
+      - "firebase deploy reports success with rules deployed"
+      - "Verify via Firebase Console that rules contain the updated isPartyMember()"
+    environment: production
+    requires_approval: true
+    devops_security_sensitive: true
+    handoff:
+      do_not_reinvestigate:
+        - "The exact rules change — see T1 acceptance criteria"
+        - "Only firestore.rules needs deploying, no other Firebase services"
+      target_files:
+        - "firestore.rules"
+      acceptance_checks:
+        - "Run: firebase deploy --only firestore:rules"
+        - "Confirm exit code 0 with 'firestore:rules deployed' in output"
+        - "Verify in Firebase Console that rules reflect the change"
+
+  # ───────────────────────────────────────────────────────────────────────
+  # WAVE 3 — Verification
+  # ───────────────────────────────────────────────────────────────────────
+  - id: "T6_build_verification_and_smoke_test"
+    title: "Build verification and smoke test of join party flow"
+    description: |
+      Verify all changes compile and the join party flow works end-to-end:
+
+      1. npm run build — TypeScript compilation
+      2. Code review all changes for consistency
+      3. Manual smoke test:
+         a. Create a party with DM account (get party code)
+         b. Switch to player account (different Firebase user)
+         c. Join party via code — should succeed without errors
+         d. Verify DM's member list shows the new player
+         e. Verify player can access campaign resources
+         f. Verify party resources work for the player
+      4. Confirm existing DM operations still work (kick, rename party, delete party)
+    wave: 3
+    agent: gem-reviewer
+    status: pending
+    covers:
+      - "Build verification of all 4 code changes"
+      - "Smoke test of join party flow"
+      - "Regression check on DM operations"
+    dependencies:
+      - "T2_remove_updateDoc_from_joinParty"
+      - "T3_remove_members_from_createParty"
+      - "T4_remove_members_cleanup_from_removeFromParty"
+      - "T5_deploy_firestore_rules"
+    conflicts_with: []
+    context_files:
+      - path: "utils/firebase/db.ts"
+        description: "T2, T3, T4 changes"
+      - path: "firestore.rules"
+        description: "T1 changes"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "npm run build exits with code 0"
+      - "Code review passes: all changes match acceptance criteria in T1-T4"
+      - "No unintended changes to files outside target scope"
+      - "Player can join a party via code without 'Missing or insufficient permissions'"
+      - "DM can see the joined player in the member list"
+      - "DM can kick the player successfully"
+      - "Player can access campaign resources after joining"
+    success_criteria:
+      - "Build succeeds with 0 errors"
+      - "All 4 change areas verified in code review"
+      - "Smoke test reports all 6 checks pass"
+    requires_review: true
+    review_depth: full
+    review_security_sensitive: false
+    handoff:
+      do_not_reinvestigate:
+        - "Root cause analysis — in plan preamble"
+        - "Expected changes per task — see handoff.acceptance_checks for each task"
+        - "Smoke test procedure: DM creates party → player joins via code → verify member list"
+      target_files:
+        - "utils/firebase/db.ts"
+        - "firestore.rules"
+      acceptance_checks:
+        - "Run npm run build and confirm success"
+        - "Review firestore.rules for T1 change (isPartyMember using exists())"
+        - "Review db.ts joinParty() for T2 change (step 4 removed)"
+        - "Review db.ts createParty() for T3 change (members: {} removed)"
+        - "Review db.ts removeFromParty() for T4 change (map cleanup removed)"
+        - "Perform smoke test: DM creates party → player joins via code → verify everything works"

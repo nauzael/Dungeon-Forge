@@ -40,6 +40,114 @@
   --border-radius-xl: 0.75rem;
   --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
   --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+
+  /* ═══════════════════════════════════════════════
+   * DESIGN SYSTEM TOKENS — Type Scale
+   * ═══════════════════════════════════════════════ */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
+  --text-5xl: 48px;
+  --text-6xl: 60px;
+  --text-8xl: 96px;
+  --leading-body: 1.5;
+  --leading-tight: 1.06;
+  --tracking-display: -0.02em;
+
+  /* ═══════════════════════════════════════════════
+   * DESIGN SYSTEM TOKENS — Spacing (4px grid)
+   * ═══════════════════════════════════════════════ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Section Spacing ── */
+  --section-y-phone: 32px;
+  --section-y-tablet: 48px;
+  --section-y-desktop: 64px;
+
+  /* ═══════════════════════════════════════════════
+   * DESIGN SYSTEM TOKENS — Border Radius
+   * ═══════════════════════════════════════════════ */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-pill: 9999px;
+
+  /* ═══════════════════════════════════════════════
+   * DESIGN SYSTEM TOKENS — Elevation / Shadows
+   * ═══════════════════════════════════════════════ */
+  --elev-flat: none;
+  --elev-ring: 0 0 0 1px var(--color-border);
+  --elev-raised: var(--box-shadow);
+  --elev-modal: var(--box-shadow-lg);
+  --elev-glow: 0 0 20px rgba(154, 219, 255, 0.3);
+
+  /* ═══════════════════════════════════════════════
+   * DESIGN SYSTEM TOKENS — Motion & Easing
+   * ═══════════════════════════════════════════════ */
+  --motion-fast: 150ms;
+  --motion-base: 300ms;
+  --motion-slow: 500ms;
+  --motion-hp: 700ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ═══════════════════════════════════════════════
+   * DESIGN SYSTEM TOKENS — Focus & Container
+   * ═══════════════════════════════════════════════ */
+  --focus-ring: 0 0 0 3px rgba(53, 158, 255, 0.5);
+  --container-max: 1200px;
+  --container-gutter-phone: 16px;
+  --container-gutter-tablet: 24px;
+  --container-gutter-desktop: 36px;
+
+  /* ═══════════════════════════════════════════════
+   * DESIGN SYSTEM TOKENS — Icon & Decorative
+   * ═══════════════════════════════════════════════ */
+  --font-icon: "Material Symbols Outlined";
+  --icon-fill: 1;
+  --icon-weight: 400;
+  --icon-grade: 0;
+  --icon-opsz: 20;
+  --leather-texture: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAtlmpW9OmtvfbfCmLJo1AmjJ67NDIE0H4uXA3IeQ56LKmxLxatsb3SeAwLLjMAe625i24Hwiq3wxwtU2nH2U32MHMLkBkF2AaTkKZPgiZT1ex9roAqDlt_WZJz9sWWUSEZI86oII4liP3W4ukLdt_mpzOy0i33AjkvodEMcXUozVCMc7-DJ4_xU0rP7z6qdUHDtsMt9dGpj8bDI1UswGKbc5P-JRQaYQqkiVcHdvsfXhUYx59McUEq1tvok1yE_XlIbxMlpYrLS23B");
+  --accent-glow: 0 0 20px rgba(154, 219, 255, 0.3), 0 0 40px rgba(154, 219, 255, 0.1);
+
+  /* ═══════════════════════════════════════════════
+   * DESIGN SYSTEM ALIASES (DS naming → existing vars)
+   * ═══════════════════════════════════════════════ */
+  --bg: var(--color-background);
+  --bg-secondary: var(--color-background-secondary);
+  --surface: var(--color-surface);
+  --surface-highlight: var(--color-surface-highlight);
+  --fg: var(--color-text-primary);
+  --fg-2: var(--color-text-secondary);
+  --muted: var(--color-text-muted);
+  --accent: var(--color-primary);
+  --accent-dark: var(--color-primary-dark);
+  --accent-alt: var(--color-accent);
+  --secondary: var(--color-secondary);
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --danger: var(--color-error);
+  --info: var(--color-info);
+  --border: var(--color-border);
+  --border-hover: var(--color-border-hover);
+  --font-display: var(--font-family-display);
+  --font-body: var(--font-family-body);
 }
 
 .safe-top { padding-top: var(--sat); }
@@ -55,6 +163,7 @@ body {
   font-size: var(--font-size-base);
   line-height: var(--line-height-base);
   overscroll-behavior-y: none;
+  /* NOTA: No poner touch-action aquí — en Android WebView interfiere con overflow containers anidados */
 }
 
 /* Scroll lock removed - modals with fixed positioning handle this */
@@ -67,6 +176,8 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* NOTA: no usar overscroll-behavior:contain en Android WebView — interfiere con scroll nativo */
 
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
@@ -142,7 +253,7 @@ select::-ms-expand {
   background-color: var(--color-background);
   background-image: 
     radial-gradient(circle at 50% 0%, rgba(154, 219, 255, 0.05) 0%, transparent 50%),
-    url("https://lh3.googleusercontent.com/aida-public/AB6AXuAtlmpW9OmtvfbfCmLJo1AmjJ67NDIE0H4uXA3IeQ56LKmxLxatsb3SeAwLLjMAe625i24Hwiq3wxwtU2nH2U32MHMLkBkF2AaTkKZPgiZT1ex9roAqDlt_WZJz9sWWUSEZI86oII4liP3W4ukLdt_mpzOy0i33AjkvodEMcXUozVCMc7-DJ4_xU0rP7z6qdUHDtsMt9dGpj8bDI1UswGKbc5P-JRQaYQqkiVcHdvsfXhUYx59McUEq1tvok1yE_XlIbxMlpYrLS23B");
+    var(--leather-texture);
   background-blend-mode: overlay;
 }
 
@@ -157,7 +268,7 @@ select::-ms-expand {
 }
 
 .app-title-glow {
-  text-shadow: 0 0 20px rgba(154, 219, 255, 0.3), 0 0 40px rgba(154, 219, 255, 0.1);
+  text-shadow: var(--accent-glow);
 }
 
 @keyframes fadeIn {

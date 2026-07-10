@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dungeon Forge - Reference Components</title>
+    <meta name="description" content="Reference fixture for design-systems/dungeon-forge: D&D 5e character management app with dark fantasy aesthetic and dynamic theming." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;700;900&family=Noto+Sans:wght@400;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #0F172A;
+        --bg-secondary: #1E293B;
+        --surface: #1E293B;
+        --surface-highlight: #334155;
+        --fg: #F8FAFC;
+        --fg-2: #E2E8F0;
+        --muted: #94A3B8;
+        --accent: #359EFF;
+        --accent-dark: #2B7DE0;
+        --accent-alt: #9ADBFF;
+        --secondary: #64748B;
+        --success: #22C55E;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --info: #3B82F6;
+        --border: rgba(154, 219, 255, 0.1);
+        --border-hover: rgba(154, 219, 255, 0.2);
+        --font-display: 'Spline Sans', system-ui, sans-serif;
+        --font-body: 'Noto Sans', system-ui, sans-serif;
+        --text-xs: 12px;
+        --text-sm: 14px;
+        --text-base: 16px;
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 20px;
+        --space-6: 24px;
+        --radius-sm: 4px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --radius-xl: 16px;
+        --radius-2xl: 24px;
+        --radius-pill: 9999px;
+        --elev-raised: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        --elev-modal: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        --elev-glow: 0 0 20px rgba(154, 219, 255, 0.3);
+        --motion-fast: 150ms;
+        --motion-base: 300ms;
+        --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--font-body);
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        padding: var(--space-6);
+      }
+      .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined';
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      }
+
+      h1 { font-family: var(--font-display); font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; margin: 0 0 4px 0; }
+      h2 { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin: 32px 0 12px 0; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+      h3 { font-family: var(--font-display); font-size: 14px; font-weight: 700; margin: 24px 0 8px 0; color: var(--accent-alt); }
+      .section-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+      .component-grid { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; margin-bottom: 24px; }
+      .component-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+
+      /* ── 1. BUTTONS ── */
+
+      .btn-primary { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 44px; padding: 12px 16px; border: none; border-radius: var(--radius-lg); font-family: var(--font-body); font-size: 14px; font-weight: 700; background: var(--accent); color: #0F172A; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(53,158,255,0.3); transition: all var(--motion-fast); }
+      .btn-primary:hover { background: var(--accent-dark); transform: translateY(-1px); }
+      .btn-primary:active { transform: scale(0.98); }
+
+      .btn-gradient-short-rest { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 44px; padding: 12px; border: none; border-radius: var(--radius-lg); font-weight: 700; font-size: 14px; cursor: pointer; background: linear-gradient(to right, #F59E0B, #EA580C); color: white; transition: all var(--motion-fast); }
+      .btn-gradient-long-rest { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 44px; padding: 12px; border: none; border-radius: var(--radius-lg); font-weight: 700; font-size: 14px; cursor: pointer; background: linear-gradient(to right, #10B981, #059669); color: white; transition: all var(--motion-fast); }
+      .btn-gradient-rage { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 44px; padding: 12px; border: none; border-radius: var(--radius-lg); font-weight: 700; font-size: 14px; cursor: pointer; background: linear-gradient(to right, #F97316, #DC2626); color: white; transition: all var(--motion-fast); }
+      .btn-destructive { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 16px; border: none; border-radius: var(--radius-lg); font-weight: 700; font-size: 13px; cursor: pointer; background: #EF4444; color: white; box-shadow: 0 4px 6px -1px rgba(239,68,68,0.3); transition: all var(--motion-fast); }
+
+      .btn-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 16px; border: none; border-radius: var(--radius-lg); font-weight: 700; font-size: 13px; cursor: pointer; background: rgba(255,255,255,0.1); color: var(--fg); transition: all var(--motion-fast); }
+      .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+
+      .btn-cta-circle { display: inline-flex; align-items: center; gap: 16px; padding: 12px 24px; border: 1px solid rgba(154,219,255,0.2); border-radius: var(--radius-pill); background: #1b1f2b; color: var(--fg); cursor: pointer; transition: all var(--motion-base); overflow: hidden; position: relative; }
+      .btn-cta-circle:hover { background: #252a3a; border-color: rgba(154,219,255,0.4); }
+      .btn-cta-circle:active { transform: scale(0.95); }
+      .btn-cta-icon { width: 40px; height: 40px; border-radius: var(--radius-pill); background: rgba(53,158,255,0.1); border: 1px solid rgba(53,158,255,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+      .btn-icon-round { width: 40px; height: 40px; border-radius: var(--radius-pill); background: rgba(53,158,255,0.1); border: 1px solid rgba(53,158,255,0.2); display: flex; align-items: center; justify-content: center; color: var(--accent); cursor: pointer; transition: all var(--motion-fast); }
+      .btn-icon-round:hover { background: var(--accent); color: #0F172A; }
+
+      .btn-icon-round-sm { width: 32px; height: 32px; border-radius: var(--radius-pill); background: rgba(255,255,255,0.1); border: none; display: flex; align-items: center; justify-content: center; color: var(--fg-2); cursor: pointer; transition: all var(--motion-fast); }
+      .btn-icon-round-sm:hover { background: rgba(255,255,255,0.2); }
+
+      /* ── 2. CARDS ── */
+
+      .card-character { background: #1b1f2b; border-radius: var(--radius-lg); overflow: hidden; box-shadow: inset 0 0 0 1px var(--border), 0 0 20px rgba(0,0,0,0.5); width: 260px; cursor: pointer; transition: all 500ms; }
+      .card-character:hover { box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+      .card-character-image { height: 200px; background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); position: relative; overflow: hidden; }
+      .card-character-info { padding: var(--space-4); }
+      .card-character-name { font-family: var(--font-display); font-weight: 900; font-size: 16px; margin-bottom: 4px; }
+      .card-character-detail { color: var(--muted); font-size: 12px; }
+
+      .card-sheet { background: var(--surface); border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius-xl); padding: var(--space-5); box-shadow: var(--elev-raised); }
+      .card-sheet-light { background: white; border: 1px solid #E2E8F0; border-radius: var(--radius-xl); padding: var(--space-5); box-shadow: 0 1px 3px rgba(0,0,0,0.1); color: #0F172A; }
+
+      .card-note { background: var(--surface); border-radius: var(--radius-xl); padding: var(--space-5); border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
+      .card-note-accent { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: linear-gradient(to bottom, var(--accent), rgba(53,158,255,0.4)); }
+
+      .card-feature { display: flex; align-items: flex-start; gap: 12px; background: rgba(53,158,255,0.05); border: 1px solid rgba(53,158,255,0.1); padding: 12px; border-radius: var(--radius-lg); }
+
+      .card-stat { width: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; border-radius: var(--radius-xl); background: var(--surface); border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all var(--motion-fast); }
+      .card-stat:active { transform: scale(0.95); }
+      .card-stat-value { font-family: var(--font-display); font-size: 20px; font-weight: 900; line-height: 1; }
+
+      .card-radio { width: 200px; border-radius: var(--radius-xl); padding: var(--space-4); background: var(--surface); border: 2px solid transparent; cursor: pointer; transition: all var(--motion-base); }
+      .card-radio:hover { border-color: rgba(53,158,255,0.5); }
+      .card-radio.selected { border-color: var(--accent); box-shadow: 0 0 10px rgba(53,158,255,0.3); transform: scale(1.05); }
+
+      .card-member { background: #1E293B; border-radius: var(--radius-xl); padding: var(--space-4); border: 1px solid rgba(255,255,255,0.05); }
+
+      /* ── 3. FORM ELEMENTS ── */
+
+      .input-text { width: 100%; background: var(--surface); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); padding: 12px 16px; font-size: 14px; font-weight: 500; color: var(--fg); outline: none; transition: all var(--motion-fast); }
+      .input-text:focus { box-shadow: 0 0 0 2px rgba(53,158,255,0.5); border-color: transparent; }
+      .input-text::placeholder { color: var(--muted); }
+
+      .select-input { width: 100%; background: var(--surface); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-lg); padding: 12px 16px; font-size: 14px; font-weight: 700; color: var(--fg); outline: none; appearance: none; cursor: pointer; transition: all var(--motion-fast); }
+
+      .toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+      .toggle-track { width: 40px; height: 20px; border-radius: var(--radius-pill); background: var(--surface-highlight); transition: all var(--motion-fast); position: relative; }
+      .toggle-track.active { background: var(--accent); }
+      .toggle-dot { width: 16px; height: 16px; background: white; border-radius: var(--radius-pill); box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: absolute; top: 2px; left: 2px; transition: all var(--motion-fast); }
+      .toggle-track.active .toggle-dot { transform: translateX(20px); }
+
+      .range-slider { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: var(--radius-pill); appearance: none; cursor: pointer; accent-color: #F59E0B; }
+
+      /* ── 4. MODAL ── */
+
+      .modal-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.3s ease-out; }
+      .modal-panel { width: 100%; max-width: 400px; background: #0f1525; border-radius: var(--radius-2xl) var(--radius-2xl) 0 0; box-shadow: var(--elev-modal); max-height: 85vh; display: flex; flex-direction: column; animation: slideUp 0.4s var(--ease-spring); }
+      .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+      .modal-content { overflow-y: auto; flex: 1; padding: 16px; }
+      .modal-footer { padding: 12px 16px; border-top: 1px solid var(--border); text-align: center; }
+      .modal-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+
+      .modal-centered { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 16px; animation: fadeIn 0.3s ease-out; }
+      .modal-centered-panel { width: 100%; max-width: 320px; background: #0f1525; border-radius: var(--radius-xl); padding: var(--space-5); box-shadow: var(--elev-modal); animation: scaleIn 0.2s ease-out; border: 1px solid rgba(255,255,255,0.1); }
+
+      /* ── 5. TAB BAR ── */
+
+      .tab-bar { position: fixed; bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); backdrop-filter: blur(12px); background: rgba(15,23,42,0.9); border-radius: var(--radius-pill); padding: 6px; display: inline-flex; gap: 6px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); z-index: 40; }
+      .tab-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 16px; border-radius: var(--radius-lg); font-size: 10px; font-weight: 900; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all var(--motion-base); border: none; background: transparent; }
+      .tab-item.active { background: var(--accent); color: #0F172A; box-shadow: 0 2px 8px rgba(53,158,255,0.25); }
+      .tab-item:hover { color: var(--fg-2); }
+
+      .dm-nav { max-width: 400px; margin: 0 auto; background: #0F172A; border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-2xl); padding: 8px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; box-shadow: var(--elev-modal); backdrop-filter: blur(12px); }
+
+      /* ── 6. BADGES & PILLS ── */
+
+      .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--radius-pill); font-size: 10px; font-weight: 500; background: rgba(255,255,255,0.1); color: var(--fg-2); }
+      .badge-success { background: rgba(34,197,94,0.2); color: var(--success); }
+      .badge-warning { background: rgba(245,158,11,0.2); color: var(--warning); }
+      .badge-error { background: rgba(239,68,68,0.2); color: var(--danger); }
+
+      /* ── 7. PROGRESS BAR ── */
+
+      .progress-bar { height: 8px; width: 100%; background: rgba(255,255,255,0.1); border-radius: var(--radius-pill); overflow: hidden; }
+      .progress-fill { height: 100%; border-radius: var(--radius-pill); transition: width 700ms; }
+      .progress-fill.hp { background: linear-gradient(to right, var(--success), var(--accent)); }
+      .progress-fill.rage { background: linear-gradient(to right, #F97316, #DC2626); }
+
+      /* ── 8. STAT GRID ── */
+
+      .stat-grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; }
+      .stat-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .stat-grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+      .stat-item { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); }
+      .stat-label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+      .stat-value { font-family: var(--font-display); font-size: 18px; font-weight: 900; line-height: 1.2; }
+      .stat-mod { font-size: 11px; color: var(--fg-2); }
+
+      /* ── 9. UTILITY COMPONENTS ── */
+
+      .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; text-align: center; }
+      .empty-state-icon { font-size: 60px; color: rgba(255,255,255,0.05); margin-bottom: 16px; }
+
+      .section-separator { position: relative; padding: 24px 0; display: flex; align-items: center; justify-content: center; }
+      .section-separator-label { background: var(--bg); padding: 4px 16px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-pill); }
+
+      .step-progress { display: flex; gap: 8px; align-items: center; }
+      .step-dot { height: 6px; flex: 1; border-radius: var(--radius-pill); background: rgba(255,255,255,0.1); transition: all var(--motion-base); }
+      .step-dot.active { background: var(--accent); box-shadow: 0 0 10px rgba(53,158,255,0.5); }
+      .step-dot.completed { background: var(--success); }
+
+      .scroll-fade { position: relative; }
+      .scroll-fade-left { position: absolute; top: 0; bottom: 0; left: 0; width: 48px; background: linear-gradient(to right, var(--bg), transparent); z-index: 10; pointer-events: none; }
+
+      /* ── 10. HEADER / TOOLBAR ── */
+
+      .sheet-header { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; padding-top: max(12px, env(safe-area-inset-top, 0px)); background: rgba(15,23,42,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+
+      /* ── 11. ANIMATIONS ── */
+
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+      /* ── 12. DECORATIVE ── */
+
+      .leather-bg { background-color: var(--bg); background-image: radial-gradient(circle at 50% 0%, rgba(154,219,255,0.05) 0%, transparent 50%), url("data:image/svg+xml,..."); }
+      .gold-shimmer { background: linear-gradient(135deg, #9ADBFF 0%, #4FC3F7 50%, #9ADBFF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      .iron-border { box-shadow: inset 0 0 0 1px var(--border), 0 0 20px rgba(0,0,0,0.5); }
+      .app-title-glow { text-shadow: 0 0 20px rgba(154,219,255,0.3), 0 0 40px rgba(154,219,255,0.1); }
+
+      .safe-top { padding-top: env(safe-area-inset-top); }
+      .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+      .section { margin-bottom: 32px; }
+    </style>
+  </head>
+  <body>
+    <h1>Dungeon Forge <span style="color: var(--accent);">Design System</span></h1>
+    <p style="color: var(--muted); margin-bottom: 32px;">Component reference fixtures for the Dungeon Forge D&D 5e character manager — dark fantasy aesthetic, mobile-first, 5 dynamic themes.</p>
+
+    <!-- ═══════════════ 1. BUTTONS ═══════════════ -->
+    <h2>1. Buttons</h2>
+
+    <h3>Primary Action</h3>
+    <div class="component-grid">
+      <button class="btn-primary" style="width: 200px;">Continue</button>
+      <button class="btn-primary" style="width: 200px;"><span class="material-symbols-outlined" style="margin-right: 8px; font-size: 18px;">check</span> Save</button>
+    </div>
+
+    <h3>Gradient Actions</h3>
+    <div class="component-grid">
+      <button class="btn-gradient-short-rest" style="width: 200px;">Short Rest</button>
+      <button class="btn-gradient-long-rest" style="width: 200px;">Long Rest</button>
+      <button class="btn-gradient-rage" style="width: 200px;">Rage</button>
+    </div>
+
+    <h3>CTA Circle (Character List / Theme Select)</h3>
+    <div class="component-grid">
+      <button class="btn-cta-circle">
+        <span class="btn-cta-icon"><span class="material-symbols-outlined" style="color: var(--accent);">add</span></span>
+        <div style="text-align: left;"><strong>Bind New Soul</strong><br /><span style="font-size: 12px; color: var(--muted);">Create character</span></div>
+      </button>
+      <button class="btn-cta-circle">
+        <span class="btn-cta-icon"><span class="material-symbols-outlined" style="color: var(--accent);">groups</span></span>
+        <div style="text-align: left;"><strong>DM Panel</strong><br /><span style="font-size: 12px; color: var(--muted);">Dungeon Master tools</span></div>
+      </button>
+    </div>
+
+    <h3>Secondary & Destructive</h3>
+    <div class="component-grid">
+      <button class="btn-secondary">Cancel</button>
+      <button class="btn-destructive"><span class="material-symbols-outlined" style="margin-right: 6px; font-size: 16px;">delete</span> Delete</button>
+      <button class="btn-destructive" style="box-shadow: none; background: #DC2626;">Delete Character</button>
+    </div>
+
+    <h3>Icon-Only Round</h3>
+    <div class="component-grid">
+      <button class="btn-icon-round"><span class="material-symbols-outlined">close</span></button>
+      <button class="btn-icon-round" style="background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.2); color: var(--danger);"><span class="material-symbols-outlined">delete</span></button>
+      <button class="btn-icon-round-sm"><span class="material-symbols-outlined">close</span></button>
+      <button class="btn-icon-round" style="background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.2); color: var(--warning);"><span class="material-symbols-outlined">edit</span></button>
+    </div>
+
+    <!-- ═══════════════ 2. CARDS ═══════════════ -->
+    <h2>2. Cards</h2>
+
+    <h3>Character Card</h3>
+    <div class="component-grid">
+      <div class="card-character">
+        <div class="card-character-image"></div>
+        <div class="card-character-info">
+          <div class="card-character-name">Sylas Nightbane</div>
+          <div class="card-character-detail">Human Paladin · Lv 5 · HP 44/56</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Sheet Card (dark/light)</h3>
+    <div class="component-grid">
+      <div class="card-sheet" style="width: 240px;">
+        <div class="section-label">Stats</div>
+        <div style="font-family: var(--font-display); font-size: 32px; font-weight: 900;">18</div>
+        <div style="color: var(--muted); font-size: 12px;">Strength modifier +4</div>
+      </div>
+      <div class="card-sheet-light" style="width: 240px;">
+        <div class="section-label" style="color: #64748B;">Stats</div>
+        <div style="font-family: var(--font-display); font-size: 32px; font-weight: 900; color: #0F172A;">16</div>
+        <div style="color: #64748B; font-size: 12px;">Dexterity modifier +3</div>
+      </div>
+    </div>
+
+    <h3>Note Card</h3>
+    <div class="component-grid">
+      <div class="card-note" style="width: 300px;">
+        <div class="card-note-accent"></div>
+        <div style="padding-left: 6px;">
+          <div style="font-weight: 700; margin-bottom: 4px;">Session Notes</div>
+          <div style="color: var(--muted); font-size: 12px;">The party defeated the dragon in the Northern Caves. Sylas took the Amulet of Shadows.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Feature Card</h3>
+    <div class="component-grid">
+      <div class="card-feature" style="width: 280px;">
+        <span class="material-symbols-outlined" style="color: var(--accent);">stars</span>
+        <div>
+          <div style="font-weight: 700; font-size: 13px;">Divine Smite</div>
+          <div style="color: var(--muted); font-size: 12px;">When you hit a creature with a melee weapon attack...</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Stat Card</h3>
+    <div class="component-grid">
+      <div class="card-stat"><div class="stat-label">STR</div><div class="card-stat-value">18</div><div class="stat-mod">+4</div></div>
+      <div class="card-stat"><div class="stat-label">DEX</div><div class="card-stat-value">14</div><div class="stat-mod">+2</div></div>
+      <div class="card-stat"><div class="stat-label">CON</div><div class="card-stat-value">16</div><div class="stat-mod">+3</div></div>
+      <div class="card-stat"><div class="stat-label">INT</div><div class="card-stat-value">10</div><div class="stat-mod">+0</div></div>
+      <div class="card-stat"><div class="stat-label">WIS</div><div class="card-stat-value">12</div><div class="stat-mod">+1</div></div>
+      <div class="card-stat"><div class="stat-label">CHA</div><div class="card-stat-value">16</div><div class="stat-mod">+3</div></div>
+    </div>
+
+    <!-- ═══════════════ 3. FORM ELEMENTS ═══════════════ -->
+    <h2>3. Form Elements</h2>
+
+    <h3>Text Input</h3>
+    <div class="component-grid">
+      <input type="text" class="input-text" placeholder="Character name..." style="max-width: 300px;" />
+      <input type="text" class="input-text" placeholder="Search spells..." style="max-width: 280px;" value="fire" />
+    </div>
+
+    <h3>Select & Toggle</h3>
+    <div class="component-row">
+      <div style="position: relative; width: 240px;">
+        <select class="select-input">
+          <option>Human</option>
+          <option>Elf</option>
+          <option selected>Dwarf</option>
+          <option>Halfling</option>
+        </select>
+        <span class="material-symbols-outlined" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--muted);">expand_more</span>
+      </div>
+      <div style="margin-left: 16px;">
+        <label class="toggle">
+          <span class="toggle-track active"><span class="toggle-dot"></span></span>
+          <span style="font-size: 13px; color: var(--fg-2);">Auto-mode</span>
+        </label>
+      </div>
+    </div>
+
+    <h3>Range Slider</h3>
+    <div class="component-grid">
+      <div style="width: 300px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span style="font-size: 12px; color: var(--fg-2);">Hit Dice</span>
+          <span style="font-size: 12px; font-weight: 700;">3 / 5</span>
+        </div>
+        <input type="range" class="range-slider" min="0" max="5" value="3" />
+      </div>
+    </div>
+
+    <!-- ═══════════════ 4. MODAL ═══════════════ -->
+    <h2>4. Modal (bottom sheet)</h2>
+    <div class="modal-overlay" style="position: relative; height: 360px; border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 8px;">
+      <div class="modal-panel" style="max-height: 340px;">
+        <div class="modal-header">
+          <button class="btn-icon-round-sm"><span class="material-symbols-outlined">arrow_back</span></button>
+          <div class="modal-title">Level Up</div>
+          <button class="btn-icon-round-sm"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div class="modal-content">
+          <p style="color: var(--fg-2); font-size: 13px; margin: 0 0 12px 0;">Choose your level-up rewards. You are now level 4!</p>
+          <div style="background: rgba(53,158,255,0.05); border: 1px solid rgba(53,158,255,0.1); padding: 12px; border-radius: var(--radius-lg);">
+            <div style="font-weight: 700; font-size: 13px;">Feat Available</div>
+            <div style="color: var(--muted); font-size: 12px;">You may select a new feat or increase ability scores.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-primary">Confirm Level Up</button>
+        </div>
+      </div>
+    </div>
+
+    <h3>Centered Dialog</h3>
+    <div class="modal-centered" style="position: relative; height: 200px; border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 16px;">
+      <div class="modal-centered-panel" style="margin: 0;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+          <span class="material-symbols-outlined" style="color: var(--danger);">warning</span>
+          <span style="font-weight: 700;">Delete Character</span>
+        </div>
+        <p style="color: var(--fg-2); font-size: 13px; margin: 0 0 16px 0;">This action cannot be undone. Are you sure?</p>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-secondary" style="flex: 1;">Cancel</button>
+          <button class="btn-destructive" style="flex: 1;">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 5. TAB BAR ═══════════════ -->
+    <h2>5. Tab Bar</h2>
+    <div style="height: 100px; position: relative;">
+      <div class="tab-bar" style="position: absolute;">
+        <button class="tab-item active"><span class="material-symbols-outlined" style="font-size: 18px;">swords</span> Combat</button>
+        <button class="tab-item"><span class="material-symbols-outlined" style="font-size: 18px;">backpack</span> Items</button>
+        <button class="tab-item"><span class="material-symbols-outlined" style="font-size: 18px;">auto_stories</span> Spells</button>
+        <button class="tab-item"><span class="material-symbols-outlined" style="font-size: 18px;">stars</span> Features</button>
+        <button class="tab-item"><span class="material-symbols-outlined" style="font-size: 18px;">edit_note</span> Notes</button>
+      </div>
+    </div>
+
+    <h3>DM Bottom Nav</h3>
+    <div class="dm-nav" style="margin-bottom: 16px;">
+      <button style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border: none; background: transparent; cursor: pointer; color: var(--accent); transition: all var(--motion-fast); border-radius: var(--radius-lg);">
+        <span class="material-symbols-outlined" style="font-size: 18px;">monitoring</span>
+        <span style="font-size: 8px; font-weight: 900; text-transform: uppercase;">Dashboard</span>
+      </button>
+      <button style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border: none; background: transparent; cursor: pointer; color: var(--muted); transition: all var(--motion-fast); border-radius: var(--radius-lg);">
+        <span class="material-symbols-outlined" style="font-size: 18px;">groups</span>
+        <span style="font-size: 8px; font-weight: 900; text-transform: uppercase;">Party</span>
+      </button>
+      <button style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border: none; background: transparent; cursor: pointer; color: var(--muted); transition: all var(--motion-fast); border-radius: var(--radius-lg);">
+        <span class="material-symbols-outlined" style="font-size: 18px;">forum</span>
+        <span style="font-size: 8px; font-weight: 900; text-transform: uppercase;">Chat</span>
+      </button>
+    </div>
+
+    <!-- ═══════════════ 6. STAT GRID ═══════════════ -->
+    <h2>6. Stats Grid</h2>
+    <div style="max-width: 400px;">
+      <div class="stat-grid-6">
+        <div class="stat-item"><div class="stat-label">STR</div><div class="stat-value">18</div><div class="stat-mod">+4</div></div>
+        <div class="stat-item"><div class="stat-label">DEX</div><div class="stat-value">14</div><div class="stat-mod">+2</div></div>
+        <div class="stat-item"><div class="stat-label">CON</div><div class="stat-value">16</div><div class="stat-mod">+3</div></div>
+        <div class="stat-item"><div class="stat-label">INT</div><div class="stat-value">10</div><div class="stat-mod">+0</div></div>
+        <div class="stat-item"><div class="stat-label">WIS</div><div class="stat-value">12</div><div class="stat-mod">+1</div></div>
+        <div class="stat-item"><div class="stat-label">CHA</div><div class="stat-value">16</div><div class="stat-mod">+3</div></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 7. BADGES & PROGRESS ═══════════════ -->
+    <h2>7. Badges & Progress</h2>
+    <div class="component-row">
+      <span class="badge"><span class="material-symbols-outlined" style="font-size: 12px;">check</span> Active</span>
+      <span class="badge-success"><span class="material-symbols-outlined" style="font-size: 12px;">favorite</span> Healthy</span>
+      <span class="badge-warning"><span class="material-symbols-outlined" style="font-size: 12px;">warning</span> Bloodied</span>
+      <span class="badge-error"><span class="material-symbols-outlined" style="font-size: 12px;">dangerous</span> Down</span>
+    </div>
+
+    <h3>HP Bar</h3>
+    <div style="max-width: 300px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+        <span style="font-size: 12px; font-weight: 700;">HP</span>
+        <span style="font-size: 12px;">44 / 56</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill hp" style="width: 78%;"></div></div>
+    </div>
+
+    <!-- ═══════════════ 8. DECORATIVE ═══════════════ -->
+    <h2>8. Decorative Utilities</h2>
+    <div class="component-row" style="flex-direction: column; gap: 8px;">
+      <div style="padding: 16px; border-radius: var(--radius-lg); background: var(--surface);" class="iron-border">
+        <span style="font-family: var(--font-display); font-weight: 900; font-size: 24px;" class="gold-shimmer">Dungeon Forge</span>
+      </div>
+      <div style="padding: 12px 16px; border-radius: var(--radius-lg);" class="leather-bg iron-border">
+        <span style="font-weight: 700;">Leather background with texture overlay</span>
+      </div>
+      <div>
+        <span style="font-family: var(--font-display); font-size: 28px; font-weight: 900;" class="app-title-gold">Dungeon Forge</span>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 9. EMPTY STATE ═══════════════ -->
+    <h2>9. Empty State</h2>
+    <div class="empty-state" style="max-width: 300px; border: 1px dashed var(--border); border-radius: var(--radius-xl);">
+      <span class="material-symbols-outlined empty-state-icon">search_off</span>
+      <p style="font-weight: 700; margin: 0 0 4px 0;">No characters found</p>
+      <p style="color: var(--muted); font-size: 12px; margin: 0;">Create your first character to begin your adventure.</p>
+    </div>
+
+    <!-- ═══════════════ 10. SAFE AREA UTILITY ═══════════════ -->
+    <h2>10. Safe Area Utilities</h2>
+    <p style="color: var(--muted); font-size: 12px;">All full-screen layouts account for device notches:</p>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <code style="background: var(--surface); padding: 6px 10px; border-radius: var(--radius-sm); font-size: 11px; color: var(--accent-alt);">--sat: env(safe-area-inset-top)</code>
+      <code style="background: var(--surface); padding: 6px 10px; border-radius: var(--radius-sm); font-size: 11px; color: var(--accent-alt);">--sab: env(safe-area-inset-bottom)</code>
+      <code style="background: var(--surface); padding: 6px 10px; border-radius: var(--radius-sm); font-size: 11px; color: var(--accent-alt);">.safe-top { padding-top: var(--sat) }</code>
+      <code style="background: var(--surface); padding: 6px 10px; border-radius: var(--radius-sm); font-size: 11px; color: var(--accent-alt);">bottom-[calc(1rem+env(safe-area-inset-bottom))]</code>
+    </div>
+  </body>
+</html>

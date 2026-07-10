@@ -7,12 +7,12 @@ export interface ValidationResult {
 }
 
 // Validaciones utilitarias (funciones privadas)
-const isValidNumber = (value: any): value is number => {
+const isValidNumber = (value: unknown): value is number => {
   return typeof value === 'number' && !isNaN(value) && isFinite(value);
 };
 
 /**
- * Valida que un Character tenga datos válidos sin corrupción.
+ * Validates that a Character has valid data without corruption.
  * Acepta Character parcial (Partial<Character>) para validar solo los campos que existen.
  * 
  * Validaciones:
@@ -22,8 +22,8 @@ const isValidNumber = (value: any): value is number => {
  * - Level: 1-20, no NaN/Infinity
  * - Spell slots: no NaN/Infinity, >= 0
  * - Resources: no NaN/Infinity, >= 0
- * - Name: no vacío
- * - Class: en lista de clases válidas
+ * - Name: not empty
+ * - Class: in valid class list
  */
 export function isValidCharacter(character: Partial<Character>): ValidationResult {
   const errors: string[] = [];
@@ -63,7 +63,7 @@ export function isValidCharacter(character: Partial<Character>): ValidationResul
   // Validar HP si existe
   if (character.hp !== undefined) {
     if (typeof character.hp === 'object' && character.hp !== null) {
-      const { current, max, temp } = character.hp as any;
+      const { current, max, temp } = character.hp as { current: unknown; max: unknown; temp: unknown };
 
       // Validar HP current
       if (current !== undefined) {
@@ -104,7 +104,7 @@ export function isValidCharacter(character: Partial<Character>): ValidationResul
     if (typeof character.stats === 'object' && character.stats !== null) {
       const abilities = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
       for (const ability of abilities) {
-        const value = (character.stats as any)[ability];
+        const value = (character.stats as Record<string, unknown>)[ability];
         if (value !== undefined) {
           if (!isValidNumber(value) || value < 3 || value > 20) {
             errors.push(`${ability} must be between 3 and 20`);
@@ -119,9 +119,9 @@ export function isValidCharacter(character: Partial<Character>): ValidationResul
   // Validar Spell slots si existen
   if (character.spellSlots !== undefined) {
     if (typeof character.spellSlots === 'object' && character.spellSlots !== null) {
-      for (const [level, slot] of Object.entries(character.spellSlots as any)) {
+      for (const [level, slot] of Object.entries(character.spellSlots as Record<string, unknown>)) {
         if (typeof slot === 'object' && slot !== null) {
-          const { current, max } = slot;
+          const { current, max } = slot as { current: unknown; max: unknown };
           if (current !== undefined && (!isValidNumber(current) || current < 0)) {
             errors.push(`spell slot level ${level} current must be a non-negative number`);
           }
@@ -157,10 +157,10 @@ export function isValidCharacter(character: Partial<Character>): ValidationResul
   ];
 
   for (const field of resourceFields) {
-    const resource = (character as any)[field];
+    const resource = (character as Record<string, unknown>)[field];
     if (resource !== undefined) {
       if (typeof resource === 'object' && resource !== null) {
-        const { current, max } = resource;
+        const { current, max } = resource as { current: unknown; max: unknown };
         if (current !== undefined && (!isValidNumber(current) || current < 0)) {
           errors.push(`${field} current must be a non-negative number`);
         }

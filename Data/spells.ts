@@ -104,19 +104,19 @@ export const WIZARD_SPELLS = [
   // Cantrips
   'Acid Splash', 'Blade Ward', 'Chill Touch', 'Dancing Lights', 'Fire Bolt', 'Light', 'Mage Hand', 'Mending', 'Message', 'Mind Sliver', 'Minor Illusion', 'Prestidigitation', 'Ray of Frost', 'Shocking Grasp', 'Thunderclap', 'True Strike',
   // 1st level
-  'Alarm', 'Armor of Agathys', 'Burning Hands', 'Charm Person', 'Chromatic Orb', 'Color Spray', 'Comprehend Languages', 'Detect Magic', 'Disguise Self', 'Expeditious Retreat', 'Feather Fall', 'Find Familiar', 'Fog Cloud', 'Grease', 'Healing Word', 'Identify', 'Illusory Script', 'Jump', 'Longstrider', 'Mage Armor', 'Magic Missile', 'Protection from Evil and Good', 'Ray of Sickness', 'Shield', 'Silent Image', 'Sleep', 'Tasha\'s Hideous Laughter', 'Tenser\'s Floating Disk', 'Unseen Servant',
+  'Alarm', 'Burning Hands', 'Charm Person', 'Chromatic Orb', 'Color Spray', 'Comprehend Languages', 'Detect Magic', 'Disguise Self', 'Expeditious Retreat', 'Feather Fall', 'Find Familiar', 'Fog Cloud', 'Grease', 'Identify', 'Illusory Script', 'Jump', 'Longstrider', 'Mage Armor', 'Magic Missile', 'Protection from Evil and Good', 'Ray of Sickness', 'Shield', 'Silent Image', 'Sleep', 'Tasha\'s Hideous Laughter', 'Tenser\'s Floating Disk', 'Unseen Servant',
   // 2nd level
-  'Alter Self', 'Arcane Lock', 'Arcane Vigor', 'Blindness/Deafness', 'Blur', 'Cloud of Daggers', 'Continual Flame', 'Crown of Madness', 'Darkvision', 'Detect Thoughts', 'Enhance Ability', 'Enlarge/Reduce', 'Flaming Sphere', 'Gust of Wind', 'Heat Metal', 'Hold Person', 'Invisibility', 'Knock', 'Levitate', 'Locate Object', 'Magic Mouth', 'Magic Weapon', 'Melf\'s Acid Arrow', 'Mind Spike', 'Mirror Image', 'Misty Step', 'Nystul\'s Magic Aura', 'Phantasmal Force', 'Ray of Enfeeblement', 'Rope Trick', 'Scorching Ray', 'See Invisibility', 'Shatter', 'Silence', 'Spider Climb', 'Suggestion', 'Web', 'Zone of Truth',
+  'Alter Self', 'Arcane Lock', 'Arcane Vigor', 'Blindness/Deafness', 'Blur', 'Cloud of Daggers', 'Continual Flame', 'Crown of Madness', 'Darkvision', 'Detect Thoughts', 'Enhance Ability', 'Enlarge/Reduce', 'Flaming Sphere', 'Gust of Wind', 'Hold Person', 'Invisibility', 'Knock', 'Levitate', 'Locate Object', 'Magic Mouth', 'Magic Weapon', 'Melf\'s Acid Arrow', 'Mind Spike', 'Mirror Image', 'Misty Step', 'Nystul\'s Magic Aura', 'Phantasmal Force', 'Ray of Enfeeblement', 'Rope Trick', 'Scorching Ray', 'See Invisibility', 'Shatter', 'Spider Climb', 'Suggestion', 'Web',
   // 3rd level
-  'Animate Dead', 'Bestow Curse', 'Blink', 'Clairvoyance', 'Counterspell', 'Dispel Magic', 'Elemental Weapon', 'Fear', 'Feign Death', 'Fireball', 'Fly', 'Gaseous Form', 'Glyph of Warding', 'Haste', 'Hunger of Hadar', 'Hypnotic Pattern', 'Leomund\'s Tiny Hut', 'Lightning Bolt', 'Magic Circle', 'Major Image', 'Nondetection', 'Phantom Steed', 'Protection from Energy', 'Remove Curse', 'Sending', 'Sleet Storm', 'Slow', 'Speak with Dead', 'Stinking Cloud', 'Summon Undead', 'Tongues', 'Vampiric Touch', 'Water Breathing',
+  'Animate Dead', 'Bestow Curse', 'Blink', 'Clairvoyance', 'Counterspell', 'Dispel Magic', 'Fear', 'Feign Death', 'Fireball', 'Fly', 'Gaseous Form', 'Glyph of Warding', 'Haste', 'Hypnotic Pattern', 'Leomund\'s Tiny Hut', 'Lightning Bolt', 'Magic Circle', 'Major Image', 'Nondetection', 'Phantom Steed', 'Protection from Energy', 'Remove Curse', 'Sending', 'Sleet Storm', 'Slow', 'Speak with Dead', 'Stinking Cloud', 'Summon Undead', 'Tongues', 'Vampiric Touch', 'Water Breathing',
   // 4th level
-  'Arcane Eye', 'Banishment', 'Blight', 'Charm Monster', 'Compulsion', 'Confusion', 'Control Water', 'Dimension Door', 'Evard\'s Black Tentacles', 'Fabricate', 'Fire Shield', 'Fount of Moonlight', 'Greater Invisibility', 'Hallucinatory Terrain', 'Ice Storm', 'Jallarzi\'s Storm of Radiance', 'Legend Lore', 'Leomund\'s Secret Chest', 'Locate Creature', 'Mordenkainen\'s Faithful Hound', 'Mordenkainen\'s Private Sanctum', 'Otiluke\'s Resilient Sphere', 'Phantasmal Killer', 'Polymorph', 'Stoneskin', 'Summon Aberration', 'Summon Construct', 'Summon Elemental', 'Synaptic Static', 'Telekinesis', 'Teleportation Circle', 'Vitriolic Sphere', 'Wall of Fire', 'Wall of Force', 'Wall of Stone',
+  'Arcane Eye', 'Banishment', 'Blight', 'Charm Monster', 'Confusion', 'Control Water', 'Dimension Door', 'Evard\'s Black Tentacles', 'Fabricate', 'Fire Shield', 'Greater Invisibility', 'Hallucinatory Terrain', 'Ice Storm', 'Leomund\'s Secret Chest', 'Locate Creature', 'Mordenkainen\'s Faithful Hound', 'Mordenkainen\'s Private Sanctum', 'Otiluke\'s Resilient Sphere', 'Phantasmal Killer', 'Polymorph', 'Stoneskin', 'Summon Construct', 'Summon Elemental', 'Vitriolic Sphere', 'Wall of Fire',
   // 5th level
-  'Animate Objects', 'Bigby\'s Hand', 'Circle of Power', 'Cloudkill', 'Cone of Cold', 'Conjure Elemental', 'Contact Other Plane', 'Creation', 'Dominate Person', 'Dream', 'Geas', 'Hold Monster', 'Legend Lore', 'Mislead', 'Modify Memory', 'Passwall', 'Planar Binding', 'Rary\'s Telepathic Bond', 'Scrying', 'Seeming', 'Summon Fiend', 'Sunbeam', 'Telekinesis', 'Teleportation Circle', 'Wall of Force', 'Wall of Stone',
+  'Animate Objects', 'Bigby\'s Hand', 'Cloudkill', 'Cone of Cold', 'Conjure Elemental', 'Contact Other Plane', 'Creation', 'Dominate Person', 'Dream', 'Geas', 'Hold Monster', 'Mislead', 'Modify Memory', 'Passwall', 'Planar Binding', 'Rary\'s Telepathic Bond', 'Scrying', 'Seeming',
   // 6th level
-  'Arcane Gate', 'Chain Lightning', 'Circle of Death', 'Contingency', 'Create Undead', 'Disintegrate', 'Drawmij\'s Instant Summons', 'Eyebite', 'Flesh to Stone', 'Globe of Invulnerability', 'Guards and Wards', 'Heroes\' Feast', 'Magic Jar', 'Mass Suggestion', 'Move Earth', 'Otiluke\'s Freezing Sphere', 'Otto\'s Irresistible Dance', 'Programmed Illusion', 'True Seeing', 'Wall of Ice',
+  'Arcane Gate', 'Chain Lightning', 'Circle of Death', 'Contingency', 'Create Undead', 'Disintegrate', 'Drawmij\'s Instant Summons', 'Eyebite', 'Flesh to Stone', 'Globe of Invulnerability', 'Guards and Wards', 'Magic Jar', 'Mass Suggestion', 'Move Earth', 'Otiluke\'s Freezing Sphere', 'Otto\'s Irresistible Dance', 'Programmed Illusion', 'True Seeing', 'Wall of Ice',
   // 7th level
-  'Arcane Eye', 'Delayed Blast Fireball', 'Etherealness', 'Finger of Death', 'Forcecage', 'Mirage Arcane', 'Mordenkainen\'s Magnificent Mansion', 'Mordenkainen\'s Sword', 'Plane Shift', 'Power Word Fortify', 'Prismatic Spray', 'Project Image', 'Reverse Gravity', 'Sequester', 'Simulacrum', 'Symbol', 'Teleport',
+  'Delayed Blast Fireball', 'Etherealness', 'Finger of Death', 'Forcecage', 'Mirage Arcane', 'Mordenkainen\'s Magnificent Mansion', 'Mordenkainen\'s Sword', 'Plane Shift', 'Prismatic Spray', 'Project Image', 'Reverse Gravity', 'Sequester', 'Simulacrum', 'Symbol', 'Teleport',
   // 8th level
   'Antimagic Field', 'Antipathy/Sympathy', 'Clone', 'Control Weather', 'Demiplane', 'Dominate Monster', 'Glibness', 'Incendiary Cloud', 'Maze', 'Mind Blank', 'Power Word Stun', 'Sunburst',
   // 9th level
@@ -178,7 +178,7 @@ export const SPELLCASTING_ABILITY: Record<string, Ability> = {
 
 export const CASTER_TYPE: Record<string, 'full' | 'half' | 'pact' | 'none'> = {
     'Artificer': 'half', 'Barbarian': 'none', 'Bard': 'full', 'Cleric': 'full', 'Druid': 'full',
-    'Fighter': 'none', 'Monk': 'none', 'Paladin': 'half', 'Ranger': 'half',
+    'Fighter': 'none', 'Monk': 'none', 'Paladin': 'half', 'Pugilist': 'none', 'Ranger': 'half',
     'Rogue': 'none', 'Sorcerer': 'full', 'Warlock': 'pact', 'Wizard': 'full',
 };
 
@@ -234,7 +234,7 @@ export const THIRD_CASTER_SLOTS: Record<string, Record<number, { prepared: numbe
         16: { prepared: 11, 1: 4, 2: 3, 3: 3 },
         17: { prepared: 11, 1: 4, 2: 3, 3: 3 },
         18: { prepared: 11, 1: 4, 2: 3, 3: 3 },
-        19: { prepared: 12, 1: 4, 2: 3, 3: 3 },
+        19: { prepared: 12, 1: 4, 2: 3, 3: 3, 4: 1 },
         20: { prepared: 13, 1: 4, 2: 3, 3: 3, 4: 1 },
     },
     'Arcane Trickster': {
@@ -254,7 +254,7 @@ export const THIRD_CASTER_SLOTS: Record<string, Record<number, { prepared: numbe
         16: { prepared: 11, 1: 4, 2: 3, 3: 3 },
         17: { prepared: 11, 1: 4, 2: 3, 3: 3 },
         18: { prepared: 11, 1: 4, 2: 3, 3: 3 },
-        19: { prepared: 12, 1: 4, 2: 3, 3: 3 },
+        19: { prepared: 12, 1: 4, 2: 3, 3: 3, 4: 1 },
         20: { prepared: 13, 1: 4, 2: 3, 3: 3, 4: 1 },
     },
 };

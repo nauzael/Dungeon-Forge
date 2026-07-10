@@ -650,7 +650,7 @@ export const clearWildShapeFromLocalStorage = (characterId: string): void => {
 activeWildShape?: string;  // Seguro: bestia activa al recargar
 ```
 
-**Se guarda en character JSON**: Depende de cómo se persista character (localStorage, Supabase, etc.)
+**Se guarda en character JSON**: Depende de cómo se persista character (localStorage, Firebase, etc.)
 
 En CombatTab:
 ```typescript

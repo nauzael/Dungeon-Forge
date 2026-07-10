@@ -1,7 +1,7 @@
 import { Character } from '../types';
 
 /**
- * Result de validación de un Character
+ * Character validation result
  */
 export interface ValidationResult {
   valid: boolean;
@@ -10,13 +10,13 @@ export interface ValidationResult {
 }
 
 /**
- * Valida que un Character tenga datos válidos
+ * Validates that a Character has valid data
  * - No permite NaN, Infinity en stats
  * - HP <= maxHP
  * - Ability scores en rango [3, 20]
- * - IDs no vacíos
+ * - IDs not empty
  * - Inventory items con ID
- * - Required fields no vacíos
+ * - Required fields not empty
  * 
  * No lanza excepciones, retorna ValidationResult con detalles
  */
@@ -24,30 +24,30 @@ export function isValidCharacter(char: unknown): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  // Validación básica de objeto
+  // Basic object validation
   if (!char || typeof char !== 'object') {
     return {
       valid: false,
-      errors: ['Character no es un objeto válido'],
+      errors: ['Character is not a valid object'],
       warnings: []
     };
   }
 
-  const c = char as any;
+  const c = char as Record<string, unknown>;
 
   // Validar ID
   if (!c.id || typeof c.id !== 'string' || c.id.trim().length === 0) {
-    errors.push('Character ID no puede estar vacío');
+    errors.push('Character ID cannot be empty');
   }
 
   // Validar nombre
   if (!c.name || typeof c.name !== 'string' || c.name.trim().length === 0) {
-    errors.push('Character name no puede estar vacío');
+    errors.push('Character name cannot be empty');
   }
 
   // Validar clase
   if (!c.class || typeof c.class !== 'string' || c.class.trim().length === 0) {
-    errors.push('Character class no puede estar vacío');
+    errors.push('Character class cannot be empty');
   }
 
   // Validar nivel
@@ -57,7 +57,7 @@ export function isValidCharacter(char: unknown): ValidationResult {
 
   // Validar HP
   if (!c.hp || typeof c.hp !== 'object') {
-    errors.push('Character hp structure es inválido');
+    errors.push('Character hp structure is invalid');
   } else {
     const { current, max, temp } = c.hp;
     
@@ -84,7 +84,7 @@ export function isValidCharacter(char: unknown): ValidationResult {
 
   // Validar stats (ability scores)
   if (!c.stats || typeof c.stats !== 'object') {
-    errors.push('Character stats structure es inválido');
+    errors.push('Character stats structure is invalid');
   } else {
     const abilities = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
     for (const ability of abilities) {
@@ -110,11 +110,11 @@ export function isValidCharacter(char: unknown): ValidationResult {
     for (let i = 0; i < c.inventory.length; i++) {
       const item = c.inventory[i];
       if (!item || typeof item !== 'object') {
-        errors.push(`Inventory item ${i} no es un objeto válido`);
+        errors.push(`Inventory item ${i} is not a valid object`);
       } else if (!item.id || typeof item.id !== 'string') {
         errors.push(`Inventory item ${i} sin ID`);
       } else if (typeof item.quantity !== 'number' || item.quantity < 0) {
-        errors.push(`Inventory item ${i} quantity inválida`);
+        errors.push(`Inventory item ${i} invalid quantity`);
       }
     }
   } else if (c.inventory !== undefined) {
@@ -126,7 +126,7 @@ export function isValidCharacter(char: unknown): ValidationResult {
     for (let i = 0; i < c.spells.length; i++) {
       const spell = c.spells[i];
       if (!spell || typeof spell !== 'object') {
-        errors.push(`Spell ${i} no es un objeto válido`);
+        errors.push(`Spell ${i} is not a valid object`);
       } else if (!spell.name || typeof spell.name !== 'string') {
         errors.push(`Spell ${i} sin name`);
       }
@@ -138,7 +138,7 @@ export function isValidCharacter(char: unknown): ValidationResult {
     for (let i = 0; i < c.features.length; i++) {
       const feature = c.features[i];
       if (!feature || typeof feature !== 'object') {
-        errors.push(`Feature ${i} no es un objeto válido`);
+        errors.push(`Feature ${i} is not a valid object`);
       }
     }
   }

@@ -23,7 +23,7 @@ Timeline de fallo:
 T=0ms    DM hace KICK → setMembers filtra localmente ✓
          └─ State React actualizado: member removido
 
-T=1ms    removeFromParty(id) inicia UPDATE async en Supabase
+T=1ms    removeFromParty(id) inicia UPDATE async en Firebase
          └─ Actualiza DB: party_id = null
 
 T=10ms   ⚡ RACE: Broadcast llega con CHARACTER VIEJO
@@ -77,7 +77,7 @@ if (!payload.new.party_id || payload.new.party_id !== party.id) {
 }
 ```
 
-**Impacto**: Previene ghosts provenientes de DELETE/UPDATE events en Supabase
+**Impacto**: Previene ghosts provenientes de DELETE/UPDATE events en Firebase
 
 ---
 

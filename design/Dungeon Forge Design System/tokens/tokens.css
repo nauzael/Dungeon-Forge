@@ -1,0 +1,187 @@
+/* design-systems/dungeon-forge/tokens.css
+ * Structured token bindings for Dungeon Forge.
+ * D&D 5e character management app — dark fantasy aesthetic with dynamic theming,
+ * mobile-first layout, and Material Symbols iconography.
+ */
+
+:root {
+  /* ── A1-identity: Backgrounds ── */
+  --bg: #0F172A;
+  --bg-secondary: #1E293B;
+  --surface: #1E293B;
+  --surface-highlight: #334155;
+
+  /* ── A1-identity: Text ── */
+  --fg: #F8FAFC;
+  --fg-2: #E2E8F0;
+  --muted: #94A3B8;
+
+  /* ── A1-identity: Accent ── */
+  --accent: #359EFF;
+  --accent-dark: #2B7DE0;
+  --accent-alt: #9ADBFF;
+  --secondary: #64748B;
+
+  /* ── Semantic states ── */
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+
+  /* ── Border ── */
+  --border: rgba(154, 219, 255, 0.1);
+  --border-hover: rgba(154, 219, 255, 0.2);
+
+  /* ── A1-identity: Typography ── */
+  --font-display: "Spline Sans", system-ui, sans-serif;
+  --font-body: "Noto Sans", system-ui, sans-serif;
+  --font-icon: "Material Symbols Outlined";
+
+  /* ── A1-structure: Type scale ── */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
+  --text-5xl: 48px;
+  --text-6xl: 60px;
+  --text-8xl: 96px;
+  --leading-body: 1.5;
+  --leading-tight: 1.06;
+  --tracking-display: -0.02em;
+
+  /* ── A1-structure: Spacing ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── A1-structure: Section spacing ── */
+  --section-y-phone: 32px;
+  --section-y-tablet: 48px;
+  --section-y-desktop: 64px;
+
+  /* ── A1-structure: Radius ── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-pill: 9999px;
+
+  /* ── A1-structure: Elevation ── */
+  --elev-flat: none;
+  --elev-ring: 0 0 0 1px var(--border);
+  --elev-raised: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --elev-modal: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --elev-glow: 0 0 20px rgba(154, 219, 255, 0.3);
+
+  /* ── A2: Motion ── */
+  --motion-fast: 150ms;
+  --motion-base: 300ms;
+  --motion-slow: 500ms;
+  --motion-hp: 700ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── A2: Focus ── */
+  --focus-ring: 0 0 0 3px rgba(53, 158, 255, 0.5);
+
+  /* ── A1-structure: Container ── */
+  --container-max: 1200px;
+  --container-gutter-phone: 16px;
+  --container-gutter-tablet: 24px;
+  --container-gutter-desktop: 36px;
+
+  /* ── A2: Safe areas ── */
+  --sat: env(safe-area-inset-top);
+  --sar: env(safe-area-inset-right);
+  --sab: env(safe-area-inset-bottom);
+  --sal: env(safe-area-inset-left);
+
+  /* ── A2: Icon ── */
+  --icon-fill: 1;
+  --icon-weight: 400;
+  --icon-grade: 0;
+  --icon-opsz: 20;
+
+  /* ── A2: Decorative ── */
+  --leather-texture: url("https://lh3.googleusercontent.com/pw/AP1GczMvR2tZgH0yFm2dwQ4p3lH-8k0c9b5f1e3a2d4g6h7j8k9l0q1w2e3r4t5y6u7i8o9p0");
+  --accent-glow: 0 0 20px rgba(154, 219, 255, 0.3), 0 0 40px rgba(154, 219, 255, 0.1);
+}
+
+/* ── Theme: Daylight (light mode) ── */
+[data-theme="daylight"] {
+  --bg: #F8FAFC;
+  --bg-secondary: #F1F5F9;
+  --surface: #FFFFFF;
+  --surface-highlight: #E2E8F0;
+  --fg: #0F172A;
+  --fg-2: #334155;
+  --muted: #64748B;
+  --accent: #2563EB;
+  --accent-dark: #1D4ED8;
+  --border: rgba(0, 0, 0, 0.1);
+  --border-hover: rgba(0, 0, 0, 0.2);
+  --elev-raised: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --elev-modal: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Theme: Dragon Blood ── */
+[data-theme="dragon-blood"] {
+  --bg: #0C0A0A;
+  --bg-secondary: #1A1414;
+  --surface: #1A1414;
+  --surface-highlight: #2D2424;
+  --fg: #FEE2E2;
+  --fg-2: #FECACA;
+  --muted: #A8A29E;
+  --accent: #DC2626;
+  --accent-dark: #B91C1C;
+  --accent-alt: #F87171;
+  --border: rgba(220, 38, 38, 0.2);
+  --border-hover: rgba(220, 38, 38, 0.4);
+}
+
+/* ── Theme: Elven Forest ── */
+[data-theme="elven-forest"] {
+  --bg: #0A1F1A;
+  --bg-secondary: #142E26;
+  --surface: #142E26;
+  --surface-highlight: #1F4D3D;
+  --fg: #ECFDF5;
+  --fg-2: #D1FAE5;
+  --muted: #6EE7B7;
+  --accent: #10B981;
+  --accent-dark: #059669;
+  --accent-alt: #6EE7B7;
+  --border: rgba(16, 185, 129, 0.2);
+  --border-hover: rgba(16, 185, 129, 0.4);
+}
+
+/* ── Theme: High Contrast ── */
+[data-theme="high-contrast"] {
+  --bg: #000000;
+  --bg-secondary: #1A1A1A;
+  --surface: #1A1A1A;
+  --surface-highlight: #333333;
+  --fg: #FFFFFF;
+  --fg-2: #E5E5E5;
+  --muted: #A3A3A3;
+  --accent: #FFFF00;
+  --accent-dark: #E5E500;
+  --accent-alt: #FF00FF;
+  --border: #FFFFFF;
+  --border-hover: #CCCCCC;
+  --elev-raised: none;
+  --elev-modal: none;
+  --focus-ring: 0 0 0 3px #FFFF00;
+}

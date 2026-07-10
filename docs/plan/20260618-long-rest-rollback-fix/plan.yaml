@@ -1,0 +1,403 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# PLAN METADATA
+# ═══════════════════════════════════════════════════════════════════════════
+plan_id: "20260618-long-rest-rollback-fix"
+objective: "Fix the Long Rest rollback bug where Firestore cloud data overwrites local changes after a long rest, caused by RTDB loopback canceling the cloud save timeout and missing syncTimestamp. Also fix missing spell slot restoration, destructive Wizard preparedSpells clearing, and missing Arcane Recovery/Warlock pact slot restoration in handleLongRest."
+created_at: "2026-06-18"
+created_by: "gem-planner"
+status: approved
+tldr: |
+  Root cause: RTDB loopback via handleCharacterUpdate/handleFastUpdate calls broadcastCharacterUpdate
+  BEFORE cloud save completes. The RTDB listener fires and calls setCharacters(), triggering the persist
+  effect's cleanup (clearTimeout), so Firestore never gets the updated data. Missing syncTimestamp means
+  localTime=0 in Firestore listener, so stale cloud always wins. Additionally, handleLongRest in
+  RestModal.tsx lacks spell slot restoration for full casters, destructively clears Wizard preparedSpells,
+  and misses Arcane Recovery / Warlock pact slot restoration.
+
+  NOTE (DEAD CODE): The `onBroadcast` parameter in `subscribeWithRetry` (utils/firebase.ts) and its
+  callback at App.tsx lines 540-546 is DEAD CODE — `subscribeWithRetry` NEVER calls `onBroadcast`.
+  The actual RTDB data arrives through the `onUpdate` callback (App.tsx lines 528-538). No dedup guard
+  is needed on the broadcast handler. Instead, the fix avoids loopback by broadcasting the original
+  character from state (which already has syncTimestamp set by T2) rather than a freshly-timestamped
+  clone, so the persist/snapshot effects do not detect a meaningful change and the loop stops.
+
+  Fix:
+  - Wave 1 (parallel):
+      T1: Remove broadcastCharacterUpdate from handlers, add to persist effect after Firestore save,
+          broadcasting `char` (not `charWithTimestamp`) so syncTimestamp matches state and no loopback.
+      T2: Set syncTimestamp before setCharacters() in both update handlers.
+  - Wave 2:
+      T3_4_5: All handleLongRest fixes (spell slots, preparedSpells, Arcane Recovery, Warlock pact slots)
+              combined into one task since they modify the same function.
+  - Wave 3: Build verification and code review.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PLAN-LEVEL METRICS
+# ═══════════════════════════════════════════════════════════════════════════
+plan_metrics:
+  wave_1_task_count: 2
+  total_dependencies: 3
+  risk_score: high  # Elevated due to additional rollback causes discovered during implementation
+quality_warnings:
+  - "RTDB loopback fix changes event ordering: broadcast now happens after Firestore save instead of before. Verify party DM view still receives timely updates."
+  - "Spell slot restoration resets usedSlots={} which may conflict with any unsaved slot state."
+  - "No test framework; npm run build is the only automated verification gate."
+  - "onBroadcast parameter in subscribeWithRetry is dead code; do not attempt to use it for dedup."
+additional_fixes_discovered:
+  - description: "prev-based merge in handleCharacterUpdate and handleFastUpdate"
+    vector: "Both handlers spread from captured `activeCharacter` instead of `c` (live state from `prev`). Under React 18 batching, two rapid setCharacters(fn) calls both start from the same stale base, so the second call UNDOES the first's changes. Fixed by spreading from `c` in the functional updater."
+  - description: "RTDB listener timestamp guard in App.tsx and SheetTabs.tsx"
+    vector: "Two concurrent RTDB listeners (App.tsx selective path + SheetTabs.tsx all-path) write directly to state with NO timestamp guard. Self-broadcast data arrives with older timestamp and overwrites fresh local state. Fixed by rejecting incoming data with `incomingTime <= currentTime`."
+  - description: "charWithTimestamp persistence loop prevention"
+    vector: "Persist effect always generated a NEW Date.now() for cloud save, causing Firestore onSnapshot to detect a 'newer' cloud copy and overwrite local state. Fixed by using existing syncTimestamp (already set by handler) instead of generating a fresh one."
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PLANNING ANALYSIS
+# ═══════════════════════════════════════════════════════════════════════════
+open_questions:
+  - question: "Does Arcane Recovery reset to uses=1 on long rest, or is it a fixed-per-day resource?"
+    context: "In 5e 2024, Arcane Recovery is once per long rest. The Character type defines arcaneRecovery?: { uses: number }. Need to confirm whether resetting uses=1 on long rest is the correct behavior."
+    type: research
+    affects: ["RestModal.tsx T3_4_5 implementation"]
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "Moving broadcastCharacterUpdate into persist effect causes party DM view to miss updates because broadcast now happens 500ms+ later"
+      likelihood: medium
+      impact: high
+      mitigation: "The 500ms debounce is a UX delay only; Firestore data is the source of truth and is saved before broadcast. DM view will still receive the update, just 500ms later than before. Acceptable trade-off."
+    - scenario: "Clearing usedSlots={} on long rest conflicts with another tab's unsaved state"
+      likelihood: low
+      impact: medium
+      mitigation: "usedSlots is persisted through the Character object passed to onComplete, which flows through handleFastUpdate back into state. No separate unsaved state exists."
+  assumptions:
+    - "React 19 batching means the broadcast handler's setCharacters() triggers a persist effect run"
+    - "Broadcasting `char` (with original syncTimestamp) instead of `charWithTimestamp` prevents the snapshot effect from detecting a meaningful change, stopping the loop"
+    - "getSlots() from sheetUtils correctly calculates max spell slots for all caster types"
+    - "All characters with spellcasting ability use usedSlots for slot tracking"
+implementation_specification:
+  - "T1: Remove broadcastCharacterUpdate() calls from both handleCharacterUpdate and handleFastUpdate. Add broadcastCharacterUpdate(char.party_id, char) inside persist effect AFTER the Firestore save loop, for each dirty character with party_id, using `char` (the original from dirtyChars) NOT `charWithTimestamp`. No dedup is needed — the onBroadcast callback is dead code."
+  - "T2: In handleCharacterUpdate, set fullUpdate.syncTimestamp = Date.now() before setCharacters(). In handleFastUpdate, set fullUpdate.syncTimestamp = Date.now() before setCharacters()."
+  - "T3_4_5: In RestModal handleLongRest: (a) reset usedSlots={} for full casters (Bard, Cleric, Druid, Sorcerer, Wizard), half casters (Paladin, Ranger), and third casters (Eldritch Knight, Arcane Trickster); (b) replace destructive updated.preparedSpells=[] for Wizard with a comment or non-destructive pattern; (c) add arcaneRecovery={uses:1} reset for Wizard; (d) add Warlock pact slot full restoration with usedSlots={} and spellSlots recalculation."
+contracts:
+  - from_task: "T1_move_broadcast_to_persist"
+    to_task: "T4_build_verification"
+    interface: "broadcastCharacterUpdate removed from handlers, added to persist effect after Firestore save loop using `char` not `charWithTimestamp`"
+    format: "TypeScript compilation + manual trace review"
+  - from_task: "T2_set_sync_timestamp"
+    to_task: "T4_build_verification"
+    interface: "syncTimestamp: Date.now() set on fullUpdate before setCharacters() in both handlers"
+    format: "TypeScript compilation + code review"
+  - from_task: "T3_4_5_long_rest_restoration"
+    to_task: "T4_build_verification"
+    interface: "handleLongRest: usedSlots reset for all caster types, preparedSpells non-destructive, Arcane Recovery reset, Warlock pact slots restored"
+    format: "TypeScript compilation"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TASKS
+# ═══════════════════════════════════════════════════════════════════════════
+tasks:
+  # ───────────────────────────────────────────────────────────────────────
+  # WAVE 1 — Critical sync fixes (parallel, independent)
+  # ───────────────────────────────────────────────────────────────────────
+  - id: "T1_move_broadcast_to_persist"
+    title: "Move broadcastCharacterUpdate calls from handlers into persist effect"
+    description: |
+      ROOT CAUSE FIX: The RTDB loopback bug occurs because handleCharacterUpdate and handleFastUpdate
+      call broadcastCharacterUpdate() immediately after setCharacters(), before cloud save completes.
+      The RTDB broadcast triggers the subscribeWithRetry listener, which calls setCharacters() again,
+      triggering the persist effect's cleanup (clearTimeout on the debounced save), canceling the
+      Firestore cloud save. Firestore retains stale pre-rest data. On next sync, cloud overwrites local.
+
+      FIX (NO DEDUP NEEDED):
+      1. Remove `broadcastCharacterUpdate(fullUpdate.party_id, fullUpdate)` from handleCharacterUpdate
+         (App.tsx line 1016-1018) and from handleFastUpdate (App.tsx line 1033-1035).
+      2. In the persist effect (App.tsx line 772-830), AFTER the Firestore save loop completes
+         (after line 808, inside the try block), add:
+         `if (char.party_id) broadcastCharacterUpdate(char.party_id, char);`
+         for each dirty character.
+      3. IMPORTANT: Use `char` (the original from dirtyChars) NOT `charWithTimestamp`. The original
+         `char` already has the syncTimestamp set by T2 (before setCharacters in the handlers).
+         Broadcasting `char` means the RTDB data has the same syncTimestamp as React state, so when
+         the RTDB listener calls setCharacters(), it won't trigger a meaningful change and the loop
+         stops.
+
+      NOTE (DEAD CODE): No isDuplicateEvent check is needed. The `onBroadcast` parameter in
+      `subscribeWithRetry` (utils/firebase.ts) is never called by that function — it is dead code.
+      The actual RTDB data arrives via `onUpdate` callback (App.tsx lines 528-538). Attempting to
+      add dedup to the broadcast handler would have no effect.
+    wave: 1
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "Bug: RTDB loopback cancels cloud save timeout (root cause #1)"
+      - "App.tsx handleCharacterUpdate line 1004-1021 (remove broadcast)"
+      - "App.tsx handleFastUpdate line 1027-1038 (remove broadcast)"
+      - "App.tsx persist effect line 772-830 (add broadcast after save, using `char` not charWithTimestamp)"
+      - "NOTE: onBroadcast dead code at App.tsx 540-546 — no dedup needed"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "App.tsx"
+        description: "Main app component — handleCharacterUpdate (1004), handleFastUpdate (1027), persist effect (772), RTDB broadcast handler (540) [dead code]"
+      - path: "utils/firebase.ts"
+        description: "broadcastCharacterUpdate definition (line 924); subscribeWithRetry onBroadcast parameter is dead code"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "broadcastCharacterUpdate removed from handleCharacterUpdate and handleFastUpdate"
+      - "broadcastCharacterUpdate added to persist effect AFTER Firestore save completes, using `char` not `charWithTimestamp`"
+      - "No dedup added — onBroadcast callback is dead code, do not modify it"
+      - "Broadcast only fires for characters with party_id set"
+      - "npm run build compiles without errors"
+    success_criteria:
+      - "Code review: no broadcastCharacterUpdate calls remain outside persist effect"
+      - "Code review: broadcast in persist effect uses `char` (the original from dirtyChars), not charWithTimestamp"
+      - "Manual trace: persist effect broadcasts after successful cloud save, not before"
+      - "Manual trace: broadcast data's syncTimestamp matches React state (set by T2), preventing loopback"
+    tech_stack:
+      - "React 19"
+      - "TypeScript strict"
+      - "Firebase RTDB"
+    handoff:
+      do_not_reinvestigate:
+        - "Root cause analysis — confirmed in plan preamble"
+        - "broadcastCharacterUpdate function signature — in firebase.ts:924"
+        - "onBroadcast parameter is dead code in subscribeWithRetry — do not use it"
+      target_files:
+        - "App.tsx"
+      minimal_change: "Only touch the 3 locations: handleCharacterUpdate, handleFastUpdate, persist effect. Do NOT add dedup to broadcast handler (it's dead code). Do not refactor unrelated code."
+      acceptance_checks:
+        - "Remove broadcastCharacterUpdate from handleCharacterUpdate (lines 1016-1018)"
+        - "Remove broadcastCharacterUpdate from handleFastUpdate (lines 1033-1035)"
+        - "Insert broadcastCharacterUpdate(char.party_id, char) inside persist effect after Firestore save loop, using `char` not `charWithTimestamp`"
+
+  - id: "T2_set_sync_timestamp"
+    title: "Set syncTimestamp on characters before setCharacters() in both update handlers"
+    description: |
+      ROOT CAUSE FIX: handleCharacterUpdate and handleFastUpdate call setCharacters() with a
+      fullUpdate that does NOT have syncTimestamp set. This means the character in React state
+      has syncTimestamp = undefined. When the Firestore onSnapshot listener fires (subscribeToOwnCharacters,
+      App.tsx line 942-979), it compares timestamps:
+        const localTime = localChar?.syncTimestamp || 0;  // localTime = 0 since undefined
+        if ((char.syncTimestamp || 0) > localTime) { ... } // cloud always wins
+
+      FIX:
+      1. In handleCharacterUpdate (line 1009-1011), after building fullUpdate, set
+         `fullUpdate.syncTimestamp = Date.now()` BEFORE setCharacters().
+      2. In handleFastUpdate (line 1030), after building fullUpdate, set
+         `fullUpdate.syncTimestamp = Date.now()` BEFORE setCharacters().
+
+      This ensures the local character always has a recent syncTimestamp, so stale cloud data
+      (with older or equal timestamp) won't overwrite the local state. It also ensures that
+      when T1 broadcasts `char` from the persist effect, the broadcast data's syncTimestamp
+      matches the React state, preventing the loopback.
+    wave: 1
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "Bug: Missing syncTimestamp in update handlers (root cause #2)"
+      - "App.tsx handleCharacterUpdate line 1009-1013"
+      - "App.tsx handleFastUpdate line 1030-1032"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "App.tsx"
+        description: "handleCharacterUpdate (1004-1021), handleFastUpdate (1027-1038), Firestore listener with timestamp comparison (966-974)"
+      - path: "types.ts"
+        description: "Character.syncTimestamp definition (line 124)"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "fullUpdate.syncTimestamp = Date.now() added before setCharacters() in handleCharacterUpdate"
+      - "fullUpdate.syncTimestamp = Date.now() added before setCharacters() in handleFastUpdate"
+      - "npm run build compiles without errors"
+    success_criteria:
+      - "Code review: syncTimestamp always set before state update in both handlers"
+      - "Manual trace: after character update, state has syncTimestamp > 0, Firestore listener comparison favors local"
+    tech_stack:
+      - "React 19"
+      - "TypeScript strict"
+    handoff:
+      do_not_reinvestigate:
+        - "syncTimestamp is a number (Date.now()) — type is number | undefined"
+        - "Firestore listener comparison at line 966-974 reads localChar.syncTimestamp"
+      target_files:
+        - "App.tsx"
+      minimal_change: "Add one line to each handler before setCharacters(). Do not modify handlers for other purposes."
+      acceptance_checks:
+        - "In handleCharacterUpdate: add fullUpdate.syncTimestamp = Date.now() before setCharacters"
+        - "In handleFastUpdate: add fullUpdate.syncTimestamp = Date.now() before setCharacters"
+
+  # ───────────────────────────────────────────────────────────────────────
+  # WAVE 2 — Long rest restoration fixes (single task, same function)
+  # ───────────────────────────────────────────────────────────────────────
+  - id: "T3_4_5_long_rest_restoration"
+    title: "All handleLongRest fixes: spell slots, preparedSpells, Arcane Recovery, Warlock pact slots"
+    description: |
+      COMBINED TASK: All fixes to handleLongRest in RestModal.tsx, since they all modify the same
+      function and should be implemented together to avoid merge conflicts.
+
+      FIX A — Spell slot restoration (was T3):
+      handleLongRest (RestModal.tsx line 127-184) restores HP, hit dice, and class resources
+      but does NOT restore spell slots. All caster types should have usedSlots reset.
+
+      The Character type tracks used spell slots via:
+        usedSlots?: Record<string, boolean>  — individual slot tracking (e.g., "3-0": true)
+
+      In handleLongRest, after existing class-specific resource restoration:
+      1. Determine if character has spellcasting capability.
+      2. Reset all used spell slots: updated.usedSlots = {}.
+      3. This is sufficient because getSpellSlotSummary() computes current = max - used,
+         and used = {} means all slots are available.
+
+      FIX B — Wizard preparedSpells (was T4):
+      At line 172-175, the current code destructively clears Wizard prepared spells:
+        if (charClass === 'Wizard') {
+            updated.preparedSpells = [];
+        }
+      In D&D 5e 2024, Wizards prepare spells after a long rest, but the previous selection
+      should be retained as a starting point.
+
+      RECOMMENDED: Remove the destructive assignment and replace with a comment explaining
+      that the player's previous prepared spells are preserved as the default next-day selection.
+
+      FIX C — Arcane Recovery + Warlock pact slots (was T5):
+      1. Arcane Recovery (Wizard): Reset arcaneRecovery.uses to 1 on long rest.
+         Character type defines: arcaneRecovery?: { uses: number }
+         Add: if (charClass === 'Wizard') { updated.arcaneRecovery = { uses: 1 }; }
+
+      2. Warlock pact slots: Warlocks get Pact Magic slots back on short rest (already handled
+         at line 103-106), but should also be fully restored on long rest.
+         Add in handleLongRest:
+           if (charClass === 'Warlock') {
+               updated.usedSlots = {};
+               const pactLevel = updated.pactSlotLevel || 1;
+               const pactCount = updated.level >= 17 ? 4 : updated.level >= 11 ? 3 : updated.level >= 2 ? 2 : 1;
+               const pactSlots: Record<number, { current: number; max: number }> = {};
+               pactSlots[pactLevel] = { current: pactCount, max: pactCount };
+               updated.spellSlots = { ...updated.spellSlots, ...pactSlots };
+           }
+    wave: 2
+    agent: gem-implementer
+    status: completed
+    covers:
+      - "Bug: Spell slots not restored on long rest (root cause #3)"
+      - "Bug: Wizard preparedSpells silently cleared on long rest (root cause #4)"
+      - "Bug: Arcane Recovery missing from long rest (root cause #5)"
+      - "Bug: Warlock pact slot restoration missing from long rest (root cause #5)"
+      - "RestModal.tsx handleLongRest line 127-184"
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: "components/sheet/RestModal.tsx"
+        description: "handleLongRest function (127-184) — all fixes applied here"
+      - path: "utils/sheetUtils.ts"
+        description: "getSlots (1007, private), getSpellSlotSummary (988, public) — slot calculation utilities"
+      - path: "types.ts"
+        description: "Character.spellSlots (99), Character.usedSlots (98), Character.arcaneRecovery (109), Character.pactSlotLevel (106), Character.class (36)"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "handleLongRest resets usedSlots to {} for full casters (Bard, Cleric, Druid, Sorcerer, Wizard)"
+      - "handleLongRest resets usedSlots to {} for half casters (Paladin, Ranger) and third casters (Eldritch Knight, Arcane Trickster)"
+      - "Wizard preparedSpells is not destructively cleared to [] on long rest (replaced with comment or non-destructive pattern)"
+      - "handleLongRest resets arcaneRecovery.uses to 1 for Wizard class"
+      - "handleLongRest restores Warlock pact slots to full (clear usedSlots, recalculate spellSlots for pact level)"
+      - "Warlock short rest restoration (line 103-106) remains unchanged and still functional"
+      - "No TypeScript errors — Character type allows setting usedSlots on any character"
+      - "npm run build compiles without errors"
+    success_criteria:
+      - "After long rest, all spell slots show as available in SpellsTab"
+      - "usedSlots is empty object after long rest for spellcasting classes"
+      - "Wizard character retains preparedSpells after long rest"
+      - "Wizard shows arcaneRecovery uses=1 after long rest"
+      - "Warlock pact slots show full after long rest"
+      - "Code review: all changes consistent and no regressions"
+    tech_stack:
+      - "React 19"
+      - "TypeScript strict"
+    handoff:
+      do_not_reinvestigate:
+        - "getSpellSlotSummary computes current = max - used; clearing usedSlots is sufficient"
+        - "Character.usedSlots is optional (Record<string, boolean> | undefined)"
+        - "SpellsTab writes usedSlots via onUpdate pattern, not local state"
+        - "Prepared spells are a list of spell IDs in preparedSpells: string[]"
+        - "Comment explains 2024 Wizard preparation rules if kept for future UI"
+        - "Arcane Recovery uses counter: { uses: number }, reset to { uses: 1 }"
+        - "Warlock pact slots tracked via spellSlots, pactSlotLevel, and usedSlots"
+        - "handleShortRest Warlock pattern at lines 103-106 for reference"
+      target_files:
+        - "components/sheet/RestModal.tsx"
+      minimal_change: "Only touch handleLongRest function in RestModal.tsx. Apply all four changes (A/B/C/D) to the same function in a single edit session. Do not refactor or modify other functions."
+      acceptance_checks:
+        - "A: Add usedSlots reset for full/half/third casters: if caster, updated.usedSlots = {}"
+        - "B: Remove or comment out the preparedSpells = [] destructive assignment for Wizard"
+        - "C: Add Wizard arcaneRecovery = { uses: 1 } reset"
+        - "D: Add Warlock pact slot restoration block with usedSlots clear + spellSlots recalculation"
+        - "Handle edge case: character may have no spellSlots/usedSlots defined yet"
+
+  # ───────────────────────────────────────────────────────────────────────
+  # WAVE 3 — Verification
+  # ───────────────────────────────────────────────────────────────────────
+  - id: "T4_build_verification"
+    title: "Build verification and code review of all changes"
+    description: |
+      Verify all 3 fix tasks compile and pass code review:
+      1. Run `npm run build` to verify TypeScript compilation
+      2. Review all changes for consistency:
+         - T1: broadcastCharacterUpdate removed from handlers, added to persist effect using `char` (not charWithTimestamp), no dedup added
+         - T2: syncTimestamp set before setCharacters in both handlers
+         - T3_4_5: usedSlots reset, preparedSpells non-destructive, Arcane Recovery reset, Warlock pact slots restored
+      3. Check for any missed edge cases
+      4. Verify no regressions in party DM view (broadcast still fires, just after save)
+      5. Confirm onBroadcast dead code was left untouched
+    wave: 3
+    agent: gem-reviewer
+    status: completed
+    covers:
+      - "Verification that all fixes compile and are consistent"
+    dependencies:
+      - "T1_move_broadcast_to_persist"
+      - "T2_set_sync_timestamp"
+      - "T3_4_5_long_rest_restoration"
+    conflicts_with: []
+    context_files:
+      - path: "App.tsx"
+        description: "All T1 and T2 changes"
+      - path: "components/sheet/RestModal.tsx"
+        description: "All T3_4_5 changes (handleLongRest)"
+    flags:
+      flaky: false
+      retries_used: 0
+      requires_design_validation: false
+    acceptance_criteria:
+      - "npm run build exits with code 0"
+      - "Code review passes: all changes match the acceptance criteria in each task"
+      - "No unintended changes outside specified target files"
+      - "onBroadcast dead code at App.tsx lines 540-546 left untouched"
+    success_criteria:
+      - "Build succeeds with no errors"
+      - "All 3 fix areas verified in code review"
+    requires_review: true
+    review_depth: full
+    review_security_sensitive: false
+    handoff:
+      do_not_reinvestigate:
+        - "Root cause analysis — in plan preamble"
+        - "Expected changes per task — see handoff.acceptance_checks for each task"
+        - "onBroadcast is dead code — verify no changes were made to it"
+      target_files:
+        - "App.tsx"
+        - "components/sheet/RestModal.tsx"
+      acceptance_checks:
+        - "Run npm run build and confirm success"
+        - "Review App.tsx for T1 and T2 changes"
+        - "Review RestModal.tsx for T3_4_5 changes"
+        - "Confirm onBroadcast callback (lines 540-546) was NOT modified"

@@ -100,7 +100,7 @@ export function testNetworkFailureHandling() {
       maxRetries: 10,
     },
     implementationDetails: {
-      location: 'utils/supabase.ts - subscribeWithRetry()',
+      location: 'utils/firebase.ts - subscribeWithRetry()',
       pattern: 'exponential backoff on realtime channel errors',
       maxWaitTime: '8s between retries',
     },

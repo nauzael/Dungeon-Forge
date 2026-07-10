@@ -25,7 +25,7 @@ export const SyncToast: React.FC = () => {
   };
 
   const getClassName = () => {
-    const base = 'fixed bottom-4 right-4 px-4 py-3 rounded shadow-lg flex gap-2 items-center text-white z-50 transition-all duration-300';
+    const base = 'fixed bottom-4 right-4 px-4 py-3 rounded-radius-sm shadow-elev-modal flex gap-2 items-center text-white z-50 transition-all duration-motion-base';
     const states = {
       syncing: 'bg-blue-500',
       success: 'bg-green-500',

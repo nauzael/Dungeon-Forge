@@ -59,10 +59,10 @@ Also simplified Login.tsx error handling:
 ```typescript
 if (!isNative) {
   // Web: use redirect
-  const { error } = await supabase.auth.signInWithOAuth({...});
+  const { error } = await signInWithPopup(authInstance, provider);
 } else {
   // Mobile: use popup via signInWithGoogle
-  const { data, error } = await supabase.auth.signInWithGoogle?.();
+  const { data, error } = await signInWithPopup(authInstance, provider);
 }
 ```
 

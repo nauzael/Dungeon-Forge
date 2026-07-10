@@ -7,7 +7,7 @@
   },
   "android": {
     "preferredColorScheme": "dark",
-    "allowMixedContent": true
+    "allowMixedContent": false
   },
   "plugins": {
     "GoogleSignIn": {

@@ -2,8 +2,8 @@
 import imageCompression from 'browser-image-compression';
 
 /**
- * Comprime una imagen a un máximo de 1MB, reduciendo dimensiones si es necesario.
- * Convierte a WebP para mejor compresión.
+ * Compresses an image to max 1MB, reducing dimensions if necessary.
+ * Converts to WebP for better compression.
  */
 export const compressImage = async (file: File): Promise<File> => {
   const options = {
@@ -17,8 +17,7 @@ export const compressImage = async (file: File): Promise<File> => {
     const compressedFile = await imageCompression(file, options);
     return compressedFile;
   } catch (error) {
-    console.error('Error compressing image:', error);
-    // Si falla la compresión, devolver el archivo original
+    // If compression fails, return the original file
     return file;
   }
 };
@@ -91,7 +90,7 @@ export const processResourceImage = async (file: File): Promise<{
 };
 
 /**
- * Optimiza una imagen existente desde una URL (para migración).
+ * Optimizes an existing image from a URL (for migration).
  * Descarga la imagen, la comprime y genera thumbnail.
  */
 export const optimizeExistingImage = async (imageUrl: string): Promise<{
@@ -104,7 +103,6 @@ export const optimizeExistingImage = async (imageUrl: string): Promise<{
     const file = new File([blob], 'image.jpg', { type: blob.type });
     return await processResourceImage(file);
   } catch (error) {
-    console.error('Error optimizing existing image:', error);
     return null;
   }
 };

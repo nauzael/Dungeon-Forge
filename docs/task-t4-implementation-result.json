@@ -2,7 +2,7 @@
   "status": "completed",
   "task_id": "T4",
   "plan_id": "dm-sync-investigation-2026-05-13",
-  "summary": "Implementado subscribeWithRetry() con timeout 5s + exponential backoff (1s→2s→4s→8s) + jitter ±10% en utils/supabase.ts. Integrado en DMDashboard.tsx y App.tsx Observer View. 5/5 acceptance criteria passed, TypeScript build success, zero memory leaks.",
+  "summary": "Implementado subscribeWithRetry() con timeout 5s + exponential backoff (1s→2s→4s→8s) + jitter ±10% en utils/firebase.ts. Integrado en DMDashboard.tsx y App.tsx Observer View. 5/5 acceptance criteria passed, TypeScript build success, zero memory leaks.",
   "failure_type": null,
   "completion_time": "2026-05-13T15:30:00Z",
   "extra": {
@@ -71,7 +71,7 @@
       "memory_leaks": "✅ NONE - cleanup function verified for timeouts and channel unsubscribe"
     },
     "files_modified": {
-      "utils/supabase.ts": {
+      "utils/firebase.ts": {
         "lines": "216-340",
         "changes": [
           "Added RealtimeSubscription interface",
@@ -132,7 +132,7 @@
     ],
     "next_actions": [
       "Add UI indicator for realtimeStatus (out of scope T4)",
-      "Integration testing with real Supabase network",
+      "Integration testing with real Firebase network",
       "Analytics tracking for retry patterns (future task)",
       "Consider exponential backoff reset on successful connection (enhancement)"
     ]

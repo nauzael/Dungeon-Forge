@@ -3,7 +3,6 @@ export { isValidCharacter, type ValidationResult } from './validators';
 
 // Utilities
 export { generateUUID } from './uuid';
-export { debugLogger } from './debugLogger';
 
 // Feature-specific utils
 export { getAvailableBeasts, transformIntoBeast, restoreOriginalForm } from './wildShapeUtils';

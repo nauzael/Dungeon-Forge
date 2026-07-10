@@ -24,6 +24,7 @@ import { rogue } from './rogue';
 import { sorcerer } from './sorcerer';
 import { warlock } from './warlock';
 import { wizard } from './wizard';
+import { pugilist } from './pugilist';
 
 const CLASSES: Record<string, ClassData> = {
   Barbarian: barbarian as ClassData,
@@ -37,7 +38,8 @@ const CLASSES: Record<string, ClassData> = {
   Rogue: rogue as ClassData,
   Sorcerer: sorcerer as ClassData,
   Warlock: warlock as ClassData,
-  Wizard: wizard as ClassData
+  Wizard: wizard as ClassData,
+  Pugilist: pugilist as ClassData
 };
 
 export { CLASSES };

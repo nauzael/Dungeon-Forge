@@ -7,13 +7,13 @@
 │                        REALTIME EVENT FLOW                          │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│  Supabase Realtime          Capa 1: postgres_changes              │
+│  Firebase Realtime          Capa 1: postgres_changes              │
 │  ─────────────────────→     if (!payload.new.party_id ||           │
 │                             payload.new.party_id !== party.id)     │
 │  [Postgres Events]               ↓ RETURN (no procesar)            │
 │                             ✅ GHOST PREVENTED                      │
 │                                                                     │
-│  Supabase Realtime          Capa 2: broadcast                      │
+│  Firebase Realtime          Capa 2: broadcast                      │
 │  ─────────────────────→     if (!char.party_id ||                  │
 │                             char.party_id !== party.id)            │
 │  [Broadcast Messages]            ↓ RETURN (no procesar)            │

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Dungeon Forge - Typography</title>
+<style>:root{--bg:#0F172A;--fg:#F8FAFC;--muted:#94A3B8;--accent:#359EFF;--border:rgba(154,219,255,0.1);--font-display:'Spline Sans',system-ui,sans-serif;--font-body:'Noto Sans',system-ui,sans-serif}*,*::before,*::after{box-sizing:border-box}body{background:var(--bg);color:var(--fg);font-family:var(--font-body);padding:24px;margin:0}.display{font-family:var(--font-display)}h1{font-size:24px;font-weight:900;text-transform:uppercase;letter-spacing:-0.02em;margin:0 0 24px}h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin:24px 0 12px}.row{display:flex;gap:32px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--border)}.label{width:120px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);flex-shrink:0}.sample{flex:1}.caption{font-size:10px;color:var(--muted);margin-top:4px}</style></head>
+<body>
+<h1>Dungeon Forge <span style="color:var(--accent)">Typography</span></h1>
+
+<h2>Font Families</h2>
+<div class="row"><span class="label">Display</span><div><div class="sample display" style="font-size:24px;font-weight:900">Spline Sans (900)</div><div class="caption">Headings, titles, HP values</div></div></div>
+<div class="row"><span class="label">Body</span><div><div class="sample" style="font-size:14px">Noto Sans (400/700)</div><div class="caption">Body text, buttons, labels</div></div></div>
+
+<h2>Type Scale</h2>
+<div class="row"><span class="label">xs (12px)</span><div class="sample" style="font-size:12px">The quick brown fox jumps over the lazy dog</div></div>
+<div class="row"><span class="label">sm (14px)</span><div class="sample" style="font-size:14px">The quick brown fox jumps over the lazy dog</div></div>
+<div class="row"><span class="label">base (16px)</span><div class="sample" style="font-size:16px">The quick brown fox jumps over the lazy dog</div></div>
+<div class="row"><span class="label">lg (18px)</span><div class="sample display" style="font-size:18px;font-weight:700">The quick brown fox jumps</div></div>
+<div class="row"><span class="label">xl (20px)</span><div class="sample display" style="font-size:20px;font-weight:700">The quick brown fox jumps</div></div>
+<div class="row"><span class="label">2xl (24px)</span><div class="sample display" style="font-size:24px;font-weight:900">The quick brown fox</div></div>
+<div class="row"><span class="label">3xl (30px)</span><div class="sample display" style="font-size:30px;font-weight:900">The quick brown</div></div>
+<div class="row"><span class="label">5xl (48px)</span><div class="sample display" style="font-size:48px;font-weight:900">56 HP</div></div>
+
+<h2>Common Patterns</h2>
+<div class="row"><span class="label">Uppercase label</span><div class="sample" style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)">STRENGTH 18 · MODIFIER +4</div></div>
+<div class="row"><span class="label">Section heading</span><div class="sample display" style="font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em">Combat Stats</div></div>
+<div class="row"><span class="label">Logo</span><div class="sample display" style="font-size:36px;font-weight:900;text-transform:uppercase;letter-spacing:-0.02em;background:linear-gradient(135deg,#9ADBFF,#359EFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent">DUNGEON FORGE</div></div>
+</body>
+</html>

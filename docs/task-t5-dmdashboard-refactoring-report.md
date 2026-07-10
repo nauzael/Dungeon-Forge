@@ -34,7 +34,7 @@ Successfully refactored DMDashboard from **687 lines** to **116 lines** in the m
 
 **Dependencies**:
 - React hooks: `useState`, `useEffect`, `useRef`, `useCallback`
-- Supabase utilities: `createParty`, `subscribeWithRetry`, `removeFromParty`, `updatePartyName`, `deleteParty`
+- Firebase utilities: `createParty`, `subscribeWithRetry`, `removeFromParty`, `updatePartyName`, `deleteParty`
 
 ```typescript
 export const useDMParty = (userId: string | null) => {
@@ -281,7 +281,7 @@ const DMDashboard: React.FC<DMDashboardProps> = ({ onBack, onViewCharacter, user
 
 ### Next Steps
 1. Code review (T6): Compare original vs refactored for any missed logic
-2. Integration test: Verify real Supabase sync with multiple parties
+2. Integration test: Verify real Firebase sync with multiple parties
 3. Performance test: Measure dedup O(1) improvement vs O(n)
 4. Mobile test: Verify on Android/iOS via Capacitor
 

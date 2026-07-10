@@ -31,29 +31,29 @@ export const WILD_SHAPE_BEASTS: Record<number, BeastStats[]> = {
   1: [], // Level 1: no Wild Shape
   2: [ // Level 2-3: CR 1/4, no fly
     {
-      name: 'Lobo',
+      name: 'Wolf',
       cr: 0.25,
       hp: 11,
       ac: 12,
       size: 'Medium',
       speed: 12,
       stats: { STR: 12, DEX: 15, CON: 12, INT: 3, WIS: 12, CHA: 6 },
-      skills: ['Percepción +5', 'Sigilo +4'],
-      senses: ['Visión en la oscuridad 18m', 'Percepción pasiva 15'],
+      skills: ['Perception +5', 'Stealth +4'],
+      senses: ['Darkvision 18m', 'Passive Perception 15'],
       attacks: [
         {
-          name: 'Mordisco',
+          name: 'Bite',
           attackBonus: 4,
           damage: '1d6+2',
-          damageType: 'perforante',
+          damageType: 'piercing',
           reach: 1.5,
-          effect: 'Si impacta a criatura Mediana o más pequeña, objetivo derribado'
+          effect: 'If hitting a Medium or smaller creature, target is knocked prone'
         }
       ],
-      special: ['Atacar en manada: Ventaja contra enemigos si aliado a 1.5m']
+      special: ['Pack tactics: Advantage against enemies if ally within 1.5m']
     },
     {
-      name: 'Araña',
+      name: 'Spider',
       cr: 0.25,
       hp: 11,
       ac: 12,
@@ -61,22 +61,22 @@ export const WILD_SHAPE_BEASTS: Record<number, BeastStats[]> = {
       speed: 6,
       climbSpeed: 6,
       stats: { STR: 12, DEX: 16, CON: 12, INT: 2, WIS: 12, CHA: 4 },
-      skills: ['Sigilo +6'],
-      senses: ['Visión en la oscuridad 18m', 'Percepción pasiva 12'],
+      skills: ['Stealth +6'],
+      senses: ['Darkvision 18m', 'Passive Perception 12'],
       attacks: [
         {
-          name: 'Mordisco',
+          name: 'Bite',
           attackBonus: 5,
           damage: '1d6+3',
-          damageType: 'perforante',
+          damageType: 'piercing',
           reach: 1.5,
-          effect: 'DC 10 CON o queda envenenado'
+          effect: 'DC 10 CON or becomes poisoned'
         }
       ],
-      special: ['Trepar difícil: ignora restricciones de movimiento', 'Web Walker: ignora telarañas']
+      special: ['Spider Climb: ignores movement restrictions', 'Web Walker: ignores webs']
     },
     {
-      name: 'Rata',
+      name: 'Rat',
       cr: 0,
       hp: 4,
       ac: 10,
@@ -84,65 +84,65 @@ export const WILD_SHAPE_BEASTS: Record<number, BeastStats[]> = {
       speed: 6,
       climbSpeed: 6,
       stats: { STR: 2, DEX: 11, CON: 10, INT: 2, WIS: 10, CHA: 4 },
-      skills: ['Percepción +2'],
-      senses: ['Visión en la oscuridad 9m', 'Percepción pasiva 12'],
+      skills: ['Perception +2'],
+      senses: ['Darkvision 9m', 'Passive Perception 12'],
       attacks: [
         {
-          name: 'Mordisco',
+          name: 'Bite',
           attackBonus: 0,
           damage: '1',
-          damageType: 'perforante',
+          damageType: 'piercing',
           reach: 1.5
         }
       ],
-      special: ['Ágil: no provoca AO al alejarse']
+      special: ['Keen: doesn\'t provoke OA when moving away']
     },
     {
-      name: 'Caballo de monta',
+      name: 'Riding Horse',
       cr: 0.25,
       hp: 13,
       ac: 11,
       size: 'Large',
       speed: 18,
       stats: { STR: 16, DEX: 13, CON: 12, INT: 2, WIS: 11, CHA: 7 },
-      skills: ['Percepción +2'],
-      senses: ['Percepción pasiva 12'],
+      skills: ['Perception +2'],
+      senses: ['Passive Perception 12'],
       attacks: [
         {
-          name: 'Cascos',
+          name: 'Hooves',
           attackBonus: 3,
           damage: '1d8+2',
-          damageType: 'contundente',
+          damageType: 'bludgeoning',
           reach: 1.5
         }
       ]
     },
     {
-      name: 'Jabalí',
+      name: 'Boar',
       cr: 0.25,
       hp: 13,
       ac: 11,
       size: 'Medium',
       speed: 12,
       stats: { STR: 13, DEX: 11, CON: 14, INT: 2, WIS: 9, CHA: 5 },
-      skills: ['Percepción +2'],
-      senses: ['Percepción pasiva 11'],
+      skills: ['Perception +2'],
+      senses: ['Passive Perception 11'],
       attacks: [
         {
-          name: 'Cornada',
+          name: 'Gore',
           attackBonus: 3,
           damage: '1d6+1',
-          damageType: 'perforante',
+          damageType: 'piercing',
           reach: 1.5,
-          effect: 'Si se movió 6m+ en línea recta: derribado + 1d6 adicional'
+          effect: 'If moved 6m+ in a straight line: prone + 1d6 additional damage'
         }
       ],
-      special: ['Furia maltrecha: Ventaja si tiene menos de la mitad de PG']
+      special: ['Relentless: Advantage if less than half HP']
     }
   ],
   4: [ // Level 4-7: CR 1/4, + CR 1/2
     {
-      name: 'Búho gigante',
+      name: 'Giant Owl',
       cr: 0.25,
       hp: 19,
       ac: 12,
@@ -150,42 +150,42 @@ export const WILD_SHAPE_BEASTS: Record<number, BeastStats[]> = {
       speed: 1.5,
       flySpeed: 18,
       stats: { STR: 13, DEX: 15, CON: 12, INT: 10, WIS: 14, CHA: 10 },
-      skills: ['Percepción +6', 'Sigilo +6'],
-      senses: ['Visión en la oscuridad 36m', 'Percepción pasiva 16'],
+      skills: ['Perception +6', 'Stealth +6'],
+      senses: ['Darkvision 36m', 'Passive Perception 16'],
       attacks: [
         {
-          name: 'Garras',
+          name: 'Claws',
           attackBonus: 4,
           damage: '1d10+2',
-          damageType: 'cortante',
+          damageType: 'slashing',
           reach: 1.5
         }
       ],
-      special: ['Pasar volando: No provoca AO al alejarse volando']
+      special: ['Flyby: Doesn\'t provoke OA when flying away']
     },
     {
-      name: 'Caballo de guerra',
+      name: 'Warhorse',
       cr: 0.5,
       hp: 19,
       ac: 11,
       size: 'Large',
       speed: 18,
       stats: { STR: 18, DEX: 12, CON: 13, INT: 2, WIS: 12, CHA: 7 },
-      skills: ['Percepción +3'],
-      senses: ['Percepción pasiva 13'],
+      skills: ['Perception +3'],
+      senses: ['Passive Perception 13'],
       attacks: [
         {
-          name: 'Cascos',
+          name: 'Hooves',
           attackBonus: 6,
           damage: '2d4+4',
-          damageType: 'contundente',
+          damageType: 'bludgeoning',
           reach: 1.5,
-          effect: 'Si se movió 6m+: +2d4 daño y derribado'
+          effect: 'If moved 6m+: +2d4 damage and prone'
         }
       ]
     },
     {
-      name: 'Cocodrilo',
+      name: 'Crocodile',
       cr: 0.5,
       hp: 13,
       ac: 12,
@@ -193,24 +193,24 @@ export const WILD_SHAPE_BEASTS: Record<number, BeastStats[]> = {
       speed: 6,
       swimSpeed: 9,
       stats: { STR: 15, DEX: 10, CON: 13, INT: 2, WIS: 10, CHA: 5 },
-      skills: ['Sigilo +2'],
-      senses: ['Percepción pasiva 10'],
+      skills: ['Stealth +2'],
+      senses: ['Passive Perception 10'],
       attacks: [
         {
-          name: 'Mordisco',
+          name: 'Bite',
           attackBonus: 4,
           damage: '1d8+2',
-          damageType: 'perforante',
+          damageType: 'piercing',
           reach: 1.5,
-          effect: 'DC 12 para escapar de agarre. Aguantar respiración 1 hora.'
+          effect: 'DC 12 to escape grapple. Hold breath 1 hour.'
         }
       ],
-      special: ['Aguantar respiración: 1 hora']
+      special: ['Hold Breath: 1 hour']
     }
   ],
   8: [ // Level 8+: CR 1, includes fly speed options
     {
-      name: 'Oso pardo',
+      name: 'Brown Bear',
       cr: 1,
       hp: 22,
       ac: 11,
@@ -218,92 +218,92 @@ export const WILD_SHAPE_BEASTS: Record<number, BeastStats[]> = {
       speed: 12,
       climbSpeed: 9,
       stats: { STR: 17, DEX: 12, CON: 15, INT: 2, WIS: 13, CHA: 7 },
-      skills: ['Percepción +3'],
-      senses: ['Visión en la oscuridad 18m', 'Percepción pasiva 13'],
+      skills: ['Perception +3'],
+      senses: ['Darkvision 18m', 'Passive Perception 13'],
       attacks: [
         {
-          name: 'Ataque múltiple',
+          name: 'Multiattack',
           attackBonus: 5,
           damage: '0',
-          damageType: 'especial',
-          effect: 'Mordisco + Garras como un ataque'
+          damageType: 'special',
+          effect: 'Bite + Claws as one attack'
         },
         {
-          name: 'Garras',
+          name: 'Claws',
           attackBonus: 5,
           damage: '1d4+3',
-          damageType: 'cortante',
+          damageType: 'slashing',
           reach: 1.5,
-          effect: 'Si impacta: objetivo derribado'
+          effect: 'On hit: target knocked prone'
         },
         {
-          name: 'Mordisco',
+          name: 'Bite',
           attackBonus: 5,
           damage: '1d8+3',
-          damageType: 'perforante',
+          damageType: 'piercing',
           reach: 1.5
         }
       ]
     },
     {
-      name: 'León',
+      name: 'Lion',
       cr: 1,
       hp: 22,
       ac: 12,
       size: 'Large',
       speed: 15,
       stats: { STR: 17, DEX: 15, CON: 11, INT: 3, WIS: 12, CHA: 8 },
-      skills: ['Percepción +3', 'Sigilo +4'],
-      senses: ['Visión en la oscuridad 18m', 'Percepción pasiva 13'],
+      skills: ['Perception +3', 'Stealth +4'],
+      senses: ['Darkvision 18m', 'Passive Perception 13'],
       attacks: [
         {
-          name: 'Ataque múltiple',
+          name: 'Multiattack',
           attackBonus: 5,
           damage: '0',
-          damageType: 'especial',
-          effect: 'Dos ataques de desgarro'
+          damageType: 'special',
+          effect: 'Two rend attacks'
         },
         {
-          name: 'Desgarro',
+          name: 'Rend',
           attackBonus: 5,
           damage: '1d8+3',
-          damageType: 'cortante',
+          damageType: 'slashing',
           reach: 1.5
         },
         {
-          name: 'Rugido',
+          name: 'Roar',
           attackBonus: 0,
           damage: '0',
-          damageType: 'miedo',
-          effect: 'DC 13 SAB: criaturas a 4.5m asustadas'
+          damageType: 'fear',
+          effect: 'DC 13 WIS: creatures within 4.5m frightened'
         }
       ],
-      special: ['Atacar en manada: Ventaja si aliado a 1.5m', 'Saltar con carrera: Puede saltar 7.5m en longitud']
+      special: ['Pack tactics: Advantage if ally within 1.5m', 'Running leap: Can jump 7.5m in length']
     },
     {
-      name: 'Tigre',
+      name: 'Tiger',
       cr: 1,
       hp: 30,
       ac: 13,
       size: 'Large',
       speed: 12,
       stats: { STR: 17, DEX: 16, CON: 14, INT: 3, WIS: 12, CHA: 8 },
-      skills: ['Percepción +3', 'Sigilo +7'],
-      senses: ['Visión en la oscuridad 18m', 'Percepción pasiva 13'],
+      skills: ['Perception +3', 'Stealth +7'],
+      senses: ['Darkvision 18m', 'Passive Perception 13'],
       attacks: [
         {
-          name: 'Desgarro',
+          name: 'Rend',
           attackBonus: 5,
           damage: '2d6+3',
-          damageType: 'cortante',
+          damageType: 'slashing',
           reach: 1.5,
-          effect: 'Si impacta a Grande o menor: derribado'
+          effect: 'If hitting Large or smaller: prone'
         }
       ],
-      special: ['Huida veloz: Puede usar Destrabarse o Esconderse como acción bonus']
+      special: ['Fast getaway: Can use Disengage or Hide as bonus action']
     },
     {
-      name: 'Águila gigante',
+      name: 'Giant Eagle',
       cr: 1,
       hp: 26,
       ac: 13,
@@ -311,49 +311,49 @@ export const WILD_SHAPE_BEASTS: Record<number, BeastStats[]> = {
       speed: 3,
       flySpeed: 24,
       stats: { STR: 16, DEX: 17, CON: 13, INT: 8, WIS: 14, CHA: 10 },
-      skills: ['Percepción +6'],
-      senses: ['Visión en la oscuridad 36m', 'Percepción pasiva 16'],
+      skills: ['Perception +6'],
+      senses: ['Darkvision 36m', 'Passive Perception 16'],
       attacks: [
         {
-          name: 'Ataque múltiple',
+          name: 'Multiattack',
           attackBonus: 5,
           damage: '0',
-          damageType: 'especial',
-          effect: 'Dos ataques de garra'
+          damageType: 'special',
+          effect: 'Two claw attacks'
         },
         {
-          name: 'Garras',
+          name: 'Claws',
           attackBonus: 5,
           damage: '1d4+3',
-          damageType: 'cortante',
+          damageType: 'slashing',
           reach: 1.5
         }
       ],
-      special: ['Vista de águila: Puede ver 3 veces más lejos']
+      special: ['Keen sight: Can see 3 times farther']
     },
     {
-      name: 'Hiena gigante',
+      name: 'Giant Hyena',
       cr: 1,
       hp: 45,
       ac: 12,
       size: 'Large',
       speed: 15,
       stats: { STR: 16, DEX: 14, CON: 14, INT: 2, WIS: 12, CHA: 7 },
-      skills: ['Percepción +3'],
-      senses: ['Visión en la oscuridad 18m', 'Percepción pasiva 13'],
+      skills: ['Perception +3'],
+      senses: ['Darkvision 18m', 'Passive Perception 13'],
       attacks: [
         {
-          name: 'Mordisco',
+          name: 'Bite',
           attackBonus: 5,
           damage: '2d6+3',
-          damageType: 'perforante',
+          damageType: 'piercing',
           reach: 1.5
         }
       ],
-      special: ['Rabia: +2d6 daño si objetivo ya maltrecho']
+      special: ['Rampage: +2d6 damage if target already bloodied']
     },
     {
-      name: 'Pulpo gigante',
+      name: 'Giant Octopus',
       cr: 1,
       hp: 45,
       ac: 11,
@@ -361,24 +361,24 @@ export const WILD_SHAPE_BEASTS: Record<number, BeastStats[]> = {
       speed: 3,
       swimSpeed: 18,
       stats: { STR: 17, DEX: 13, CON: 13, INT: 5, WIS: 10, CHA: 4 },
-      skills: ['Percepción +4', 'Sigilo +5'],
-      senses: ['Visión en la oscuridad 18m', 'Percepción pasiva 14'],
+      skills: ['Perception +4', 'Stealth +5'],
+      senses: ['Darkvision 18m', 'Passive Perception 14'],
       attacks: [
         {
-          name: 'Tentáculos',
+          name: 'Tentacles',
           attackBonus: 5,
           damage: '2d6+3',
-          damageType: 'contundente',
+          damageType: 'bludgeoning',
           reach: 3,
-          effect: 'DC 13 CON: Agarrado por 8 tentáculos'
+          effect: 'DC 13 CON: Grappled by 8 tentacles'
         }
       ],
-      special: ['Nube de tinta (1/día)', 'Respirar agua: 1 hora fuera del agua']
+      special: ['Ink cloud (1/day)', 'Water breathing: 1 hour out of water']
     }
   ],
   6: [
     {
-      name: 'Serpiente constrictora gigante',
+      name: 'Giant Constrictor Snake',
       cr: 2,
       hp: 60,
       ac: 12,
@@ -386,27 +386,27 @@ export const WILD_SHAPE_BEASTS: Record<number, BeastStats[]> = {
       speed: 9,
       swimSpeed: 9,
       stats: { STR: 19, DEX: 14, CON: 12, INT: 1, WIS: 10, CHA: 3 },
-      skills: ['Percepción +2'],
-      senses: ['Visión ciega 3m', 'Percepción pasiva 12'],
+      skills: ['Perception +2'],
+      senses: ['Blindsight 3m', 'Passive Perception 12'],
       attacks: [
         {
-          name: 'Mordisco',
+          name: 'Bite',
           attackBonus: 6,
           damage: '2d6+4',
-          damageType: 'perforante',
+          damageType: 'piercing',
           reach: 3,
-          effect: 'Constreñir: CD 14 STR para escapar'
+          effect: 'Constrict: DC 14 STR to escape'
         },
         {
-          name: 'Constreñir',
+          name: 'Constrict',
           attackBonus: 0,
           damage: '2d8+4',
-          damageType: 'contundente',
+          damageType: 'bludgeoning',
           reach: 0,
-          effect: 'DC 14 STR: Agarrado + 2d8 daño'
+          effect: 'DC 14 STR: Grappled + 2d8 damage'
         }
       ],
-      special: ['Ataque múltiple: Mordisco + Constreñir']
+      special: ['Multiattack: Bite + Constrict']
     }
   ]
 };
@@ -431,6 +431,34 @@ export const getBeastsForLevel = (druidLevel: number): BeastStats[] => {
   }
   
   return beasts;
+};
+
+// --- PUGILIST COMPANION (Dog and Hound subclass) ---
+// Hound stats scale with Pugilist level (all computed at runtime):
+// AC: 12 + Pugilist's CON modifier
+// HP: 5 + 5 × Pugilist level
+// Bite: 2d4 + 2 + Pugilist's CON modifier (attack bonus: 4 + PB)
+// Pack Bond: Add PB to ability checks and saving throws
+// Speed 40 ft., Medium Beast, Neutral
+export const PUGILIST_HOUND_TEMPLATE: BeastStats = {
+  name: 'Hound',
+  cr: 0,
+  hp: 0,
+  ac: 0,
+  size: 'Medium',
+  speed: 40,
+  stats: { STR: 14, DEX: 14, CON: 12, INT: 4, WIS: 12, CHA: 8 },
+  senses: ['Passive Perception 11'],
+  attacks: [
+    {
+      name: 'Bite',
+      attackBonus: 0,
+      damage: '2d4+2',
+      damageType: 'Bludgeoning',
+      reach: 1.5,
+      effect: 'DC 8 + CON + PB or Grappled/Prone/Pushed'
+    }
+  ]
 };
 
 export const getBeastByName = (name: string): BeastStats | undefined => {

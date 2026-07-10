@@ -103,7 +103,6 @@ describe('Listener Cleanup & Selective Sync (Task 6-1)', () => {
       type SubscribeWithRetryFn = (
         partyId: string,
         onUpdate: (payload: any) => void,
-        onBroadcast?: (payload: any) => void,
         onStatusChange?: (status: string) => void,
         activeCharacterId?: string
       ) => { unsubscribe: () => Promise<void> };
@@ -111,7 +110,6 @@ describe('Listener Cleanup & Selective Sync (Task 6-1)', () => {
       const mockSubscribe: SubscribeWithRetryFn = (
         partyId,
         onUpdate,
-        onBroadcast,
         onStatusChange,
         activeCharacterId
       ) => {
@@ -121,7 +119,7 @@ describe('Listener Cleanup & Selective Sync (Task 6-1)', () => {
       };
 
       // Test
-      mockSubscribe('party-123', () => {}, undefined, undefined, 'char-123');
+      mockSubscribe('party-123', () => {}, undefined, 'char-123');
     });
 
     it('should filter database events to only activeCharacterId', () => {

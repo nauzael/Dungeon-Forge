@@ -1,24 +1,27 @@
 
 import { Ability, Skill, BackgroundData, DetailData, SubclassData, Trait } from '../types';
+import type { ClassData } from './classes/index';
 
-// Importación de species (usa versions en inglés)
+// Import species (uses English versions)
 import { SPECIES } from './species';
 
-// Importación de classes (usa versions en inglés de classes-en.ts)
+// Import classes (uses English versions from classes-en.ts)
 import { 
   barbarianEn as barbarian, bardEn as bard, clericEn as cleric, druidEn as druid,
   fighterEn as fighter, monkEn as monk, paladinEn as paladin, rangerEn as ranger,
   rogueEn as rogue, sorcererEn as sorcerer, warlockEn as warlock, wizardEn as wizard
 } from './classes/classes-en';
+import { pugilist } from './classes/pugilist';
 
-const CLASSES_MAP = {
+const CLASSES_MAP: Record<string, ClassData> = {
   'Barbarian': barbarian, 'Bard': bard, 'Cleric': cleric, 'Druid': druid,
   'Fighter': fighter, 'Monk': monk, 'Paladin': paladin, 'Ranger': ranger,
-  'Rogue': rogue, 'Sorcerer': sorcerer, 'Warlock': warlock, 'Wizard': wizard
+  'Rogue': rogue, 'Sorcerer': sorcerer, 'Warlock': warlock, 'Wizard': wizard,
+  'Pugilist': pugilist
 };
 
 export const CLASS_LIST = [
-  'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'
+  'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 'Monk', 'Paladin', 'Pugilist', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'
 ];
 
 import { INVOCATIONS as ELDRITCH_INVOCATIONS, METAMAGIC as METAMAGIC_OPTIONS, ALIGNMENTS, LANGUAGES } from './gameData';
@@ -70,11 +73,11 @@ export const CLASS_PROGRESSION: Record<string, Record<number, string[]>> = Objec
 );
 
 export const CLASS_SUGGESTED_ARRAYS: Record<string, Record<Ability, number>> = Object.fromEntries(
-  Object.entries(CLASSES_MAP).map(([name, data]) => [name, (data as any).suggestedArray])
+  Object.entries(CLASSES_MAP).map(([name, data]) => [name, data.suggestedArray!])
 );
 
 export const CLASS_MASTERIES: Record<string, number> = Object.fromEntries(
-  Object.entries(CLASSES_MAP).map(([name, data]) => [name, (data as any).masteriesCount || 0])
+  Object.entries(CLASSES_MAP).map(([name, data]) => [name, data.masteriesCount ?? 0])
 );
 
 export const SUBCLASS_OPTIONS: Record<string, SubclassData[]> = Object.fromEntries(

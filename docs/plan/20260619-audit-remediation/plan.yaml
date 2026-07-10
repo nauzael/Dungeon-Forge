@@ -1,0 +1,207 @@
+plan_id: "20260619-audit-remediation"
+title: "Dungeon Forge — Remediation Plan v1.0"
+objective: "Ejecutar las 18 acciones de la auditoría ordenadas por riesgo: de lo más seguro a lo más crítico"
+version: "1.0"
+created_at: "2026-06-19T00:00:00Z"
+complexity: "MEDIUM"
+risk_level: "medium"
+estimated_duration_hours: 20
+
+# ============================================
+# WORKFLOW CONSTRAINTS
+# ============================================
+constraints:
+  - "CADA TIER debe dejar el proyecto en estado funcional (build + tests pass)"
+  - "Después de cada TIER, checkpoint obligatorio con build + tests"
+  - "No mezclar cambios de diferentes Tiers en el mismo commit"
+  - "Tier 4 requiere aprobación humana explícita antes de comenzar"
+  - "Cada tarea individual debe poder revertirse sin afectar las demás"
+
+# ============================================
+# WAVES
+# ============================================
+waves:
+  - wave: 1
+    name: "Tier 1 — Cambios Seguros (0 riesgo)"
+    status: "completed"
+    tasks:
+      - task_id: "T1.1"
+        name: "Eliminar sharp de devDependencies"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 5
+        dependencies: []
+        
+      - task_id: "T1.2"
+        name: "Agregar console.error a catch blocks vacíos"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 15
+        dependencies: []
+        
+      - task_id: "T1.3"
+        name: "Eliminar código muerto (3 componentes + función)"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 20
+        dependencies: []
+        
+      - task_id: "T1.4"
+        name: "Mover jsonc-parser a devDependencies"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 5
+        dependencies: []
+        
+      - task_id: "T1.5"
+        name: "Agregar noUnusedLocals y noUnusedParameters al tsconfig"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 10
+        dependencies: [T1.3]
+        
+      - task_id: "T1.6"
+        name: "Extraer magic strings a constantes"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 20
+        dependencies: []
+        
+      - task_id: "T1.7"
+        name: "Eliminar artefactos Supabase legacy"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 10
+        dependencies: []
+        
+    checkpoint: "T1.CHECK"
+    checkpoint_result: "passed"
+    completed_at: "2026-06-19T09:39:00Z"
+    conflicts_with: []
+
+  - wave: 2
+    name: "Tier 2 — Riesgo Bajo (validar con grep + tests)"
+    status: "completed"
+    tasks:
+      - task_id: "T2.1"
+        name: "Reemplazar UUID débil por crypto.randomUUID()"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 10
+        dependencies: []
+        
+      - task_id: "T2.2"
+        name: "Fijar test LevelResetModal"
+        agent: "gem-implementer-mobile"
+        status: "completed"
+        effort_minutes: 10
+        dependencies: []
+        
+      - task_id: "T2.3"
+        name: "Reducir as any (14 → 0 en todo el código fuente)"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 45
+        dependencies: []
+        
+      - task_id: "T2.4"
+        name: "Eliminar onBroadcast muerto de subscribeWithRetry"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 15
+        dependencies: []
+        
+    checkpoint: "T2.CHECK"
+    checkpoint_result: "passed"
+    completed_at: "2026-06-19T10:13:00Z"
+
+  - wave: 3
+    name: "Tier 3 — Riesgo Medio (QA manual)"
+    status: "completed"
+    tasks:
+      - task_id: "T3.1"
+        name: "Sanitizar dangerouslySetInnerHTML en Compendium"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 60
+        dependencies: []
+        
+      - task_id: "T3.2"
+        name: "Unificar components/ y src/components/"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 60
+        dependencies: []
+        
+      - task_id: "T3.3"
+        name: "Refactor firebase.ts → barrel pattern (4 submódulos)"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 120
+        dependencies: []
+        
+      - task_id: "T3.4"
+        name: "Upgrade firebase-admin 12→14; eslint 10 bloqueado por plugins"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 30
+        dependencies: []
+        
+    checkpoint: "T3.CHECK"
+    checkpoint_result: "passed"
+    completed_at: "2026-06-19T10:50:00Z"
+
+  - wave: 4
+    name: "Tier 4 — Refactor Mayor (completado parcialmente)"
+    status: "completed"
+    needs_approval: false
+    tasks:
+      - task_id: "T4.1"
+        name: "Refactor App.tsx → 3 custom hooks (useAuth, useCharacters, useSync)"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 180
+        dependencies: []
+        result: "App.tsx reducido de 1444 → 429 líneas. Hooks creados: src/hooks/useAuth.ts, useCharacters.ts, useSync.ts"
+        
+      - task_id: "T4.2"
+        name: "Refactor firebase.ts → módulos por dominio"
+        agent: "gem-implementer"
+        status: "completed"
+        effort_minutes: 120
+        dependencies: []
+        result: "Completado en T3.3 — barrel pattern con 4 submódulos (init, db, auth, subscriptions)"
+        
+      - task_id: "T4.3"
+        name: "⚠️ PENDIENTE: Upgrade Capacitor v6 → v8"
+        agent: "gem-implementer-mobile"
+        status: "blocked"
+        effort_minutes: 240
+        dependencies: []
+        blocked_reason: "Requiere aprobación del equipo. Risk: OAuth nativo puede romperse."
+        
+      - task_id: "T4.4"
+        name: "⚠️ PENDIENTE: Upgrade Vite 5 → 8 & tailwindcss 3 → 4 & TS 5 → 6"
+        agent: "gem-implementer"
+        status: "blocked"
+        effort_minutes: 240
+        dependencies: []
+        blocked_reason: "Requiere aprobación del equipo. 3 majors simultáneos requieren testing."
+        
+      - task_id: "T4.5"
+        name: "⚠️ PENDIENTE: Agregar cobertura de tests (target 20%)"
+        agent: "gem-implementer"
+        status: "blocked"
+        effort_minutes: 480
+        dependencies: []
+        blocked_reason: "Requiere decisión: ¿invertir 8-16h en coverage ahora o postergar?"
+        
+    checkpoint: "T4.CHECK"
+    checkpoint_result: "partial"
+    completed_at: "2026-06-19T12:04:00Z"
+
+# ============================================
+# OUTPUTS
+# ============================================
+outputs:
+  - "docs/plan/20260619-audit-remediation/plan.yaml"

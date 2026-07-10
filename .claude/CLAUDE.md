@@ -2,9 +2,9 @@
 
 ## Brain Dump (Load First)
 
-**Project:** D&D 5e (2024) character management companion - React 19, TypeScript, Tailwind, Capacitor mobile, Supabase cloud sync (Gemini AI removed)
+**Project:** D&D 5e (2024) character management companion - React 19, TypeScript, Tailwind, Capacitor mobile, Firebase cloud sync (Gemini AI removed)
 
-**Tech Stack:** React 19, TypeScript strict, Vite, Capacitor, Supabase (auth + realtime)
+**Tech Stack:** React 19, TypeScript strict, Vite, Capacitor, Firebase (Auth, Firestore, Realtime DB)
 
 **Commands:** `npm run dev` (dev), `npm run build` (prod), `cd android && ./gradlew assembleDebug` (Android)
 
@@ -67,7 +67,7 @@ components/
 ├── CharacterList.tsx      # Lista de personajes
 ├── CreatorSteps.tsx       # 5 pasos creación
 ├── SheetTabs.tsx          # Tabs: combat|inventory|spells|features|notes
-├── Login.tsx              # Supabase OAuth
+├── Login.tsx              # Firebase Auth
 ├── DMDashboard.tsx        # Panel DM
 └── sheet/
     ├── CombatTab.tsx      # ⚠️ ~1200 lines - refactor candidate
@@ -110,13 +110,14 @@ const SheetTabs = lazy(() => import('./components/SheetTabs'));
 // Wrap: <Suspense fallback={<Loading />}><SheetTabs /></Suspense>
 ```
 
-### Supabase Channel Cleanup
+### Firebase Subscription Cleanup
 ```typescript
 useEffect(() => {
-  const channel = supabase.channel('party-123');
-  channel.subscribe();
-  return () => channel.unsubscribe();
-}, []);
+  const unsubscribe = onSnapshot(doc(db, 'parties', partyId), (snapshot) => {
+    // handle party update
+  });
+  return () => unsubscribe();
+}, [partyId]);
 ```
 
 ## Red Flags (No Hacer)

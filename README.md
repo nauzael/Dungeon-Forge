@@ -11,7 +11,6 @@
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Capacitor](https://img.shields.io/badge/Capacitor-6-119EFF?style=flat-square&logo=capacitor&logoColor=white)](https://capacitorjs.com)
-[![Supabase](https://img.shields.io/badge/Supabase-2-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 [![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square&logo=pwa&logoColor=white)](#)
 
@@ -92,7 +91,7 @@
 | Build | Vite | 5 |
 | Styling | Tailwind CSS | 3 |
 | Mobile | Capacitor | 6 |
-| Backend/Auth | Supabase | 2 |
+| Backend/Auth | Firebase | 2 |
 | OTA | @capgo/capacitor-updater | 6 |
 | Platforms | Web, Android, iOS | — |
 
@@ -104,7 +103,7 @@
 
 - Node.js 20+
 - npm 9+
-- A [Supabase](https://supabase.com) project (free tier works)
+- A [Firebase](https://firebase.google.com) project (free tier works)
 
 ### 1. Clone & Install
 
@@ -119,11 +118,16 @@ npm install
 Create a `.env` file in the project root:
 
 ```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key-here
+VITE_FIREBASE_API_KEY=your-api-key
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+VITE_FIREBASE_DATABASE_URL=https://your-project-default-rtdb.firebaseio.com
 ```
 
-> Get these values from your Supabase project dashboard → **Settings → API**.
+> Get these values from your Firebase project dashboard → **Project Settings → General → Web apps**.
 
 ### 3. Run Dev Server
 
@@ -200,8 +204,10 @@ dungeon-forge/
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `VITE_SUPABASE_URL` | ✅ | Your Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | ✅ | Your Supabase anonymous public key |
+| `VITE_FIREBASE_API_KEY` | ✅ | Your Firebase API key |
+| `VITE_FIREBASE_PROJECT_ID` | ✅ | Your Firebase project ID |
+| `VITE_FIREBASE_AUTH_DOMAIN` | ✅ | Your Firebase auth domain |
+| `VITE_FIREBASE_DATABASE_URL` | ✅ | Your Firebase Realtime DB URL |
 
 > ⚠️ Never commit your `.env` file. It is already in `.gitignore`.
 

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
-import LevelResetModal from '../components/sheet/LevelResetModal';
+import LevelResetModal from '../src/components/sheet/LevelResetModal';
 import type { Character, InventoryItem } from '../types';
 import type { LevelSnapshot, LevelResetChanges } from '../types/levelSnapshot';
 
@@ -133,8 +133,8 @@ describe('LevelResetModal Component', () => {
     it('should display current level info', () => {
       render(<LevelResetModal {...defaultProps} />);
       
-      expect(screen.getByText(/Current Level:/)).toBeTruthy();
-      expect(screen.getByText(/Available Snapshots:/)).toBeTruthy();
+      expect(screen.getByText(/Level:/)).toBeTruthy();
+      expect(screen.getByText(/Snapshots:/)).toBeTruthy();
     });
   });
 

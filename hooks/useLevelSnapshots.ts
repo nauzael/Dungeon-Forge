@@ -68,7 +68,6 @@ export const useLevelSnapshots = (
   // Single unified effect for loading and syncing snapshots
   useEffect(() => {
     if (!characterId) return;
-
     // Priority 1: Load from character.snapshots if available
     if (character?.snapshots && character.snapshots.length > 0) {
       setSnapshots(character.snapshots);
@@ -89,6 +88,7 @@ export const useLevelSnapshots = (
           auditLog: loadedLogs
         });
       }
+    } else {
     }
   }, [characterId, character?.snapshots, character?.auditLog, onUpdate]);
 
@@ -152,8 +152,6 @@ export const useLevelSnapshots = (
     }
 
     // Log for debugging
-    console.log(`[LevelUp] Snapshot created for level ${character.level}. Total snapshots: ${updatedSnapshots.length}`);
-
     return snapshot;
   }, [characterId, onUpdate]);
 

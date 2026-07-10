@@ -1,0 +1,48 @@
+plan_id: "20260621-atlas-character-targeting"
+objective: "Implementar compartición selectiva de recursos del Atlas por personaje en el DM Panel"
+complexity: MEDIUM
+created_at: "2026-06-21"
+completed_at: "2026-06-21"
+
+waves:
+  - wave: 1
+    description: "Fix broadcastResourceShare + tipos + props"
+    tasks:
+      - id: "task-01-fix-broadcast"
+        description: "Corregir broadcastResourceShare para omitir viewingCharacterIds cuando undefined"
+        agent: gem-implementer
+        status: completed
+        deps: []
+      - id: "task-02-members-prop"
+        description: "Pasar members prop de TabContent a CampaignResources"
+        agent: gem-implementer
+        status: completed
+        deps: []
+      - id: "task-03-types"
+        description: "Crear interfaz ResourceSharePayload"
+        agent: gem-implementer
+        status: completed
+        deps: []
+
+  - wave: 2
+    description: "Subscription API + UI de selección"
+    tasks:
+      - id: "task-04-subscription"
+        description: "Modificar subscribeToPartyResources → crear subscribeToResourceShare"
+        agent: gem-implementer
+        status: completed
+        deps: [task-03-types]
+      - id: "task-05-selector-ui"
+        description: "Modal de selección de personajes + reveal selectivo en CampaignResources"
+        agent: gem-implementer
+        status: completed
+        deps: [task-02-members-prop]
+
+  - wave: 3
+    description: "Filtrado del lado del jugador"
+    tasks:
+      - id: "task-06-filter"
+        description: "Filtrar sharedResource en useSync Effect 8 con useRef para evitar stale closure"
+        agent: gem-implementer
+        status: completed
+        deps: [task-04-subscription, task-01-fix-broadcast]

@@ -9,11 +9,14 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
+    minify: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/database', 'firebase/storage', 'firebase/functions'],
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) return 'vendor';
+          if (id.includes('node_modules/firebase')) return 'firebase';
+          if (id.includes('/Data/')) return 'game-data';
+          if (id.includes('/utils/sheetUtils.ts')) return 'sheet-utils';
         }
       }
     }

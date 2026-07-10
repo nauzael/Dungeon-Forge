@@ -1,5 +1,5 @@
 /**
- * Utilidad para validación de contraste WCAG 2.2
+ * Utility for WCAG 2.2 contrast validation
  * Calcula ratios de contraste y verifica cumplimiento AA/AAA
  */
 
@@ -45,7 +45,7 @@ export function getContrastRatio(color1: string, color2: string): number {
  * @param foreground Color de frente (texto, iconos)
  * @param background Color de fondo
  * @param level Nivel de cumplimiento: 'AA' o 'AAA'
- * @param size Tamaño del texto: 'normal' o 'large' (18px+ o 14px bold)
+ * @param size Text size: 'normal' or 'large' (18px+ or 14px bold)
  */
 export function checkWcagCompliance(
   foreground: string,
@@ -65,7 +65,7 @@ export function checkWcagCompliance(
 }
 
 /**
- * Resultado de validación de tema
+ * Theme validation result
  */
 interface ValidationResults {
   compliant: boolean;
@@ -76,7 +76,7 @@ interface ValidationResults {
 /**
  * Validar todos los colores de un tema
  * @param colors Objeto de colores del tema
- * @returns Resultados de validación
+ * @returns Validation results
  */
 export function validateThemeColors(colors: {
   textPrimary: string;
@@ -122,7 +122,7 @@ export function validateThemeColors(colors: {
   Object.entries(statusColors).forEach(([key, color]) => {
     ratios[`status-${key}/surface`] = getContrastRatio(color, colors.surface);
     if (ratios[`status-${key}/surface`] < 3) {
-      issues.push(`Color ${key} no cumple contraste mínimo (3:1)`);
+      issues.push(`Color ${key} does not meet minimum contrast ratio (3:1)`);
     }
   });
 
@@ -134,10 +134,10 @@ export function validateThemeColors(colors: {
 }
 
 /**
- * Obtener recomendación de color más claro u oscuro
+ * Get recommendation for lighter or darker color
  * @param baseColor Color base
  * @param targetColor Color objetivo para contraste
- * @param minRatio Ratio mínimo deseado
+ * @param minRatio Minimum desired ratio
  */
 export function getContrastRecommendation(
   baseColor: string,
@@ -152,7 +152,7 @@ export function getContrastRecommendation(
 
   // Sugerir ajuste (simplificado)
   const isDark = relativeLuminance(hexToRgb(targetColor)) < 0.5;
-  const suggestion = isDark ? 'Usa un color más claro' : 'Usa un color más oscuro';
+  const suggestion = isDark ? 'Use a lighter color' : 'Use a darker color';
   
   return { meets: false, suggestion };
 }

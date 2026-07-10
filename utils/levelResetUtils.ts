@@ -236,24 +236,19 @@ export const getStorageData = (): StoredSnapshotData => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) {
-      console.log('[Snapshots] No snapshots found in localStorage');
       return createEmptyStoredData();
     }
     const parsed = JSON.parse(stored) as StoredSnapshotData;
     if (parsed.version !== STORAGE_VERSION) {
-      console.warn('Storage version mismatch, resetting data', { current: parsed.version, expected: STORAGE_VERSION });
       return createEmptyStoredData();
     }
     // Validate snapshots structure
     if (typeof parsed.snapshots !== 'object' || parsed.snapshots === null) {
-      console.warn('[Snapshots] Snapshots data corrupted, reinitializing');
       return createEmptyStoredData();
     }
     const totalSnapshots = Object.keys(parsed.snapshots).reduce((sum, charId) => sum + (parsed.snapshots[charId]?.length || 0), 0);
-    console.log(`[Snapshots] Loaded from storage. Total snapshots: ${totalSnapshots}`);
     return parsed;
   } catch (error) {
-    console.error('Error reading from localStorage:', error);
     return createEmptyStoredData();
   }
 };
@@ -262,13 +257,8 @@ export const saveStorageData = (data: StoredSnapshotData): boolean => {
   try {
     const dataWithTimestamp = { ...data, lastUpdated: Date.now() };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(dataWithTimestamp));
-    console.log(`[Snapshots] Saved successfully. Snapshots count:`, Object.keys(data.snapshots).reduce((sum, charId) => sum + (data.snapshots[charId]?.length || 0), 0));
     return true;
   } catch (error) {
-    console.error('Error saving to localStorage:', error);
-    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-      console.error('localStorage quota exceeded - your device storage is full');
-    }
     return false;
   }
 };
@@ -294,7 +284,6 @@ export const saveSnapshotForCharacter = (
   if (storage.snapshots[characterId].length > MAX_SNAPSHOTS_PER_CHARACTER) {
     const toRemove = storage.snapshots[characterId].length - MAX_SNAPSHOTS_PER_CHARACTER;
     storage.snapshots[characterId] = storage.snapshots[characterId].slice(0, MAX_SNAPSHOTS_PER_CHARACTER);
-    console.log(`Removed ${toRemove} oldest snapshots for character ${characterId}`);
   }
 
   saveStorageData(storage);
@@ -384,3 +373,24 @@ export const createSnapshotObject = (
     metadata,
   };
 };
+
+// --- 🔧 DIAGNÓSTICO DE SNAPSHOTS ---
+// Para usar: Abre la consola (F12) y escribe: __DF_SNAPSHOTS_DIAG()
+// This will show the full snapshots state in localStorage
+if (typeof window !== 'undefined') {
+  (window as unknown as { __DF_SNAPSHOTS_DIAG: () => unknown }).__DF_SNAPSHOTS_DIAG = () => {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    
+    if (raw === null) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed;
+    } catch (e) {
+      return null;
+    }
+  };
+  
+}

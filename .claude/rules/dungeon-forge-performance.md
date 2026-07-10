@@ -63,13 +63,11 @@ const WeaponCard: React.FC<WeaponProps> = memo(({ weapon, onEquip }) => {
 
 ## Cleanup
 
-### Unsubscribe from Supabase channels
+### Unsubscribe from Firebase listeners
 ```typescript
-useEffect(() => {
-  const channel = supabase.channel('party-123');
-  channel.subscribe();
-  return () => channel.unsubscribe();
-}, []);
+const unsubscribe = onSnapshot(doc(db, 'parties', partyId), (snapshot) => {
+  // handle party update
+});
 ```
 
 ### Remove event listeners

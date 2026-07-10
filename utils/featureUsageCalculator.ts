@@ -6,6 +6,14 @@ export const calculateMaxUses = (
   config: FeatureUsageConfig,
   character: Character
 ): number => {
+  // Check for piecewise level-based progression first
+  if (config.progression && config.progression.length > 0) {
+    const sorted = [...config.progression].sort((a, b) => b[0] - a[0]);
+    for (const [level, value] of sorted) {
+      if (character.level >= level) return value;
+    }
+  }
+
   const finalStats = getFinalStats(character);
 
   switch (config.maxFormula) {
@@ -21,6 +29,8 @@ export const calculateMaxUses = (
       return Math.max(1, Math.floor((finalStats.CON - 10) / 2));
     case 'level':
       return character.level;
+    case '5xLevel':
+      return character.level * 5;
     case 'proficiencyBonus':
       return character.profBonus;
     case '1':

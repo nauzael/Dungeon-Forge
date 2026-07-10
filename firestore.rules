@@ -33,8 +33,7 @@ service cloud.firestore {
     }
 
     function isPartyMember(partyId) {
-      let partyDoc = get(/databases/$(database)/documents/parties/$(partyId)).data;
-      return partyDoc.members[uid()] != null;
+      return exists(/databases/$(database)/documents/parties/$(partyId)/members/$(uid()));
     }
 
     // ════════════════════════════════════════════════════════════════════════
@@ -114,7 +113,10 @@ service cloud.firestore {
         );
         allow create: if isAuth() && uid() == memberId;
         allow write: if isAuth() && isPartyDM(partyId);
-        allow delete: if isAuth() && isPartyDM(partyId);
+        allow delete: if isAuth() && (
+          isPartyDM(partyId) ||
+          uid() == memberId
+        );
       }
 
       match /resources/{resourceId} {
@@ -142,6 +144,19 @@ service cloud.firestore {
 
       allow delete: if isAuth() &&
         isPartyDM(resource.data.party_id);
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // /campaign_resources/{resourceId}  ← Atlas resources (top-level collection)
+    // ════════════════════════════════════════════════════════════════════════
+    match /campaign_resources/{resourceId} {
+      allow read: if isAuth() && (
+        isPartyDM(resource.data.party_id) ||
+        isPartyMember(resource.data.party_id)
+      );
+      allow create: if isAuth() && isPartyDM(request.resource.data.party_id);
+      allow update: if isAuth() && isPartyDM(resource.data.party_id);
+      allow delete: if isAuth() && isPartyDM(resource.data.party_id);
     }
 
     // ════════════════════════════════════════════════════════════════════════

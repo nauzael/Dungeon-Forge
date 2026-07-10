@@ -1,21 +1,87 @@
 # Gem Team Configuration - Dungeon Forge
 # See: https://github.com/mubaidr/gem-team#configuration
+#
+# Dungeon Forge: D&D 5e (2024) character management app
+# Stack: React 19, TypeScript (strict), Tailwind CSS, Vite, Capacitor 6, Firebase
+# Target: Web + Android (PWA + Capacitor)
+#
+# ───────────────────────────────────────────
+# 🧬 GSD Core Integration
+# GSD Core (@opengsd/gsd-core) provides structured planning,
+# execution, and verification. gem-team orchestrates, GSD executes.
+# ───────────────────────────────────────────
 
 orchestrator:
+  # Máximo de agentes ejecutándose en paralelo
   max_concurrent_agents: 2
-  default_complexity_threshold: auto # auto | TRIVIAL | LOW | MEDIUM | HIGH
+  # Fuerza mínima de complejidad: auto | TRIVIAL | LOW | MEDIUM | HIGH
+  default_complexity_threshold: auto
 
 planning:
-  enable_critic_for: [HIGH]
+  # Niveles que requieren validación de gem-critic
+  enable_critic_for:
+    - HIGH
+    - MEDIUM  # Para cambios cross-domain en Firebase/Supabase/API
 
 quality:
+  # Capturas de pantalla para diff visual en tests
   visual_regression_enabled: true
-  visual_diff_threshold: 0.95
-  a11y_audit_level: basic # none | basic | full
+  # Umbral de similitud (más alto = menos falsos positivos)
+  visual_diff_threshold: 0.98
+  # Auditoría de accesibilidad: none | basic | full
+  a11y_audit_level: basic
 
 devops:
-  approval_required_for: [production]
-  auto_rollback_on_failure: false
+  # Entornos que requieren aprobación explícita
+  approval_required_for:
+    - production
+    - staging
+  # Rollback automático si falla el deploy
+  auto_rollback_on_failure: true
 
 testing:
+  # Screenshots en fallos de tests de UI
   screenshot_on_failure: true
+
+# ───────────────────────────────────────────
+# 🧬 GSD Core Integration
+# ───────────────────────────────────────────
+gsd_integration:
+  # Enable GSD Core integration (requires @opengsd/gsd-core installed)
+  enabled: true
+
+  # Complexity levels that delegate to GSD bridge instead of standard agents
+  # TRIVIAL/LOW tasks skip GSD (they're too simple to justify the overhead)
+  trigger_on:
+    - MEDIUM
+    - HIGH
+
+  # GSD phase pipeline to run for each task
+  # "full":  discuss → plan → execute → verify → ship
+  # "plan-execute":  plan → execute (skip discuss/verify/ship)
+  # "execute-only":  execute only (assumes plan already exists)
+  pipeline: full
+
+  # Bridges: which GSD agents to use for each gem-team role
+  bridges:
+    planner: gsd-planner        # Replaces gem-planner for MEDIUM/HIGH
+    executor: gsd-executor      # Replaces gem-implementer for MEDIUM/HIGH
+    verifier: gsd-verifier      # Extra verification layer after execution
+    researcher: gsd-project-researcher  # Structured research before planning
+
+  # Context passing: how context flows from gem-team to GSD
+  context:
+    # gsd-core tools path (auto-detected if empty)
+    tools_path: ""
+    # Config dir for GSD
+    gsd_config_dir: "${USERPROFILE}\\.config\\opencode"
+    # Auto-create .planning/ directory structure
+    auto_init_planning: true
+
+  # Execution mode
+  mode:
+    # autonomous: GSD runs without stopping for checkpoints
+    # interactive: GSD pauses at checkpoints for human input
+    default: autonomous
+    # Human verification at end of phase (not inline checkpoints)
+    human_verify: end-of-phase

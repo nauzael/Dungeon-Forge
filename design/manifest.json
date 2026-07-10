@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "od-design-system-project/v1",
+  "id": "dungeon-forge",
+  "name": "Dungeon Forge",
+  "category": "Gaming & Themed",
+  "description": "Dungeon Forge design system for a D&D 5e (2024) character management app — dark fantasy aesthetic with dynamic theming, mobile-first layout, and Material Symbols icons. 5 official themes including Classic D&D, Daylight, Dragon Blood, Elven Forest, and High Contrast.",
+  "source": {
+    "type": "local",
+    "path": "G:\\Apks\\Dungeon Forge\\design",
+    "importedAt": "2026-06-19T00:00:00.000Z"
+  },
+  "files": {
+    "design": "DESIGN.md",
+    "tokens": "tokens/tokens.css",
+    "designTokens": "tokens/design-tokens.json",
+    "tailwind": "tokens/tailwind-v4.css",
+    "components": "components/components.html"
+  },
+  "usage": "USAGE.md",
+  "componentsManifest": "components/components.manifest.json",
+  "importMode": "normalized",
+  "craft": {
+    "applies": ["color", "typography", "spacing", "elevation", "motion", "iconography"],
+    "suggested": ["color", "accessibility-baseline", "responsive"],
+    "exemptions": []
+  },
+  "fonts": [
+    { "family": "Spline Sans", "file": "https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;700;900&display=swap", "weight": "400;700;900" },
+    { "family": "Noto Sans", "file": "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap", "weight": "400;700" },
+    { "family": "Material Symbols Outlined", "file": "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" }
+  ],
+  "preview": {
+    "dir": "preview",
+    "pages": [
+      { "path": "preview/colors.html", "role": "colors", "title": "Color Palette" },
+      { "path": "preview/typography.html", "role": "typography", "title": "Typography" },
+      { "path": "preview/spacing.html", "role": "spacing", "title": "Spacing & Sizing" }
+    ]
+  },
+  "sourceFiles": {
+    "evidence": "source/evidence.md",
+    "tokens": "source/tokens.source.json",
+    "report": "source/token-contract.report.json"
+  }
+}

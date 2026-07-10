@@ -11,6 +11,11 @@ export type ThemeId =
   | 'daylight'
   | 'dragon-blood'
   | 'elven-forest'
+  | 'underdark'
+  | 'arcane-library'
+  | 'frozen-north'
+  | 'infernal-forge'
+  | 'astral-plane'
   | 'high-contrast';
 
 /**
@@ -53,6 +58,10 @@ export interface ThemeTypography {
   fontFamilyBody: string;
   fontSizeBase: string;
   lineHeightBase: string;
+  // Icons & spacing
+  fontIcon?: string;
+  leadingTight?: string;
+  trackingDisplay?: string;
 }
 
 /**
@@ -64,6 +73,34 @@ export interface ThemeShape {
   borderRadiusXl: string;
   boxShadow: string;
   boxShadowLg: string;
+  // Radius scale (DS granular)
+  radiusSm?: string;
+  radiusMd?: string;
+  radiusLg?: string;
+  radiusXl?: string;
+  radius2xl?: string;
+  radiusPill?: string;
+  // Elevation
+  elevFlat?: string;
+  elevRing?: string;
+  elevRaised?: string;
+  elevModal?: string;
+  elevGlow?: string;
+  // Motion durations
+  motionFast?: string;
+  motionBase?: string;
+  motionSlow?: string;
+  motionHp?: string;
+  // Easing curves
+  easeStandard?: string;
+  easeSpring?: string;
+  // Focus
+  focusRing?: string;
+  // Container
+  containerMax?: string;
+  containerGutterPhone?: string;
+  containerGutterTablet?: string;
+  containerGutterDesktop?: string;
 }
 
 /**

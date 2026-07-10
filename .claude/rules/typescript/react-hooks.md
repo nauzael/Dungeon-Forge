@@ -71,13 +71,14 @@ useEffect(() => {
 }, []);
 ```
 
-### Channel subscriptions (Supabase)
+### Channel subscriptions (Firebase)
 ```typescript
 useEffect(() => {
-  const channel = supabase.channel('party-123');
-  channel.subscribe();
-  return () => channel.unsubscribe();
-}, []);
+  const unsubscribe = onSnapshot(doc(db, 'parties', partyId), (snapshot) => {
+    // handle party update
+  });
+  return () => unsubscribe();
+}, [partyId]);
 ```
 
 ## Props Drilling

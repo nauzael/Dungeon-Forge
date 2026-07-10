@@ -20,7 +20,7 @@ Status: IMPLEMENTED
 **Layer 2: RLS Policy Blocking** ❌ NEEDS FIX
 ```
 Error: "new row violates row-level security policy for table 'parties'" (code 42501)
-Cause: App in local mode still tries Supabase, but RLS blocks unauthenticated writes
+Cause: App in local mode still tries Firebase, but RLS blocks unauthenticated writes
 Fix Needed: localStorage fallback when RLS fails
 Status: NOT IMPLEMENTED
 ```
@@ -66,11 +66,11 @@ export const localPartyStorage = {
 };
 ```
 
-#### 2. Update utils/supabase.ts - Add fallback logic
+#### 2. Update utils/firebase.ts - Add fallback logic
 ```typescript
 export const createParty = async (userId: string, name: string) => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await firebase
       .from('parties')
       .insert({ creator_id: userId, name, code })
       .select()
@@ -99,7 +99,7 @@ const fetchAllParties = useCallback(async () => {
   if (!userId) return;
   
   try {
-    const { data } = await supabase
+    const { data } = await firebase
       .from('parties')
       .select('*')
       .eq('creator_id', userId);
@@ -160,7 +160,7 @@ Once localStorage fallback is implemented:
 1. **utils/localStorage.ts** - NEW
    - Local party/character storage adapter
    
-2. **utils/supabase.ts**
+2. **utils/firebase.ts**
    - createParty() → add fallback on RLS error
    - deleteParty() → add fallback
    - updatePartyName() → add fallback
@@ -194,7 +194,7 @@ Once localStorage fallback is implemented:
 ## Rollback Plan
 
 If localStorage fallback causes issues:
-1. `git checkout HEAD -- utils/localStorage.ts utils/supabase.ts hooks/useDMParty.ts`
+1. `git checkout HEAD -- utils/localStorage.ts utils/firebase.ts hooks/useDMParty.ts`
 2. `npm run build` && reload browser
 3. Back to RLS-blocked state (recoverable)
 

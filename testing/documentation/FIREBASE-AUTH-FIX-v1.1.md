@@ -21,7 +21,7 @@ onAuthStateChanged: (callback: (user: any) => void) => {
 }
 
 // But App.tsx expects:
-const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {})
+const { data: { subscription } } = onAuthStateChanged(auth, (user) => {})
 ```
 
 ## Solution

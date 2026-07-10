@@ -1,9 +1,27 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Dungeon Forge</title>
+    
+    <!-- Prevent FOUC: apply dark class and theme colors before first paint -->
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem('dungeon-forge-theme');
+          var auto = localStorage.getItem('dungeon-forge-theme-auto');
+          var isDark = true;
+          if (auto === 'true') {
+            isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          } else if (t) {
+            // Light themes: daylight (only non-dark theme currently)
+            isDark = t !== 'daylight';
+          }
+          if (isDark) document.documentElement.classList.add('dark');
+        } catch(e) {}
+      })();
+    </script>
     
     <!-- PWA Settings -->
     <link rel="manifest" href="/manifest.json" />

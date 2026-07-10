@@ -140,7 +140,7 @@ unstable_batchedUpdates(() => {
 **Description**: Verify that network disconnection triggers exponential backoff reconnection.
 
 **Implementation**:
-- **File**: `utils/supabase.ts`
+- **File**: `utils/firebase.ts`
 - **Function**: `subscribeWithRetry()`
 - **Pattern**: Exponential backoff on realtime subscription errors
 
@@ -239,7 +239,7 @@ Verification: ✅ PASS
 |--------------|----------------|------|--------|
 | **State batching 6 routes** | unstable_batchedUpdates | hooks/useDMParty.ts | ✅ |
 | **O(1) deduplication** | Map-based lookup | hooks/useDMParty.ts | ✅ |
-| **Exponential backoff** | subscribeWithRetry logic | utils/supabase.ts | ✅ |
+| **Exponential backoff** | subscribeWithRetry logic | utils/firebase.ts | ✅ |
 
 ### RLS Fallback - VERIFIED ✅
 

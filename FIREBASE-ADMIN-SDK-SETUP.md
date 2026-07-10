@@ -64,7 +64,7 @@ node scripts/migrate-parties-to-firebase.mjs
 
 **Output esperado:**
 ```
-✅ Connected to Supabase
+✅ Connected to source database
 ✅ Connected to Firebase
 ✅ Parties audited: 5 records valid
 ✅ UID mapping: 100% successful
@@ -78,7 +78,7 @@ node scripts/migrate-parties-to-firebase.mjs
 
 | Source | Target | Records |
 |--------|--------|---------|
-| Supabase `parties` table | Firebase `/parties` collection | 5 |
+| Legacy `parties` table | Firebase `/parties` collection | 5 |
 | Fields mapped | New schema (dm_uid, members, ISO timestamps) | ✓ |
 | party_id references | Preserved in `/parties/{id}` docs | ✓ |
 
@@ -102,7 +102,7 @@ node scripts/migrate-parties-to-firebase.mjs
 → Descargar credencial de Google Cloud Console (ver Paso 1-3 arriba)
 
 ### Error: "Failed to count parties"
-→ Verificar que `SUPABASE_SERVICE_KEY` está en `.env`
+→ Verificar que `FIREBASE_ADMIN_SDK_PATH` está en `.env`
 
 ### Error: "PERMISSION_DENIED"
 → Verificar que la service account tiene rol `Editor` o `Firestore Admin` en Cloud IAM
@@ -115,7 +115,7 @@ node scripts/migrate-parties-to-firebase.mjs
 2. ✅ **Build verified** - 235 modules, 0 errors
 3. ✅ **Push to GitHub** - main branch updated
 4. ⏳ **Obtener credenciales** ← TÚ AQUÍ
-5. ⏳ **Ejecutar migración** - Supabase → Firebase
+5. ⏳ **Ejecutar migración** - Legacy → Firebase
 6. ⏳ **Verificar datos** - Test party create/join
 
 ---

@@ -1,0 +1,339 @@
+{
+  "context_envelope": {
+    "meta": {
+      "plan_id": "20260623-join-party-permission-fix",
+      "created_at": "2026-06-23T08:56:00.000Z",
+      "last_updated": "2026-06-23T08:56:00.000Z",
+      "version": 1,
+      "source": [
+        "utils/firebase/db.ts:342-447",
+        "firestore.rules:35-38",
+        "firestore.rules:99-128",
+        "firestore.rules:150-158",
+        "hooks/useDMParty.ts",
+        "user root cause description"
+      ]
+    },
+    "scope": {
+      "purpose": [
+        "Fix joinParty() 'Missing or insufficient permissions' error",
+        "Fix isPartyMember() to correctly verify membership via subcollection",
+        "Clean up dead members map code"
+      ],
+      "applies_to": [
+        "firestore.rules — isPartyMember() function",
+        "utils/firebase/db.ts — joinParty(), createParty(), removeFromParty()"
+      ],
+      "non_goals": [
+        "Not modifying authentication flow",
+        "Not changing RTDB broadcast behavior",
+        "Not adding new features to party system",
+        "Not migrating existing data"
+      ]
+    },
+    "tech_stack": [
+      {
+        "name": "Firebase Firestore Security Rules",
+        "version": "v2",
+        "usage_context": "Access control for all Firestore collections",
+        "config_files": ["firestore.rules"]
+      },
+      {
+        "name": "Firebase Firestore",
+        "version": "latest (SDK 10+)",
+        "usage_context": "Character, party, and campaign resource storage",
+        "config_files": []
+      },
+      {
+        "name": "React",
+        "version": "19",
+        "usage_context": "Frontend framework",
+        "config_files": []
+      },
+      {
+        "name": "TypeScript",
+        "version": "latest (strict)",
+        "usage_context": "Type system for all code",
+        "config_files": ["tsconfig.json"]
+      }
+    ],
+    "conventions": [
+      "Firestore Security Rules use v2 syntax",
+      "Custom functions defined before match blocks in firestore.rules",
+      "Firestore operations in db.ts use firestoreTimeout wrapper for protection against hangs",
+      "All Firestore writes use try-catch with best-effort fallbacks where appropriate",
+      "Party membership tracked BOTH via party doc members map AND members subcollection (legacy)",
+      "DM operations (kick, update party name, delete party) guarded by isPartyDM() in rules"
+    ],
+    "constraints": {
+      "hard": [
+        "Only the DM can update party documents (enforced by firestore rules)",
+        "Only the DM can delete party documents (enforced by firestore rules)",
+        "Players joining via code must NOT get DM-level permissions",
+        "isPartyMember() must work for both DM-joined and code-joined players",
+        "npm run build must pass with strict TypeScript"
+      ],
+      "soft": [
+        "Members subcollection should be the single source of truth for membership",
+        "Code changes should be minimal deletions, not rewrites"
+      ],
+      "compatibility": [
+        "Existing parties with stale members map data are still functional",
+        "New parties should not include unnecessary members map field"
+      ],
+      "security_requirements": [
+        "Players must not be able to modify party documents",
+        "Players must be able to read campaign resources for their party",
+        "DM retains exclusive write access to party documents"
+      ]
+    },
+    "architecture_snapshot": {
+      "key_dirs": {
+        "path": [
+          "utils/firebase/",
+          "src/components/",
+          "src/hooks/",
+          "Data/"
+        ]
+      },
+      "patterns": [
+        "joinParty flow: find party by code → update character doc → create subcollection member doc → update party members map → broadcast to RTDB",
+        "Security rules: isAuth() guard → isPartyDM() for DM operations → isPartyMember() for player resource access",
+        "Membership tracked via two mechanisms (party doc map + subcollection) — subcollection is reliable, map was never populated for code joiners"
+      ],
+      "key_components": [
+        {
+          "name": "isPartyMember",
+          "location": "firestore.rules:35-38",
+          "responsibility": ["Check if auth user is member of a party for access control"],
+          "confidence": 1.0
+        },
+        {
+          "name": "joinParty",
+          "location": "utils/firebase/db.ts:342-447",
+          "responsibility": ["Join a party by code: find party, update character, create member record"],
+          "confidence": 1.0
+        },
+        {
+          "name": "createParty",
+          "location": "utils/firebase/db.ts:276-308",
+          "responsibility": ["Create new party with DM as owner"],
+          "confidence": 1.0
+        },
+        {
+          "name": "removeFromParty",
+          "location": "utils/firebase/db.ts:476-641",
+          "responsibility": ["Remove character from party (player leave or DM kick)"],
+          "confidence": 1.0
+        },
+        {
+          "name": "isPartyDM",
+          "location": "firestore.rules:23-25",
+          "responsibility": ["Check if auth user is the DM of a party"],
+          "confidence": 1.0
+        }
+      ]
+    },
+    "research_digest": {
+      "relevant_files": [
+        {
+          "path": "firestore.rules",
+          "purpose": ["Firestore security rules defining all access control"],
+          "why_relevant": ["isPartyMember() function needs fix; party document update rule causes the bug"],
+          "key_elements": [
+            {
+              "element": "isPartyMember",
+              "type": "function",
+              "location": "firestore.rules:35-38",
+              "description": "Checks if auth user is party member by reading party doc members map — should check subcollection"
+            },
+            {
+              "element": "isPartyDM",
+              "type": "function",
+              "location": "firestore.rules:23-25",
+              "description": "Checks if auth user is party DM — used to gate party doc updates"
+            },
+            {
+              "element": "/parties/{partyId} allow update",
+              "type": "rule",
+              "location": "firestore.rules:106",
+              "description": "Only DM can update party doc — this is why step 4 fails for joining players"
+            },
+            {
+              "element": "/parties/{partyId}/members/{memberId} allow create",
+              "type": "rule",
+              "location": "firestore.rules:115",
+              "description": "Player can create own member doc — step 3 succeeds"
+            },
+            {
+              "element": "/campaign_resources/{resourceId} allow read",
+              "type": "rule",
+              "location": "firestore.rules:151-154",
+              "description": "Uses isPartyMember() — currently broken for code joiners"
+            }
+          ],
+          "security_sensitivity": "internal",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "utils/firebase/db.ts",
+          "purpose": ["All Firestore read/write operations"],
+          "why_relevant": ["joinParty(), createParty(), removeFromParty() need modification"],
+          "key_elements": [
+            {
+              "element": "joinParty step 4",
+              "type": "code block",
+              "location": "db.ts:416-428",
+              "description": "updateDoc(partyRef, {members.{uid}: ...}) — FAILS, needs removal"
+            },
+            {
+              "element": "createParty members field",
+              "type": "code line",
+              "location": "db.ts:297",
+              "description": "members: {} initialization — no longer needed, remove"
+            },
+            {
+              "element": "removeFromParty 2c map cleanup",
+              "type": "code block",
+              "location": "db.ts:587-596",
+              "description": "updateDoc(partyRef, {members.{uid}: deleteField()}) — dead code, remove"
+            },
+            {
+              "element": "joinParty step 3",
+              "type": "code block",
+              "location": "db.ts:400-414",
+              "description": "setDoc to members subcollection — WORKS, source of truth for membership"
+            },
+            {
+              "element": "joinParty broadcast",
+              "type": "code block",
+              "location": "db.ts:430-437",
+              "description": "Broadcast to RTDB — stays after step 4 removal"
+            }
+          ],
+          "security_sensitivity": "internal",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        }
+      ],
+      "patterns_found": [
+        {
+          "name": "Best-effort secondary operations",
+          "category": "Error handling pattern",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": ["db.ts:587-596 try-catch on members map cleanup"]
+        },
+        {
+          "name": "Two-source membership tracking",
+          "category": "Data model pattern",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": ["firestore.rules:35-38 isPartyMember reads map", "db.ts:400-414 writes subcollection"]
+        }
+      ],
+      "dependencies": {
+        "internal": ["firestore.rules", "utils/firebase/db.ts", "hooks/useDMParty.ts"],
+        "external": ["Firebase Firestore", "Firebase CLI"]
+      },
+      "gotchas": [
+        {
+          "text": "Timeouts: Firestore operations getDoc/setDoc/updateDoc can hang indefinitely when Firestore is unreachable. All db.ts operations should use firestoreTimeout() wrapper. T2 removal must preserve the timeout pattern from surrounding code.",
+          "confidence": 0.9
+        },
+        {
+          "text": "Two RTDB listeners: App.tsx (selective path) and SheetTabs (all path) both write to setCharacters(). If a broadcast fires from joinParty, both listeners fire. The existing timestamp guard (incoming > current) prevents loopback.",
+          "confidence": 0.8
+        },
+        {
+          "text": "isPartyMember() is also called from rules for /parties/{partyId}/resources — fixing it unlocks resource access for joined players.",
+          "confidence": 1.0
+        }
+      ],
+      "domain_context": {
+        "security_considerations": [
+          {
+            "area": "Party membership access control",
+            "location": "firestore.rules isPartyMember() + isPartyDM()",
+            "concern": "Membership verification must use the subcollection (reliable) not the party doc map (unreliable for code joiners)"
+          }
+        ],
+        "testing_patterns": {
+          "framework": "None (no test framework configured)",
+          "coverage_areas": ["Manual smoke test only"],
+          "test_organization": "N/A",
+          "mock_patterns": ["N/A"]
+        },
+        "error_handling": "joinParty wraps everything in one try-catch, returning {partyId: null, partyName: null, error: string}. Failed operations throw errors that propagate to the catch block.",
+        "data_flow": "Player enters party code → joinParty() → getDocs parties (find by code) → setDoc characters/{charId} (assign party_id) → setDoc parties/{partyId}/members/{uid} (create member record) → [REMOVED: updateDoc party members map] → broadcastCharacterUpdate (RTDB notification)"
+      },
+      "open_questions": [
+        {
+          "question": "Do any other functions or code paths read the party doc's members map field for functional purposes (not security)?",
+          "context": "If anything reads this field, removing it from createParty could cause undefined access",
+          "type": "research",
+          "affects": ["T3_remove_members_from_createParty", "T4_remove_members_cleanup_from_removeFromParty"]
+        }
+      ]
+    },
+    "prior_decisions": [
+      {
+        "decision": "isPartyMember() will use exists() on members/{uid} subcollection instead of get() on party doc members map",
+        "rationale": [
+          "Step 3 of joinParty (setDoc to subcollection) already succeeds for all joiners",
+          "Step 4 (updateDoc party members map) always fails for non-DM joiners",
+          "exists() is same cost (1 read) but semantically cleaner",
+          "Makes subcollection the single source of truth for membership"
+        ],
+        "evidence": ["firestore.rules:115 allow create on members/{memberId}", "db.ts:400-414 joinParty step 3", "db.ts:416-428 joinParty step 4 (failing)"],
+        "confidence": 1.0,
+        "linked_constraints": ["Players must not get DM-level permissions", "isPartyMember() must work for code-joined players"],
+        "linked_patterns": ["Subcollection as source of truth"]
+      },
+      {
+        "decision": "Remove failing updateDoc from joinParty() entirely (best-effort)",
+        "rationale": [
+          "The updateDoc is the direct cause of the 'Missing or insufficient permissions' error",
+          "Membership is already reliably tracked via subcollection",
+          "No functional code depends on the party doc members map",
+          "Simpler than wrapping in try-catch (would mask the error but subcollection is sufficient)"
+        ],
+        "evidence": ["db.ts:416-428 joinParty step 4", "firestore.rules:106 allow update: isPartyDM()", "firestore.rules:115 allow create: isAuth() && uid() == memberId"],
+        "confidence": 1.0,
+        "linked_constraints": ["Only the DM can update party documents"],
+        "linked_patterns": ["Best-effort secondary operations"]
+      },
+      {
+        "decision": "Remove dead members map field from createParty() and dead cleanup from removeFromParty()",
+        "rationale": [
+          "members field on party doc is no longer read by any code or rule",
+          "Removing reduces confusion and keeps codebase consistent with subcollection-only model",
+          "No migration needed — existing parties with the field are unaffected, new parties won't have it"
+        ],
+        "evidence": ["db.ts:297 createParty members: {}", "db.ts:587-596 removeFromParty map cleanup"],
+        "confidence": 0.9,
+        "linked_constraints": ["New parties should not include unnecessary fields"],
+        "linked_patterns": ["Dead code removal"]
+      }
+    ],
+    "reuse_notes": {
+      "do_not_re_read": [
+        "Root cause: updateDoc fails because only DM can update party doc (firestore.rules:106)",
+        "isPartyMember() checks party doc members map — fails for code joiners since map is never populated (firestore.rules:35-38)",
+        "joinParty step 3 (setDoc to members subcollection) always succeeds (firestore.rules:115)"
+      ],
+      "safe_to_assume": [
+        "Members subcollection is the reliable source of truth for party membership",
+        "The party doc members map was never successfully written for non-DM joiners",
+        "No functional code reads the party doc members map for display or logic purposes"
+      ],
+      "verify_before_use": [
+        "If adding new features that need party membership data, use the members subcollection, NOT the party doc members map",
+        "If adding new security rules that check membership, use exists() on members/{uid} subcollection"
+      ]
+    }
+  }
+}

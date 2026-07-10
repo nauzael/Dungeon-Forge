@@ -142,7 +142,7 @@
       "status": "PASS",
       "description": "Disconnect → error <5s, auto-reconnect with 1s→2s→4s→8s backoff",
       "implementation": {
-        "file": "utils/supabase.ts",
+        "file": "utils/firebase.ts",
         "function": "subscribeWithRetry()",
         "pattern": "Exponential backoff with configurable retries"
       },

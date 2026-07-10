@@ -92,7 +92,7 @@ useEffect(() => {
 **Implementation:** `isDuplicateEvent()` function with 100ms dedup window
 
 #### Why Dedup?
-Supabase realtime listeners fire events simultaneously from:
+Firebase realtime listeners fire events simultaneously from:
 - Direct subscription (`postgres_changes`)
 - Broadcast channel (`broadcast`)
 - App's local state sync
@@ -142,7 +142,7 @@ if (isDuplicateEvent(broadcastChar.id, timestamp)) {
 ```
 
 **Result:** 3 simultaneous events → only 1 processed  
-**Performance Gain:** 10x fewer Supabase listener events
+**Performance Gain:** 10x fewer Firebase listener events
 
 ---
 
@@ -365,7 +365,7 @@ export const SyncToast: React.FC = () => {
 
 #### How Batching Works
 ```typescript
-// From: utils/supabase.ts
+// From: utils/firebase.ts
 export async function batchSaveCharacters(
   characters: Character[],
   saveCallback?: (character: Character) => Promise<any>
@@ -489,7 +489,7 @@ graph TB
         Batch1["batchSaveCharacters()<br/>Parallel within chunk"]
     end
     
-    Cloud["☁️ Cloud Database<br/>(Firestore/Supabase)"]
+    Cloud["☁️ Cloud Database<br/>(Firestore/Firebase)"]
     Success["✓ Success<br/>Green toast"]
     Failure["✗ Failure<br/>Automatic Rollback"]
     

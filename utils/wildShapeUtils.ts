@@ -131,7 +131,7 @@ export const restoreOriginalForm = (
 ): Character => {
   const druidLevel = character.level;
   
-  let newHP = { ...character.hp };
+  const newHP = { ...character.hp };
   if (newHP.temp > 0) {
     newHP.temp = Math.max(0, newHP.temp - wildShapeState.thpGained);
   }
@@ -172,7 +172,6 @@ export const saveWildShapeToLocalStorage = (characterId: string, formName: strin
       })
     );
   } catch (e) {
-    console.error('Failed to save wild shape state:', e);
   }
 };
 
@@ -190,7 +189,6 @@ export const getWildShapeFromLocalStorage = (characterId: string): {
       return JSON.parse(saved);
     }
   } catch (e) {
-    console.error('Failed to load wild shape state:', e);
   }
   return null;
 };
@@ -199,7 +197,6 @@ export const clearWildShapeFromLocalStorage = (characterId: string): void => {
   try {
     localStorage.removeItem(`wildshape_${characterId}`);
   } catch (e) {
-    console.error('Failed to clear wild shape state:', e);
   }
 };
 

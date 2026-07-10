@@ -76,7 +76,7 @@ function testNetworkFailureHandling() {
   return {
     scenario: 'Network Failure - Exponential Backoff',
     description: 'Disconnect → error state → Auto-reconnect with exponential backoff',
-    implementation: 'utils/supabase.ts - subscribeWithRetry()',
+    implementation: 'utils/firebase.ts - subscribeWithRetry()',
     expectedBehavior: {
       errorDetectionTime: '<5s',
       backoffSequence: [1, 2, 4, 8],

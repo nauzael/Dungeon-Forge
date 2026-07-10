@@ -46,7 +46,7 @@ const SyncStatus: React.FC<SyncStatusProps> = ({
       bgColor: 'bg-blue-500/90',
       textColor: 'text-white',
       borderColor: 'border-blue-400/30',
-      label: `Guardando ${characterName || 'personaje'}...`,
+      label: `Saving ${characterName || 'character'}...`,
       showSpinner: true,
       persistent: false,
     },
@@ -55,7 +55,7 @@ const SyncStatus: React.FC<SyncStatusProps> = ({
       bgColor: 'bg-green-500/90',
       textColor: 'text-white',
       borderColor: 'border-green-400/30',
-      label: `Sincronizado ${characterName || 'personaje'}`,
+      label: `Synced ${characterName || 'character'}`,
       showSpinner: false,
       persistent: false,
     },
@@ -64,7 +64,7 @@ const SyncStatus: React.FC<SyncStatusProps> = ({
       bgColor: 'bg-red-500/90',
       textColor: 'text-white',
       borderColor: 'border-red-400/30',
-      label: `Error: ${message || 'Sincronización fallida'}`,
+      label: `Error: ${message || 'Sync failed'}`,
       showSpinner: false,
       persistent: true,
     },
@@ -79,7 +79,7 @@ const SyncStatus: React.FC<SyncStatusProps> = ({
     <div
       className={`
         fixed bottom-6 right-6 z-[200]
-        ${config.bgColor} ${config.textColor} px-4 py-3 rounded-lg
+        ${config.bgColor} ${config.textColor} px-4 py-3 rounded-radius-md
         shadow-xl flex items-center gap-3 max-w-sm
         border ${config.borderColor}
         animate-slideUp
@@ -104,7 +104,7 @@ const SyncStatus: React.FC<SyncStatusProps> = ({
         <button
           onClick={handleClose}
           className="flex-shrink-0 ml-2 hover:opacity-75 transition-opacity"
-          aria-label="Cerrar notificación"
+          aria-label="Close notification"
         >
           <span className="material-symbols-outlined text-lg">close</span>
         </button>

@@ -1,5 +1,5 @@
 
-import { Character, InventoryItem, Ability, ItemData, ArmorData, WeaponData } from '../types';
+import { Character, InventoryItem, Ability, ItemData, ArmorData, WeaponData, CustomItem } from '../types';
 import { ALL_ITEMS, MAGIC_ITEMS } from '../Data/items';
 import { CLASS_SAVING_THROWS, SPECIES_DETAILS, HIT_DIE } from '../Data/characterOptions';
 import { SKILL_ABILITY_MAP } from '../Data/skills';
@@ -17,15 +17,75 @@ export const SCHOOL_THEMES: Record<string, { text: string, bg: string, border: s
     'Transmutation': { text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', icon: 'change_circle' },
 };
 
-export const getItemData = (name: string): ItemData | undefined => {
-    if (ALL_ITEMS[name]) return ALL_ITEMS[name];
-    
-    // Handle Magic variants created by user (e.g. "Longsword +1")
-    const magicMatch = name.match(/^(.*?)\s*\+(\d+)$/);
-    if (magicMatch && ALL_ITEMS[magicMatch[1]]) return ALL_ITEMS[magicMatch[1]];
+/** Convert a CustomItem to the ItemData/WeaponData/ArmorData shape expected by the UI */
+function convertCustomToItemData(custom: CustomItem): ItemData | WeaponData | ArmorData {
+    const base: ItemData = {
+        name: custom.name,
+        type: custom.type,
+        weight: custom.weight,
+        cost: custom.cost,
+        description: custom.description,
+    };
 
-    const match = name.match(/^(.*?) \((\d+)\)$/);
-    if (match && ALL_ITEMS[match[1]]) return ALL_ITEMS[match[1]];
+    if (custom.type === 'Weapon') {
+        return {
+            ...base,
+            type: 'Weapon',
+            category: custom.category || 'Simple',
+            rangeType: custom.rangeType || 'Melee',
+            damage: custom.damage || '1d4',
+            damageType: custom.damageType || 'Bludgeoning',
+            properties: custom.properties || [],
+            mastery: custom.mastery || '-',
+        } as WeaponData;
+    }
+
+    if (custom.type === 'Armor') {
+        return {
+            ...base,
+            type: 'Armor',
+            armorType: custom.armorType || 'Light',
+            baseAC: custom.baseAC ?? 10,
+            stealthDisadvantage: custom.stealthDisadvantage ?? false,
+            strengthReq: custom.strengthReq ?? 0,
+            maxDex: custom.maxDex,
+        } as ArmorData;
+    }
+
+    return base;
+}
+
+export const getItemData = (name: string, character?: Character): ItemData | undefined => {
+    // Helper to find within character's custom items
+    const findCustom = (n: string): ItemData | undefined => {
+        const custom = character?.customItems?.find(c => c.name === n);
+        return custom ? convertCustomToItemData(custom) : undefined;
+    };
+
+    // 1. Exact match in custom items
+    if (character?.customItems) {
+        const result = findCustom(name);
+        if (result) return result;
+    }
+
+    // 2. Exact match in DB
+    if (ALL_ITEMS[name]) return ALL_ITEMS[name];
+
+    // 3. Handle +N variants (e.g. "Longsword +1" → "Longsword")
+    const magicMatch = name.match(/^(.*?)\s*\+(\d+)$/);
+    if (magicMatch) {
+        const baseName = magicMatch[1];
+        if (character?.customItems) {
+            const result = findCustom(baseName);
+            if (result) return result;
+        }
+        if (ALL_ITEMS[baseName]) return ALL_ITEMS[baseName];
+    }
+
+    // 4. Handle (N) suffix (e.g. "Rations (10)")
+    const parenMatch = name.match(/^(.*?) \((\d+)\)$/);
+    if (parenMatch && ALL_ITEMS[parenMatch[1]]) return ALL_ITEMS[parenMatch[1]];
+    
     return undefined;
 };
 
@@ -212,7 +272,7 @@ export const getWeaponDamageBreakdown = (character: Character, item: InventoryIt
     const hasDueling = character.feats.some(f => f === 'Dueling');
     const hasThrown = character.feats.some(f => f === 'Thrown Weapon Fighting');
     const isTwoHanded = weapon.properties.includes('Two-Handed');
-    const equippedWeapons = character.inventory.filter(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
+    const equippedWeapons = character.inventory.filter(i => i.equipped && getItemData(i.name, character)?.type === 'Weapon');
 
     if (hasDueling && weapon.rangeType === 'Melee' && !isTwoHanded && equippedWeapons.length === 1) {
         // Dueling requires no weapon in off-hand (shield is okay)
@@ -260,12 +320,12 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
 
     const equippedArmor = (character.inventory || []).find(i => {
         if (!i.equipped) return false;
-        const data = getItemData(i.name);
+        const data = getItemData(i.name, character);
         return data?.type === 'Armor' && (data as ArmorData).armorType !== 'Shield';
     });
 
     if (equippedArmor) {
-        const armorData = getItemData(equippedArmor.name) as ArmorData;
+        const armorData = getItemData(equippedArmor.name, character) as ArmorData;
         hasArmor = true;
         breakdown.push({ label: `Armor: ${equippedArmor.name}`, value: armorData.baseAC, icon: 'shield' });
         
@@ -312,12 +372,12 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
 
     const equippedShield = (character.inventory || []).find(i => {
         if (!i.equipped) return false;
-        const data = getItemData(i.name);
+        const data = getItemData(i.name, character);
         return data?.type === 'Armor' && (data as ArmorData).armorType === 'Shield';
     });
 
     if (equippedShield) {
-        const shieldData = getItemData(equippedShield.name) as ArmorData;
+        const shieldData = getItemData(equippedShield.name, character) as ArmorData;
         hasShield = true;
         breakdown.push({ label: `Shield: ${equippedShield.name}`, value: shieldData.baseAC, icon: 'shield' });
 
@@ -338,7 +398,7 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
          // Check if holding a kensei weapon? 
          // For now, just adding as a potential conditional or static if we assume optimal play
          // Let's add it only if a weapon is equipped
-         const hasWeapon = character.inventory.some(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
+         const hasWeapon = character.inventory.some(i => i.equipped && getItemData(i.name, character)?.type === 'Weapon');
          if (hasWeapon) {
              breakdown.push({ label: 'Agile Parry (When attacking unarmed)', value: 2, icon: 'swords' });
          }
@@ -357,7 +417,7 @@ export const getACBreakdown = (character: Character, finalStats: Record<string, 
         breakdown.push({ label: 'Fighting Style: Defense', value: 1, icon: 'shield_person' });
     }
     if (character.feats.some(f => f === 'Dual Wielder')) {
-        const equippedWeapons = inventory.filter(i => i.equipped && getItemData(i.name)?.type === 'Weapon');
+        const equippedWeapons = inventory.filter(i => i.equipped && getItemData(i.name, character)?.type === 'Weapon');
         if (equippedWeapons.length >= 2) breakdown.push({ label: 'Feat: Two-Weapon Fighting', value: 1, icon: 'swords' });
     }
 
@@ -417,8 +477,8 @@ export const getSpeedBreakdown = (character: Character, finalStats: Record<strin
     breakdown.push({ label: 'Base', value: baseSpeed, icon: 'directions_walk' });
     
     if (character.class === 'Monk') {
-        const hasArmor = character.inventory.some(i => i.equipped && getItemData(i.name)?.type === 'Armor' && (getItemData(i.name) as ArmorData).armorType !== 'Shield');
-        const hasShield = character.inventory.some(i => i.equipped && getItemData(i.name)?.type === 'Armor' && (getItemData(i.name) as ArmorData).armorType === 'Shield');
+        const hasArmor = character.inventory.some(i => i.equipped && getItemData(i.name, character)?.type === 'Armor' && (getItemData(i.name, character) as ArmorData).armorType !== 'Shield');
+        const hasShield = character.inventory.some(i => i.equipped && getItemData(i.name, character)?.type === 'Armor' && (getItemData(i.name, character) as ArmorData).armorType === 'Shield');
         if (!hasArmor && !hasShield) {
             let monkBonus = 0;
             // 2024 Monk Progression
@@ -432,7 +492,7 @@ export const getSpeedBreakdown = (character: Character, finalStats: Record<strin
     }
     
     if (character.class === 'Barbarian' && character.level >= 5) {
-        const hasHeavyArmor = character.inventory.some(i => i.equipped && getItemData(i.name)?.type === 'Armor' && (getItemData(i.name) as ArmorData).armorType === 'Heavy');
+        const hasHeavyArmor = character.inventory.some(i => i.equipped && getItemData(i.name, character)?.type === 'Armor' && (getItemData(i.name, character) as ArmorData).armorType === 'Heavy');
         if (!hasHeavyArmor) breakdown.push({ label: 'Fast Movement', value: 10, icon: 'sprint' });
     }
     
@@ -482,10 +542,10 @@ export const getHPBreakdown = (character: Character, finalStats: Record<string, 
     // 1. Nivel 1
     breakdown.push({ label: `Base Level 1 (d${hitDie})`, value: hitDie, icon: 'looks_one' });
     
-    // 2. Bonificadores explícitos
+    // 2. Explicit bonuses
     let bonusesTotal = 0;
 
-    // Constitución
+    // Constitution
     const conTotal = conMod * character.level;
     if (conTotal !== 0) {
         breakdown.push({ label: `Constitution (${formatModifier(conMod)} x ${character.level})`, value: conTotal, icon: 'fitness_center' });
@@ -770,6 +830,9 @@ export const isProficientInSave = (character: Character, stat: Ability): boolean
 
     // Check for Rogue level 15 (Slippery Mind) 2024: Wisdom & Charisma
     if (character.class === 'Rogue' && character.level >= 15 && (stat === 'WIS' || stat === 'CHA')) return true;
+
+    // Check for extra save proficiencies from subclass features (e.g., Gloom Stalker Iron Mind)
+    if (character.extraSavingThrows?.includes(stat)) return true;
     
     return false;
 };
@@ -968,7 +1031,7 @@ export const getSpellSummary = (description: string, school: string) => {
     let label = 'Effect';
     let icon = theme.icon;
     const lower = description.toLowerCase();
-    const isDamage = lower.includes('damage') || lower.includes('daño') || lower.includes('impacta');
+    const isDamage = lower.includes('damage') || lower.includes('impact');
     const isHeal = lower.includes('heal') || lower.includes('restore') || lower.includes('curar') || lower.includes('recupera') || lower.includes('puntos de golpe');
     const isControl = lower.includes('charm') || lower.includes('frighten') || lower.includes('encantado') || lower.includes('asustado') || lower.includes('resistencia');
     const isSummon = lower.includes('summon') || lower.includes('conjure') || lower.includes('invocar') || lower.includes('aparece');

@@ -54,7 +54,7 @@ node scripts/restore_ota.mjs 1.0.0-2026.4.16-182359 "Rollback: DM Sync v1.1.1 â†
    ```
 
 4. **Monitor affected users**
-   - Monitor Supabase realtime channels for connection errors
+   - Monitor Firebase realtime channels for connection errors
    - Check localStorage deduplication for any corruption
    - Verify party data integrity (check parties table `updated_at` timestamps)
 
@@ -170,10 +170,10 @@ Once application is stable again:
 git log v1.1.0..v1.1.1 --oneline
 
 # 2. Check specific file history
-git log -p utils/supabase.ts | head -100
+git log -p utils/firebase.ts | head -100
 
 # 3. Compare with working version
-git diff v1.1.0 utils/supabase.ts
+git diff v1.1.0 utils/firebase.ts
 
 # 4. Create new issue with findings
 # File: docs/incident-YYYY-MM-DD.md

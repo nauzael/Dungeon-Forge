@@ -1,0 +1,446 @@
+{
+  "context_envelope": {
+    "meta": {
+      "plan_id": "20260621-notes-tags-system",
+      "created_at": "2026-06-21T12:00:00Z",
+      "last_updated": "2026-06-21T12:00:00Z",
+      "version": 2,
+      "source": [
+        "docs/plan/20260621-notes-tags-system/plan.yaml",
+        "types.ts",
+        "src/components/sheet/NotesTab.tsx",
+        "src/components/SheetTabs.tsx",
+        "hooks/useResponsive.ts",
+        "hooks/useDebounce.ts",
+        "AGENTS.md"
+      ]
+    },
+    "scope": {
+      "purpose": [
+        "Contexto reusable para implementar sistema de tags + búsqueda en NotesTab",
+        "Evita re-descubrir patrones, tipos, y convenciones existentes"
+      ],
+      "applies_to": [
+        "Implementación de task-01 a task-07 del plan 20260621-notes-tags-system"
+      ],
+      "non_goals": [
+        "No modificar Campaign Atlas (líneas 161-205 de NotesTab)",
+        "No modificar Alignment/Languages (líneas 208-240 de NotesTab)",
+        "No cambiar sistema de persistencia actual (debounce 800ms)"
+      ]
+    },
+    "tech_stack": [
+      {
+        "name": "React",
+        "version": "19",
+        "usage_context": "Functional components con hooks, memo() para memorización",
+        "config_files": []
+      },
+      {
+        "name": "TypeScript",
+        "version": "strict",
+        "usage_context": "strict: true, sin any, interfaces en types.ts, React.FC<Props> para componentes",
+        "config_files": []
+      },
+      {
+        "name": "Tailwind CSS",
+        "version": "",
+        "usage_context": "CSS variables para theming, dark: prefijo para dark mode, design tokens como rounded-radius-pill, bg-surface-dark",
+        "config_files": []
+      },
+      {
+        "name": "Material Symbols Outlined",
+        "version": "",
+        "usage_context": "Iconos: <span className='material-symbols-outlined'>icon_name</span>, tamaño text-lg/text-xl/text-2xl",
+        "config_files": []
+      }
+    ],
+    "conventions": [
+      "Componentes funcionales con React.FC<Props> + export default + memo wrapper",
+      "Props interfaces definidas localmente en cada componente",
+      "Naming: PascalCase componentes, camelCase funciones/vars, kebab-case archivos",
+      "Sub-componentes atómicos en src/components/sheet/components/ (ver RageIndicator.tsx)",
+      "Overlays/modales con createPortal(document.body)",
+      "Safe area padding: pt-[max(X,env(safe-area-inset-top))], pb-[max(X,env(safe-area-inset-bottom))]",
+      "Haptic-like feedback visual: active:scale-95 transition-transform",
+      "Dark mode: dark: prefijo en todas las clases, bg-surface-dark, text-slate-300/400/500",
+      "Import order: React → externals → types → constants → components",
+      "Stale closure prevention: usar functional updater setState(prev => ...) SIEMPRE"
+    ],
+    "constraints": {
+      "hard": [
+        "Mobile-first: target principal mobile web (PWA), responsive para tablet/desktop",
+        "TypeScript strict mode — sin any",
+        "Todos los cambios deben pasar npm run build sin errors",
+        "Material Symbols Outlined para iconos (no SVG ni otras librerías de iconos)"
+      ],
+      "soft": [
+        "Preferir extensiones aditivas sobre rewrites invasivos",
+        "Mantener backwards compatibility con notas existentes (sin tags)",
+        "UI en español e inglés mezclado como el resto de la app"
+      ],
+      "compatibility": [
+        "iOS Safari: viewport fijo, crear portales con fixed positioning",
+        "Safe area: env(safe-area-inset-*) para notches/islas dinámicas"
+      ]
+    },
+    "architecture_snapshot": {
+      "key_dirs": {
+        "path": [
+          "types.ts (raíz del proyecto)",
+          "hooks/ (useResponsive, useDebounce, useModalScrollLock)",
+          "src/components/sheet/ (tabs del sheet: CombatTab, NotesTab, etc.)",
+          "src/components/sheet/components/ (sub-componentes atómicos: RageIndicator.tsx)",
+          "src/constants/ (themes.ts existente, tags.ts a crear)",
+          "src/contexts/ (DialogContext con showAlert/showConfirm)",
+          "src/utils/ (sheetUtils, validators, wcagContrast)"
+        ]
+      },
+      "patterns": [
+        "memo() en componentes exportados: const CompMemo = memo(Comp); export default CompMemo;",
+        "useState con lazy initializer para arrays: useState(() => raw) en NotesTab línea 86",
+        "Debounce inline con useEffect + setTimeout + clearTimeout cleanup",
+        "CreatePortal para modales/overlays con fixed inset-0 z-[300]",
+        "useCallback para handlers que se pasan a hijos memoizados",
+        "CSS variables para theming, no clases utility directas para colores de tema"
+      ],
+      "key_components": [
+        {
+          "name": "NotesTab",
+          "location": "src/components/sheet/NotesTab.tsx:84-358",
+          "responsibility": [
+            "Renderiza Campaign Atlas, Alignment/Languages, lista de NoteCards",
+            "Mantiene notesList como estado local con debounce de persistencia 800ms",
+            "Props: character, onUpdate, isReadOnly"
+          ],
+          "confidence": 1.0
+        },
+        {
+          "name": "NoteCard (sub-componente)",
+          "location": "src/components/sheet/NotesTab.tsx:16-82",
+          "responsibility": [
+            "Renderiza una nota individual con título input, textarea auto-sizing, fecha",
+            "Handle update/delete via props callbacks"
+          ],
+          "confidence": 1.0
+        },
+        {
+          "name": "SheetTabs",
+          "location": "src/components/SheetTabs.tsx:37-1062",
+          "responsibility": [
+            "Orquestador de tabs del sheet, pasa character y onUpdate a NotesTab",
+            "Usa useResponsive para layout landscape/portrait",
+            "Timestamp guard en RTDB listener para prevenir loopback"
+          ],
+          "confidence": 1.0
+        },
+        {
+          "name": "DialogProvider",
+          "location": "src/contexts/DialogContext.tsx:38-163",
+          "responsibility": [
+            "showAlert y showConfirm para modales simples",
+            "Usado para confirmación de borrado de notas"
+          ],
+          "confidence": 1.0
+        }
+      ]
+    },
+    "research_digest": {
+      "relevant_files": [
+        {
+          "path": "types.ts",
+          "purpose": [
+            "Interfaces principales del proyecto"
+          ],
+          "why_relevant": [
+            "NoteItem está aquí (línea 9-14), necesita agregar tags y pinned",
+            "Se debe agregar NoteTag interface"
+          ],
+          "key_elements": [
+            {
+              "element": "NoteItem",
+              "type": "interface",
+              "location": "types.ts:9-14",
+              "description": "Interfaz actual: { id, title, content, date }. Sin tags ni pin."
+            },
+            {
+              "element": "Character",
+              "type": "interface",
+              "location": "types.ts:32-134",
+              "description": "Character.notes?: NoteItem[] — las notas viven dentro del personaje"
+            }
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "src/components/sheet/NotesTab.tsx",
+          "purpose": [
+            "Componente principal de notas a refactorizar"
+          ],
+          "why_relevant": [
+            "Contiene NoteCard sub-componente (línea 16-82)",
+            "Maneja notesList state, add/delete/update, debounce persistencia",
+            "Campaign Atlas (161-205) y Alignment (208-240) NO deben modificarse"
+          ],
+          "key_elements": [
+            {
+              "element": "notesList state + lazy init",
+              "type": "pattern",
+              "location": "NotesTab.tsx:86-98",
+              "description": "useState con lazy initializer que migra notas legacy string a NoteItem"
+            },
+            {
+              "element": "Debounce persistencia",
+              "type": "pattern",
+              "location": "NotesTab.tsx:125-132",
+              "description": "useEffect con setTimeout 800ms para persistir notesList a character"
+            },
+            {
+              "element": "addNote",
+              "type": "function",
+              "location": "NotesTab.tsx:134-143",
+              "description": "Crea nueva nota al inicio del array con id basado en Date.now()"
+            },
+            {
+              "element": "updateNote",
+              "type": "function",
+              "location": "NotesTab.tsx:151-155",
+              "description": "Map functional updater: prev.map(n => n.id === id ? {...n, [field]: value} : n)"
+            },
+            {
+              "element": "deleteNote",
+              "type": "function",
+              "location": "NotesTab.tsx:145-149",
+              "description": "Confirm dialog antes de borrar, filter del array"
+            },
+            {
+              "element": "atlasViewer portal",
+              "type": "pattern",
+              "location": "NotesTab.tsx:287-351",
+              "description": "createPortal con fixed inset-0 z-[300], safe-area padding, touch handlers"
+            }
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "hooks/useResponsive.ts",
+          "purpose": [
+            "Hook responsive para detectar mobile/tablet/desktop"
+          ],
+          "why_relevant": [
+            "TagEditor necesita comportamiento responsive: bottom sheet en mobile, popover en desktop",
+            "isMobile (< 768px) e isDesktop (>= 1024px) están disponibles"
+          ],
+          "key_elements": [
+            {
+              "element": "isMobile",
+              "type": "variable",
+              "location": "useResponsive.ts:26",
+              "description": "window.innerWidth < 768"
+            },
+            {
+              "element": "isDesktop",
+              "type": "variable",
+              "location": "useResponsive.ts:29",
+              "description": "window.innerWidth >= 1024"
+            }
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "hooks/useDebounce.ts",
+          "purpose": [
+            "Hook de debounce genérico"
+          ],
+          "why_relevant": [
+            "SearchBar debe usar useDebounce con 300ms",
+            "Hook existe y se usa en otros componentes"
+          ],
+          "key_elements": [
+            {
+              "element": "useDebounce<T>(value, delay): T",
+              "type": "function",
+              "location": "useDebounce.ts:11-22",
+              "description": "Retorna el valor debounced tras el delay especificado"
+            }
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "codebase",
+          "confidence": 1.0
+        },
+        {
+          "path": "src/constants/tags.ts",
+          "purpose": [
+            "Nuevo archivo de constantes a crear"
+          ],
+          "why_relevant": [
+            "Contendrá TAG_CATEGORIES, TAG_COLOR_PALETTE, getTagColor()"
+          ],
+          "security_sensitivity": "none",
+          "contains_secrets": false,
+          "reliability": "planned",
+          "confidence": 1.0
+        }
+      ],
+      "patterns_found": [
+        {
+          "name": "Functional updater pattern",
+          "category": "state-management",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": [
+            "NotesTab.tsx:152-154 (setNotesList(prev => prev.map(...)))"
+          ]
+        },
+        {
+          "name": "createPortal overlay pattern",
+          "category": "ui-pattern",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": [
+            "NotesTab.tsx:287-351 (atlasViewer portal)"
+          ]
+        },
+        {
+          "name": "Sub-component in sheet/components/",
+          "category": "organization",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": [
+            "src/components/sheet/components/RageIndicator.tsx"
+          ]
+        },
+        {
+          "name": "Memo wrapper on export",
+          "category": "performance",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": [
+            "NotesTab.tsx:356-358"
+          ]
+        },
+        {
+          "name": "Lazy initializer in useState",
+          "category": "performance",
+          "confidence": 1.0,
+          "source": "codebase_analysis",
+          "example_location": [
+            "NotesTab.tsx:86-98"
+          ]
+        }
+      ],
+      "dependencies": {
+        "internal": [
+          "hooks/useResponsive.ts → useResponsive",
+          "hooks/useDebounce.ts → useDebounce",
+          "types.ts → NoteTag, NoteItem",
+          "src/constants/tags.ts → TAG_CATEGORIES, TAG_COLOR_PALETTE, getTagColor"
+        ],
+        "external": []
+      },
+      "gotchas": [
+        {
+          "text": "React 18 auto-batching: dos setNotesList(fn) en el mismo ciclo arrancan del mismo estado base. Usar functional updater SIEMPRE.",
+          "confidence": 1.0
+        },
+        {
+          "text": "El debounce de persistencia (800ms) y el debounce de search (300ms) son independientes pero ambos escriben a React state. No interferir entre sí.",
+          "confidence": 1.0
+        },
+        {
+          "text": "El TagEditor bottom sheet en iOS Safari puede quedar clipado por viewport. Usar createPortal + fixed + inset-0 como en atlasViewer.",
+          "confidence": 0.9
+        },
+        {
+          "text": "useResponsive está en hooks/ (raíz), NO en src/hooks/. El import path es '../../../hooks/useResponsive' desde sheet/components/.",
+          "confidence": 1.0
+        }
+      ],
+      "domain_context": {
+        "testing_patterns": {
+          "framework": "no framework (sin tests según AGENTS.md)",
+          "coverage_areas": [],
+          "test_organization": "No hay tests — no escribir tests a menos que se agregue framework"
+        },
+        "error_handling": "Try/catch en operaciones asíncronas, console.error para logging, DialogContext.showAlert para errores de usuario",
+        "data_flow": "character.notes → NotesTab (local state notesList con lazy init) → persistencia con debounce 800ms → onUpdate → App maneja localStorage + Firestore"
+      },
+      "open_questions": [
+        {
+          "question": "¿TagEditor bottom sheet o popover según responsive?",
+          "context": "useResponsive.isMobile determina mobile. Bottom sheet con createPortal en mobile, overlay centrado en desktop.",
+          "type": "decision_blocker",
+          "affects": ["task-06-tageditor", "task-07-integration"]
+        },
+        {
+          "question": "¿Tags son globales o locales a cada nota?",
+          "context": "Se guardan en NoteItem.tags[], no hay registro global. Autocomplete extrae tags de otras notas.",
+          "type": "research",
+          "affects": ["task-06-tageditor"]
+        }
+      ]
+    },
+    "prior_decisions": [
+      {
+        "decision": "Sub-componentes atómicos en src/components/sheet/components/",
+        "rationale": [
+          "Sigue el patrón existente de RageIndicator.tsx",
+          "Mantiene organización limpia sin poluir el directorio sheet/"
+        ],
+        "evidence": ["src/components/sheet/components/RageIndicator.tsx"],
+        "confidence": 1.0,
+        "linked_constraints": ["Mobile-first", "TypeScript strict"],
+        "linked_patterns": ["Sub-component in sheet/components/"]
+      },
+      {
+        "decision": "NoteCard permanece como sub-componente interno de NotesTab (no se extrae)",
+        "rationale": [
+          "Anti-overplanning: extraer NoteCard sería overhead innecesario",
+          "Solo 2 archivos se modifican (types.ts y NotesTab.tsx)"
+        ],
+        "evidence": ["src/components/sheet/NotesTab.tsx:16-82", "notes.md"],
+        "confidence": 1.0
+      },
+      {
+        "decision": "Tags se guardan inline en NoteItem.tags[], no en registro separado",
+        "rationale": [
+          "Persistencia simple: character.notes ya se guarda completo con debounce",
+          "No requiere migración de datos adicional",
+          "Autocomplete se calcula por JS desde notesList completo"
+        ],
+        "evidence": [],
+        "confidence": 0.95
+      }
+    ],
+    "reuse_notes": {
+      "do_not_re_read": [
+        "NoteItem está en types.ts línea 9-14, no en src/types/",
+        "useResponsive está en hooks/useResponsive.ts (raíz), no src/hooks/",
+        "useDebounce está en hooks/useDebounce.ts (raíz), no src/hooks/",
+        "NotesTab NO tiene isReadOnly ni onFastUpdate directamente — viene de SheetTabs"
+      ],
+      "safe_to_assume": [
+        "npm run dev funciona en localhost:5173",
+        "Tailwind CSS con dark: prefijo y CSS variables para theming",
+        "Material Symbols Outlined instalado y funcionando",
+        "createPortal disponible para modales/overlays",
+        "useResponsive exporta { isMobile, isDesktop, isTablet }",
+        "useDebounce<T>(value, delay) retorna T debounced"
+      ],
+      "verify_before_use": [
+        "Verificar que src/constants/tags.ts no exista antes de crear (debe ser nuevo)",
+        "Verificar que TagEditor no duplique funcionalidad de DialogContext (no debe — TagEditor es overlay custom)"
+      ]
+    }
+  }
+}

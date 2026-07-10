@@ -50,7 +50,7 @@ const safeHTML = DOMPurify.sanitize(userProvidedHTML);
 
 ```typescript
 // ✅ Bien
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const firebaseProjectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
 
 // ❌ Nunca
 const apiKey = "sk-xxxxx";
@@ -62,6 +62,6 @@ const apiKey = "sk-xxxxx";
 <meta http-equiv="Content-Security-Policy" 
       content="default-src 'self'; 
                script-src 'self' 'unsafe-inline'; 
-               connect-src 'self' https://*.supabase.co; 
+               connect-src 'self' https://*.firebaseio.com https://*.firebasestorage.app; 
                img-src 'self' data: https:;">
 ```

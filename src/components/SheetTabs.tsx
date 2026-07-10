@@ -1,0 +1,1121 @@
+import React, { useState, useMemo, useRef, useEffect, memo, useCallback, lazy, Suspense } from 'react';
+import { createPortal } from 'react-dom';
+import { useImageZoom } from '../../hooks/useImageZoom';
+import { useResponsive } from '../../hooks/useResponsive';
+import { Character, SheetTab, Ability } from '../../types';
+const CombatTab = lazy(() => import('./sheet/CombatTab'));
+const InventoryTab = lazy(() => import('./sheet/InventoryTab'));
+const SpellsTab = lazy(() => import('./sheet/SpellsTab'));
+const FeaturesTab = lazy(() => import('./sheet/FeaturesTab'));
+const NotesTab = lazy(() => import('./sheet/NotesTab'));
+const LevelUpWizard = lazy(() => import('./sheet/LevelUpWizard/LevelUpWizard'));
+import JoinPartyModal from './JoinPartyModal';
+import RestModal from './sheet/RestModal';
+import LevelResetModal from './sheet/LevelResetModal';
+import { getEffectiveCasterType, getFinalStats, migrateWizardSpellbookOnceIfNeeded, autoFixWizardSpellbook } from '../../utils/sheetUtils';
+import { useLevelSnapshots } from '../../hooks/useLevelSnapshots';
+import { logLevelUp, type LevelUpLogEntry } from '../../utils/logger';
+import { subscribeWithRetry } from '../../utils/firebase'; // WAVE 8: Lazy load listener - Firebase Realtime Database
+import {
+  HIT_DIE,
+  CLASS_PROGRESSION,
+  SUBCLASS_OPTIONS,
+  METAMAGIC_OPTIONS,
+} from '../../Data/characterOptions';
+import { FEAT_OPTIONS, GENERIC_FEATURES } from '../../Data/feats/index';
+import { useDialog } from '../../src/contexts/DialogContext';
+
+interface SheetTabsProps {
+  character: Character;
+  onBack: () => void;
+  onUpdate: (update: Character | Partial<Character>) => void;
+  onFastUpdate?: (update: Partial<Character>) => void;
+  isReadOnly?: boolean;
+  isObserver?: boolean;
+}
+
+const SheetTabs: React.FC<SheetTabsProps> = ({
+  character,
+  onBack,
+  onUpdate,
+  onFastUpdate,
+  isReadOnly,
+  isObserver,
+}) => {
+  const dialog = useDialog();
+  const [activeTab, setActiveTab] = useState<SheetTab>('combat');
+  const [showJoinParty, setShowJoinParty] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<'forward' | 'backward'>('forward');
+  const mainScrollRef = useRef<HTMLDivElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [zoomImage, setZoomImage] = useState<string | null>(null);
+  const zoom = useImageZoom({ minScale: 0.5, maxScale: 5, step: 0.25 });
+
+  const t = {
+    combat: 'Combat',
+    features: 'Features',
+    spells: 'Spells',
+    inventory: 'Inventory',
+    notes: 'Notes',
+    bag: 'Bag',
+    levelUp: 'Level Up',
+    level: 'Level',
+    hpMaxIncrease: 'Max HP Increase',
+    chooseMetamagic: 'Choose Metamagic ({metamagicCount})',
+    chooseSubclass: 'Choose Subclass',
+    selectSubclass: 'Select subclass...',
+    abilityImprovement: 'Ability Improvement',
+    stats: 'Stats',
+    feat: 'Feat',
+    selectFeat: 'Select feat...',
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    levelMaxReached: 'Maximum level reached',
+    undoLastLevelUp: 'Undo Last Level Up',
+    subirNivel: 'Level Up',
+  };
+
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  const [showRestModal, setShowRestModal] = useState(false);
+  const [showLevelReset, setShowLevelReset] = useState(false);
+  const [manualHpGain, setManualHpGain] = useState<string>('');
+  const [levelUpSnapshot, setLevelUpSnapshot] = useState<Character | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState(character.name);
+  const [rightPanelTab, setRightPanelTab] = useState<SheetTab>('spells');
+  const [isGrimoireOpen, setIsGrimoireOpen] = useState(false);
+
+  // Responsive hook: detects landscape/portrait orientation
+  const { isMobile, isTablet, orientation } = useResponsive();
+  const isLandscape = orientation === 'landscape' && !isMobile;
+  const isTabletPortrait = isTablet && orientation === 'portrait';
+
+  // Swipe detection for right panel in landscape
+  const rightPanelTouchStart = useRef<{ x: number; y: number } | null>(null);
+  const rightPanelTouchEnd = useRef<{ x: number; y: number } | null>(null);
+  const rightPanelIsSwiping = useRef(false);
+  const rightPanelMinSwipeDistance = 120; // Increased from 80 to prevent accidental swipes during scroll
+
+  const rightPanelTabs: SheetTab[] = ['spells', 'features', 'inventory', 'notes'];
+
+  const handleRightPanelSwipe = () => {
+    if (!rightPanelTouchStart.current || !rightPanelTouchEnd.current) return;
+    
+    // Only respond to genuine swipes, not scroll movement
+    if (!rightPanelIsSwiping.current) return;
+    rightPanelIsSwiping.current = false;
+
+    const distance = rightPanelTouchStart.current.x - rightPanelTouchEnd.current.x;
+    const deltaY = rightPanelTouchStart.current.y - rightPanelTouchEnd.current.y;
+    const isLeftSwipe = distance > rightPanelMinSwipeDistance && Math.abs(distance) > Math.abs(deltaY) * 1.5;
+    const isRightSwipe = distance < -rightPanelMinSwipeDistance && Math.abs(distance) > Math.abs(deltaY) * 1.5;
+
+    if (!isLeftSwipe && !isRightSwipe) return;
+
+    const currentIndex = rightPanelTabs.indexOf(rightPanelTab);
+    if (isLeftSwipe && currentIndex < rightPanelTabs.length - 1) {
+      setRightPanelTab(rightPanelTabs[currentIndex + 1]);
+    } else if (isRightSwipe && currentIndex > 0) {
+      setRightPanelTab(rightPanelTabs[currentIndex - 1]);
+    }
+
+    rightPanelTouchStart.current = null;
+    rightPanelTouchEnd.current = null;
+  };
+
+  // Sync tempName when character changes
+  useEffect(() => {
+    setTempName(character.name);
+  }, [character.name]);
+
+  // Wave 2: Auto-migrate Wizard spellbook structure on first load
+  useEffect(() => {
+    if (character.class === 'Wizard') {
+      let migratedCharacter = character;
+      
+      // First migration: create spellbook structure if it doesn't exist
+      if (!character.wizard) {
+        migratedCharacter = migrateWizardSpellbookOnceIfNeeded(character);
+      }
+      
+      // Second auto-fix: add prepared spells that aren't in spellbook
+      const fixedCharacter = autoFixWizardSpellbook(migratedCharacter);
+      
+      if (fixedCharacter !== character) {
+        onUpdate(fixedCharacter);
+      }
+    }
+  }, [character.id]);
+
+  // WAVE 8: Lazy load listener only when SheetTabs mounts (on-demand)
+  const listenerRef = useRef<{ unsubscribe: () => Promise<void> } | null>(null);
+  
+  useEffect(() => {
+    const isLocalMode = localStorage.getItem('df_local_mode') === 'true';
+    
+    if (!isLocalMode && character.party_id) {
+      // Abrir listener SOLO cuando estamos viendo el sheet
+      const subscription = subscribeWithRetry(
+        character.party_id,
+        (payload: { new?: { id: string; data: Character }; old?: { id: string }; eventType: string }) => {
+          if (payload.new?.id === character.id) {
+            const incoming = payload.new.data as Character;
+            const incomingTime = (incoming as Character).syncTimestamp || 0;
+            const currentTime = (character as Character).syncTimestamp || 0;
+            // Timestamp guard: only accept RTDB data if it's strictly newer
+            // than what we've rendered locally. This prevents our own broadcast
+            // loopback from overwriting fresher local state.
+            if (incomingTime > currentTime) {
+              onUpdate(incoming);
+            } else {
+            }
+          }
+        },
+        undefined,
+        character.id // WAVE 7: Selective sync
+      );
+      
+      listenerRef.current = subscription;
+    }
+
+    // ← Cleanup cuando salimos del sheet o component unmounts
+    return () => {
+      if (listenerRef.current) {
+        listenerRef.current.unsubscribe().then(() => {
+        });
+      }
+    };
+  }, [character.id, character.party_id]);
+
+  const handleSaveName = () => {
+    if (tempName.trim() && tempName !== character.name) {
+      onUpdate({ ...character, name: tempName.trim() });
+    }
+    setIsEditingName(false);
+  };
+
+  const {
+    snapshots,
+    createSnapshot,
+    restoreSnapshot,
+    deleteSnapshotById,
+    getChangesForSnapshot,
+    hasSnapshots,
+    getAuditLog,
+  } = useLevelSnapshots(character, onUpdate);
+
+  const handleManualSync = async () => {
+    onUpdate({ 
+        snapshots: snapshots,
+        auditLog: getAuditLog()
+    });
+    await dialog.showAlert("Snapshot sync triggered! Your restoration points are being uploaded to the cloud.");
+  };
+
+  const [pendingSubclass, setPendingSubclass] = useState<string>('');
+  const [pendingAsiType, setPendingAsiType] = useState<'stat' | 'feat'>('stat');
+  const [pendingStat1, setPendingStat1] = useState<Ability>('STR');
+  const [pendingStat2, setPendingStat2] = useState<Ability>('STR');
+  const [pendingFeat, setPendingFeat] = useState<string>('');
+  const [pendingMetamagics, setPendingMetamagics] = useState<string[]>([]);
+
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const touchEnd = useRef<{ x: number; y: number } | null>(null);
+  const touchElement = useRef<HTMLElement | null>(null);
+  const isSwipingRef = useRef(false);
+  const minSwipeDistance = 120; // Increased from 100 to reduce false swipe detection on taps
+
+  const magicInitiateType = useMemo(() => {
+    const feats = character.feats || [];
+    if (feats.some((f) => f.includes('Magic Initiate (Cleric)'))) return 'Cleric';
+    if (feats.some((f) => f.includes('Magic Initiate (Druid)'))) return 'Druid';
+    if (feats.some((f) => f.includes('Magic Initiate (Wizard)'))) return 'Wizard';
+    return null;
+  }, [character.feats]);
+
+  const effectiveCasterType = useMemo(() => getEffectiveCasterType(character), [character]);
+
+  const isCaster =
+    effectiveCasterType !== 'none' ||
+    !!magicInitiateType ||
+    (character.preparedSpells && character.preparedSpells.length > 0) ||
+    (character.featSpells && character.featSpells.length > 0);
+
+  const tabs = [
+    { id: 'combat', icon: 'swords', label: t.combat },
+    { id: 'features', icon: 'stars', label: t.features },
+    { id: 'spells', icon: 'auto_stories', label: t.spells, disabled: !isCaster },
+    { id: 'inventory', icon: 'backpack', label: t.bag },
+    { id: 'notes', icon: 'edit_note', label: t.notes },
+  ];
+
+  const handleTabChange = (newTabId: SheetTab) => {
+    const currentIndex = tabs.findIndex((t) => t.id === activeTab);
+    const newIndex = tabs.findIndex((t) => t.id === newTabId);
+    if (currentIndex === newIndex) return;
+    setSlideDirection(newIndex > currentIndex ? 'forward' : 'backward');
+    setActiveTab(newTabId);
+    if (mainScrollRef.current) mainScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (zoomImage) return;
+    touchEnd.current = null;
+    touchStart.current = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY };
+    touchElement.current = e.target as HTMLElement;
+    isSwipingRef.current = false; // Reset swipe flag on each new touch
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (zoomImage) return;
+    touchEnd.current = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY };
+    
+    // Mark as swiping only when we've moved enough horizontally
+    if (touchStart.current && touchEnd.current) {
+      const dx = Math.abs(touchStart.current.x - touchEnd.current.x);
+      const dy = Math.abs(touchStart.current.y - touchEnd.current.y);
+      if (dx >= minSwipeDistance && dx > dy * 2) {
+        isSwipingRef.current = true;
+      }
+    }
+  };
+
+  const onTouchEnd = () => {
+    if (zoomImage) return;
+    if (!touchStart.current || !touchEnd.current) return;
+    
+    // Only change tab on genuine swipe, not on taps with incidental movement
+    if (!isSwipingRef.current) return;
+    
+    // Check if touch started in a horizontal scrollable container
+    if (touchElement.current) {
+      let parent = touchElement.current;
+      while (parent) {
+        const styles = window.getComputedStyle(parent);
+        const overflowX = styles.overflowX;
+        if ((overflowX === 'auto' || overflowX === 'scroll') && parent.scrollWidth > parent.clientWidth) {
+          return;
+        }
+        parent = parent.parentElement;
+      }
+    }
+    
+    const distanceX = touchStart.current.x - touchEnd.current.x;
+    const isLeftSwipe = distanceX > 0;
+    const isRightSwipe = distanceX < 0;
+    const validTabs = tabs.filter((t) => !t.disabled);
+    const currentIndex = validTabs.findIndex((t) => t.id === activeTab);
+    if (isLeftSwipe && currentIndex < validTabs.length - 1)
+      handleTabChange(validTabs[currentIndex + 1].id as SheetTab);
+    if (isRightSwipe && currentIndex > 0)
+      handleTabChange(validTabs[currentIndex - 1].id as SheetTab);
+  };
+
+  const initiateLevelUp = async () => {
+    if (character.level >= 20) {
+      await dialog.showAlert(t.levelMaxReached);
+      return;
+    }
+    setLevelUpSnapshot({ ...character });
+    try {
+      createSnapshot(character, 'Level Up Started');
+    } catch (e) {
+      console.error('SheetTabs: failed to create snapshot', e);
+    }
+    const stats = getFinalStats(character);
+    const conMod = Math.floor(((stats.CON || 10) - 10) / 2);
+    const hitDie = HIT_DIE[character.class] || 8;
+    const isDraconic = character.subclass === 'Draconic Sorcery';
+    const draconicBonus = isDraconic ? 1 : 0;
+    const hasDuro = character.feats.some((f) => f === 'Duro' || f === 'Tough');
+    const duroBonus = hasDuro ? 2 : 0;
+    const avgGain = Math.floor(hitDie / 2) + 1;
+    const totalGain = Math.max(1, avgGain + conMod + draconicBonus + duroBonus);
+    setManualHpGain(totalGain.toString());
+    setPendingSubclass('');
+    setPendingAsiType('stat');
+    setPendingFeat('');
+    setPendingStat1('STR');
+    setPendingStat2('DEX');
+    setPendingMetamagics([]);
+    setShowLevelUp(true);
+  };
+
+  const nextLevel = character.level + 1;
+  const newFeatures = CLASS_PROGRESSION[character.class]?.[nextLevel] || [];
+  const needsSubclass =
+    !character.subclass && newFeatures.some((f) => f.toLowerCase().includes('subclass'));
+  const needsAsi = newFeatures.some((f) => f.toLowerCase().includes('ability score improvement'));
+  const needsMetamagic =
+    character.class === 'Sorcerer' && (nextLevel === 2 || nextLevel === 10 || nextLevel === 17);
+  const metamagicCount = nextLevel === 2 ? 2 : 1;
+
+  const togglePendingMetamagic = (meta: string) => {
+    if (pendingMetamagics.includes(meta))
+      setPendingMetamagics((prev) => prev.filter((m) => m !== meta));
+    else if (pendingMetamagics.length < metamagicCount)
+      setPendingMetamagics((prev) => [...prev, meta]);
+  };
+
+  const confirmLevelUp = () => {
+    const hpGain = parseInt(manualHpGain) || 0;
+    const newProf = Math.ceil(1 + nextLevel / 4);
+    let extraHp = 0;
+    if (needsSubclass && pendingSubclass === 'Draconic Sorcery') extraHp += nextLevel;
+    if (
+      needsAsi &&
+      pendingAsiType === 'feat' &&
+      (pendingFeat === 'Duro' || pendingFeat === 'Tough')
+    )
+      extraHp += nextLevel * 2;
+
+    const updatedChar = {
+      ...character,
+      level: nextLevel,
+      profBonus: newProf,
+      hp: {
+        ...character.hp,
+        max: character.hp.max + hpGain + extraHp,
+        current: character.hp.current + hpGain + extraHp,
+      },
+      metamagics: [...(character.metamagics || []), ...pendingMetamagics],
+    };
+
+    // Monk / Pugilist Focus update
+    if (character.class === 'Monk' || character.class === 'Pugilist') {
+      updatedChar.focus = { current: nextLevel, max: nextLevel };
+    }
+
+    if (needsSubclass && pendingSubclass) {
+      updatedChar.subclass = pendingSubclass;
+    }
+
+    const activeSubclass = updatedChar.subclass;
+    if (activeSubclass) {
+      const subclassData = SUBCLASS_OPTIONS[character.class]?.find((s) => s.name === activeSubclass);
+
+      if (subclassData?.alwaysPreparedSpells) {
+        const spellsToAdd: string[] = [];
+        Object.entries(subclassData.alwaysPreparedSpells).forEach(([lvl, spells]) => {
+          if (parseInt(lvl) <= nextLevel) {
+            spellsToAdd.push(...spells);
+          }
+        });
+
+        if (spellsToAdd.length > 0) {
+          updatedChar.preparedSpells = [
+            ...new Set([...(updatedChar.preparedSpells || []), ...spellsToAdd]),
+          ];
+        }
+      }
+      
+      // Handle Warlock Vestige Patron - add domain spells from chosen domain
+      if (character.class === 'Warlock' && activeSubclass === 'Vestige Patron' && updatedChar.vestige?.domain) {
+        const domainName = updatedChar.vestige.domain;
+        const clericDomains = SUBCLASS_OPTIONS['Cleric'] || [];
+        const selectedDomain = clericDomains.find(d => d.name === domainName);
+        if (selectedDomain?.alwaysPreparedSpells) {
+          const domainSpellsToAdd: string[] = [];
+          Object.entries(selectedDomain.alwaysPreparedSpells).forEach(([lvl, spells]) => {
+            if (parseInt(lvl) <= nextLevel) {
+              domainSpellsToAdd.push(...spells);
+            }
+          });
+          if (domainSpellsToAdd.length > 0) {
+            updatedChar.preparedSpells = [
+              ...new Set([...(updatedChar.preparedSpells || []), ...domainSpellsToAdd]),
+            ];
+          }
+        }
+      }
+    }
+    if (needsAsi) {
+      if (pendingAsiType === 'feat' && pendingFeat)
+        updatedChar.feats = [...(updatedChar.feats || []), pendingFeat];
+      else {
+        const newStats = { ...updatedChar.stats };
+        newStats[pendingStat1] = (newStats[pendingStat1] || 10) + 1;
+        newStats[pendingStat2] = (newStats[pendingStat2] || 10) + 1;
+        if (newStats[pendingStat1] > 20) newStats[pendingStat1] = 20;
+        if (newStats[pendingStat2] > 20) newStats[pendingStat2] = 20;
+        updatedChar.stats = newStats;
+      }
+    }
+    // Adjust Lucky counter to new proficiency bonus if character has the feat
+    const hasLucky = (updatedChar.feats || []).some((f) => f === 'Afortunado' || f === 'Lucky');
+    if (hasLucky) {
+      const current = Math.min(updatedChar.lucky?.current ?? newProf, newProf);
+      updatedChar.lucky = { current, max: newProf };
+    }
+
+    // Update class resources based on new level
+    const newLevel = nextLevel;
+    const newStats = getFinalStats(updatedChar);
+    const newChaMod = Math.floor(((newStats.CHA || 10) - 10) / 2);
+
+    if (updatedChar.class === 'Barbarian') {
+      const newRageMax =
+        newLevel >= 20
+          ? 99
+          : newLevel >= 17
+            ? 6
+            : newLevel >= 12
+              ? 5
+              : newLevel >= 6
+                ? 4
+                : newLevel >= 3
+                  ? 3
+                  : 2;
+      updatedChar.rageUses = { current: newRageMax, max: newRageMax };
+    }
+    if (updatedChar.class === 'Bard') {
+      const newBardicMax = Math.max(1, newChaMod);
+      updatedChar.bardicInspiration = { current: newBardicMax, max: newBardicMax };
+    }
+    if (updatedChar.class === 'Cleric') {
+      const newCDMax = newLevel >= 18 ? 3 : newLevel >= 6 ? 2 : 1;
+      updatedChar.channelDivinity = { current: newCDMax, max: newCDMax };
+    }
+    if (updatedChar.class === 'Paladin') {
+      const newCDMax = newLevel >= 11 ? 3 : newLevel >= 7 ? 2 : 1;
+      updatedChar.channelDivinity = { current: newCDMax, max: newCDMax };
+      updatedChar.layOnHands = { current: newLevel * 5, max: newLevel * 5 };
+    }
+    if (updatedChar.class === 'Druid') {
+      updatedChar.wildShape = { current: 2, max: 2 };
+    }
+    if (updatedChar.class === 'Fighter') {
+      const newActionSurgeMax = newLevel >= 17 ? 2 : 1;
+      updatedChar.actionSurge = { current: newActionSurgeMax, max: newActionSurgeMax };
+      updatedChar.secondWind = { current: 1, max: 1 };
+    }
+
+    onUpdate(updatedChar);
+    setShowLevelUp(false);
+
+    const logEntry: LevelUpLogEntry = {
+      timestamp: Date.now(),
+      characterId: character.id,
+      characterName: character.name,
+      fromLevel: character.level,
+      toLevel: nextLevel,
+      changes: {
+        hpChange: hpGain + extraHp,
+        newFeatures: CLASS_PROGRESSION[character.class]?.[nextLevel] || [],
+        newFeats: needsAsi && pendingAsiType === 'feat' && pendingFeat ? [pendingFeat] : [],
+        statsIncreased: needsAsi && pendingAsiType === 'stat' ? [pendingStat1, pendingStat2] : [],
+      },
+      source: 'level_up',
+    };
+    logLevelUp(logEntry);
+  };
+
+  const isLevelUpValid = () => {
+    if (needsSubclass && !pendingSubclass) return false;
+    if (needsAsi && pendingAsiType === 'feat' && !pendingFeat) return false;
+    if (needsAsi && pendingAsiType === 'stat' && pendingStat1 === pendingStat2) {
+      // Permitted if level 4+, as they can choose 2 different +1s or one +2
+      // but the current implementation assumes two different +1s for simplicity
+      // and capping.
+    }
+    if (needsMetamagic && pendingMetamagics.length < metamagicCount) return false;
+    return true;
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxSize = 512;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxSize) {
+              height *= maxSize / width;
+              width = maxSize;
+            }
+          } else {
+            if (height > maxSize) {
+              width *= maxSize / height;
+              height = maxSize;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            // Save as high-quality WebP to dramatically reduce base64 size
+            const dataUrl = canvas.toDataURL('image/webp', 0.85);
+            onUpdate({ ...character, imageUrl: dataUrl });
+          }
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  if (isTabletPortrait) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark p-6">
+        <div className="max-w-md rounded-radius-2xl border border-slate-200/10 bg-white dark:bg-slate-950/95 p-8 text-center shadow-2xl">
+          <span className="material-symbols-outlined text-5xl text-primary mb-4">screen_rotation</span>
+          <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Gira tu tablet</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            Sheet view is only available in landscape on tablets.
+            <br />
+            Please rotate your device to horizontal to continue.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="flex flex-col h-full min-h-screen bg-background-light dark:bg-background-dark relative"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      <style>{`
+        @keyframes slideInRight {
+          from { transform: translateX(20px); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideInLeft {
+          from { transform: translateX(-20px); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slide-right { animation: slideInRight 0.3s ease-out forwards; }
+        .animate-slide-left { animation: slideInLeft 0.3s ease-out forwards; }
+      `}</style>
+
+      <input
+        type="file"
+        ref={avatarInputRef}
+        onChange={handleAvatarChange}
+        accept="image/*"
+        className="hidden"
+      />
+
+      <div className="sticky top-0 z-30 backdrop-blur-md px-4 py-4 flex items-center gap-4 pt-[calc(1.25rem+env(safe-area-inset-top))]" style={{
+        backgroundColor: 'var(--color-surface)',
+        borderBottomColor: 'var(--color-border)',
+        borderBottomWidth: '1px',
+      }}>
+        <button
+          onClick={onBack}
+          className="flex size-11 items-center justify-center rounded-radius-xl transition-all active:opacity-80"
+          style={{
+            backgroundColor: 'var(--color-background-secondary)',
+            borderColor: 'var(--color-border)',
+            borderWidth: '1px',
+            color: 'var(--color-text-secondary)',
+          }}
+        >
+          <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+        </button>
+
+        <div className="flex flex-1 items-center gap-4 min-w-0">
+          {/* Avatar Section */}
+          <div
+            className="relative group shrink-0"
+            onClick={() => !isReadOnly && avatarInputRef.current?.click()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+          >
+            <div
+              className={`size-14 rounded-radius-xl overflow-hidden shadow-xl ring-2 ring-primary/20 bg-slate-100 dark:bg-black/40 transition-all ${!isReadOnly ? 'group-active:opacity-80 cursor-pointer' : ''}`}
+            >
+              {character.imageUrl && !character.imageUrl.includes('placeholder.svg') ? (
+                <img
+                  key={character.imageUrl}
+                  src={character.imageUrl}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src =
+                      `https://api.dicebear.com/7.x/bottts/svg?seed=${character.name}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setZoomImage(character.imageUrl || null);
+                  }}
+                  className="w-full h-full object-cover cursor-zoom-in"
+                  alt={character.name}
+                />
+              ) : (
+                <img
+                  src={`https://api.dicebear.com/7.x/bottts/svg?seed=${character.name}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
+                  className="w-full h-full object-cover opacity-80"
+                  alt="Default Avatar"
+                />
+              )}
+            </div>
+            {!isReadOnly && (
+              <div className="absolute -bottom-1 -right-1 size-6 rounded-radius-md backdrop-blur-md flex items-center justify-center shadow-elev-modal" 
+                style={{
+                  backgroundColor: 'var(--color-background)',
+                  borderColor: 'var(--color-border-hover)',
+                  borderWidth: '1px',
+                }}>
+                <span className="material-symbols-outlined text-[14px]" style={{ color: 'var(--color-text-primary)' }}>edit</span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col min-w-0 flex-1">
+            <div className="flex items-center gap-2 group/name">
+              {isEditingName && !isReadOnly ? (
+                <input
+                  autoFocus
+                  type="text"
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  onBlur={handleSaveName}
+                  onFocus={(e) => e.target.select()}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+                  className="font-extrabold text-xl leading-tight bg-transparent border-b-2 border-primary text-slate-900 dark:text-white focus:outline-none w-full py-1"
+                />
+              ) : (
+                <>
+                  <h2 
+                    onClick={() => !isReadOnly && setIsEditingName(true)}
+                    className={`font-extrabold text-xl leading-snug text-slate-900 dark:text-white truncate ${!isReadOnly ? 'cursor-pointer hover:text-primary transition-colors' : ''}`}
+                  >
+                    {character.name}
+                  </h2>
+                  {!isReadOnly && (
+                    <button 
+                      onClick={() => setIsEditingName(true)}
+                      className="size-8 rounded-radius-pill flex items-center justify-center text-slate-300 dark:text-slate-600 hover:text-primary dark:hover:text-primary hover:bg-primary/10 transition-all opacity-0 group-hover/name:opacity-100"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">edit</span>
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 dark:text-slate-500 truncate flex items-center gap-1">
+              <span className={character.level >= 20 ? 'text-amber-400' : ''}>
+                Lvl {character.level}
+              </span>
+              {character.level >= 20 && (
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] font-bold rounded-radius-pill shadow-sm">
+                  MAX
+                </span>
+              )}
+              <span>
+                {character.subclass ? `${character.subclass} ` : ''}
+                {character.class} • {character.subspecies || character.species}
+              </span>
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {isObserver && !isReadOnly && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-radius-pill bg-red-500/10 border border-red-500/20 text-red-500 animate-pulse">
+              <span className="material-symbols-outlined text-[16px]">edit_square</span>
+              <span className="text-[10px] font-black uppercase tracking-widest leading-none">
+                MODO DM
+              </span>
+            </div>
+          )}
+
+          {isReadOnly && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-radius-pill bg-amber-500/10 border border-amber-500/20 text-amber-500">
+              <span className="material-symbols-outlined text-[16px]">visibility</span>
+              <span className="text-[10px] font-black uppercase tracking-widest leading-none">
+                VISTA DM
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <main
+        ref={mainScrollRef}
+        className={`flex-1 relative ${isLandscape ? '' : 'overflow-x-hidden overflow-y-auto no-scrollbar pb-3'}`}
+      >
+        {isLandscape ? (
+          // Landscape: 30/70 split with proper independent scrolls
+          <div className="flex h-screen w-screen gap-0">
+            {/* Combat Tab - Left Column (30%) */}
+            <div className="w-[30%] h-screen flex flex-col bg-background-light dark:bg-background-dark">
+              <div className="sticky top-0 z-20 pb-3 px-3 pt-3" style={{
+                backgroundColor: 'var(--color-background)',
+                backgroundImage: 'linear-gradient(to bottom, var(--color-surface), transparent)',
+              }}>
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-lg">swords</span>
+                  <h3 className="text-xs font-black uppercase text-primary tracking-widest">Combat</h3>
+                </div>
+              </div>
+              
+              <div className={`flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar w-full ${isTablet ? 'pb-40' : ''}`} style={{ scrollBehavior: 'smooth' }}>
+                <div className="p-3 w-full">
+                  <Suspense fallback={<TabFallback />}>
+                    <CombatTab
+                      character={character}
+                      onUpdate={onUpdate}
+                      onFastUpdate={onFastUpdate}
+                      isReadOnly={isReadOnly || isObserver}
+                      onShowJoinParty={() => setShowJoinParty(true)}
+                      onShowLevelReset={() => setShowLevelReset(true)}
+                      onShowRestModal={() => setShowRestModal(true)}
+                      onInitiateLevelUp={initiateLevelUp}
+                      hasSnapshots={hasSnapshots}
+                    />
+                  </Suspense>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column (70%) */}
+            <div 
+              className="flex-1 h-screen flex flex-col relative min-w-0 bg-background-light dark:bg-background-dark border-l border-slate-200/10"
+              onTouchStart={(e) => {
+                rightPanelTouchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                rightPanelIsSwiping.current = false;
+              }}
+              onTouchMove={(e) => {
+                rightPanelTouchEnd.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                if (rightPanelTouchStart.current && rightPanelTouchEnd.current) {
+                  const dx = Math.abs(rightPanelTouchStart.current.x - rightPanelTouchEnd.current.x);
+                  const dy = Math.abs(rightPanelTouchStart.current.y - rightPanelTouchEnd.current.y);
+                  if (dx >= rightPanelMinSwipeDistance && dx > dy * 1.5) {
+                    rightPanelIsSwiping.current = true;
+                  }
+                }
+              }}
+              onTouchEnd={handleRightPanelSwipe}
+            >
+              {/* Scrollable Content Area */}
+              <div className="flex-1 overflow-y-scroll overflow-x-hidden no-scrollbar pb-24 w-full min-w-0" style={{ scrollBehavior: 'smooth' }}>
+                <div className="p-3 w-full">
+                  {/* Dynamic Content */}
+                  <div className={`transition-opacity duration-200 w-full ${rightPanelTab ? 'opacity-100' : 'opacity-0'}`}>
+                  {rightPanelTab === 'spells' && (
+                    <Suspense fallback={<TabFallback />}>
+                      <SpellsTab
+                        character={character}
+                        onUpdate={onUpdate}
+                        isReadOnly={isReadOnly || isObserver}
+                        onGrimoireStateChange={setIsGrimoireOpen}
+                      />
+                    </Suspense>
+                  )}
+                  {rightPanelTab === 'inventory' && (
+                    <Suspense fallback={<TabFallback />}>
+                      <InventoryTab
+                        character={character}
+                        onUpdate={onUpdate}
+                        isReadOnly={isReadOnly || isObserver}
+                      />
+                    </Suspense>
+                  )}
+                  {rightPanelTab === 'features' && (
+                    <Suspense fallback={<TabFallback />}>
+                      <FeaturesTab
+                        character={character}
+                        onUpdate={onUpdate}
+                        isReadOnly={isReadOnly || isObserver}
+                      />
+                    </Suspense>
+                  )}
+                  {rightPanelTab === 'notes' && (
+                    <Suspense fallback={<TabFallback />}>
+                      <NotesTab
+                        character={character}
+                        onUpdate={onUpdate}
+                        isReadOnly={isReadOnly || isObserver}
+                      />
+                    </Suspense>
+                  )}
+                </div>
+                </div>
+              </div>
+
+              {/* FLOATING MINI TAB BAR - Fixed at Bottom */}
+              <div className="fixed bottom-0 left-[30%] right-0 backdrop-blur-md px-2 py-3 z-30" style={{
+                background: `linear-gradient(to top, var(--color-background), rgba(var(--color-background), 0.8))`,
+                borderTopColor: 'var(--color-border)',
+                borderTopWidth: '1px',
+              }}>
+                <div className="flex gap-1.5 overflow-x-auto no-scrollbar justify-center">
+                  {[
+                    { id: 'spells' as SheetTab, icon: 'auto_stories', label: 'Spells', disabled: !isCaster },
+                    { id: 'features' as SheetTab, icon: 'stars', label: 'Feats' },
+                    { id: 'inventory' as SheetTab, icon: 'backpack', label: 'Bag' },
+                    { id: 'notes' as SheetTab, icon: 'edit_note', label: 'Notes' },
+                  ].map((tab) => {
+                    const isActive = rightPanelTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => !tab.disabled && setRightPanelTab(tab.id)}
+                        disabled={tab.disabled}
+                        className={`flex flex-col items-center justify-center gap-1 px-3 py-3 rounded-radius-lg text-[10px] font-black uppercase whitespace-nowrap transition-all duration-200 shrink-0 min-h-[44px] min-w-[44px] ${
+                          isActive
+                            ? 'text-white bg-gradient-to-r from-primary to-primary/80 shadow-elev-modal shadow-primary/30 scale-100'
+                            : `text-slate-400 dark:text-slate-500 hover:bg-white/8 hover:text-slate-300 active:opacity-80 ${tab.disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`
+                        }`}
+                      >
+                        <span className={`material-symbols-outlined text-lg transition-transform leading-none ${isActive ? 'scale-110' : ''}`}>{tab.icon}</span>
+                        <span className="hidden sm:inline tracking-wider text-[8px]">{tab.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Portrait: Single tab with slide animation (original behavior)
+          <div
+            key={activeTab}
+            className={`min-h-full ${slideDirection === 'forward' ? 'animate-slide-right' : 'animate-slide-left'}`}
+          >
+            {activeTab === 'combat' && (
+              <Suspense fallback={<TabFallback />}>
+                <CombatTab
+                  character={character}
+                  onUpdate={onUpdate}
+                  onFastUpdate={onFastUpdate}
+                  isReadOnly={isReadOnly || isObserver}
+                  onShowJoinParty={() => setShowJoinParty(true)}
+                  onShowLevelReset={() => setShowLevelReset(true)}
+                  onShowRestModal={() => setShowRestModal(true)}
+                  onInitiateLevelUp={initiateLevelUp}
+                  hasSnapshots={hasSnapshots}
+                />
+              </Suspense>
+            )}
+            {activeTab === 'inventory' && (
+              <Suspense fallback={<TabFallback />}>
+                <InventoryTab
+                  character={character}
+                  onUpdate={onUpdate}
+                  isReadOnly={isReadOnly || isObserver}
+                />
+              </Suspense>
+            )}
+            {activeTab === 'spells' && (
+              <Suspense fallback={<TabFallback />}>
+                <SpellsTab
+                  character={character}
+                  onUpdate={onUpdate}
+                  isReadOnly={isReadOnly || isObserver}
+                  onGrimoireStateChange={setIsGrimoireOpen}
+                />
+              </Suspense>
+            )}
+            {activeTab === 'features' && (
+              <Suspense fallback={<TabFallback />}>
+                <FeaturesTab
+                  character={character}
+                  onUpdate={onUpdate}
+                  isReadOnly={isReadOnly || isObserver}
+                />
+              </Suspense>
+            )}
+            {activeTab === 'notes' && (
+              <Suspense fallback={<TabFallback />}>
+                <NotesTab
+                  character={character}
+                  onUpdate={onUpdate}
+                  isReadOnly={isReadOnly || isObserver}
+                />
+              </Suspense>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Tab Bar - Hidden in landscape, shown in portrait, hidden when grimoire is open */}
+      {!isLandscape && !isGrimoireOpen && (
+
+      <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 transform -translate-x-1/2 backdrop-blur-xl rounded-radius-pill shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-1.5 z-40 flex items-center gap-1.5" style={{
+        backgroundColor: 'var(--color-surface)',
+        borderColor: 'var(--color-border)',
+        borderWidth: '1px',
+      }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => !tab.disabled && handleTabChange(tab.id as SheetTab)}
+            disabled={tab.disabled}
+            className={`flex items-center justify-center gap-2 h-11 px-3 min-w-[44px] rounded-radius-pill transition-all duration-motion-base overflow-hidden ${
+              activeTab === tab.id
+                ? 'text-white bg-primary shadow-elev-modal shadow-primary/25'
+                : `text-slate-400 dark:text-slate-500 hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-600 dark:hover:text-slate-300 ${tab.disabled ? 'opacity-30 cursor-not-allowed' : ''}`
+            }`}
+          >
+            <span
+              className={`material-symbols-outlined text-[24px] shrink-0 ${activeTab === tab.id ? 'animate-bounce-subtle' : ''}`}
+            >
+              {tab.icon}
+            </span>
+            {activeTab === tab.id && (
+              <span className="text-xs font-bold uppercase tracking-wide whitespace-nowrap">
+                {tab.label}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+      )}
+
+      {showLevelUp && (
+        <Suspense fallback={<div className="fixed inset-0 z-[70] flex items-center justify-center bg-surface-dark/80"><div className="animate-spin size-8 rounded-radius-pill border-2 border-primary border-t-transparent" /></div>}>
+          <LevelUpWizard
+            character={character}
+            onComplete={(updatedChar) => {
+              onUpdate(updatedChar);
+              setShowLevelUp(false);
+            }}
+            onCancel={() => setShowLevelUp(false)}
+          />
+        </Suspense>
+      )}
+
+      {showRestModal && (
+        <RestModal
+          character={character}
+          onComplete={(updatedChar) => {
+            onUpdate(updatedChar);
+            setShowRestModal(false);
+          }}
+          onCancel={() => setShowRestModal(false)}
+        />
+      )}
+
+      {showJoinParty && (
+        <JoinPartyModal
+          character={character}
+          onClose={() => setShowJoinParty(false)}
+          onJoined={(partyId, partyName) =>
+            onUpdate({ ...character, party_id: partyId, party_name: partyName })
+          }
+        />
+      )}
+
+      {showLevelReset && (
+        <LevelResetModal
+          character={character}
+          snapshots={snapshots}
+          currentLevel={character.level}
+          onRestore={async (snapshotId) => {
+            try {
+              const restored = restoreSnapshot(snapshotId, character);
+              onUpdate(restored);
+              setShowLevelReset(false);
+              setLevelUpSnapshot(null);
+            } catch (error) {
+              await dialog.showAlert('Failed to restore snapshot. Please check the console for details.');
+            }
+          }}
+          onDeleteSnapshot={(snapshotId) => {
+            deleteSnapshotById(snapshotId);
+          }}
+          onClose={() => setShowLevelReset(false)}
+          getChangesForSnapshot={(snapshotId) => getChangesForSnapshot(snapshotId, character)}
+          onForceSync={handleManualSync}
+        />
+      )}
+
+      {/* Image Zoom Modal */}
+      {zoomImage && createPortal(
+        <div
+          className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center"
+          onClick={() => { setZoomImage(null); zoom.resetZoom(); }}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}
+        >
+          <div
+            className="relative w-full h-full flex flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-end mb-3 shrink-0">
+              <button
+                onClick={() => { setZoomImage(null); zoom.resetZoom(); }}
+                className="size-10 rounded-radius-pill bg-white/20 hover:bg-white/30 flex items-center justify-center text-white backdrop-blur-sm active:bg-white/40"
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+            <div
+              ref={zoom.viewportRef}
+              className="flex-1 flex items-center justify-center overflow-hidden touch-none cursor-grab active:cursor-grabbing"
+              onTouchStart={zoom.handleTouchStart}
+              onTouchMove={zoom.handleTouchMove}
+              onTouchEnd={zoom.handleTouchEnd}
+              onWheel={zoom.handleWheel}
+              onMouseDown={zoom.handleMouseDown}
+              onMouseMove={zoom.handleMouseMove}
+              onMouseUp={zoom.handleMouseUp}
+              onMouseLeave={zoom.handleMouseUp}
+            >
+              <div ref={zoom.contentRef} style={zoom.transformStyle}>
+                <img
+                  src={zoomImage}
+                  className="max-w-[90vw] max-h-[calc(100vh-9rem)] object-contain rounded-radius-md select-none"
+                  alt="Zoomed"
+                  draggable={false}
+                />
+              </div>
+            </div>
+            <div className="flex justify-center items-center gap-2 mt-4">
+              <button
+                onClick={zoom.zoomOut}
+                className="size-12 rounded-radius-pill bg-white/20 hover:bg-white/30 flex items-center justify-center text-white backdrop-blur-sm active:bg-white/40"
+              >
+                <span className="material-symbols-outlined text-2xl">remove</span>
+              </button>
+              <span className="text-white text-sm font-bold min-w-[70px] text-center">{Math.round(zoom.scale * 100)}%</span>
+              <button
+                onClick={zoom.zoomIn}
+                className="size-12 rounded-radius-pill bg-white/20 hover:bg-white/30 flex items-center justify-center text-white backdrop-blur-sm active:bg-white/40"
+              >
+                <span className="material-symbols-outlined text-2xl">add</span>
+              </button>
+              <button
+                onClick={zoom.resetZoom}
+                className="size-12 rounded-radius-pill bg-white/20 hover:bg-white/30 flex items-center justify-center text-white backdrop-blur-sm active:bg-white/40 ml-2"
+              >
+                <span className="material-symbols-outlined text-2xl">fit_screen</span>
+              </button>
+            </div>
+            <p className="text-white/50 text-xs text-center mt-2">Pinch o doble toque para zoom, arrastra para moverte</p>
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+};
+
+/** Minimal loading skeleton for lazy-loaded tabs */
+function TabFallback() {
+  return (
+    <div className="flex flex-col gap-4 p-6 animate-pulse">
+      <div className="h-6 w-2/3 rounded-radius-lg bg-slate-200 dark:bg-white/5" />
+      <div className="h-32 w-full rounded-radius-2xl bg-slate-200 dark:bg-white/5" />
+      <div className="h-24 w-full rounded-radius-2xl bg-slate-200 dark:bg-white/5" />
+      <div className="h-20 w-3/4 rounded-radius-2xl bg-slate-200 dark:bg-white/5" />
+    </div>
+  );
+}
+
+const SheetTabsMemo = memo(SheetTabs);
+SheetTabsMemo.displayName = 'SheetTabs';
+
+export default SheetTabsMemo;
+

@@ -17,6 +17,7 @@ export const CLASS_UI_MAP: Record<string, { role: string, color: string, icon: s
   "Sorcerer": { role: "Innate Magic", color: "text-red-400", icon: "local_fire_department" },
   "Warlock": { role: "Arcane Pact", color: "text-purple-700", icon: "skull" },
   "Wizard": { role: "Arcane Master", color: "text-blue-600", icon: "auto_fix_high" },
+  "Pugilist": { role: "Unarmed Brawler", color: "text-red-700", icon: "sports_kabaddi" },
 };
 
 export const SPECIES_UI_MAP: Record<string, { color: string, icon: string }> = {

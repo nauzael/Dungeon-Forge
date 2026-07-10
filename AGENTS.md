@@ -21,7 +21,7 @@ cd android && ./gradlew assembleDebug   # Android APK
 | Estilos | Tailwind CSS, Material Symbols |
 | Build | Vite |
 | Mobile | Capacitor 6 |
-| Backend | Supabase (auth + realtime) |
+| Backend | Firebase (Auth, Firestore, Realtime DB) |
 | PWA | Service Worker + manifest.json |
 
 ## Reglas Críticas
@@ -96,7 +96,7 @@ Data/
 
 - **Local**: `useState<T>`, `useReducer`
 - **Persistence**: localStorage con debounce 300ms
-- **Cloud**: Supabase realtime channels
+- **Cloud**: Firebase (Firestore + Realtime DB)
 - **Cleanup**: Siempre unsubscribe de canales
 
 ## UI Components
@@ -158,6 +158,35 @@ Ubicar en `.agents/skills/`:
 | context-engineering | Optimizar contexto agente |
 | incremental-implementation | Cambios multi-archivo |
 
+## Long Rest / Cloud Sync Gotchas
+
+### 1. RTDB Broadcast Before Firestore Save Causes Rollback Loop
+- Si llamás `broadcastCharacterUpdate()` (escritura RTDB) dentro de `handleCharacterUpdate`/`handleFastUpdate`, se dispara el listener `onValue` de RTDB que llama a `setCharacters()`. Eso activa el cleanup del persist effect (`clearTimeout`), cancelando el guardado pendiente a Firestore (500ms). Firestore retiene datos stale pre-rest. En el próximo sync, cloud sobreescribe local.
+- **FIX:** Mover `broadcastCharacterUpdate()` al persist effect DESPUÉS de que el loop de guardado a Firestore se complete. Broadcastar `char` (el original del state), no `charWithTimestamp` (con `Date.now()` fresco) para prevenir el loop infinito save-broadcast.
+
+### 2. Siempre Setear `syncTimestamp` Antes de `setCharacters()`
+- Tanto `handleCharacterUpdate` como `handleFastUpdate` DEBEN setear `fullUpdate.syncTimestamp = Date.now()` ANTES de llamar a `setCharacters()`. Sin esto, `localChar.syncTimestamp || 0` = 0 en la comparación de timestamps del listener de Firestore, por lo que cloud siempre gana.
+
+### 3. RTDB Broadcast Loop Prevention
+- Cuando `broadcastCharacterUpdate` escribe a RTDB, el listener `onValue` se dispara de vuelta y llama a `setCharacters()`. Si el broadcast data tiene un `syncTimestamp` DIFERENTE al que está en React state, el effect de snapshot/dirty-tracking detecta un "cambio" y dispara otro persist save, creando un loop infinito.
+- **FIX:** Siempre broadcastar el personaje desde React state (con su `syncTimestamp` existente), no un objeto recién creado con `Date.now()`.
+
+### 4. `onBroadcast` en `subscribeWithRetry` es Código Muerto
+- El parámetro `onBroadcast` de `subscribeWithRetry` (`utils/firebase.ts`) NUNCA es llamado por la implementación. Todos los datos de RTDB llegan a través del callback `onUpdate`. No intentar usar `onBroadcast` para lógica de dedup.
+
+### 5. Stale Closure en Handlers Causa Data Loss con React 18 Batching
+- `handleCharacterUpdate` y `handleFastUpdate` hacían spread del `activeCharacter` capturado en la closure del `useCallback` en vez del personaje vivo en `prev` (el parámetro del functional updater). Con React 18 auto-batching, dos `setCharacters(fn)` en el mismo ciclo arrancan del MISMO `activeCharacter` stale. El segundo spread UNDO el cambio del primero.
+- **Ejemplo:** Cambio1: `{ ...activeCharacter, actionSurge: 0 }`. Cambio2: `{ ...activeCharacter, secondWind: 0 }`. Resultado: actionSurge vuelve a 1 (perdido).
+- **FIX:** Usar `setCharacters((prev) => prev.map((c) => c.id === id ? { ...c, ...partialChar, syncTimestamp: Date.now() } : c))` — spread desde `c` (el estado vivo de `prev`), no desde `activeCharacter`.
+
+### 6. RTDB Listener Timestamp Guard Previene Loopback Overwrite
+- Hay DOS listeners RTDB activos: App.tsx (path selectivo `parties/{partyId}/characters/{characterId}`) y SheetTabs (path completo `parties/{partyId}/characters`). Ambos escriben a `setCharacters()` SIN guard de timestamp. Cuando el broadcast loopback vuelve con datos que tienen un `syncTimestamp` viejito (T1), se sobreescriben los datos locales frescos (T2).
+- **FIX:** En ambos listeners, comparar `incomingTime > currentTime` antes de aplicar. Si incoming ≤ current, rechazar el update como stale/loopback.
+
+### 7. Persist Effect: NO Generar Nuevo Date.now() Para Cloud Save
+- El persist effect creaba `charWithTimestamp = { ...char, syncTimestamp: Date.now() }` para guardar a Firestore. Eso causaba que Firestore en el `onSnapshot` detectara un timestamp MÁS NUEVO que el local, actualizara el state, y disparara OTRO persist → loop infinito ("flickering" constante).
+- **FIX:** Usar `char.syncTimestamp || Date.now()` en vez de siempre generar un `Date.now()` nuevo. El `syncTimestamp` ya fue seteado por `handleCharacterUpdate`/`handleFastUpdate`.
+
 ---
 
 ## 🛡️ Versiones Estables & Rollback
@@ -201,5 +230,35 @@ git checkout stable-v1.1
 ```bash
 git checkout stable-v1.0
 ```
+
+### Long Rest Fix (2026-06-18)
+
+**Bug:** Long Rest rollback — al descansar, los cambios (HP, slots, recursos) se revertían segundos después porque el broadcast a RTDB cancelaba el guardado pendiente a Firestore.
+
+**Causa raíz:** `broadcastCharacterUpdate()` llamado dentro de los handlers disparaba el listener `onValue` → `setCharacters()` → cleanup del persist effect (`clearTimeout`), cancelando el Firestore save de 500ms. Cloud sobreescribía datos stale.
+
+**Archivos tocados:**
+- `App.tsx` — Moved broadcastCharacterUpdate de handlers al persist effect, después del loop de Firestore save. Broadcast ahora usa `char` (state), no `charWithTimestamp`.
+- `components/sheet/RestModal.tsx` — Se agregó `syncTimestamp` antes de `setCharacters()`, se restauraron spell slots, se corrigió `preparedSpells` en Wizard (evita borrado destructivo), se agregó Arcane Recovery para Mago y pact slots para Warlock.
+
+**Key changes:**
+- Movido `broadcastCharacterUpdate()` desde `handleCharacterUpdate`/`handleFastUpdate` al persist effect, después del Firestore save loop
+- Agregado `fullUpdate.syncTimestamp = Date.now()` antes de `setCharacters()` en ambos handlers
+- Broadcast ahora usa `char` con su `syncTimestamp` existente para prevenir loop infinito
+- RestModal: restaura spell slots por clase, corrige preparedSpells (no sobreescribe), agrega Arcane Recovery (Wizard) y pact slots (Warlock)
+
+### Rollback Fix Ampliado — Stale Closure + RTDB Listeners (2026-06-18)
+
+**Bug ampliado:** CUALQUIER cambio (skill, HP, curación, etc.) podía revertirse, especialmente con cambios rápidos consecutivos. Se identificaron y corrigieron 3 causas adicionales:
+
+**Causa 1 — Stale Closure:** `handleFastUpdate` y `handleCharacterUpdate` usaban `{ ...activeCharacter, ...partialChar }` donde `activeCharacter` es capturado en la closure del `useCallback`. Con React 18 batching, dos `setCharacters(fn)` en el mismo ciclo arrancan del MISMO objeto stale. El segundo pierde los cambios del primero.
+
+**Causa 2 — Loopback sin guard:** Dos listeners RTDB (App.tsx en path selectivo, SheetTabs en path completo) escribían a `setCharacters()` sin verificar timestamp. El broadcast de vuelta (loopback) sobreescribía datos locales frescos con datos stale.
+
+**Causa 3 — Flickering Firestore:** El persist effect siempre creaba un nuevo `Date.now()` para guardar a Firestore, causando que el `onSnapshot` de Firestore detectara un timestamp más nuevo y actualizara el state, disparando otro persist → loop infinito.
+
+**Archivos tocados:**
+- `App.tsx` — Fix stale closure: spread desde `c` (prev) en vez de `activeCharacter`. Fix RTDB listener: timestamp guard `incoming > current`. Fix persist: usa `char.syncTimestamp` existente, no nuevo `Date.now()`.
+- `components/SheetTabs.tsx` — Fix RTDB listener: timestamp guard `incoming > current` antes de llamar `onUpdate`.
 
 > Ver `/docs/v1.0-architecture.md` para detalles completos de infraestructura, DB, y variables de entorno.

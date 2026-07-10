@@ -4,6 +4,7 @@ import archiver from 'archiver';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import admin from 'firebase-admin';
+import { getStorage } from 'firebase-admin/storage';
 
 // Load env vars
 dotenv.config();
@@ -32,7 +33,7 @@ let adminApp;
 try {
   const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
   adminApp = admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+    credential: admin.cert(serviceAccount),
     storageBucket: bucketName
   });
 } catch (e) {
@@ -40,7 +41,8 @@ try {
   process.exit(1);
 }
 
-const bucket = admin.storage().bucket();
+const storage = getStorage(adminApp);
+const bucket = storage.bucket();
 
 // Read version from package.json
 const pkg = JSON.parse(fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf-8'));

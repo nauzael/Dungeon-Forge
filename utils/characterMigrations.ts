@@ -1,5 +1,6 @@
 import { Character, SpeciesSpell, DetailData } from '../types';
 import { SPECIES_DETAILS } from '../Data/characterOptions';
+import { SPELL_LIST_BY_CLASS, SPELL_DETAILS } from '../Data/spells';
 
 /**
  * Character Data Migrations
@@ -8,7 +9,7 @@ import { SPECIES_DETAILS } from '../Data/characterOptions';
  * Migrations are tracked and only applied once per character.
  */
 
-const MIGRATION_VERSION = '2026.5.8';
+const MIGRATION_VERSION = '2026.6.21';
 
 /**
  * Get the set of migrations that have been applied to characters
@@ -29,7 +30,6 @@ const saveAppliedMigrations = (migrations: Set<string>): void => {
   try {
     localStorage.setItem('df_character_migrations', JSON.stringify([...migrations]));
   } catch (e) {
-    console.error('Failed to save migration state:', e);
   }
 };
 
@@ -95,7 +95,6 @@ const migrateInnateSpells = (character: Character): Character => {
   const currentInnateSpells = character.innateSpells || [];
   
   if (correctInnateSpells.length > 0 && currentInnateSpells.length === 0) {
-    console.log(`[Migration] Rebuilding innate spells for "${character.name}":`, correctInnateSpells);
     return {
       ...character,
       innateSpells: correctInnateSpells
@@ -112,7 +111,6 @@ const migrateInnateSpells = (character: Character): Character => {
  */
 const migrateRebornToElfSubrace = (character: Character): Character => {
   if (character.species === 'Reborn') {
-    console.log(`[Migration] Converting "${character.name}" from Reborn race to Elf (Reborn) lineage`);
     return {
       ...character,
       species: 'Elf',
@@ -136,7 +134,7 @@ const migrateClassResources = (character: Character): Character => {
     return Math.floor((cha - 10) / 2);
   };
   
-  let updated = { ...character };
+  const updated = { ...character };
   let didUpdate = false;
 
   if (charClass === 'Barbarian' && !updated.rageUses) {
@@ -239,11 +237,67 @@ const migrateClassResources = (character: Character): Character => {
     didUpdate = true;
   }
   
-  if (didUpdate) {
-    console.log(`[Migration] Initialized class resources for "${character.name}" (${charClass} Lv${level})`);
-  }
-  
   return updated;
+};
+
+/**
+ * Migration: Extract Magic Initiate feat spells into featSpells field
+ * Issue: Magic Initiate spells were stored in preparedSpells and counted against class spell limits
+ * Fix: Move them to featSpells so they're excluded from class spell capacity counting
+ */
+const migrateFeatSpells = (character: Character): Character => {
+  // Skip if already has featSpells
+  if (character.featSpells && character.featSpells.length > 0) return character;
+
+  // Check for Magic Initiate feat
+  const feats = character.feats || [];
+  let miType: string | null = null;
+  for (const feat of feats) {
+    if (feat.includes('Magic Initiate (Cleric)')) { miType = 'Cleric'; break; }
+    if (feat.includes('Magic Initiate (Druid)') || feat.includes('Iniciado en la Magia (Druida)')) { miType = 'Druid'; break; }
+    if (feat.includes('Magic Initiate (Wizard)') || feat.includes('Iniciado en la Magia (Mago)')) { miType = 'Wizard'; break; }
+  }
+  if (!miType) return character;
+
+  const miSpells = SPELL_LIST_BY_CLASS[miType];
+  if (!miSpells || miSpells.length === 0) return character;
+
+  const preparedSpells = character.preparedSpells || [];
+  const innateSpells = character.innateSpells || [];
+
+  // Categorize MI class spells by level
+  const miCantrips = miSpells.filter(s => SPELL_DETAILS[s]?.level === 0);
+  const miLevel1 = miSpells.filter(s => SPELL_DETAILS[s]?.level === 1);
+
+  // Find up to 2 cantrips + 1 level 1 spell from the MI class in preparedSpells
+  const foundFeatSpells: string[] = [];
+  let cantripCount = 0;
+  let level1Count = 0;
+
+  for (const spellName of preparedSpells) {
+    if (innateSpells.includes(spellName)) continue;
+    if (miCantrips.includes(spellName) && cantripCount < 2) {
+      foundFeatSpells.push(spellName);
+      cantripCount++;
+    }
+  }
+
+  for (const spellName of preparedSpells) {
+    if (innateSpells.includes(spellName)) continue;
+    if (miLevel1.includes(spellName) && level1Count < 1) {
+      foundFeatSpells.push(spellName);
+      level1Count++;
+    }
+  }
+
+  if (foundFeatSpells.length > 0) {
+    return {
+      ...character,
+      featSpells: foundFeatSpells,
+    };
+  }
+
+  return character;
 };
 
 /**
@@ -254,6 +308,7 @@ export const migrateCharacter = (character: Character): Character => {
   migrated = migrateRebornToElfSubrace(migrated);
   migrated = migrateInnateSpells(migrated);
   migrated = migrateClassResources(migrated);
+  migrated = migrateFeatSpells(migrated);
   return migrated;
 };
 
@@ -281,7 +336,6 @@ export const migrateCharacters = (characters: Character[]): { characters: Charac
   if (anyMigrated) {
     appliedMigrations.add(MIGRATION_VERSION);
     saveAppliedMigrations(appliedMigrations);
-    console.log('[Migration] Applied migrations for version', MIGRATION_VERSION);
   }
 
   return { characters: migratedCharacters, migrated: anyMigrated };

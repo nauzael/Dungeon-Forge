@@ -1,10 +1,10 @@
 /**
- * Componente ThemeSelector
- * Permite al usuario seleccionar y cambiar entre temas
+ * ThemeSelector Component
+ * Allows the user to select and switch between themes
  */
 import React, { useState } from 'react';
 import { useThemeContext } from '../contexts/ThemeContext';
-import { AppTheme } from '../types/theme';
+import { AppTheme } from '../../types/theme';
 
 interface ThemeSelectorProps {
   onClose?: () => void;
@@ -15,7 +15,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ onClose }) => {
   const [previewTheme, setPreviewTheme] = useState<AppTheme | null>(null);
 
   const handleThemeSelect = (theme: AppTheme) => {
-    setTheme(theme.id as any);
+    setTheme(theme.id);
     setPreviewTheme(null);
     onClose?.();
   };
@@ -31,7 +31,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ onClose }) => {
       onClick={handleCancel}
     >
       <div 
-        className="w-full max-w-sm bg-surface rounded-2xl md:rounded-2xl shadow-2xl overflow-hidden animate-slideUp max-h-[85vh] md:max-h-auto flex flex-col"
+        className="w-full max-w-sm bg-surface rounded-radius-xl md:rounded-radius-xl shadow-2xl overflow-hidden animate-slideUp max-h-[85vh] md:max-h-auto flex flex-col"
         style={{ 
           backgroundColor: 'var(--color-surface)',
           borderRadius: 'var(--border-radius-xl)',
@@ -43,28 +43,28 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ onClose }) => {
           style={{ borderColor: 'var(--color-border)' }}>
           <div>
             <h2 className="text-lg md:text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-              Temas
+              Themes
             </h2>
             <p className="text-xs md:text-sm" style={{ color: 'var(--color-text-muted)' }}>
-              Personaliza la apariencia
+              Customize the look
             </p>
           </div>
           <button
             onClick={handleCancel}
-            className="p-1.5 md:p-2 rounded-full hover:bg-surface-highlight transition-colors shrink-0"
+            className="p-1.5 md:p-2 rounded-radius-pill hover:bg-surface-highlight transition-colors shrink-0"
             style={{ color: 'var(--color-text-secondary)' }}
           >
             <span className="material-symbols-outlined text-base">close</span>
           </button>
         </div>
 
-        {/* Contenido Scrolleable */}
+        {/* Scrollable Content */}
         <div className="overflow-y-auto flex-1">
-          {/* Modo Auto */}
+          {/* Auto Mode */}
           <div className="px-4 md:px-6 py-3 md:py-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
             <button
               onClick={() => setAutoMode(!isAutoMode)}
-              className={`w-full flex items-center justify-between p-2.5 md:p-3 rounded-lg transition-all ${
+              className={`w-full flex items-center justify-between p-2.5 md:p-3 rounded-radius-md transition-all ${
                 isAutoMode ? 'ring-2 ring-primary' : ''
               }`}
               style={{ 
@@ -77,23 +77,23 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ onClose }) => {
                 </span>
                 <div className="text-left min-w-0">
                   <p className="font-medium text-sm md:text-base" style={{ color: 'var(--color-text-primary)' }}>
-                    Automático
+                    Auto
                   </p>
                   <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                    {isAutoMode ? 'Activo' : 'Inactivo'}
+                    {isAutoMode ? 'Active' : 'Inactive'}
                   </p>
                 </div>
               </div>
               <div 
-                className={`w-10 h-5 rounded-full transition-colors shrink-0 ${isAutoMode ? 'bg-primary' : 'bg-surface-highlight'}`}
+                className={`w-10 h-5 rounded-radius-pill transition-colors shrink-0 ${isAutoMode ? 'bg-primary' : 'bg-surface-highlight'}`}
                 style={{ backgroundColor: isAutoMode ? 'var(--color-primary)' : 'var(--color-surface-highlight)' }}
               >
-                <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform mt-0.5 ${isAutoMode ? 'translate-x-5 ml-0.5' : 'translate-x-0.5'}`} />
+                <div className={`w-4 h-4 bg-white rounded-radius-pill shadow-md transform transition-transform mt-0.5 ${isAutoMode ? 'translate-x-5 ml-0.5' : 'translate-x-0.5'}`} />
               </div>
             </button>
           </div>
 
-          {/* Lista de Temas */}
+          {/* Theme List */}
           <div className="px-4 md:px-6 py-3 md:py-4 space-y-2 md:space-y-3">
             {allThemes.map((theme) => (
               <ThemeCard
@@ -106,10 +106,10 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ onClose }) => {
           </div>
         </div>
 
-        {/* Footer - Info de cierre */}
+        {/* Footer - Close info */}
         <div className="px-4 md:px-6 py-2 text-center border-t" style={{ borderColor: 'var(--color-border)' }}>
           <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            Toca fuera o usa el botón X para cerrar
+            Tap outside or use X button to close
           </p>
         </div>
       </div>
@@ -127,7 +127,7 @@ const ThemeCard: React.FC<ThemeCardProps> = ({ theme, isSelected, onSelect }) =>
   return (
     <button
       onClick={onSelect}
-      className={`w-full p-3 md:p-4 rounded-lg transition-all text-left border-2 active:scale-95 ${
+      className={`w-full p-3 md:p-4 rounded-radius-md transition-all text-left border-2 active:scale-95 ${
         isSelected 
           ? 'border-primary ring-2 ring-primary/20' 
           : 'border-transparent hover:border-primary/50'
@@ -158,39 +158,39 @@ const ThemeCard: React.FC<ThemeCardProps> = ({ theme, isSelected, onSelect }) =>
         )}
       </div>
 
-      {/* Preview de colores */}
+      {/* Color Preview */}
       <div className="flex gap-1.5 md:gap-2">
         <div 
-          className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2"
+          className="w-6 h-6 md:w-8 md:h-8 rounded-radius-pill border-2"
           style={{ 
             backgroundColor: theme.colors.background,
             borderColor: theme.colors.border,
           }}
-          title="Fondo"
+          title="Background"
         />
         <div 
-          className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2"
+          className="w-6 h-6 md:w-8 md:h-8 rounded-radius-pill border-2"
           style={{ 
             backgroundColor: theme.colors.primary,
             borderColor: theme.colors.border,
           }}
-          title="Primario"
+          title="Primary"
         />
         <div 
-          className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2"
+          className="w-6 h-6 md:w-8 md:h-8 rounded-radius-pill border-2"
           style={{ 
             backgroundColor: theme.colors.surface,
             borderColor: theme.colors.border,
           }}
-          title="Superficie"
+          title="Surface"
         />
         <div 
-          className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 flex items-center justify-center"
+          className="w-6 h-6 md:w-8 md:h-8 rounded-radius-pill border-2 flex items-center justify-center"
           style={{ 
             backgroundColor: theme.colors.backgroundSecondary,
             borderColor: theme.colors.border,
           }}
-          title="Texto"
+          title="Text"
         >
           <span 
             className="text-xs font-bold"
@@ -201,7 +201,7 @@ const ThemeCard: React.FC<ThemeCardProps> = ({ theme, isSelected, onSelect }) =>
         </div>
       </div>
 
-      {/* Badge de accesibilidad */}
+      {/* Accessibility Badge */}
       {theme.wcagCompliant && (
         <div className="mt-2 flex items-center gap-1 text-xs" style={{ color: theme.colors.success }}>
           <span className="material-symbols-outlined text-[12px] md:text-[14px]">verified</span>
